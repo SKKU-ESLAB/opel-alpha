@@ -1,0 +1,11 @@
+{
+	"name": "OPEL_CMFW",
+	"version": "0.0.0",
+	"description": "OPEL CMFW",
+	"main": "test.js",
+	"private": true,
+	"gypfile": true,
+	"dependencies": {
+		"nan": "*"
+	}
+}

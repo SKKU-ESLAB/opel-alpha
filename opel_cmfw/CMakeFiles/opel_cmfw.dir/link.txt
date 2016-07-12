@@ -1,0 +1,2 @@
+/usr/bin/ar cr ../lib/libopel_cmfw.a  CMakeFiles/opel_cmfw.dir/src/opel_cmfw.cpp.o CMakeFiles/cmfw_bt.dir/src/cmfw_bt.cpp.o CMakeFiles/cmfw_wfd.dir/src/cmfw_wfd.cpp.o CMakeFiles/tmp_control.dir/src/tmp_control.cpp.o
+/usr/bin/ranlib ../lib/libopel_cmfw.a

@@ -1,0 +1,1296 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+A	filestorage.cpp	/^  int A;$/;"	m	struct:MyData	file:
+A	tutorial_code/core/file_input_output/file_input_output.cpp	/^    int A;$/;"	m	class:MyData	file:
+ASYMMETRIC_CIRCLES_GRID	calibration.cpp	/^enum Pattern { CHESSBOARD, CIRCLES_GRID, ASYMMETRIC_CIRCLES_GRID };$/;"	e	enum:Pattern	file:
+ASYMMETRIC_CIRCLES_GRID	tutorial_code/calib3d/camera_calibration/camera_calibration.cpp	/^    enum Pattern { NOT_EXISTING, CHESSBOARD, CIRCLES_GRID, ASYMMETRIC_CIRCLES_GRID };$/;"	e	enum:Settings::Pattern	file:
+Args_t	autofocus.cpp	/^struct Args_t$/;"	s	file:
+BGD_KEY	grabcut.cpp	/^const int BGD_KEY = EVENT_FLAG_CTRLKEY;$/;"	v
+BLUE	grabcut.cpp	/^const Scalar BLUE = Scalar(255,0,0);$/;"	v
+BLUR	laplace.cpp	/^enum {GAUSSIAN, BLUR, MEDIAN};$/;"	e	enum:__anon7	file:
+BufferMSSIM	tutorial_code/gpu/gpu-basics-similarity/gpu-basics-similarity.cpp	/^struct BufferMSSIM                                     \/\/ Optimized CUDA versions$/;"	s	file:
+BufferPSNR	tutorial_code/gpu/gpu-basics-similarity/gpu-basics-similarity.cpp	/^struct BufferPSNR                                     \/\/ Optimized CUDA versions$/;"	s	file:
+CALIBRATED	3calibration.cpp	/^enum { DETECTION = 0, CAPTURING = 1, CALIBRATED = 2 };$/;"	e	enum:__anon1	file:
+CALIBRATED	calibration.cpp	/^enum { DETECTION = 0, CAPTURING = 1, CALIBRATED = 2 };$/;"	e	enum:__anon2	file:
+CALIBRATED	tutorial_code/calib3d/camera_calibration/camera_calibration.cpp	/^enum { DETECTION = 0, CAPTURING = 1, CALIBRATED = 2 };$/;"	e	enum:__anon4	file:
+CAMERA	tutorial_code/calib3d/camera_calibration/camera_calibration.cpp	/^    enum InputType { INVALID, CAMERA, VIDEO_FILE, IMAGE_LIST };$/;"	e	enum:Settings::InputType	file:
+CAPTURING	3calibration.cpp	/^enum { DETECTION = 0, CAPTURING = 1, CALIBRATED = 2 };$/;"	e	enum:__anon1	file:
+CAPTURING	calibration.cpp	/^enum { DETECTION = 0, CAPTURING = 1, CALIBRATED = 2 };$/;"	e	enum:__anon2	file:
+CAPTURING	tutorial_code/calib3d/camera_calibration/camera_calibration.cpp	/^enum { DETECTION = 0, CAPTURING = 1, CALIBRATED = 2 };$/;"	e	enum:__anon4	file:
+CHECK_DEL_STATUS	tutorial_code/core/ippasync/ippasync_sample.cpp	20;"	d	file:
+CHECK_STATUS	tutorial_code/core/ippasync/ippasync_sample.cpp	14;"	d	file:
+CHESSBOARD	calibration.cpp	/^enum Pattern { CHESSBOARD, CIRCLES_GRID, ASYMMETRIC_CIRCLES_GRID };$/;"	e	enum:Pattern	file:
+CHESSBOARD	tutorial_code/calib3d/camera_calibration/camera_calibration.cpp	/^    enum Pattern { NOT_EXISTING, CHESSBOARD, CIRCLES_GRID, ASYMMETRIC_CIRCLES_GRID };$/;"	e	enum:Settings::Pattern	file:
+CIRCLES_GRID	calibration.cpp	/^enum Pattern { CHESSBOARD, CIRCLES_GRID, ASYMMETRIC_CIRCLES_GRID };$/;"	e	enum:Pattern	file:
+CIRCLES_GRID	tutorial_code/calib3d/camera_calibration/camera_calibration.cpp	/^    enum Pattern { NOT_EXISTING, CHESSBOARD, CIRCLES_GRID, ASYMMETRIC_CIRCLES_GRID };$/;"	e	enum:Settings::Pattern	file:
+CROSS	tutorial_code/calib3d/real_time_pose_estimation/src/PnPProblem.cpp	/^cv::Point3f CROSS(cv::Point3f v1, cv::Point3f v2)$/;"	f
+CSVREADER_H	tutorial_code/calib3d/real_time_pose_estimation/src/CsvReader.h	2;"	d
+CSVWRITER_H	tutorial_code/calib3d/real_time_pose_estimation/src/CsvWriter.h	2;"	d
+CXX	example_cmake/Makefile	/^CXX ?= g++$/;"	m
+CannyThreshold	tutorial_code/ImgTrans/CannyDetector_Demo.cpp	/^static void CannyThreshold(int, void*)$/;"	f	file:
+CascadeDetectorAdapter	dbt_face_detection.cpp	/^        CascadeDetectorAdapter(cv::Ptr<cv::CascadeClassifier> detector):$/;"	f	class:CascadeDetectorAdapter
+CascadeDetectorAdapter	dbt_face_detection.cpp	/^class CascadeDetectorAdapter: public DetectionBasedTracker::IDetector$/;"	c	file:
+CsvReader	tutorial_code/calib3d/real_time_pose_estimation/src/CsvReader.cpp	/^CsvReader::CsvReader(const string &path, const char &separator){$/;"	f	class:CsvReader
+CsvReader	tutorial_code/calib3d/real_time_pose_estimation/src/CsvReader.h	/^class CsvReader {$/;"	c
+CsvWriter	tutorial_code/calib3d/real_time_pose_estimation/src/CsvWriter.cpp	/^CsvWriter::CsvWriter(const string &path, const string &separator){$/;"	f	class:CsvWriter
+CsvWriter	tutorial_code/calib3d/real_time_pose_estimation/src/CsvWriter.h	/^class CsvWriter {$/;"	c
+DEFAULT_BREAK_LIMIT	autofocus.cpp	/^const int DEFAULT_BREAK_LIMIT = 5;$/;"	v
+DEFAULT_OUTPUT_FPS	autofocus.cpp	/^const int DEFAULT_OUTPUT_FPS = 20;$/;"	v
+DELAY	tutorial_code/core/Matrix/Drawing_2.cpp	/^const int DELAY = 5;$/;"	v
+DELAY_BLUR	tutorial_code/ImgProc/Smoothing.cpp	/^int DELAY_BLUR = 100;$/;"	v
+DELAY_CAPTION	tutorial_code/ImgProc/Smoothing.cpp	/^int DELAY_CAPTION = 1500;$/;"	v
+DEMO_MIXED_API_USE	image.cpp	21;"	d	file:
+DEMO_MIXED_API_USE	tutorial_code/core/interoperability_with_OpenCV_1/interoperability_with_OpenCV_1.cpp	27;"	d	file:
+DETECTION	3calibration.cpp	/^enum { DETECTION = 0, CAPTURING = 1, CALIBRATED = 2 };$/;"	e	enum:__anon1	file:
+DETECTION	calibration.cpp	/^enum { DETECTION = 0, CAPTURING = 1, CALIBRATED = 2 };$/;"	e	enum:__anon2	file:
+DETECTION	tutorial_code/calib3d/camera_calibration/camera_calibration.cpp	/^enum { DETECTION = 0, CAPTURING = 1, CALIBRATED = 2 };$/;"	e	enum:__anon4	file:
+DOT	tutorial_code/calib3d/real_time_pose_estimation/src/PnPProblem.cpp	/^double DOT(cv::Point3f v1, cv::Point3f v2)$/;"	f
+Detector	dbt_face_detection.cpp	/^        cv::Ptr<cv::CascadeClassifier> Detector;$/;"	m	class:CascadeDetectorAdapter	file:
+Dilation	tutorial_code/ImgProc/Morphology_1.cpp	/^void Dilation( int, void* )$/;"	f
+Displaying_Big_End	tutorial_code/core/Matrix/Drawing_2.cpp	/^int Displaying_Big_End( Mat image, char* window_name, RNG )$/;"	f
+Displaying_Random_Text	tutorial_code/core/Matrix/Drawing_2.cpp	/^int Displaying_Random_Text( Mat image, char* window_name, RNG rng )$/;"	f
+DrawData	detect_mser.cpp	/^struct DrawData$/;"	s	file:
+DrawOpenGLMSER	detect_mser.cpp	/^static void DrawOpenGLMSER(Mat img, Mat result)$/;"	f	file:
+Drawing_Random_Circles	tutorial_code/core/Matrix/Drawing_2.cpp	/^int Drawing_Random_Circles( Mat image, char* window_name, RNG rng )$/;"	f
+Drawing_Random_Ellipses	tutorial_code/core/Matrix/Drawing_2.cpp	/^int Drawing_Random_Ellipses( Mat image, char* window_name, RNG rng )$/;"	f
+Drawing_Random_Filled_Polygons	tutorial_code/core/Matrix/Drawing_2.cpp	/^int Drawing_Random_Filled_Polygons( Mat image, char* window_name, RNG rng )$/;"	f
+Drawing_Random_Lines	tutorial_code/core/Matrix/Drawing_2.cpp	/^int Drawing_Random_Lines( Mat image, char* window_name, RNG rng )$/;"	f
+Drawing_Random_Polylines	tutorial_code/core/Matrix/Drawing_2.cpp	/^int Drawing_Random_Polylines( Mat image, char* window_name, RNG rng )$/;"	f
+Drawing_Random_Rectangles	tutorial_code/core/Matrix/Drawing_2.cpp	/^int Drawing_Random_Rectangles( Mat image, char* window_name, RNG rng )$/;"	f
+ErodeDilate	morphology2.cpp	/^static void ErodeDilate(int, void*)$/;"	f	file:
+Erosion	tutorial_code/ImgProc/Morphology_1.cpp	/^void Erosion( int, void* )$/;"	f
+FGD_KEY	grabcut.cpp	/^const int FGD_KEY = EVENT_FLAG_SHIFTKEY;$/;"	v
+FOCUS_DIRECTION_INFTY	autofocus.cpp	/^const int FOCUS_DIRECTION_INFTY = 1;$/;"	v
+FOCUS_STEP	autofocus.cpp	/^const int FOCUS_STEP = 1024;$/;"	v
+FRAC_LINEAR_SEP	tutorial_code/ml/non_linear_svms/non_linear_svms.cpp	9;"	d	file:
+FloatToString	tutorial_code/calib3d/real_time_pose_estimation/src/Utils.cpp	/^std::string FloatToString ( float Number )$/;"	f
+FocusState	autofocus.cpp	/^struct FocusState$/;"	s	file:
+GAUSSIAN	laplace.cpp	/^enum {GAUSSIAN, BLUR, MEDIAN};$/;"	e	enum:__anon7	file:
+GCApplication	grabcut.cpp	/^class GCApplication$/;"	c	file:
+GET_HOMO_VALUES	image_alignment.cpp	41;"	d	file:
+GREEN	grabcut.cpp	/^const Scalar GREEN = Scalar(0,255,0);$/;"	v
+GlobalArgs	autofocus.cpp	/^} GlobalArgs;$/;"	v	typeref:struct:Args_t
+HOMO_VECTOR	image_alignment.cpp	36;"	d	file:
+Hist_and_Backproj	tutorial_code/Histograms_Matching/calcBackProject_Demo1.cpp	/^void Hist_and_Backproj(int, void* )$/;"	f
+Hist_and_Backproj	tutorial_code/Histograms_Matching/calcBackProject_Demo2.cpp	/^void Hist_and_Backproj( )$/;"	f
+HoughDetection	tutorial_code/ImgTrans/HoughCircle_Demo.cpp	/^    void HoughDetection(const Mat& src_gray, const Mat& src_display, int cannyThreshold, int accumulatorThreshold)$/;"	f	namespace:__anon5
+I1_2	tutorial_code/gpu/gpu-basics-similarity/gpu-basics-similarity.cpp	/^    cuda::GpuMat I1_2, I2_2, I1_I2;$/;"	m	struct:BufferMSSIM	file:
+I1_I2	tutorial_code/gpu/gpu-basics-similarity/gpu-basics-similarity.cpp	/^    cuda::GpuMat I1_2, I2_2, I1_I2;$/;"	m	struct:BufferMSSIM	file:
+I2_2	tutorial_code/gpu/gpu-basics-similarity/gpu-basics-similarity.cpp	/^    cuda::GpuMat I1_2, I2_2, I1_I2;$/;"	m	struct:BufferMSSIM	file:
+IMAGE_LIST	tutorial_code/calib3d/camera_calibration/camera_calibration.cpp	/^    enum InputType { INVALID, CAMERA, VIDEO_FILE, IMAGE_LIST };$/;"	e	enum:Settings::InputType	file:
+IMotionEstimatorBuilder	videostab.cpp	/^    IMotionEstimatorBuilder(CommandLineParser &command) : cmd(command) {}$/;"	f	class:IMotionEstimatorBuilder
+IMotionEstimatorBuilder	videostab.cpp	/^class IMotionEstimatorBuilder$/;"	c	file:
+INVALID	tutorial_code/calib3d/camera_calibration/camera_calibration.cpp	/^    enum InputType { INVALID, CAMERA, VIDEO_FILE, IMAGE_LIST };$/;"	e	enum:Settings::InputType	file:
+IN_PROCESS	grabcut.cpp	/^    enum{ NOT_SET = 0, IN_PROCESS = 1, SET = 2 };$/;"	e	enum:GCApplication::__anon3	file:
+InputType	tutorial_code/calib3d/camera_calibration/camera_calibration.cpp	/^    enum InputType { INVALID, CAMERA, VIDEO_FILE, IMAGE_LIST };$/;"	g	class:Settings	file:
+IntToString	tutorial_code/calib3d/real_time_pose_estimation/src/Utils.cpp	/^std::string IntToString ( int Number )$/;"	f
+LIGHTBLUE	grabcut.cpp	/^const Scalar LIGHTBLUE = Scalar(255,255,160);$/;"	v
+Legende	detect_blob.cpp	/^static String Legende(SimpleBlobDetector::Params &pAct)$/;"	f	file:
+Legende	detect_mser.cpp	/^static String Legende(MSERParams &pAct)$/;"	f	file:
+MAX_CLASSES	points_classifier.cpp	/^const int MAX_CLASSES = 2;$/;"	v
+MAX_FOCUS_STEP	autofocus.cpp	/^const int MAX_FOCUS_STEP = 32767;$/;"	v
+MAX_KERNEL_LENGTH	tutorial_code/ImgProc/Smoothing.cpp	/^int MAX_KERNEL_LENGTH = 31;$/;"	v
+MEDIAN	laplace.cpp	/^enum {GAUSSIAN, BLUR, MEDIAN};$/;"	e	enum:__anon7	file:
+MESH_H_	tutorial_code/calib3d/real_time_pose_estimation/src/Mesh.h	9;"	d
+MODELREGISTRATION_H_	tutorial_code/calib3d/real_time_pose_estimation/src/ModelRegistration.h	9;"	d
+MODEL_H_	tutorial_code/calib3d/real_time_pose_estimation/src/Model.h	9;"	d
+MSERParams	detect_mser.cpp	/^    MSERParams(int _delta = 5, int _min_area = 60, int _max_area = 14400,$/;"	f	struct:MSERParams
+MSERParams	detect_mser.cpp	/^struct MSERParams$/;"	s	file:
+MakeSyntheticImage	detect_mser.cpp	/^static Mat MakeSyntheticImage()$/;"	f	file:
+MatchingMethod	tutorial_code/Histograms_Matching/MatchTemplate_Demo.cpp	/^void MatchingMethod( int, void* )$/;"	f
+Mc	tutorial_code/TrackingMotion/cornerDetector_Demo.cpp	/^Mat myHarris_dst; Mat myHarris_copy; Mat Mc;$/;"	v
+Mesh	tutorial_code/calib3d/real_time_pose_estimation/src/Mesh.cpp	/^Mesh::Mesh() : list_vertex_(0) , list_triangles_(0)$/;"	f	class:Mesh
+Mesh	tutorial_code/calib3d/real_time_pose_estimation/src/Mesh.h	/^class Mesh$/;"	c
+Model	tutorial_code/calib3d/real_time_pose_estimation/src/Model.cpp	/^Model::Model() : list_points2d_in_(0), list_points2d_out_(0), list_points3d_in_(0)$/;"	f	class:Model
+Model	tutorial_code/calib3d/real_time_pose_estimation/src/Model.h	/^class Model$/;"	c
+ModelRegistration	tutorial_code/calib3d/real_time_pose_estimation/src/ModelRegistration.cpp	/^ModelRegistration::ModelRegistration()$/;"	f	class:ModelRegistration
+ModelRegistration	tutorial_code/calib3d/real_time_pose_estimation/src/ModelRegistration.h	/^class ModelRegistration$/;"	c
+Morphology_Operations	tutorial_code/ImgProc/Morphology_2.cpp	/^void Morphology_Operations( int, void* )$/;"	f
+MotionEstimatorL1Builder	videostab.cpp	/^    MotionEstimatorL1Builder(CommandLineParser &command, bool use_gpu, const string &_prefix = "")$/;"	f	class:MotionEstimatorL1Builder
+MotionEstimatorL1Builder	videostab.cpp	/^class MotionEstimatorL1Builder : public IMotionEstimatorBuilder$/;"	c	file:
+MotionEstimatorRansacL2Builder	videostab.cpp	/^    MotionEstimatorRansacL2Builder(CommandLineParser &command, bool use_gpu, const string &_prefix = "")$/;"	f	class:MotionEstimatorRansacL2Builder
+MotionEstimatorRansacL2Builder	videostab.cpp	/^class MotionEstimatorRansacL2Builder : public IMotionEstimatorBuilder$/;"	c	file:
+MouseEvent	select3dobj.cpp	/^    MouseEvent() { event = -1; buttonState = 0; }$/;"	f	struct:MouseEvent
+MouseEvent	select3dobj.cpp	/^struct MouseEvent$/;"	s	file:
+MyData	filestorage.cpp	/^  MyData() :$/;"	f	struct:MyData
+MyData	filestorage.cpp	/^  explicit MyData(int) :$/;"	f	struct:MyData
+MyData	filestorage.cpp	/^struct MyData$/;"	s	file:
+MyData	tutorial_code/core/file_input_output/file_input_output.cpp	/^    MyData() : A(0), X(0), id()$/;"	f	class:MyData
+MyData	tutorial_code/core/file_input_output/file_input_output.cpp	/^    explicit MyData(int) : A(97), X(CV_PI), id("mydata1234") \/\/ explicit to avoid implicit conversion$/;"	f	class:MyData
+MyData	tutorial_code/core/file_input_output/file_input_output.cpp	/^class MyData$/;"	c	file:
+MyEllipse	tutorial_code/core/Matrix/Drawing_1.cpp	/^void MyEllipse( Mat img, double angle )$/;"	f
+MyFilledCircle	tutorial_code/core/Matrix/Drawing_1.cpp	/^void MyFilledCircle( Mat img, Point center )$/;"	f
+MyLine	tutorial_code/core/Matrix/Drawing_1.cpp	/^void MyLine( Mat img, Point start, Point end )$/;"	f
+MyPolygon	tutorial_code/core/Matrix/Drawing_1.cpp	/^void MyPolygon( Mat img )$/;"	f
+N	squares.cpp	/^int thresh = 50, N = 11;$/;"	v
+NOMINMAX	detect_mser.cpp	11;"	d	file:
+NOT_EXISTING	tutorial_code/calib3d/camera_calibration/camera_calibration.cpp	/^    enum Pattern { NOT_EXISTING, CHESSBOARD, CIRCLES_GRID, ASYMMETRIC_CIRCLES_GRID };$/;"	e	enum:Settings::Pattern	file:
+NOT_SET	grabcut.cpp	/^    enum{ NOT_SET = 0, IN_PROCESS = 1, SET = 2 };$/;"	e	enum:GCApplication::__anon3	file:
+NTRAINING_SAMPLES	tutorial_code/ml/non_linear_svms/non_linear_svms.cpp	8;"	d	file:
+NUMBER	tutorial_code/core/Matrix/Drawing_2.cpp	/^const int NUMBER = 100;$/;"	v
+OpenClose	morphology2.cpp	/^static void OpenClose(int, void*)$/;"	f	file:
+PINK	grabcut.cpp	/^const Scalar PINK = Scalar(230,130,255);$/;"	v
+PNPPROBLEM_H_	tutorial_code/calib3d/real_time_pose_estimation/src/PnPProblem.h	9;"	d
+Pattern	calibration.cpp	/^enum Pattern { CHESSBOARD, CIRCLES_GRID, ASYMMETRIC_CIRCLES_GRID };$/;"	g	file:
+Pattern	tutorial_code/calib3d/camera_calibration/camera_calibration.cpp	/^    enum Pattern { NOT_EXISTING, CHESSBOARD, CIRCLES_GRID, ASYMMETRIC_CIRCLES_GRID };$/;"	g	class:Settings	file:
+PnPProblem	tutorial_code/calib3d/real_time_pose_estimation/src/PnPProblem.cpp	/^PnPProblem::PnPProblem(const double params[])$/;"	f	class:PnPProblem
+PnPProblem	tutorial_code/calib3d/real_time_pose_estimation/src/PnPProblem.h	/^class PnPProblem$/;"	c
+Points	tutorial_code/features2D/AKAZE_tracking/utils.h	/^vector<Point2f> Points(vector<KeyPoint> keypoints)$/;"	f
+Probabilistic_Hough	tutorial_code/ImgTrans/HoughLines_Demo.cpp	/^void Probabilistic_Hough( int, void* )$/;"	f
+RED	grabcut.cpp	/^const Scalar RED = Scalar(0,0,255);$/;"	v
+ROBUSTMATCHER_H_	tutorial_code/calib3d/real_time_pose_estimation/src/RobustMatcher.h	9;"	d
+Ray	tutorial_code/calib3d/real_time_pose_estimation/src/Mesh.cpp	/^Ray::Ray(cv::Point3f P0, cv::Point3f P1) {$/;"	f	class:Ray
+Ray	tutorial_code/calib3d/real_time_pose_estimation/src/Mesh.h	/^class Ray {$/;"	c
+RobustMatcher	tutorial_code/calib3d/real_time_pose_estimation/src/RobustMatcher.h	/^  RobustMatcher() : ratio_(0.8f)$/;"	f	class:RobustMatcher
+RobustMatcher	tutorial_code/calib3d/real_time_pose_estimation/src/RobustMatcher.h	/^class RobustMatcher {$/;"	c
+SET	grabcut.cpp	/^    enum{ NOT_SET = 0, IN_PROCESS = 1, SET = 2 };$/;"	e	enum:GCApplication::__anon3	file:
+STATS_H	tutorial_code/features2D/AKAZE_tracking/stats.h	2;"	d
+SUB	tutorial_code/calib3d/real_time_pose_estimation/src/PnPProblem.cpp	/^cv::Point3f SUB(cv::Point3f v1, cv::Point3f v2)$/;"	f
+ScanImageAndReduceC	tutorial_code/core/how_to_scan_images/how_to_scan_images.cpp	/^Mat& ScanImageAndReduceC(Mat& I, const uchar* const table)$/;"	f
+ScanImageAndReduceIterator	tutorial_code/core/how_to_scan_images/how_to_scan_images.cpp	/^Mat& ScanImageAndReduceIterator(Mat& I, const uchar* const table)$/;"	f
+ScanImageAndReduceRandomAccess	tutorial_code/core/how_to_scan_images/how_to_scan_images.cpp	/^Mat& ScanImageAndReduceRandomAccess(Mat& I, const uchar* const table)$/;"	f
+Settings	tutorial_code/calib3d/camera_calibration/camera_calibration.cpp	/^    Settings() : goodInput(false) {}$/;"	f	class:Settings
+Settings	tutorial_code/calib3d/camera_calibration/camera_calibration.cpp	/^class Settings$/;"	c	file:
+Sharpen	tutorial_code/core/mat_mask_operations/mat_mask_operations.cpp	/^void Sharpen(const Mat& myImage,Mat& Result)$/;"	f
+Standard_Hough	tutorial_code/ImgTrans/HoughLines_Demo.cpp	/^void Standard_Hough( int, void* )$/;"	f
+Stats	tutorial_code/features2D/AKAZE_tracking/stats.h	/^    Stats() : matches(0),$/;"	f	struct:Stats
+Stats	tutorial_code/features2D/AKAZE_tracking/stats.h	/^struct Stats$/;"	s
+StereoCalib	stereo_calib.cpp	/^StereoCalib(const vector<string>& imagelist, Size boardSize, bool useCalibrated=true, bool showRectified=true)$/;"	f	file:
+StringToInt	tutorial_code/calib3d/real_time_pose_estimation/src/Utils.cpp	/^int StringToInt ( const std::string &Text )$/;"	f
+TC	letter_recog.cpp	/^inline TermCriteria TC(int iters, double eps)$/;"	f
+Threshold_Demo	tutorial_code/ImgProc/Threshold.cpp	/^void Threshold_Demo( int, void* )$/;"	f
+Tracker	tutorial_code/features2D/AKAZE_tracking/planar_tracking.cpp	/^    Tracker(Ptr<Feature2D> _detector, Ptr<DescriptorMatcher> _matcher) :$/;"	f	class:Tracker
+Tracker	tutorial_code/features2D/AKAZE_tracking/planar_tracking.cpp	/^class Tracker$/;"	c	file:
+Triangle	tutorial_code/calib3d/real_time_pose_estimation/src/Mesh.cpp	/^Triangle::Triangle(int id, cv::Point3f V0, cv::Point3f V1, cv::Point3f V2)$/;"	f	class:Triangle
+Triangle	tutorial_code/calib3d/real_time_pose_estimation/src/Mesh.h	/^class Triangle {$/;"	c
+UTILS_H	tutorial_code/features2D/AKAZE_tracking/utils.h	2;"	d
+UTILS_H_	tutorial_code/calib3d/real_time_pose_estimation/src/Utils.h	9;"	d
+VIDEO_FILE	tutorial_code/calib3d/camera_calibration/camera_calibration.cpp	/^    enum InputType { INVALID, CAMERA, VIDEO_FILE, IMAGE_LIST };$/;"	e	enum:Settings::InputType	file:
+WHITE_COLOR	points_classifier.cpp	/^const Scalar WHITE_COLOR = Scalar(255,255,255);$/;"	v
+WIN32_LEAN_AND_MEAN	detect_mser.cpp	10;"	d	file:
+WTriangle	tutorial_code/viz/creating_widgets.cpp	/^WTriangle::WTriangle(const Point3f &pt1, const Point3f &pt2, const Point3f &pt3, const viz::Color & color)$/;"	f	class:WTriangle
+WTriangle	tutorial_code/viz/creating_widgets.cpp	/^class WTriangle : public viz::Widget3D$/;"	c	file:
+WindowName	dbt_face_detection.cpp	/^const string WindowName = "Face Detection example";$/;"	v
+X	filestorage.cpp	/^  double X;$/;"	m	struct:MyData	file:
+X	tutorial_code/core/file_input_output/file_input_output.cpp	/^    double X;$/;"	m	class:MyData	file:
+_ANN_	points_classifier.cpp	38;"	d	file:
+_A_matrix	tutorial_code/calib3d/real_time_pose_estimation/src/PnPProblem.h	/^  cv::Mat _A_matrix;$/;"	m	class:PnPProblem
+_BT_	points_classifier.cpp	35;"	d	file:
+_CRT_SECURE_NO_WARNINGS	tutorial_code/calib3d/camera_calibration/camera_calibration.cpp	15;"	d	file:
+_DT_	points_classifier.cpp	34;"	d	file:
+_EM_	points_classifier.cpp	39;"	d	file:
+_GBT_	points_classifier.cpp	36;"	d	file:
+_KNN_	points_classifier.cpp	32;"	d	file:
+_NBC_	points_classifier.cpp	31;"	d	file:
+_OCL_KNN_	points_classifier.cpp	6;"	d	file:
+_OCL_SVM_	points_classifier.cpp	7;"	d	file:
+_P_matrix	tutorial_code/calib3d/real_time_pose_estimation/src/PnPProblem.h	/^  cv::Mat _P_matrix;$/;"	m	class:PnPProblem
+_RF_	points_classifier.cpp	37;"	d	file:
+_R_matrix	tutorial_code/calib3d/real_time_pose_estimation/src/PnPProblem.h	/^  cv::Mat _R_matrix;$/;"	m	class:PnPProblem
+_SVM_	points_classifier.cpp	33;"	d	file:
+_brightness	demhist.cpp	/^int _brightness = 100;$/;"	v
+_contrast	demhist.cpp	/^int _contrast = 100;$/;"	v
+_file	tutorial_code/calib3d/real_time_pose_estimation/src/CsvReader.h	/^  ifstream _file;$/;"	m	class:CsvReader
+_file	tutorial_code/calib3d/real_time_pose_estimation/src/CsvWriter.h	/^  ofstream _file;$/;"	m	class:CsvWriter
+_isFirstTerm	tutorial_code/calib3d/real_time_pose_estimation/src/CsvWriter.h	/^  bool _isFirstTerm;$/;"	m	class:CsvWriter
+_separator	tutorial_code/calib3d/real_time_pose_estimation/src/CsvReader.h	/^  char _separator;$/;"	m	class:CsvReader
+_separator	tutorial_code/calib3d/real_time_pose_estimation/src/CsvWriter.h	/^  string _separator;$/;"	m	class:CsvWriter
+_t_matrix	tutorial_code/calib3d/real_time_pose_estimation/src/PnPProblem.h	/^  cv::Mat _t_matrix;$/;"	m	class:PnPProblem
+accumulatorThresholdInitialValue	tutorial_code/ImgTrans/HoughCircle_Demo.cpp	/^    const int accumulatorThresholdInitialValue = 50;$/;"	m	namespace:__anon5	file:
+accumulatorThresholdTrackbarName	tutorial_code/ImgTrans/HoughCircle_Demo.cpp	/^    const std::string accumulatorThresholdTrackbarName = "Accumulator Threshold";$/;"	m	namespace:__anon5	file:
+addRemovePt	lkdemo.cpp	/^bool addRemovePt = false;$/;"	v
+add_color	tutorial_code/HighGUI/GDAL_IO/gdal-image.cpp	/^void add_color( cv::Vec3b& pix, const uchar& b, const uchar& g, const uchar& r ){$/;"	f
+add_correspondence	tutorial_code/calib3d/real_time_pose_estimation/src/Model.cpp	/^void Model::add_correspondence(const cv::Point2f &point2d, const cv::Point3f &point3d)$/;"	f	class:Model
+add_descriptor	tutorial_code/calib3d/real_time_pose_estimation/src/Model.cpp	/^void Model::add_descriptor(const cv::Mat &descriptor)$/;"	f	class:Model
+add_keypoint	tutorial_code/calib3d/real_time_pose_estimation/src/Model.cpp	/^void Model::add_keypoint(const cv::KeyPoint &kp)$/;"	f	class:Model
+add_outlier	tutorial_code/calib3d/real_time_pose_estimation/src/Model.cpp	/^void Model::add_outlier(const cv::Point2f &point2d)$/;"	f	class:Model
+akaze_thresh	tutorial_code/features2D/AKAZE_tracking/planar_tracking.cpp	/^const double akaze_thresh = 3e-4; \/\/ AKAZE detection threshold set to locate about 1000 keypoints$/;"	v
+alpha	cloning_gui.cpp	/^float alpha,beta;$/;"	v
+alpha	tutorial_code/HighGUI/AddingImagesTrackbar.cpp	/^double alpha;$/;"	v
+alpha	tutorial_code/HighGUI/BasicLinearTransformsTrackbar.cpp	/^int alpha; \/**< Simple contrast control *\/$/;"	v
+alpha	tutorial_code/ImgProc/BasicLinearTransforms.cpp	/^double alpha; \/**< Simple contrast control *\/$/;"	v
+alpha	tutorial_code/photo/seamless_cloning/cloning_gui.cpp	/^float alpha,beta;$/;"	v
+alpha_max	tutorial_code/HighGUI/BasicLinearTransformsTrackbar.cpp	/^const int alpha_max = 5;$/;"	v
+alpha_slider	tutorial_code/HighGUI/AddingImagesTrackbar.cpp	/^int alpha_slider;$/;"	v
+alpha_slider_max	tutorial_code/HighGUI/AddingImagesTrackbar.cpp	/^const int alpha_slider_max = 100;$/;"	v
+angle	squares.cpp	/^static double angle( Point pt1, Point pt2, Point pt0 )$/;"	f	file:
+areaThreshold	detect_mser.cpp	/^    double areaThreshold;$/;"	m	struct:MSERParams	file:
+arg	videostab.cpp	15;"	d	file:
+argb	videostab.cpp	16;"	d	file:
+argd	videostab.cpp	19;"	d	file:
+argf	videostab.cpp	18;"	d	file:
+argi	videostab.cpp	17;"	d	file:
+arr	detect_mser.cpp	/^    ogl::Arrays arr;$/;"	m	struct:DrawData	file:
+aspectRatio	tutorial_code/calib3d/camera_calibration/camera_calibration.cpp	/^    float aspectRatio;           \/\/ The aspect ratio$/;"	m	class:Settings	file:
+atImageList	tutorial_code/calib3d/camera_calibration/camera_calibration.cpp	/^    size_t atImageList;$/;"	m	class:Settings	file:
+ba_cost_func	stitching_detailed.cpp	/^string ba_cost_func = "ray";$/;"	v
+ba_refine_mask	stitching_detailed.cpp	/^string ba_refine_mask = "xxxxx";$/;"	v
+backprojMode	camshiftdemo.cpp	/^bool backprojMode = false;$/;"	v
+backproject2DPoint	tutorial_code/calib3d/real_time_pose_estimation/src/PnPProblem.cpp	/^bool PnPProblem::backproject2DPoint(const Mesh *mesh, const cv::Point2f &point2d, cv::Point3f &point3d)$/;"	f	class:PnPProblem
+backproject3DPoint	tutorial_code/calib3d/real_time_pose_estimation/src/PnPProblem.cpp	/^cv::Point2f PnPProblem::backproject3DPoint(const cv::Point3f &point3d)$/;"	f	class:PnPProblem
+bb_min_inliers	tutorial_code/features2D/AKAZE_tracking/planar_tracking.cpp	/^const int bb_min_inliers = 100; \/\/ Minimal number of inliers to draw bounding box$/;"	v
+beta	cloning_gui.cpp	/^float alpha,beta;$/;"	v
+beta	tutorial_code/HighGUI/AddingImagesTrackbar.cpp	/^double beta;$/;"	v
+beta	tutorial_code/HighGUI/BasicLinearTransformsTrackbar.cpp	/^int beta;  \/**< Simple brightness control*\/$/;"	v
+beta	tutorial_code/ImgProc/BasicLinearTransforms.cpp	/^int beta;  \/**< Simple brightness control *\/$/;"	v
+beta	tutorial_code/photo/seamless_cloning/cloning_gui.cpp	/^float alpha,beta;$/;"	v
+beta_max	tutorial_code/HighGUI/BasicLinearTransformsTrackbar.cpp	/^const int beta_max = 125;$/;"	v
+bgdModel	grabcut.cpp	/^    Mat bgdModel, fgdModel;$/;"	m	class:GCApplication	file:
+bgdPxls	grabcut.cpp	/^    vector<Point> fgdPxls, bgdPxls, prFgdPxls, prBgdPxls;$/;"	m	class:GCApplication	file:
+bins	tutorial_code/Histograms_Matching/calcBackProject_Demo1.cpp	/^int bins = 25;$/;"	v
+blend_strength	stitching_detailed.cpp	/^float blend_strength = 5;$/;"	v
+blend_type	stitching_detailed.cpp	/^int blend_type = Blender::MULTI_BAND;$/;"	v
+blue	cloning_gui.cpp	/^float red, green, blue;$/;"	v
+blue	tutorial_code/photo/seamless_cloning/cloning_gui.cpp	/^float red, green, blue;$/;"	v
+boardSize	tutorial_code/calib3d/camera_calibration/camera_calibration.cpp	/^    Size boardSize;              \/\/ The size of the board -> Number of items by width and height$/;"	m	class:Settings	file:
+borderType	tutorial_code/ImgTrans/copyMakeBorder_demo.cpp	/^int borderType;$/;"	v
+bottom	tutorial_code/ImgTrans/copyMakeBorder_demo.cpp	/^int top, bottom, left, right;$/;"	v
+breakLimit	autofocus.cpp	/^    unsigned int breakLimit;$/;"	m	struct:Args_t	file:
+buf	tutorial_code/gpu/gpu-basics-similarity/gpu-basics-similarity.cpp	/^    cuda::GpuMat buf;$/;"	m	struct:BufferMSSIM	file:
+buf	tutorial_code/gpu/gpu-basics-similarity/gpu-basics-similarity.cpp	/^    cuda::GpuMat buf;$/;"	m	struct:BufferPSNR	file:
+build	videostab.cpp	/^    virtual Ptr<ImageMotionEstimatorBase> build()$/;"	f	class:MotionEstimatorL1Builder
+build	videostab.cpp	/^    virtual Ptr<ImageMotionEstimatorBase> build()$/;"	f	class:MotionEstimatorRansacL2Builder
+build_boost_classifier	letter_recog.cpp	/^build_boost_classifier( const string& data_filename,$/;"	f	file:
+build_knearest_classifier	letter_recog.cpp	/^build_knearest_classifier( const string& data_filename, int K )$/;"	f	file:
+build_mlp_classifier	letter_recog.cpp	/^build_mlp_classifier( const string& data_filename,$/;"	f	file:
+build_nbayes_classifier	letter_recog.cpp	/^build_nbayes_classifier( const string& data_filename )$/;"	f	file:
+build_rtrees_classifier	letter_recog.cpp	/^build_rtrees_classifier( const string& data_filename,$/;"	f	file:
+build_svm_classifier	letter_recog.cpp	/^build_svm_classifier( const string& data_filename,$/;"	f	file:
+buttonState	select3dobj.cpp	/^    int buttonState;$/;"	m	struct:MouseEvent	file:
+calcBoardCornerPositions	tutorial_code/calib3d/camera_calibration/camera_calibration.cpp	/^static void calcBoardCornerPositions(Size boardSize, float squareSize, vector<Point3f>& corners,$/;"	f	file:
+calcChessboardCorners	3calibration.cpp	/^static void calcChessboardCorners(Size boardSize, float squareSize, vector<Point3f>& corners)$/;"	f	file:
+calcChessboardCorners	calibration.cpp	/^static void calcChessboardCorners(Size boardSize, float squareSize, vector<Point3f>& corners, Pattern patternType = CHESSBOARD)$/;"	f	file:
+calcChessboardCorners	select3dobj.cpp	/^static void calcChessboardCorners(Size boardSize, float squareSize, vector<Point3f>& corners)$/;"	f	file:
+calcPoint	kalman.cpp	/^static inline Point calcPoint(Point2f center, double R, double angle)$/;"	f	file:
+calculateAccuracyPercent	logistic_regression.cpp	/^static float calculateAccuracyPercent(const Mat &original, const Mat &predicted)$/;"	f	file:
+calibFixPrincipalPoint	tutorial_code/calib3d/camera_calibration/camera_calibration.cpp	/^    bool calibFixPrincipalPoint; \/\/ Fix the principal point at the center$/;"	m	class:Settings	file:
+calibZeroTangentDist	tutorial_code/calib3d/camera_calibration/camera_calibration.cpp	/^    bool calibZeroTangentDist;   \/\/ Assume zero tangential distortion$/;"	m	class:Settings	file:
+calibrationPattern	tutorial_code/calib3d/camera_calibration/camera_calibration.cpp	/^    Pattern calibrationPattern;  \/\/ One of the Chessboard, circles, or asymmetric circle pattern$/;"	m	class:Settings	file:
+cameraID	tutorial_code/calib3d/camera_calibration/camera_calibration.cpp	/^    int cameraID;$/;"	m	class:Settings	file:
+cannyThresholdInitialValue	tutorial_code/ImgTrans/HoughCircle_Demo.cpp	/^    const int cannyThresholdInitialValue = 200;$/;"	m	namespace:__anon5	file:
+cannyThresholdTrackbarName	tutorial_code/ImgTrans/HoughCircle_Demo.cpp	/^    const std::string cannyThresholdTrackbarName = "Canny threshold";$/;"	m	namespace:__anon5	file:
+cascadeName	facedetect.cpp	/^string cascadeName = "..\/..\/data\/haarcascades\/haarcascade_frontalface_alt.xml";$/;"	v
+cascadeName	smiledetect.cpp	/^string cascadeName = "..\/..\/data\/haarcascades\/haarcascade_frontalface_alt.xml";$/;"	v
+cascadeName	ufacedetect.cpp	/^string cascadeName = "..\/..\/data\/haarcascades\/haarcascade_frontalface_alt.xml";$/;"	v
+cedge	edge.cpp	/^Mat image, gray, edge, cedge;$/;"	v
+ch	pca.cpp	/^    int ch;$/;"	m	struct:params	file:
+channel	cloning_gui.cpp	/^int channel, num, kernel_size;$/;"	v
+channel	create_mask.cpp	/^int channel;$/;"	v
+channel	tutorial_code/photo/seamless_cloning/cloning_gui.cpp	/^int channel, num, kernel_size;$/;"	v
+cmd	videostab.cpp	/^    CommandLineParser cmd;$/;"	m	class:IMotionEstimatorBuilder	file:
+color_range	tutorial_code/HighGUI/GDAL_IO/gdal-image.cpp	/^std::vector<std::pair<cv::Vec3b,double> > color_range;$/;"	v
+colorizeDisparity	openni_capture.cpp	/^static void colorizeDisparity( const Mat& gray, Mat& rgb, double maxDisp=-1.f, float S=1.f, float V=1.f )$/;"	f	file:
+compose_megapix	stitching_detailed.cpp	/^double compose_megapix = -1;$/;"	v
+computeColor	tvl1_optical_flow.cpp	/^static Vec3b computeColor(float fx, float fy)$/;"	f	file:
+computeDescriptors	tutorial_code/calib3d/real_time_pose_estimation/src/RobustMatcher.cpp	/^void RobustMatcher::computeDescriptors( const cv::Mat& image, std::vector<cv::KeyPoint>& keypoints, cv::Mat& descriptors)$/;"	f	class:RobustMatcher
+computeKeyPoints	tutorial_code/calib3d/real_time_pose_estimation/src/RobustMatcher.cpp	/^void RobustMatcher::computeKeyPoints( const cv::Mat& image, std::vector<cv::KeyPoint>& keypoints)$/;"	f	class:RobustMatcher
+computeReprojectionErrors	calibration.cpp	/^static double computeReprojectionErrors($/;"	f	file:
+computeReprojectionErrors	tutorial_code/calib3d/camera_calibration/camera_calibration.cpp	/^static double computeReprojectionErrors( const vector<vector<Point3f> >& objectPoints,$/;"	f	file:
+compute_hog	train_HOG.cpp	/^void compute_hog( const vector< Mat > & img_lst, vector< Mat > & gradient_lst, const Size & size )$/;"	f
+conf_thresh	stitching_detailed.cpp	/^float conf_thresh = 1.f;$/;"	v
+confidence	tutorial_code/calib3d/real_time_pose_estimation/src/main_detection.cpp	/^double confidence = 0.95;        \/\/ ransac successful confidence.$/;"	v
+connectivity	ffilldemo.cpp	/^int connectivity = 4;$/;"	v
+contours	contours2.cpp	/^vector<vector<Point> > contours;$/;"	v
+convert_to_ml	train_HOG.cpp	/^void convert_to_ml(const std::vector< cv::Mat > & train_samples, cv::Mat& trainData )$/;"	f
+cornerHarris_demo	tutorial_code/TrackingMotion/cornerHarris_Demo.cpp	/^void cornerHarris_demo( int, void* )$/;"	f
+corners_window	tutorial_code/TrackingMotion/cornerHarris_Demo.cpp	/^const char* corners_window = "Corners detected";$/;"	v
+correctFocus	autofocus.cpp	/^static int correctFocus(bool lastSucceeded, FocusState & state, double rate)$/;"	f	file:
+createInitialState	autofocus.cpp	/^static FocusState createInitialState()$/;"	f	file:
+currentClass	points_classifier.cpp	/^int currentClass = 0;$/;"	v
+cvcloud_load	tutorial_code/viz/transformations.cpp	/^Mat cvcloud_load()$/;"	f
+data	pca.cpp	/^    Mat data;$/;"	m	struct:params	file:
+delay	tutorial_code/calib3d/camera_calibration/camera_calibration.cpp	/^    int delay;                   \/\/ In case of a video input$/;"	m	class:Settings	file:
+delta	detect_mser.cpp	/^    int delta;$/;"	m	struct:MSERParams	file:
+descriptors_	tutorial_code/calib3d/real_time_pose_estimation/src/Model.h	/^  cv::Mat descriptors_;$/;"	m	class:Model
+destination	cloning_gui.cpp	/^void destination(int event, int x, int y, int, void*)$/;"	f
+destination	tutorial_code/photo/seamless_cloning/cloning_gui.cpp	/^void destination(int event, int x, int y, int, void*)$/;"	f
+destx	cloning_gui.cpp	/^int destx, desty;$/;"	v
+destx	tutorial_code/photo/seamless_cloning/cloning_gui.cpp	/^int destx, desty;$/;"	v
+desty	cloning_gui.cpp	/^int destx, desty;$/;"	v
+desty	tutorial_code/photo/seamless_cloning/cloning_gui.cpp	/^int destx, desty;$/;"	v
+detect	dbt_face_detection.cpp	/^        void detect(const cv::Mat &Image, std::vector<cv::Rect> &objects)$/;"	f	class:CascadeDetectorAdapter
+detectAndDisplay	tutorial_code/objectDetection/objectDetection.cpp	/^void detectAndDisplay( Mat frame )$/;"	f
+detectAndDisplay	tutorial_code/objectDetection/objectDetection2.cpp	/^void detectAndDisplay( Mat frame )$/;"	f
+detectAndDraw	facedetect.cpp	/^void detectAndDraw( Mat& img, CascadeClassifier& cascade,$/;"	f
+detectAndDraw	smiledetect.cpp	/^void detectAndDraw( Mat& img, CascadeClassifier& cascade,$/;"	f
+detectAndDraw	ufacedetect.cpp	/^void detectAndDraw( UMat& img, Mat& canvas, CascadeClassifier& cascade,$/;"	f
+detectEyes	facial_features.cpp	/^static void detectEyes(Mat& img, vector<Rect_<int> >& eyes, string cascade_path)$/;"	f	file:
+detectFaces	facial_features.cpp	/^static void detectFaces(Mat& img, vector<Rect_<int> >& faces, string cascade_path)$/;"	f	file:
+detectFacialFeaures	facial_features.cpp	/^static void detectFacialFeaures(Mat& img, const vector<Rect_<int> > faces, string eye_cascade,$/;"	f	file:
+detectMouth	facial_features.cpp	/^static void detectMouth(Mat& img, vector<Rect_<int> >& mouth, string cascade_path)$/;"	f	file:
+detectNose	facial_features.cpp	/^static void detectNose(Mat& img, vector<Rect_<int> >& nose, string cascade_path)$/;"	f	file:
+detected_edges	tutorial_code/ImgTrans/CannyDetector_Demo.cpp	/^Mat dst, detected_edges;$/;"	v
+detector	tutorial_code/features2D/AKAZE_tracking/planar_tracking.cpp	/^    Ptr<Feature2D> detector;$/;"	m	class:Tracker	file:
+detector_	tutorial_code/calib3d/real_time_pose_estimation/src/RobustMatcher.h	/^  cv::Ptr<cv::FeatureDetector> detector_;$/;"	m	class:RobustMatcher
+deviceName	autofocus.cpp	/^    const char * deviceName;$/;"	m	struct:Args_t	file:
+dilation_elem	tutorial_code/ImgProc/Morphology_1.cpp	/^int dilation_elem = 0;$/;"	v
+dilation_size	tutorial_code/ImgProc/Morphology_1.cpp	/^int dilation_size = 0;$/;"	v
+direction	autofocus.cpp	/^    int direction;$/;"	m	struct:FocusState	file:
+display_caption	tutorial_code/ImgProc/Smoothing.cpp	/^int display_caption( const char* caption )$/;"	f
+display_dst	tutorial_code/ImgProc/Smoothing.cpp	/^int display_dst( int delay )$/;"	f
+distType0	distrans.cpp	/^int distType0 = DIST_L1;$/;"	v
+do_wave_correct	stitching_detailed.cpp	/^bool do_wave_correct = true;$/;"	v
+doesCmdOptionExist	facial_features.cpp	/^bool doesCmdOptionExist(const vector<string>& args, const string& opt)$/;"	f
+drag	cloning_gui.cpp	/^int drag = 0;$/;"	v
+drag	create_mask.cpp	/^int drag = 0;$/;"	v
+drag	tutorial_code/photo/seamless_cloning/cloning_gui.cpp	/^int drag = 0;$/;"	v
+draw	detect_mser.cpp	/^static void draw(void* userdata)$/;"	f	file:
+draw2DPoints	tutorial_code/calib3d/real_time_pose_estimation/src/Utils.cpp	/^void draw2DPoints(cv::Mat image, std::vector<cv::Point2f> &list_points, cv::Scalar color)$/;"	f
+draw3DCoordinateAxes	tutorial_code/calib3d/real_time_pose_estimation/src/Utils.cpp	/^void draw3DCoordinateAxes(cv::Mat image, const std::vector<cv::Point2f> &list_points2d)$/;"	f
+drawArrow	tutorial_code/calib3d/real_time_pose_estimation/src/Utils.cpp	/^void drawArrow(cv::Mat image, cv::Point2i p, cv::Point2i q, cv::Scalar color, int arrowMagnitude, int thickness, int line_type, int shift)$/;"	f
+drawAxis	tutorial_code/ml/introduction_to_pca/introduction_to_pca.cpp	/^void drawAxis(Mat& img, Point p, Point q, Scalar colour, const float scale = 0.2)$/;"	f
+drawBoundingBox	tutorial_code/features2D/AKAZE_tracking/utils.h	/^void drawBoundingBox(Mat image, vector<Point2f> bb)$/;"	f
+drawConfidence	tutorial_code/calib3d/real_time_pose_estimation/src/Utils.cpp	/^void drawConfidence(cv::Mat image, double confidence, cv::Scalar color)$/;"	f
+drawCounter	tutorial_code/calib3d/real_time_pose_estimation/src/Utils.cpp	/^void drawCounter(cv::Mat image, int n, int n_max, cv::Scalar color)$/;"	f
+drawCross	kalman.cpp	72;"	d	file:
+drawFPS	tutorial_code/calib3d/real_time_pose_estimation/src/Utils.cpp	/^void drawFPS(cv::Mat image, double fps, cv::Scalar color)$/;"	f
+drawObjectMesh	tutorial_code/calib3d/real_time_pose_estimation/src/Utils.cpp	/^void drawObjectMesh(cv::Mat image, const Mesh *mesh, PnPProblem *pnpProblem, cv::Scalar color)$/;"	f
+drawOptFlowMap	fback.cpp	/^static void drawOptFlowMap(const Mat& flow, Mat& cflowmap, int step,$/;"	f	file:
+drawOpticalFlow	tvl1_optical_flow.cpp	/^static void drawOpticalFlow(const Mat_<Point2f>& flow, Mat& dst, float maxmotion = -1)$/;"	f	file:
+drawPoints	tutorial_code/calib3d/real_time_pose_estimation/src/Utils.cpp	/^void drawPoints(cv::Mat image, std::vector<cv::Point2f> &list_points_2d, std::vector<cv::Point3f> &list_points_3d, cv::Scalar color)$/;"	f
+drawQuestion	tutorial_code/calib3d/real_time_pose_estimation/src/Utils.cpp	/^void drawQuestion(cv::Mat image, cv::Point3f point, cv::Scalar color)$/;"	f
+drawSquares	squares.cpp	/^static void drawSquares( Mat& image, const vector<vector<Point> >& squares )$/;"	f	file:
+drawStatistics	tutorial_code/features2D/AKAZE_tracking/utils.h	/^void drawStatistics(Mat image, const Stats& stats)$/;"	f
+drawText	example_cmake/example.cpp	/^void drawText(Mat & image)$/;"	f
+drawText	tutorial_code/calib3d/real_time_pose_estimation/src/Utils.cpp	/^void drawText(cv::Mat image, std::string text, cv::Scalar color)$/;"	f
+drawText2	tutorial_code/calib3d/real_time_pose_estimation/src/Utils.cpp	/^void drawText2(cv::Mat image, std::string text, cv::Scalar color)$/;"	f
+draw_locations	train_HOG.cpp	/^void draw_locations( Mat & img, const vector< Rect > & locations, const Scalar & color )$/;"	f
+draw_subdiv	delaunay2.cpp	/^static void draw_subdiv( Mat& img, Subdiv2D& subdiv, Scalar delaunay_color )$/;"	f	file:
+draw_subdiv_point	delaunay2.cpp	/^static void draw_subdiv_point( Mat& img, Point2f fp, Scalar color )$/;"	f	file:
+draw_warped_roi	image_alignment.cpp	/^static void draw_warped_roi(Mat& image, const int width, const int height, Mat& W)$/;"	f	file:
+dst	morphology2.cpp	/^Mat src, dst;$/;"	v
+dst	tutorial_code/HighGUI/AddingImagesTrackbar.cpp	/^Mat dst;$/;"	v
+dst	tutorial_code/ImgProc/Smoothing.cpp	/^Mat src; Mat dst;$/;"	v
+dst	tutorial_code/ImgProc/Threshold.cpp	/^Mat src, src_gray, dst;$/;"	v
+dst	tutorial_code/ImgTrans/CannyDetector_Demo.cpp	/^Mat dst, detected_edges;$/;"	v
+edge	edge.cpp	/^Mat image, gray, edge, cedge;$/;"	v
+edgeBlurSize	detect_mser.cpp	/^    int edgeBlurSize;$/;"	m	struct:MSERParams	file:
+edgeThresh	distrans.cpp	/^int edgeThresh = 100;$/;"	v
+edgeThresh	edge.cpp	/^int edgeThresh = 1;$/;"	v
+edgeThresh	tutorial_code/ImgTrans/CannyDetector_Demo.cpp	/^int edgeThresh = 1;$/;"	v
+element_shape	morphology2.cpp	/^int element_shape = MORPH_RECT;$/;"	v
+end_registration	tutorial_code/calib3d/real_time_pose_estimation/src/main_registration.cpp	/^bool end_registration = false;$/;"	v
+epsylon	autofocus.cpp	/^const double epsylon = 0.0005; \/\/ compression, noice, etc.$/;"	v
+erode_dilate_pos	morphology2.cpp	/^int erode_dilate_pos = 0;$/;"	v
+erosion_elem	tutorial_code/ImgProc/Morphology_1.cpp	/^int erosion_elem = 0;$/;"	v
+erosion_size	tutorial_code/ImgProc/Morphology_1.cpp	/^int erosion_size = 0;$/;"	v
+estimatePose	tutorial_code/calib3d/real_time_pose_estimation/src/PnPProblem.cpp	/^bool PnPProblem::estimatePose( const std::vector<cv::Point3f> &list_points3d,$/;"	f	class:PnPProblem
+estimatePoseRANSAC	tutorial_code/calib3d/real_time_pose_estimation/src/PnPProblem.cpp	/^void PnPProblem::estimatePoseRANSAC( const std::vector<cv::Point3f> &list_points3d, \/\/ list with model 3D coordinates$/;"	f	class:PnPProblem
+euler2rot	tutorial_code/calib3d/real_time_pose_estimation/src/Utils.cpp	/^cv::Mat euler2rot(const cv::Mat & euler)$/;"	f
+event	select3dobj.cpp	/^    int event;$/;"	m	struct:MouseEvent	file:
+expos_comp_type	stitching_detailed.cpp	/^int expos_comp_type = ExposureCompensator::GAIN_BLOCKS;$/;"	v
+extract3DBox	select3dobj.cpp	/^static Rect extract3DBox(const Mat& frame, Mat& shownFrame, Mat& selectedObjFrame,$/;"	f	file:
+extractor_	tutorial_code/calib3d/real_time_pose_estimation/src/RobustMatcher.h	/^  cv::Ptr<cv::DescriptorExtractor> extractor_;$/;"	m	class:RobustMatcher
+eye_cascade_path	facial_features.cpp	/^string face_cascade_path, eye_cascade_path, nose_cascade_path, mouth_cascade_path;$/;"	v
+eyes_cascade	tutorial_code/objectDetection/objectDetection.cpp	/^CascadeClassifier eyes_cascade;$/;"	v
+eyes_cascade	tutorial_code/objectDetection/objectDetection2.cpp	/^CascadeClassifier eyes_cascade;$/;"	v
+eyes_cascade_name	tutorial_code/objectDetection/objectDetection.cpp	/^String eyes_cascade_name = "haarcascade_eye_tree_eyeglasses.xml";$/;"	v
+eyes_cascade_name	tutorial_code/objectDetection/objectDetection2.cpp	/^String eyes_cascade_name = "haarcascade_eye_tree_eyeglasses.xml";$/;"	v
+f	tutorial_code/calib3d/real_time_pose_estimation/src/main_detection.cpp	/^double f = 55;                           \/\/ focal length in mm$/;"	v
+f	tutorial_code/calib3d/real_time_pose_estimation/src/main_registration.cpp	/^double f = 45; \/\/ focal length in mm$/;"	v
+face_cascade	tutorial_code/objectDetection/objectDetection.cpp	/^CascadeClassifier face_cascade;$/;"	v
+face_cascade	tutorial_code/objectDetection/objectDetection2.cpp	/^CascadeClassifier face_cascade;$/;"	v
+face_cascade_name	tutorial_code/objectDetection/objectDetection.cpp	/^String face_cascade_name = "haarcascade_frontalface_alt.xml";$/;"	v
+face_cascade_name	tutorial_code/objectDetection/objectDetection2.cpp	/^String face_cascade_name = "lbpcascade_frontalface.xml";$/;"	v
+face_cascade_path	facial_features.cpp	/^string face_cascade_path, eye_cascade_path, nose_cascade_path, mouth_cascade_path;$/;"	v
+fastRobustMatch	tutorial_code/calib3d/real_time_pose_estimation/src/RobustMatcher.cpp	/^void RobustMatcher::fastRobustMatch( const cv::Mat& frame, std::vector<cv::DMatch>& good_matches,$/;"	f	class:RobustMatcher
+fast_match	tutorial_code/calib3d/real_time_pose_estimation/src/main_detection.cpp	/^bool fast_match = true;       \/\/ fastRobustMatch() or robustMatch()$/;"	v
+features_type	stitching_detailed.cpp	/^string features_type = "surf";$/;"	v
+ffillMode	ffilldemo.cpp	/^int ffillMode = 1;$/;"	v
+fgMaskMOG2	tutorial_code/video/bg_sub.cpp	/^Mat fgMaskMOG2; \/\/fg mask fg mask generated by MOG2 method$/;"	v
+fgdModel	grabcut.cpp	/^    Mat bgdModel, fgdModel;$/;"	m	class:GCApplication	file:
+fgdPxls	grabcut.cpp	/^    vector<Point> fgdPxls, bgdPxls, prFgdPxls, prBgdPxls;$/;"	m	class:GCApplication	file:
+fillMeasurements	tutorial_code/calib3d/real_time_pose_estimation/src/main_detection.cpp	/^void fillMeasurements( Mat &measurements,$/;"	f
+findMinFocusStep	autofocus.cpp	/^static int findMinFocusStep(VideoCapture & cap, unsigned int startWith,$/;"	f	file:
+findSquares	squares.cpp	/^static void findSquares( const Mat& image, vector<vector<Point> >& squares )$/;"	f	file:
+find_decision_boundary_ANN	points_classifier.cpp	/^static void find_decision_boundary_ANN( const Mat&  layer_sizes )$/;"	f	file:
+find_decision_boundary_BT	points_classifier.cpp	/^static void find_decision_boundary_BT()$/;"	f	file:
+find_decision_boundary_DT	points_classifier.cpp	/^static void find_decision_boundary_DT()$/;"	f	file:
+find_decision_boundary_EM	points_classifier.cpp	/^static void find_decision_boundary_EM()$/;"	f	file:
+find_decision_boundary_GBT	points_classifier.cpp	/^static void find_decision_boundary_GBT()$/;"	f	file:
+find_decision_boundary_KNN	points_classifier.cpp	/^static void find_decision_boundary_KNN( int K )$/;"	f	file:
+find_decision_boundary_NBC	points_classifier.cpp	/^static void find_decision_boundary_NBC()$/;"	f	file:
+find_decision_boundary_RF	points_classifier.cpp	/^static void find_decision_boundary_RF()$/;"	f	file:
+find_decision_boundary_SVM	points_classifier.cpp	/^static void find_decision_boundary_SVM( double C )$/;"	f	file:
+first_desc	tutorial_code/features2D/AKAZE_tracking/planar_tracking.cpp	/^    Mat first_frame, first_desc;$/;"	m	class:Tracker	file:
+first_frame	tutorial_code/features2D/AKAZE_tracking/planar_tracking.cpp	/^    Mat first_frame, first_desc;$/;"	m	class:Tracker	file:
+first_kp	tutorial_code/features2D/AKAZE_tracking/planar_tracking.cpp	/^    vector<KeyPoint> first_kp;$/;"	m	class:Tracker	file:
+flag	cloning_gui.cpp	/^int flag = 0, flag1 = 0, flag4 = 0;$/;"	v
+flag	create_mask.cpp	/^int flag = 0;$/;"	v
+flag	tutorial_code/calib3d/camera_calibration/camera_calibration.cpp	/^    int flag;$/;"	m	class:Settings	file:
+flag	tutorial_code/photo/seamless_cloning/cloning_gui.cpp	/^int flag = 0, flag1 = 0, flag4 = 0;$/;"	v
+flag1	cloning_gui.cpp	/^int flag = 0, flag1 = 0, flag4 = 0;$/;"	v
+flag1	create_mask.cpp	/^int flag1 = 0;$/;"	v
+flag1	tutorial_code/photo/seamless_cloning/cloning_gui.cpp	/^int flag = 0, flag1 = 0, flag4 = 0;$/;"	v
+flag4	cloning_gui.cpp	/^int flag = 0, flag1 = 0, flag4 = 0;$/;"	v
+flag4	tutorial_code/photo/seamless_cloning/cloning_gui.cpp	/^int flag = 0, flag1 = 0, flag4 = 0;$/;"	v
+flipVertical	tutorial_code/calib3d/camera_calibration/camera_calibration.cpp	/^    bool flipVertical;           \/\/ Flip the captured images around the horizontal axis$/;"	m	class:Settings	file:
+focusDriveEnd	autofocus.cpp	/^static void focusDriveEnd(VideoCapture & cap, int direction)$/;"	f	file:
+fontFace	tutorial_code/calib3d/real_time_pose_estimation/src/Utils.cpp	/^int fontFace = cv::FONT_ITALIC;$/;"	v
+fontScale	tutorial_code/calib3d/real_time_pose_estimation/src/Utils.cpp	/^double fontScale = 0.75;$/;"	v
+formatImagesForPCA	pca.cpp	/^static  Mat formatImagesForPCA(const vector<Mat> &data)$/;"	f	file:
+fps	autofocus.cpp	/^    unsigned int fps;$/;"	m	struct:Args_t	file:
+gI1	tutorial_code/gpu/gpu-basics-similarity/gpu-basics-similarity.cpp	/^    cuda::GpuMat gI1, gI2, gs, t1,t2;$/;"	m	struct:BufferMSSIM	file:
+gI1	tutorial_code/gpu/gpu-basics-similarity/gpu-basics-similarity.cpp	/^    cuda::GpuMat gI1, gI2, gs, t1,t2;$/;"	m	struct:BufferPSNR	file:
+gI2	tutorial_code/gpu/gpu-basics-similarity/gpu-basics-similarity.cpp	/^    cuda::GpuMat gI1, gI2, gs, t1,t2;$/;"	m	struct:BufferMSSIM	file:
+gI2	tutorial_code/gpu/gpu-basics-similarity/gpu-basics-similarity.cpp	/^    cuda::GpuMat gI1, gI2, gs, t1,t2;$/;"	m	struct:BufferPSNR	file:
+g_closedDepthPoint	intelperc_capture.cpp	/^static int g_closedDepthPoint[2];$/;"	v	file:
+g_depthStreamProfileIdx	intelperc_capture.cpp	/^static int g_depthStreamProfileIdx      = -1;$/;"	v	file:
+g_imageBrightness	intelperc_capture.cpp	/^static double g_imageBrightness         = -DBL_MAX;$/;"	v	file:
+g_imageContrast	intelperc_capture.cpp	/^static double g_imageContrast           = -DBL_MAX;$/;"	v	file:
+g_imageStreamProfileIdx	intelperc_capture.cpp	/^static int g_imageStreamProfileIdx      = -1;$/;"	v	file:
+g_irStreamShow	intelperc_capture.cpp	/^static bool g_irStreamShow              = false;$/;"	v	file:
+g_printStreamSetting	intelperc_capture.cpp	/^static bool g_printStreamSetting        = false;$/;"	v	file:
+g_printTiming	intelperc_capture.cpp	/^static bool g_printTiming               = false;$/;"	v	file:
+g_showClosedPoint	intelperc_capture.cpp	/^static bool g_showClosedPoint           = false;$/;"	v	file:
+gcapp	grabcut.cpp	/^GCApplication gcapp;$/;"	v
+getBinMask	grabcut.cpp	/^static void getBinMask( const Mat& comMask, Mat& binMask )$/;"	f	file:
+getCommandOption	facial_features.cpp	/^string getCommandOption(const vector<string>& args, const string& opt)$/;"	f
+getDetector	tutorial_code/features2D/AKAZE_tracking/planar_tracking.cpp	/^    Ptr<Feature2D> getDetector() {$/;"	f	class:Tracker
+getIterCount	grabcut.cpp	/^    int getIterCount() const { return iterCount; }$/;"	f	class:GCApplication
+getMSSIM	tutorial_code/HighGUI/video-input-psnr-ssim/video-input-psnr-ssim.cpp	/^Scalar getMSSIM( const Mat& i1, const Mat& i2)$/;"	f
+getMSSIM	tutorial_code/gpu/gpu-basics-similarity/gpu-basics-similarity.cpp	/^Scalar getMSSIM( const Mat& i1, const Mat& i2)$/;"	f
+getMSSIM_CUDA	tutorial_code/gpu/gpu-basics-similarity/gpu-basics-similarity.cpp	/^Scalar getMSSIM_CUDA( const Mat& i1, const Mat& i2)$/;"	f
+getMSSIM_CUDA_optimized	tutorial_code/gpu/gpu-basics-similarity/gpu-basics-similarity.cpp	/^Scalar getMSSIM_CUDA_optimized( const Mat& i1, const Mat& i2, BufferMSSIM& b)$/;"	f
+getMaxDisparity	openni_capture.cpp	/^static float getMaxDisparity( VideoCapture& capture )$/;"	f	file:
+getNumMax	tutorial_code/calib3d/real_time_pose_estimation/src/ModelRegistration.h	/^  int getNumMax() const { return max_registrations_; }$/;"	f	class:ModelRegistration
+getNumRegist	tutorial_code/calib3d/real_time_pose_estimation/src/ModelRegistration.h	/^  int getNumRegist() const { return n_registrations_; }$/;"	f	class:ModelRegistration
+getNumVertices	tutorial_code/calib3d/real_time_pose_estimation/src/Mesh.h	/^  int getNumVertices() const { return num_vertexs_; }$/;"	f	class:Mesh
+getOrientation	tutorial_code/ml/introduction_to_pca/introduction_to_pca.cpp	/^double getOrientation(const vector<Point> &pts, Mat &img)$/;"	f
+getP0	tutorial_code/calib3d/real_time_pose_estimation/src/Mesh.h	/^  cv::Point3f getP0() { return p0_; }$/;"	f	class:Ray
+getP1	tutorial_code/calib3d/real_time_pose_estimation/src/Mesh.h	/^  cv::Point3f getP1() { return p1_; }$/;"	f	class:Ray
+getPSNR	tutorial_code/HighGUI/video-input-psnr-ssim/video-input-psnr-ssim.cpp	/^double getPSNR(const Mat& I1, const Mat& I2)$/;"	f
+getPSNR	tutorial_code/gpu/gpu-basics-similarity/gpu-basics-similarity.cpp	/^double getPSNR(const Mat& I1, const Mat& I2)$/;"	f
+getPSNR_CUDA	tutorial_code/gpu/gpu-basics-similarity/gpu-basics-similarity.cpp	/^double getPSNR_CUDA(const Mat& I1, const Mat& I2)$/;"	f
+getPSNR_CUDA_optimized	tutorial_code/gpu/gpu-basics-similarity/gpu-basics-similarity.cpp	/^double getPSNR_CUDA_optimized(const Mat& I1, const Mat& I2, BufferPSNR& b)$/;"	f
+getTrianglesList	tutorial_code/calib3d/real_time_pose_estimation/src/Mesh.h	/^  std::vector<std::vector<int> > getTrianglesList() const { return list_triangles_; }$/;"	f	class:Mesh
+getV0	tutorial_code/calib3d/real_time_pose_estimation/src/Mesh.h	/^  cv::Point3f getV0() const { return v0_; }$/;"	f	class:Triangle
+getV1	tutorial_code/calib3d/real_time_pose_estimation/src/Mesh.h	/^  cv::Point3f getV1() const { return v1_; }$/;"	f	class:Triangle
+getV2	tutorial_code/calib3d/real_time_pose_estimation/src/Mesh.h	/^  cv::Point3f getV2() const { return v2_; }$/;"	f	class:Triangle
+getVertex	tutorial_code/calib3d/real_time_pose_estimation/src/Mesh.h	/^  cv::Point3f getVertex(int pos) const { return list_vertex_[pos]; }$/;"	f	class:Mesh
+get_A_matrix	tutorial_code/calib3d/real_time_pose_estimation/src/PnPProblem.h	/^  cv::Mat get_A_matrix() const { return _A_matrix; }$/;"	f	class:PnPProblem
+get_P_matrix	tutorial_code/calib3d/real_time_pose_estimation/src/PnPProblem.h	/^  cv::Mat get_P_matrix() const { return _P_matrix; }$/;"	f	class:PnPProblem
+get_R_matrix	tutorial_code/calib3d/real_time_pose_estimation/src/PnPProblem.h	/^  cv::Mat get_R_matrix() const { return _R_matrix; }$/;"	f	class:PnPProblem
+get_dem_color	tutorial_code/HighGUI/GDAL_IO/gdal-image.cpp	/^cv::Vec3b get_dem_color( const double& elevation ){$/;"	f
+get_descriptors	tutorial_code/calib3d/real_time_pose_estimation/src/Model.h	/^  cv::Mat get_descriptors() const { return descriptors_; }$/;"	f	class:Model
+get_hogdescriptor_visu	train_HOG.cpp	/^Mat get_hogdescriptor_visu(const Mat& color_origImg, vector<float>& descriptorValues, const Size & size )$/;"	f
+get_keypoints	tutorial_code/calib3d/real_time_pose_estimation/src/Model.h	/^  std::vector<cv::KeyPoint> get_keypoints() const { return list_keypoints_; }$/;"	f	class:Model
+get_nearest_3D_point	tutorial_code/calib3d/real_time_pose_estimation/src/PnPProblem.cpp	/^cv::Point3f get_nearest_3D_point(std::vector<cv::Point3f> &points_list, cv::Point3f origin)$/;"	f
+get_numDescriptors	tutorial_code/calib3d/real_time_pose_estimation/src/Model.h	/^  int get_numDescriptors() const { return descriptors_.rows; }$/;"	f	class:Model
+get_points2d	tutorial_code/calib3d/real_time_pose_estimation/src/ModelRegistration.h	/^  std::vector<cv::Point2f> get_points2d() const { return list_points2d_; }$/;"	f	class:ModelRegistration
+get_points2d_in	tutorial_code/calib3d/real_time_pose_estimation/src/Model.h	/^  std::vector<cv::Point2f> get_points2d_in() const { return list_points2d_in_; }$/;"	f	class:Model
+get_points2d_out	tutorial_code/calib3d/real_time_pose_estimation/src/Model.h	/^  std::vector<cv::Point2f> get_points2d_out() const { return list_points2d_out_; }$/;"	f	class:Model
+get_points3d	tutorial_code/calib3d/real_time_pose_estimation/src/Model.h	/^  std::vector<cv::Point3f> get_points3d() const { return list_points3d_in_; }$/;"	f	class:Model
+get_points3d	tutorial_code/calib3d/real_time_pose_estimation/src/ModelRegistration.h	/^  std::vector<cv::Point3f> get_points3d() const { return list_points3d_; }$/;"	f	class:ModelRegistration
+get_rotation_error	tutorial_code/calib3d/real_time_pose_estimation/src/Utils.cpp	/^double get_rotation_error(const cv::Mat &R_true, const cv::Mat &R)$/;"	f
+get_svm_detector	train_HOG.cpp	/^void get_svm_detector(const Ptr<SVM>& svm, vector< float > & hog_detector )$/;"	f
+get_t_matrix	tutorial_code/calib3d/real_time_pose_estimation/src/PnPProblem.h	/^  cv::Mat get_t_matrix() const { return _t_matrix; }$/;"	f	class:PnPProblem
+get_translation_error	tutorial_code/calib3d/real_time_pose_estimation/src/Utils.cpp	/^double get_translation_error(const cv::Mat &t_true, const cv::Mat &t)$/;"	f
+goodFeaturesToTrack_Demo	tutorial_code/TrackingMotion/cornerSubPix_Demo.cpp	/^void goodFeaturesToTrack_Demo( int, void* )$/;"	f
+goodFeaturesToTrack_Demo	tutorial_code/TrackingMotion/goodFeaturesToTrack_Demo.cpp	/^void goodFeaturesToTrack_Demo( int, void* )$/;"	f
+goodInput	tutorial_code/calib3d/camera_calibration/camera_calibration.cpp	/^    bool goodInput;$/;"	m	class:Settings	file:
+gpu	videostab.cpp	/^    bool gpu;$/;"	m	class:MotionEstimatorL1Builder	file:
+gpu	videostab.cpp	/^    bool gpu;$/;"	m	class:MotionEstimatorRansacL2Builder	file:
+gray	distrans.cpp	/^Mat gray;$/;"	v
+gray	edge.cpp	/^Mat image, gray, edge, cedge;$/;"	v
+gray	ffilldemo.cpp	/^Mat image0, image, gray, mask;$/;"	v
+green	cloning_gui.cpp	/^float red, green, blue;$/;"	v
+green	tutorial_code/photo/seamless_cloning/cloning_gui.cpp	/^float red, green, blue;$/;"	v
+gs	tutorial_code/gpu/gpu-basics-similarity/gpu-basics-similarity.cpp	/^    cuda::GpuMat gI1, gI2, gs, t1,t2;$/;"	m	struct:BufferMSSIM	file:
+gs	tutorial_code/gpu/gpu-basics-similarity/gpu-basics-similarity.cpp	/^    cuda::GpuMat gI1, gI2, gs, t1,t2;$/;"	m	struct:BufferPSNR	file:
+height	tutorial_code/calib3d/real_time_pose_estimation/src/main_detection.cpp	/^double width = 640, height = 480;        \/\/ image size$/;"	v
+height	tutorial_code/calib3d/real_time_pose_estimation/src/main_registration.cpp	/^double width = 2592, height = 1944;$/;"	v
+help	3calibration.cpp	/^static void help()$/;"	f	file:
+help	bgfg_segm.cpp	/^static void help()$/;"	f	file:
+help	calibration.cpp	/^static void help()$/;"	f	file:
+help	camshiftdemo.cpp	/^static void help()$/;"	f	file:
+help	connected_components.cpp	/^static void help()$/;"	f	file:
+help	contours2.cpp	/^static void help()$/;"	f	file:
+help	convexhull.cpp	/^static void help()$/;"	f	file:
+help	cout_mat.cpp	/^static void help()$/;"	f	file:
+help	delaunay2.cpp	/^static void help()$/;"	f	file:
+help	demhist.cpp	/^static void help()$/;"	f	file:
+help	detect_blob.cpp	/^static void help()$/;"	f	file:
+help	detect_mser.cpp	/^static void help()$/;"	f	file:
+help	dft.cpp	/^static void help()$/;"	f	file:
+help	distrans.cpp	/^static void help()$/;"	f	file:
+help	drawing.cpp	/^static void help()$/;"	f	file:
+help	edge.cpp	/^static void help()$/;"	f	file:
+help	facedetect.cpp	/^static void help()$/;"	f	file:
+help	facial_features.cpp	/^static void help()$/;"	f	file:
+help	fback.cpp	/^static void help()$/;"	f	file:
+help	ffilldemo.cpp	/^static void help()$/;"	f	file:
+help	filestorage.cpp	/^static void help(char** av)$/;"	f	file:
+help	grabcut.cpp	/^static void help()$/;"	f	file:
+help	houghcircles.cpp	/^static void help()$/;"	f	file:
+help	houghlines.cpp	/^static void help()$/;"	f	file:
+help	image.cpp	/^static void help()$/;"	f	file:
+help	image_alignment.cpp	/^static void help(void)$/;"	f	file:
+help	image_sequence.cpp	/^static void help(char** argv)$/;"	f	file:
+help	imagelist_creator.cpp	/^static void help(char** av)$/;"	f	file:
+help	inpaint.cpp	/^static void help()$/;"	f	file:
+help	kalman.cpp	/^static void help()$/;"	f	file:
+help	laplace.cpp	/^static void help()$/;"	f	file:
+help	letter_recog.cpp	/^static void help()$/;"	f	file:
+help	lkdemo.cpp	/^static void help()$/;"	f	file:
+help	mask_tmpl.cpp	/^static void help()$/;"	f	file:
+help	matchmethod_orb_akaze_brisk.cpp	/^static void help()$/;"	f	file:
+help	minarea.cpp	/^static void help()$/;"	f	file:
+help	morphology2.cpp	/^static void help()$/;"	f	file:
+help	openni_capture.cpp	/^static void help()$/;"	f	file:
+help	polar_transforms.cpp	/^static void help( void )$/;"	f	file:
+help	segment_objects.cpp	/^static void help()$/;"	f	file:
+help	shape_example.cpp	/^static void help()$/;"	f	file:
+help	smiledetect.cpp	/^static void help()$/;"	f	file:
+help	squares.cpp	/^static void help()$/;"	f	file:
+help	starter_imagelist.cpp	/^void help(char** av)$/;"	f	namespace:__anon8
+help	starter_video.cpp	/^    void help(char** av) {$/;"	f	namespace:__anon6
+help	tree_engine.cpp	/^static void help()$/;"	f	file:
+help	tutorial_code/HighGUI/video-input-psnr-ssim/video-input-psnr-ssim.cpp	/^static void help()$/;"	f	file:
+help	tutorial_code/HighGUI/video-write/video-write.cpp	/^static void help()$/;"	f	file:
+help	tutorial_code/ImgTrans/HoughLines_Demo.cpp	/^void help()$/;"	f
+help	tutorial_code/calib3d/camera_calibration/camera_calibration.cpp	/^static void help()$/;"	f	file:
+help	tutorial_code/calib3d/real_time_pose_estimation/src/main_detection.cpp	/^void help()$/;"	f
+help	tutorial_code/calib3d/real_time_pose_estimation/src/main_registration.cpp	/^void help()$/;"	f
+help	tutorial_code/core/discrete_fourier_transform/discrete_fourier_transform.cpp	/^static void help(char* progName)$/;"	f	file:
+help	tutorial_code/core/file_input_output/file_input_output.cpp	/^static void help(char** av)$/;"	f	file:
+help	tutorial_code/core/how_to_scan_images/how_to_scan_images.cpp	/^static void help()$/;"	f	file:
+help	tutorial_code/core/interoperability_with_OpenCV_1/interoperability_with_OpenCV_1.cpp	/^static void help( char* progName)$/;"	f	file:
+help	tutorial_code/core/ippasync/ippasync_sample.cpp	/^static void help()$/;"	f	file:
+help	tutorial_code/core/mat_mask_operations/mat_mask_operations.cpp	/^static void help(char* progName)$/;"	f	file:
+help	tutorial_code/core/mat_the_basic_image_container/mat_the_basic_image_container.cpp	/^static void help()$/;"	f	file:
+help	tutorial_code/gpu/gpu-basics-similarity/gpu-basics-similarity.cpp	/^static void help()$/;"	f	file:
+help	tutorial_code/ml/non_linear_svms/non_linear_svms.cpp	/^static void help()$/;"	f	file:
+help	tutorial_code/video/bg_sub.cpp	/^void help()$/;"	f
+help	tutorial_code/viz/creating_widgets.cpp	/^void help()$/;"	f
+help	tutorial_code/viz/launching_viz.cpp	/^void help()$/;"	f
+help	tutorial_code/viz/transformations.cpp	/^void help()$/;"	f
+help	tutorial_code/viz/widget_pose.cpp	/^void help()$/;"	f
+help	ufacedetect.cpp	/^static void help()$/;"	f	file:
+help	watershed.cpp	/^static void help()$/;"	f	file:
+helphelp	select3dobj.cpp	/^const char* helphelp =$/;"	v
+hierarchy	contours2.cpp	/^vector<Vec4i> hierarchy;$/;"	v
+high_t	cloning_gui.cpp	/^float low_t, high_t;$/;"	v
+high_t	tutorial_code/photo/seamless_cloning/cloning_gui.cpp	/^float low_t, high_t;$/;"	v
+hsv	tutorial_code/Histograms_Matching/calcBackProject_Demo1.cpp	/^Mat src; Mat hsv; Mat hue;$/;"	v
+hsv	tutorial_code/Histograms_Matching/calcBackProject_Demo2.cpp	/^Mat src; Mat hsv;$/;"	v
+hue	tutorial_code/Histograms_Matching/calcBackProject_Demo1.cpp	/^Mat src; Mat hsv; Mat hue;$/;"	v
+id	filestorage.cpp	/^  string id;$/;"	m	struct:MyData	file:
+id	tutorial_code/core/file_input_output/file_input_output.cpp	/^    string id;$/;"	m	class:MyData	file:
+id_	tutorial_code/calib3d/real_time_pose_estimation/src/Mesh.h	/^  int id_;$/;"	m	class:Mesh
+id_	tutorial_code/calib3d/real_time_pose_estimation/src/Mesh.h	/^  int id_;$/;"	m	class:Triangle
+image	demhist.cpp	/^Mat image;$/;"	v
+image	edge.cpp	/^Mat image, gray, edge, cedge;$/;"	v
+image	ffilldemo.cpp	/^Mat image0, image, gray, mask;$/;"	v
+image	fitellipse.cpp	/^Mat image;$/;"	v
+image	grabcut.cpp	/^    const Mat* image;$/;"	m	class:GCApplication	file:
+image	tutorial_code/HighGUI/BasicLinearTransformsTrackbar.cpp	/^Mat image;$/;"	v
+image0	ffilldemo.cpp	/^Mat image0, image, gray, mask;$/;"	v
+image2plane	select3dobj.cpp	/^static Point3f image2plane(Point2f imgpt, const Mat& R, const Mat& tvec,$/;"	f	file:
+imageList	tutorial_code/calib3d/camera_calibration/camera_calibration.cpp	/^    vector<string> imageList;$/;"	m	class:Settings	file:
+image_window	tutorial_code/Histograms_Matching/MatchTemplate_Demo.cpp	/^const char* image_window = "Source Image";$/;"	v
+img	inpaint.cpp	/^Mat img, inpaintMask;$/;"	v
+img	points_classifier.cpp	/^Mat img, imgDst;$/;"	v
+img	watershed.cpp	/^Mat markerMask, img;$/;"	v
+imgDst	points_classifier.cpp	/^Mat img, imgDst;$/;"	v
+img_names	stitching_detailed.cpp	/^vector<String> img_names;$/;"	v
+img_path	tutorial_code/calib3d/real_time_pose_estimation/src/main_registration.cpp	/^string img_path = tutorial_path + "Data\/resized_IMG_3875.JPG";  \/\/ image to register$/;"	v
+imgs	stitching.cpp	/^vector<Mat> imgs;$/;"	v
+imshowDepth	intelperc_capture.cpp	/^static void imshowDepth(const char *winname, Mat &depth, VideoCapture &capture)$/;"	f	file:
+imshowIR	intelperc_capture.cpp	/^static void imshowIR(const char *winname, Mat &ir)$/;"	f	file:
+imshowImage	intelperc_capture.cpp	/^static void imshowImage(const char *winname, Mat &image, VideoCapture &capture)$/;"	f	file:
+ind	tutorial_code/ImgTrans/Remap_Demo.cpp	/^int ind = 0;$/;"	v
+indices	detect_mser.cpp	/^    ogl::Buffer indices;$/;"	m	struct:DrawData	file:
+initKalmanFilter	tutorial_code/calib3d/real_time_pose_estimation/src/main_detection.cpp	/^void initKalmanFilter(KalmanFilter &KF, int nStates, int nMeasurements, int nInputs, double dt)$/;"	f
+inlier_threshold	tutorial_code/features2D/AKAZE_match.cpp	/^const float inlier_threshold = 2.5f; \/\/ Distance threshold to identify inliers$/;"	v
+inlier_threshold	tutorial_code/xfeatures2D/LATCH_match.cpp	/^const float inlier_threshold = 2.5f; \/\/ Distance threshold to identify inliers$/;"	v
+inliers	tutorial_code/features2D/AKAZE_tracking/stats.h	/^    int inliers;$/;"	m	struct:Stats
+inpaintMask	inpaint.cpp	/^Mat img, inpaintMask;$/;"	v
+input	tutorial_code/calib3d/camera_calibration/camera_calibration.cpp	/^    string input;                \/\/ The input ->$/;"	m	class:Settings	file:
+inputCapture	tutorial_code/calib3d/camera_calibration/camera_calibration.cpp	/^    VideoCapture inputCapture;$/;"	m	class:Settings	file:
+inputType	tutorial_code/calib3d/camera_calibration/camera_calibration.cpp	/^    InputType inputType;$/;"	m	class:Settings	file:
+input_image_path	facial_features.cpp	/^string input_image_path;$/;"	v
+intersect_MollerTrumbore	tutorial_code/calib3d/real_time_pose_estimation/src/PnPProblem.cpp	/^bool PnPProblem::intersect_MollerTrumbore(Ray &Ray, Triangle &Triangle, double *out)$/;"	f	class:PnPProblem
+isColor	ffilldemo.cpp	/^int isColor = true;$/;"	v
+isFlowCorrect	tvl1_optical_flow.cpp	/^inline bool isFlowCorrect(Point2f u)$/;"	f
+isInitialized	grabcut.cpp	/^    bool isInitialized;$/;"	m	class:GCApplication	file:
+is_registrable	tutorial_code/calib3d/real_time_pose_estimation/src/ModelRegistration.h	/^  bool is_registrable() const { return (n_registrations_ < max_registrations_); }$/;"	f	class:ModelRegistration
+iterCount	grabcut.cpp	/^    int iterCount;$/;"	m	class:GCApplication	file:
+iterationsCount	tutorial_code/calib3d/real_time_pose_estimation/src/main_detection.cpp	/^int iterationsCount = 500;      \/\/ number of Ransac iterations.$/;"	v
+kernel_size	cloning_gui.cpp	/^int channel, num, kernel_size;$/;"	v
+kernel_size	tutorial_code/ImgTrans/CannyDetector_Demo.cpp	/^int kernel_size = 3;$/;"	v
+kernel_size	tutorial_code/photo/seamless_cloning/cloning_gui.cpp	/^int channel, num, kernel_size;$/;"	v
+keyPressed	detect_mser.cpp	/^bool    keyPressed=false;$/;"	v
+keyboard	tutorial_code/video/bg_sub.cpp	/^int keyboard; \/\/input from keyboard$/;"	v
+keypoints	tutorial_code/features2D/AKAZE_tracking/stats.h	/^    int keypoints;$/;"	m	struct:Stats
+keys	bgfg_segm.cpp	/^const char* keys =$/;"	v
+keys	camshiftdemo.cpp	/^const char* keys =$/;"	v
+keys	connected_components.cpp	/^const char* keys =$/;"	v
+keys	demhist.cpp	/^const char* keys =$/;"	v
+keys	dft.cpp	/^const char* keys =$/;"	v
+keys	distrans.cpp	/^const char* keys =$/;"	v
+keys	edge.cpp	/^const char* keys =$/;"	v
+keys	image_alignment.cpp	/^const std::string keys =$/;"	v
+keys	opencv_version.cpp	/^const char* keys =$/;"	v
+keys	tutorial_code/core/ippasync/ippasync_sample.cpp	/^const char* keys =$/;"	v
+lastDirectionChange	autofocus.cpp	/^    int lastDirectionChange;$/;"	m	struct:FocusState	file:
+lblsState	grabcut.cpp	/^    uchar rectState, lblsState, prLblsState;$/;"	m	class:GCApplication	file:
+left	tutorial_code/ImgTrans/copyMakeBorder_demo.cpp	/^int top, bottom, left, right;$/;"	v
+lenx	cloning_gui.cpp	/^int minx, miny, maxx, maxy, lenx, leny;$/;"	v
+lenx	create_mask.cpp	/^int minx,miny,maxx,maxy,lenx,leny;$/;"	v
+lenx	tutorial_code/photo/seamless_cloning/cloning_gui.cpp	/^int minx, miny, maxx, maxy, lenx, leny;$/;"	v
+lenxd	cloning_gui.cpp	/^int minxd, minyd, maxxd, maxyd, lenxd, lenyd;$/;"	v
+lenxd	tutorial_code/photo/seamless_cloning/cloning_gui.cpp	/^int minxd, minyd, maxxd, maxyd, lenxd, lenyd;$/;"	v
+leny	cloning_gui.cpp	/^int minx, miny, maxx, maxy, lenx, leny;$/;"	v
+leny	create_mask.cpp	/^int minx,miny,maxx,maxy,lenx,leny;$/;"	v
+leny	tutorial_code/photo/seamless_cloning/cloning_gui.cpp	/^int minx, miny, maxx, maxy, lenx, leny;$/;"	v
+lenyd	cloning_gui.cpp	/^int minxd, minyd, maxxd, maxyd, lenxd, lenyd;$/;"	v
+lenyd	tutorial_code/photo/seamless_cloning/cloning_gui.cpp	/^int minxd, minyd, maxxd, maxyd, lenxd, lenyd;$/;"	v
+lerp	tutorial_code/HighGUI/GDAL_IO/gdal-image.cpp	/^cv::Point2d lerp( cv::Point2d const& p1, cv::Point2d const& p2, const double& t ){$/;"	f
+lerp	tutorial_code/HighGUI/GDAL_IO/gdal-image.cpp	/^cv::Vec<DATATYPE,N> lerp( cv::Vec<DATATYPE,N> const& minColor,$/;"	f
+levels	contours2.cpp	/^int levels = 3;$/;"	v
+lineType	tutorial_code/calib3d/real_time_pose_estimation/src/Utils.cpp	/^int lineType = 8;$/;"	v
+list_keypoints_	tutorial_code/calib3d/real_time_pose_estimation/src/Model.h	/^  std::vector<cv::KeyPoint> list_keypoints_;$/;"	m	class:Model
+list_points2d_	tutorial_code/calib3d/real_time_pose_estimation/src/ModelRegistration.h	/^std::vector<cv::Point2f> list_points2d_;$/;"	m	class:ModelRegistration
+list_points2d_in_	tutorial_code/calib3d/real_time_pose_estimation/src/Model.h	/^  std::vector<cv::Point2f> list_points2d_in_;$/;"	m	class:Model
+list_points2d_out_	tutorial_code/calib3d/real_time_pose_estimation/src/Model.h	/^  std::vector<cv::Point2f> list_points2d_out_;$/;"	m	class:Model
+list_points3d_	tutorial_code/calib3d/real_time_pose_estimation/src/ModelRegistration.h	/^std::vector<cv::Point3f> list_points3d_;$/;"	m	class:ModelRegistration
+list_points3d_in_	tutorial_code/calib3d/real_time_pose_estimation/src/Model.h	/^  std::vector<cv::Point3f> list_points3d_in_;$/;"	m	class:Model
+list_triangles_	tutorial_code/calib3d/real_time_pose_estimation/src/Mesh.h	/^  std::vector<std::vector<int> > list_triangles_;$/;"	m	class:Mesh
+list_vertex_	tutorial_code/calib3d/real_time_pose_estimation/src/Mesh.h	/^  std::vector<cv::Point3f> list_vertex_;$/;"	m	class:Mesh
+liveCaptureHelp	calibration.cpp	/^const char* liveCaptureHelp =$/;"	v
+lo	tutorial_code/Histograms_Matching/calcBackProject_Demo2.cpp	/^int lo = 20; int up = 20;$/;"	v
+loDiff	ffilldemo.cpp	/^int loDiff = 20, upDiff = 20;$/;"	v
+load	tutorial_code/calib3d/real_time_pose_estimation/src/Mesh.cpp	/^void Mesh::load(const std::string path)$/;"	f	class:Mesh
+load	tutorial_code/calib3d/real_time_pose_estimation/src/Model.cpp	/^void Model::load(const std::string path)$/;"	f	class:Model
+loadExposureSeq	tutorial_code/photo/hdr_imaging/hdr_imaging.cpp	/^void loadExposureSeq(String path, vector<Mat>& images, vector<float>& times)$/;"	f
+load_classifier	letter_recog.cpp	/^static Ptr<T> load_classifier(const string& filename_to_load)$/;"	f	file:
+load_images	train_HOG.cpp	/^void load_images( const string & prefix, const string & filename, vector< Mat > & img_lst )$/;"	f
+locate_point	delaunay2.cpp	/^static void locate_point( Mat& img, Subdiv2D& subdiv, Point2f fp, Scalar active_color )$/;"	f	file:
+lowThreshold	tutorial_code/ImgTrans/CannyDetector_Demo.cpp	/^int lowThreshold;$/;"	v
+low_t	cloning_gui.cpp	/^float low_t, high_t;$/;"	v
+low_t	tutorial_code/photo/seamless_cloning/cloning_gui.cpp	/^float low_t, high_t;$/;"	v
+main	3calibration.cpp	/^int main( int argc, char** argv )$/;"	f
+main	autofocus.cpp	/^int main(int argc, char ** argv)$/;"	f
+main	bgfg_segm.cpp	/^int main(int argc, const char** argv)$/;"	f
+main	calibration.cpp	/^int main( int argc, char** argv )$/;"	f
+main	camshiftdemo.cpp	/^int main( int argc, const char** argv )$/;"	f
+main	cloning_demo.cpp	/^int main()$/;"	f
+main	cloning_gui.cpp	/^int main()$/;"	f
+main	connected_components.cpp	/^int main( int argc, const char** argv )$/;"	f
+main	contours2.cpp	/^int main( int argc, char**)$/;"	f
+main	convexhull.cpp	/^int main( int \/*argc*\/, char** \/*argv*\/ )$/;"	f
+main	cout_mat.cpp	/^int main(int,char**)$/;"	f
+main	create_mask.cpp	/^int main(int argc, char **argv)$/;"	f
+main	dbt_face_detection.cpp	/^int main()$/;"	f
+main	dbt_face_detection.cpp	/^int main(int , char** )$/;"	f
+main	delaunay2.cpp	/^int main( int, char** )$/;"	f
+main	demhist.cpp	/^int main( int argc, const char** argv )$/;"	f
+main	detect_blob.cpp	/^int main(int argc, char *argv[])$/;"	f
+main	detect_mser.cpp	/^int main(int argc, char *argv[])$/;"	f
+main	dft.cpp	/^int main(int argc, const char ** argv)$/;"	f
+main	distrans.cpp	/^int main( int argc, const char** argv )$/;"	f
+main	drawing.cpp	/^int main()$/;"	f
+main	edge.cpp	/^int main( int argc, const char** argv )$/;"	f
+main	em.cpp	/^int main( int \/*argc*\/, char** \/*argv*\/ )$/;"	f
+main	example_cmake/example.cpp	/^int main()$/;"	f
+main	facedetect.cpp	/^int main( int argc, const char** argv )$/;"	f
+main	facial_features.cpp	/^int main(int argc, char** argv)$/;"	f
+main	fback.cpp	/^int main(int, char**)$/;"	f
+main	ffilldemo.cpp	/^int main( int argc, char** argv )$/;"	f
+main	filestorage.cpp	/^int main(int ac, char** av)$/;"	f
+main	fitellipse.cpp	/^int main( int argc, char** argv )$/;"	f
+main	grabcut.cpp	/^int main( int argc, char** argv )$/;"	f
+main	houghcircles.cpp	/^int main(int argc, char** argv)$/;"	f
+main	houghlines.cpp	/^int main(int argc, char** argv)$/;"	f
+main	image.cpp	/^int main( int argc, char** argv )$/;"	f
+main	image_alignment.cpp	/^int main (const int argc, const char * argv[])$/;"	f
+main	image_sequence.cpp	/^int main(int argc, char** argv)$/;"	f
+main	imagelist_creator.cpp	/^int main(int ac, char** av)$/;"	f
+main	inpaint.cpp	/^int main( int argc, char** argv )$/;"	f
+main	intelperc_capture.cpp	/^int main(int argc, char* argv[])$/;"	f
+main	kalman.cpp	/^int main(int, char**)$/;"	f
+main	kmeans.cpp	/^int main( int \/*argc*\/, char** \/*argv*\/ )$/;"	f
+main	laplace.cpp	/^int main( int argc, char** argv )$/;"	f
+main	letter_recog.cpp	/^int main( int argc, char *argv[] )$/;"	f
+main	lkdemo.cpp	/^int main( int argc, char** argv )$/;"	f
+main	logistic_regression.cpp	/^int main()$/;"	f
+main	lsd_lines.cpp	/^int main(int argc, char** argv)$/;"	f
+main	mask_tmpl.cpp	/^int main( int argc, const char** argv )$/;"	f
+main	matchmethod_orb_akaze_brisk.cpp	/^int main(int argc, char *argv[])$/;"	f
+main	minarea.cpp	/^int main( int \/*argc*\/, char** \/*argv*\/ )$/;"	f
+main	morphology2.cpp	/^int main( int argc, char** argv )$/;"	f
+main	npr_demo.cpp	/^int main(int argc, char* argv[])$/;"	f
+main	opencv_version.cpp	/^int main(int argc, const char* argv[])$/;"	f
+main	openni_capture.cpp	/^int main( int argc, char* argv[] )$/;"	f
+main	pca.cpp	/^int main(int argc, char** argv)$/;"	f
+main	phase_corr.cpp	/^int main(int, char* [])$/;"	f
+main	points_classifier.cpp	/^int main()$/;"	f
+main	polar_transforms.cpp	/^int main( int argc, char** argv )$/;"	f
+main	segment_objects.cpp	/^int main(int argc, char** argv)$/;"	f
+main	select3dobj.cpp	/^int main(int argc, char** argv)$/;"	f
+main	shape_example.cpp	/^int main(int argc, char** argv)$/;"	f
+main	smiledetect.cpp	/^int main( int argc, const char** argv )$/;"	f
+main	squares.cpp	/^int main(int \/*argc*\/, char** \/*argv*\/)$/;"	f
+main	starter_imagelist.cpp	/^int main(int ac, char** av)$/;"	f
+main	starter_video.cpp	/^int main(int ac, char** av) {$/;"	f
+main	stereo_calib.cpp	/^int main(int argc, char** argv)$/;"	f
+main	stereo_match.cpp	/^int main(int argc, char** argv)$/;"	f
+main	stitching.cpp	/^int main(int argc, char* argv[])$/;"	f
+main	stitching_detailed.cpp	/^int main(int argc, char* argv[])$/;"	f
+main	train_HOG.cpp	/^int main( int argc, char** argv )$/;"	f
+main	tree_engine.cpp	/^int main(int argc, char** argv)$/;"	f
+main	tutorial_code/HighGUI/AddingImagesTrackbar.cpp	/^int main( void )$/;"	f
+main	tutorial_code/HighGUI/BasicLinearTransformsTrackbar.cpp	/^int main( int, char** argv )$/;"	f
+main	tutorial_code/HighGUI/GDAL_IO/gdal-image.cpp	/^int main( int argc, char* argv[] ){$/;"	f
+main	tutorial_code/HighGUI/video-input-psnr-ssim/video-input-psnr-ssim.cpp	/^int main(int argc, char *argv[])$/;"	f
+main	tutorial_code/HighGUI/video-write/video-write.cpp	/^int main(int argc, char *argv[])$/;"	f
+main	tutorial_code/Histograms_Matching/EqualizeHist_Demo.cpp	/^int main( int, char** argv )$/;"	f
+main	tutorial_code/Histograms_Matching/MatchTemplate_Demo.cpp	/^int main( int, char** argv )$/;"	f
+main	tutorial_code/Histograms_Matching/calcBackProject_Demo1.cpp	/^int main( int, char** argv )$/;"	f
+main	tutorial_code/Histograms_Matching/calcBackProject_Demo2.cpp	/^int main( int, char** argv )$/;"	f
+main	tutorial_code/Histograms_Matching/calcHist_Demo.cpp	/^int main( int, char** argv )$/;"	f
+main	tutorial_code/Histograms_Matching/compareHist_Demo.cpp	/^int main( int argc, char** argv )$/;"	f
+main	tutorial_code/ImgProc/AddingImages.cpp	/^int main( void )$/;"	f
+main	tutorial_code/ImgProc/BasicLinearTransforms.cpp	/^int main( int, char** argv )$/;"	f
+main	tutorial_code/ImgProc/Morphology_1.cpp	/^int main( int, char** argv )$/;"	f
+main	tutorial_code/ImgProc/Morphology_2.cpp	/^int main( int, char** argv )$/;"	f
+main	tutorial_code/ImgProc/Morphology_3.cpp	/^int main(int, char** argv)$/;"	f
+main	tutorial_code/ImgProc/Pyramids.cpp	/^int main( void )$/;"	f
+main	tutorial_code/ImgProc/Smoothing.cpp	/^int main( void )$/;"	f
+main	tutorial_code/ImgProc/Threshold.cpp	/^int main( int, char** argv )$/;"	f
+main	tutorial_code/ImgTrans/CannyDetector_Demo.cpp	/^int main( int, char** argv )$/;"	f
+main	tutorial_code/ImgTrans/Geometric_Transforms_Demo.cpp	/^int main( int, char** argv )$/;"	f
+main	tutorial_code/ImgTrans/HoughCircle_Demo.cpp	/^int main(int argc, char** argv)$/;"	f
+main	tutorial_code/ImgTrans/HoughLines_Demo.cpp	/^int main( int, char** argv )$/;"	f
+main	tutorial_code/ImgTrans/Laplace_Demo.cpp	/^int main( int, char** argv )$/;"	f
+main	tutorial_code/ImgTrans/Remap_Demo.cpp	/^int main( int, char** argv )$/;"	f
+main	tutorial_code/ImgTrans/Sobel_Demo.cpp	/^int main( int, char** argv )$/;"	f
+main	tutorial_code/ImgTrans/copyMakeBorder_demo.cpp	/^int main( int, char** argv )$/;"	f
+main	tutorial_code/ImgTrans/filter2D_demo.cpp	/^int main ( int, char** argv )$/;"	f
+main	tutorial_code/ImgTrans/imageSegmentation.cpp	/^int main(int, char** argv)$/;"	f
+main	tutorial_code/ShapeDescriptors/findContours_demo.cpp	/^int main( int, char** argv )$/;"	f
+main	tutorial_code/ShapeDescriptors/generalContours_demo1.cpp	/^int main( int, char** argv )$/;"	f
+main	tutorial_code/ShapeDescriptors/generalContours_demo2.cpp	/^int main( int, char** argv )$/;"	f
+main	tutorial_code/ShapeDescriptors/hull_demo.cpp	/^int main( int, char** argv )$/;"	f
+main	tutorial_code/ShapeDescriptors/moments_demo.cpp	/^int main( int, char** argv )$/;"	f
+main	tutorial_code/ShapeDescriptors/pointPolygonTest_demo.cpp	/^int main( void )$/;"	f
+main	tutorial_code/TrackingMotion/cornerDetector_Demo.cpp	/^int main( int, char** argv )$/;"	f
+main	tutorial_code/TrackingMotion/cornerHarris_Demo.cpp	/^int main( int, char** argv )$/;"	f
+main	tutorial_code/TrackingMotion/cornerSubPix_Demo.cpp	/^int main( int, char** argv )$/;"	f
+main	tutorial_code/TrackingMotion/goodFeaturesToTrack_Demo.cpp	/^int main( int, char** argv )$/;"	f
+main	tutorial_code/calib3d/camera_calibration/camera_calibration.cpp	/^int main(int argc, char* argv[])$/;"	f
+main	tutorial_code/calib3d/real_time_pose_estimation/src/main_detection.cpp	/^int main(int argc, char *argv[])$/;"	f
+main	tutorial_code/calib3d/real_time_pose_estimation/src/main_registration.cpp	/^int main()$/;"	f
+main	tutorial_code/calib3d/stereoBM/SBM_Sample.cpp	/^int main( int argc, char** argv )$/;"	f
+main	tutorial_code/core/Matrix/Drawing_1.cpp	/^int main( void ){$/;"	f
+main	tutorial_code/core/Matrix/Drawing_2.cpp	/^int main( void )$/;"	f
+main	tutorial_code/core/discrete_fourier_transform/discrete_fourier_transform.cpp	/^int main(int argc, char ** argv)$/;"	f
+main	tutorial_code/core/file_input_output/file_input_output.cpp	/^int main(int ac, char** av)$/;"	f
+main	tutorial_code/core/how_to_scan_images/how_to_scan_images.cpp	/^int main( int argc, char* argv[])$/;"	f
+main	tutorial_code/core/interoperability_with_OpenCV_1/interoperability_with_OpenCV_1.cpp	/^int main( int argc, char** argv )$/;"	f
+main	tutorial_code/core/ippasync/ippasync_sample.cpp	/^int main(int argc, const char** argv)$/;"	f
+main	tutorial_code/core/mat_mask_operations/mat_mask_operations.cpp	/^int main( int argc, char* argv[])$/;"	f
+main	tutorial_code/core/mat_the_basic_image_container/mat_the_basic_image_container.cpp	/^int main(int,char**)$/;"	f
+main	tutorial_code/features2D/AKAZE_match.cpp	/^int main(void)$/;"	f
+main	tutorial_code/features2D/AKAZE_tracking/planar_tracking.cpp	/^int main(int argc, char **argv)$/;"	f
+main	tutorial_code/gpu/gpu-basics-similarity/gpu-basics-similarity.cpp	/^int main(int, char *argv[])$/;"	f
+main	tutorial_code/introduction/display_image/display_image.cpp	/^int main( int argc, char** argv )$/;"	f
+main	tutorial_code/introduction/windows_visual_studio_Opencv/introduction_windows_vs.cpp	/^int main( int argc, char** argv )$/;"	f
+main	tutorial_code/ml/introduction_to_pca/introduction_to_pca.cpp	/^int main(int, char** argv)$/;"	f
+main	tutorial_code/ml/introduction_to_svm/introduction_to_svm.cpp	/^int main(int, char**)$/;"	f
+main	tutorial_code/ml/non_linear_svms/non_linear_svms.cpp	/^int main()$/;"	f
+main	tutorial_code/objectDetection/objectDetection.cpp	/^int main( void )$/;"	f
+main	tutorial_code/objectDetection/objectDetection2.cpp	/^int main( void )$/;"	f
+main	tutorial_code/photo/decolorization/decolor.cpp	/^int main(int argc, char *argv[])$/;"	f
+main	tutorial_code/photo/hdr_imaging/hdr_imaging.cpp	/^int main(int, char**argv)$/;"	f
+main	tutorial_code/photo/non_photorealistic_rendering/npr_demo.cpp	/^int main(int argc, char* argv[])$/;"	f
+main	tutorial_code/photo/seamless_cloning/cloning_demo.cpp	/^int main()$/;"	f
+main	tutorial_code/photo/seamless_cloning/cloning_gui.cpp	/^int main()$/;"	f
+main	tutorial_code/video/bg_sub.cpp	/^int main(int argc, char* argv[])$/;"	f
+main	tutorial_code/viz/creating_widgets.cpp	/^int main()$/;"	f
+main	tutorial_code/viz/launching_viz.cpp	/^int main()$/;"	f
+main	tutorial_code/viz/transformations.cpp	/^int main(int argn, char **argv)$/;"	f
+main	tutorial_code/viz/widget_pose.cpp	/^int main()$/;"	f
+main	tutorial_code/xfeatures2D/LATCH_match.cpp	/^int main()$/;"	f
+main	tutorial_code/xfeatures2D/LATCH_match.cpp	/^int main(void)$/;"	f
+main	tvl1_optical_flow.cpp	/^int main(int argc, const char* argv[])$/;"	f
+main	ufacedetect.cpp	/^int main( int argc, const char** argv )$/;"	f
+main	videostab.cpp	/^int main(int argc, const char **argv)$/;"	f
+main	watershed.cpp	/^int main( int argc, char** argv )$/;"	f
+map_x	tutorial_code/ImgTrans/Remap_Demo.cpp	/^Mat map_x, map_y;$/;"	v
+map_y	tutorial_code/ImgTrans/Remap_Demo.cpp	/^Mat map_x, map_y;$/;"	v
+markerMask	watershed.cpp	/^Mat markerMask, img;$/;"	v
+mask	ffilldemo.cpp	/^Mat image0, image, gray, mask;$/;"	v
+mask	grabcut.cpp	/^    Mat mask;$/;"	m	class:GCApplication	file:
+mask	tutorial_code/Histograms_Matching/calcBackProject_Demo2.cpp	/^Mat mask;$/;"	v
+maskSize0	distrans.cpp	/^int maskSize0 = DIST_MASK_5;$/;"	v
+match_conf	stitching_detailed.cpp	/^float match_conf = 0.3f;$/;"	v
+match_method	tutorial_code/Histograms_Matching/MatchTemplate_Demo.cpp	/^int match_method;$/;"	v
+matcher	tutorial_code/features2D/AKAZE_tracking/planar_tracking.cpp	/^    Ptr<DescriptorMatcher> matcher;$/;"	m	class:Tracker	file:
+matcher_	tutorial_code/calib3d/real_time_pose_estimation/src/RobustMatcher.h	/^  cv::Ptr<cv::DescriptorMatcher> matcher_;$/;"	m	class:RobustMatcher
+matches	tutorial_code/features2D/AKAZE_tracking/stats.h	/^    int matches;$/;"	m	struct:Stats
+maxAccumulatorThreshold	tutorial_code/ImgTrans/HoughCircle_Demo.cpp	/^    const int maxAccumulatorThreshold = 200;$/;"	m	namespace:__anon5	file:
+maxArea	detect_mser.cpp	/^    int maxArea;$/;"	m	struct:MSERParams	file:
+maxCannyThreshold	tutorial_code/ImgTrans/HoughCircle_Demo.cpp	/^    const int maxCannyThreshold = 255;$/;"	m	namespace:__anon5	file:
+maxCorners	tutorial_code/TrackingMotion/cornerSubPix_Demo.cpp	/^int maxCorners = 10;$/;"	v
+maxCorners	tutorial_code/TrackingMotion/goodFeaturesToTrack_Demo.cpp	/^int maxCorners = 23;$/;"	v
+maxEvolution	detect_mser.cpp	/^    int maxEvolution;$/;"	m	struct:MSERParams	file:
+maxTrackbar	tutorial_code/TrackingMotion/cornerSubPix_Demo.cpp	/^int maxTrackbar = 25;$/;"	v
+maxTrackbar	tutorial_code/TrackingMotion/goodFeaturesToTrack_Demo.cpp	/^int maxTrackbar = 100;$/;"	v
+maxVariation	detect_mser.cpp	/^    double maxVariation;$/;"	m	struct:MSERParams	file:
+max_BINARY_value	tutorial_code/ImgProc/Threshold.cpp	/^int const max_BINARY_value = 255;$/;"	v
+max_Trackbar	tutorial_code/Histograms_Matching/MatchTemplate_Demo.cpp	/^int max_Trackbar = 5;$/;"	v
+max_elem	tutorial_code/ImgProc/Morphology_1.cpp	/^int const max_elem = 2;$/;"	v
+max_elem	tutorial_code/ImgProc/Morphology_2.cpp	/^int const max_elem = 2;$/;"	v
+max_iters	morphology2.cpp	/^int max_iters = 10;$/;"	v
+max_kernel_size	tutorial_code/ImgProc/Morphology_1.cpp	/^int const max_kernel_size = 21;$/;"	v
+max_kernel_size	tutorial_code/ImgProc/Morphology_2.cpp	/^int const max_kernel_size = 21;$/;"	v
+max_lowThreshold	tutorial_code/ImgTrans/CannyDetector_Demo.cpp	/^int const max_lowThreshold = 100;$/;"	v
+max_operator	tutorial_code/ImgProc/Morphology_2.cpp	/^int const max_operator = 4;$/;"	v
+max_qualityLevel	tutorial_code/TrackingMotion/cornerDetector_Demo.cpp	/^int max_qualityLevel = 100;$/;"	v
+max_registrations_	tutorial_code/calib3d/real_time_pose_estimation/src/ModelRegistration.h	/^int max_registrations_;$/;"	m	class:ModelRegistration
+max_thresh	tutorial_code/ShapeDescriptors/findContours_demo.cpp	/^int max_thresh = 255;$/;"	v
+max_thresh	tutorial_code/ShapeDescriptors/generalContours_demo1.cpp	/^int max_thresh = 255;$/;"	v
+max_thresh	tutorial_code/ShapeDescriptors/generalContours_demo2.cpp	/^int max_thresh = 255;$/;"	v
+max_thresh	tutorial_code/ShapeDescriptors/hull_demo.cpp	/^int max_thresh = 255;$/;"	v
+max_thresh	tutorial_code/ShapeDescriptors/moments_demo.cpp	/^int max_thresh = 255;$/;"	v
+max_thresh	tutorial_code/TrackingMotion/cornerHarris_Demo.cpp	/^int max_thresh = 255;$/;"	v
+max_trackbar	tutorial_code/ImgTrans/HoughLines_Demo.cpp	/^int max_trackbar = 150;$/;"	v
+max_type	tutorial_code/ImgProc/Threshold.cpp	/^int const max_type = 4;$/;"	v
+max_value	tutorial_code/ImgProc/Threshold.cpp	/^int const max_value = 255;$/;"	v
+maxx	cloning_gui.cpp	/^int minx, miny, maxx, maxy, lenx, leny;$/;"	v
+maxx	create_mask.cpp	/^int minx,miny,maxx,maxy,lenx,leny;$/;"	v
+maxx	tutorial_code/photo/seamless_cloning/cloning_gui.cpp	/^int minx, miny, maxx, maxy, lenx, leny;$/;"	v
+maxxd	cloning_gui.cpp	/^int minxd, minyd, maxxd, maxyd, lenxd, lenyd;$/;"	v
+maxxd	tutorial_code/photo/seamless_cloning/cloning_gui.cpp	/^int minxd, minyd, maxxd, maxyd, lenxd, lenyd;$/;"	v
+maxy	cloning_gui.cpp	/^int minx, miny, maxx, maxy, lenx, leny;$/;"	v
+maxy	create_mask.cpp	/^int minx,miny,maxx,maxy,lenx,leny;$/;"	v
+maxy	tutorial_code/photo/seamless_cloning/cloning_gui.cpp	/^int minx, miny, maxx, maxy, lenx, leny;$/;"	v
+maxyd	cloning_gui.cpp	/^int minxd, minyd, maxxd, maxyd, lenxd, lenyd;$/;"	v
+maxyd	tutorial_code/photo/seamless_cloning/cloning_gui.cpp	/^int minxd, minyd, maxxd, maxyd, lenxd, lenyd;$/;"	v
+measure	autofocus.cpp	/^    bool measure;$/;"	m	struct:Args_t	file:
+mesh	tutorial_code/calib3d/real_time_pose_estimation/src/main_registration.cpp	/^Mesh mesh;$/;"	v
+minArea	detect_mser.cpp	/^    int minArea;$/;"	m	struct:MSERParams	file:
+minDiversity	detect_mser.cpp	/^    double minDiversity;$/;"	m	struct:MSERParams	file:
+minFocusStep	autofocus.cpp	/^    int minFocusStep;$/;"	m	struct:FocusState	file:
+minInliersKalman	tutorial_code/calib3d/real_time_pose_estimation/src/main_detection.cpp	/^int minInliersKalman = 30;    \/\/ Kalman threshold updating$/;"	v
+minMargin	detect_mser.cpp	/^    double minMargin;$/;"	m	struct:MSERParams	file:
+min_threshold	tutorial_code/ImgTrans/HoughLines_Demo.cpp	/^int min_threshold = 50;$/;"	v
+minimumFocusStep	autofocus.cpp	/^    unsigned int minimumFocusStep;$/;"	m	struct:Args_t	file:
+minx	cloning_gui.cpp	/^int minx, miny, maxx, maxy, lenx, leny;$/;"	v
+minx	create_mask.cpp	/^int minx,miny,maxx,maxy,lenx,leny;$/;"	v
+minx	tutorial_code/photo/seamless_cloning/cloning_gui.cpp	/^int minx, miny, maxx, maxy, lenx, leny;$/;"	v
+minxd	cloning_gui.cpp	/^int minxd, minyd, maxxd, maxyd, lenxd, lenyd;$/;"	v
+minxd	tutorial_code/photo/seamless_cloning/cloning_gui.cpp	/^int minxd, minyd, maxxd, maxyd, lenxd, lenyd;$/;"	v
+miny	cloning_gui.cpp	/^int minx, miny, maxx, maxy, lenx, leny;$/;"	v
+miny	create_mask.cpp	/^int minx,miny,maxx,maxy,lenx,leny;$/;"	v
+miny	tutorial_code/photo/seamless_cloning/cloning_gui.cpp	/^int minx, miny, maxx, maxy, lenx, leny;$/;"	v
+minyd	cloning_gui.cpp	/^int minxd, minyd, maxxd, maxyd, lenxd, lenyd;$/;"	v
+minyd	tutorial_code/photo/seamless_cloning/cloning_gui.cpp	/^int minxd, minyd, maxxd, maxyd, lenxd, lenyd;$/;"	v
+model	tutorial_code/calib3d/real_time_pose_estimation/src/main_registration.cpp	/^Model model;$/;"	v
+morph_elem	tutorial_code/ImgProc/Morphology_2.cpp	/^int morph_elem = 0;$/;"	v
+morph_operator	tutorial_code/ImgProc/Morphology_2.cpp	/^int morph_operator = 0;$/;"	v
+morph_size	tutorial_code/ImgProc/Morphology_2.cpp	/^int morph_size = 0;$/;"	v
+motionModel	videostab.cpp	/^MotionModel motionModel(const string &str)$/;"	f
+mouseClick	grabcut.cpp	/^void GCApplication::mouseClick( int event, int x, int y, int flags, void* )$/;"	f	class:GCApplication
+mouseHandler	create_mask.cpp	/^void mouseHandler(int event, int x, int y, int, void*)$/;"	f
+mouth_cascade_path	facial_features.cpp	/^string face_cascade_path, eye_cascade_path, nose_cascade_path, mouth_cascade_path;$/;"	v
+mu1	tutorial_code/gpu/gpu-basics-similarity/gpu-basics-similarity.cpp	/^    cuda::GpuMat mu1, mu2;$/;"	m	struct:BufferMSSIM	file:
+mu1_2	tutorial_code/gpu/gpu-basics-similarity/gpu-basics-similarity.cpp	/^    cuda::GpuMat mu1_2, mu2_2, mu1_mu2;$/;"	m	struct:BufferMSSIM	file:
+mu1_mu2	tutorial_code/gpu/gpu-basics-similarity/gpu-basics-similarity.cpp	/^    cuda::GpuMat mu1_2, mu2_2, mu1_mu2;$/;"	m	struct:BufferMSSIM	file:
+mu2	tutorial_code/gpu/gpu-basics-similarity/gpu-basics-similarity.cpp	/^    cuda::GpuMat mu1, mu2;$/;"	m	struct:BufferMSSIM	file:
+mu2_2	tutorial_code/gpu/gpu-basics-similarity/gpu-basics-similarity.cpp	/^    cuda::GpuMat mu1_2, mu2_2, mu1_mu2;$/;"	m	struct:BufferMSSIM	file:
+myHarris_copy	tutorial_code/TrackingMotion/cornerDetector_Demo.cpp	/^Mat myHarris_dst; Mat myHarris_copy; Mat Mc;$/;"	v
+myHarris_dst	tutorial_code/TrackingMotion/cornerDetector_Demo.cpp	/^Mat myHarris_dst; Mat myHarris_copy; Mat Mc;$/;"	v
+myHarris_function	tutorial_code/TrackingMotion/cornerDetector_Demo.cpp	/^void myHarris_function( int, void* )$/;"	f
+myHarris_maxVal	tutorial_code/TrackingMotion/cornerDetector_Demo.cpp	/^double myHarris_minVal; double myHarris_maxVal;$/;"	v
+myHarris_minVal	tutorial_code/TrackingMotion/cornerDetector_Demo.cpp	/^double myHarris_minVal; double myHarris_maxVal;$/;"	v
+myHarris_qualityLevel	tutorial_code/TrackingMotion/cornerDetector_Demo.cpp	/^int myHarris_qualityLevel = 50;$/;"	v
+myHarris_window	tutorial_code/TrackingMotion/cornerDetector_Demo.cpp	/^const char* myHarris_window = "My Harris corner detector";$/;"	v
+myShiTomasi_copy	tutorial_code/TrackingMotion/cornerDetector_Demo.cpp	/^Mat myShiTomasi_dst; Mat myShiTomasi_copy;$/;"	v
+myShiTomasi_dst	tutorial_code/TrackingMotion/cornerDetector_Demo.cpp	/^Mat myShiTomasi_dst; Mat myShiTomasi_copy;$/;"	v
+myShiTomasi_function	tutorial_code/TrackingMotion/cornerDetector_Demo.cpp	/^void myShiTomasi_function( int, void* )$/;"	f
+myShiTomasi_maxVal	tutorial_code/TrackingMotion/cornerDetector_Demo.cpp	/^double myShiTomasi_minVal; double myShiTomasi_maxVal;$/;"	v
+myShiTomasi_minVal	tutorial_code/TrackingMotion/cornerDetector_Demo.cpp	/^double myShiTomasi_minVal; double myShiTomasi_maxVal;$/;"	v
+myShiTomasi_qualityLevel	tutorial_code/TrackingMotion/cornerDetector_Demo.cpp	/^int myShiTomasi_qualityLevel = 50;$/;"	v
+myShiTomasi_window	tutorial_code/TrackingMotion/cornerDetector_Demo.cpp	/^const char* myShiTomasi_window = "My Shi Tomasi corner detector";$/;"	v
+n	tutorial_code/calib3d/real_time_pose_estimation/src/main_registration.cpp	/^int n = 8;$/;"	v
+n_correspondences_	tutorial_code/calib3d/real_time_pose_estimation/src/Model.h	/^  int n_correspondences_;$/;"	m	class:Model
+n_registrations_	tutorial_code/calib3d/real_time_pose_estimation/src/ModelRegistration.h	/^int n_registrations_;$/;"	m	class:ModelRegistration
+nestedCascadeName	facedetect.cpp	/^string nestedCascadeName = "..\/..\/data\/haarcascades\/haarcascade_eye_tree_eyeglasses.xml";$/;"	v
+nestedCascadeName	smiledetect.cpp	/^string nestedCascadeName = "..\/..\/data\/haarcascades\/haarcascade_smile.xml";$/;"	v
+nestedCascadeName	ufacedetect.cpp	/^string nestedCascadeName = "..\/..\/data\/haarcascades\/haarcascade_eye_tree_eyeglasses.xml";$/;"	v
+newMaskVal	ffilldemo.cpp	/^int newMaskVal = 255;$/;"	v
+nextImage	tutorial_code/calib3d/camera_calibration/camera_calibration.cpp	/^    Mat nextImage()$/;"	f	class:Settings
+nextIter	grabcut.cpp	/^int GCApplication::nextIter()$/;"	f	class:GCApplication
+nn_match_ratio	tutorial_code/features2D/AKAZE_match.cpp	/^const float nn_match_ratio = 0.8f;   \/\/ Nearest neighbor matching ratio$/;"	v
+nn_match_ratio	tutorial_code/features2D/AKAZE_tracking/planar_tracking.cpp	/^const double nn_match_ratio = 0.8f; \/\/ Nearest-neighbour matching ratio$/;"	v
+nn_match_ratio	tutorial_code/xfeatures2D/LATCH_match.cpp	/^const float nn_match_ratio = 0.8f;   \/\/ Nearest neighbor matching ratio$/;"	v
+nose_cascade_path	facial_features.cpp	/^string face_cascade_path, eye_cascade_path, nose_cascade_path, mouth_cascade_path;$/;"	v
+nrFrames	tutorial_code/calib3d/camera_calibration/camera_calibration.cpp	/^    int nrFrames;                \/\/ The number of frames to use from the input for calibration$/;"	m	class:Settings	file:
+num	cloning_gui.cpp	/^int channel, num, kernel_size;$/;"	v
+num	tutorial_code/photo/seamless_cloning/cloning_gui.cpp	/^int channel, num, kernel_size;$/;"	v
+numKeyPoints	tutorial_code/calib3d/real_time_pose_estimation/src/main_detection.cpp	/^int numKeyPoints = 2000;      \/\/ number of detected keypoints$/;"	v
+num_triangles_	tutorial_code/calib3d/real_time_pose_estimation/src/Mesh.h	/^  int num_triangles_;$/;"	m	class:Mesh
+num_vertexs_	tutorial_code/calib3d/real_time_pose_estimation/src/Mesh.h	/^  int num_vertexs_;$/;"	m	class:Mesh
+numpts	cloning_gui.cpp	/^int numpts = 100;$/;"	v
+numpts	create_mask.cpp	/^int numpts = 100;$/;"	v
+numpts	tutorial_code/photo/seamless_cloning/cloning_gui.cpp	/^int numpts = 100;$/;"	v
+object_bb	tutorial_code/features2D/AKAZE_tracking/planar_tracking.cpp	/^    vector<Point2f> object_bb;$/;"	m	class:Tracker	file:
+obsX	detect_mser.cpp	/^float	obsX = (float)0, obsY = (float)0, obsZ = (float)-10, tx = (float)0, ty = (float)0;$/;"	v
+obsY	detect_mser.cpp	/^float	obsX = (float)0, obsY = (float)0, obsZ = (float)-10, tx = (float)0, ty = (float)0;$/;"	v
+obsZ	detect_mser.cpp	/^float	obsX = (float)0, obsY = (float)0, obsZ = (float)-10, tx = (float)0, ty = (float)0;$/;"	v
+onMouse	camshiftdemo.cpp	/^static void onMouse( int event, int x, int y, int, void* )$/;"	f	file:
+onMouse	detect_mser.cpp	/^static void onMouse(int event, int x, int y, int flags, void*)$/;"	f	file:
+onMouse	ffilldemo.cpp	/^static void onMouse( int event, int x, int y, int, void* )$/;"	f	file:
+onMouse	inpaint.cpp	/^static void onMouse( int event, int x, int y, int flags, void* )$/;"	f	file:
+onMouse	lkdemo.cpp	/^static void onMouse( int event, int x, int y, int \/*flags*\/, void* \/*param*\/ )$/;"	f	file:
+onMouse	select3dobj.cpp	/^static void onMouse(int event, int x, int y, int flags, void* userdata)$/;"	f	file:
+onMouse	watershed.cpp	/^static void onMouse( int event, int x, int y, int flags, void* )$/;"	f	file:
+onMouseModelRegistration	tutorial_code/calib3d/real_time_pose_estimation/src/main_registration.cpp	/^static void onMouseModelRegistration( int event, int x, int y, int, void* )$/;"	f	file:
+onTrackbar	distrans.cpp	/^static void onTrackbar( int, void* )$/;"	f	file:
+onTrackbar	edge.cpp	/^static void onTrackbar(int, void*)$/;"	f	file:
+onTrackbar	pca.cpp	/^static void onTrackbar(int pos, void* ptr)$/;"	f	file:
+on_mouse	grabcut.cpp	/^static void on_mouse( int event, int x, int y, int flags, void* param )$/;"	f	file:
+on_mouse	points_classifier.cpp	/^static void on_mouse( int event, int x, int y, int \/*flags*\/, void* )$/;"	f	file:
+on_trackbar	connected_components.cpp	/^static void on_trackbar(int, void*)$/;"	f	file:
+on_trackbar	contours2.cpp	/^static void on_trackbar(int, void*)$/;"	f	file:
+on_trackbar	tutorial_code/HighGUI/AddingImagesTrackbar.cpp	/^static void on_trackbar( int, void* )$/;"	f	file:
+on_trackbar	tutorial_code/HighGUI/BasicLinearTransformsTrackbar.cpp	/^static void on_trackbar( int, void* )$/;"	f	file:
+open_close_pos	morphology2.cpp	/^int open_close_pos = 0;$/;"	v
+operator +=	tutorial_code/features2D/AKAZE_tracking/stats.h	/^    Stats& operator+=(const Stats& op) {$/;"	f	struct:Stats
+operator /=	tutorial_code/features2D/AKAZE_tracking/stats.h	/^    Stats& operator\/=(int num)$/;"	f	struct:Stats
+operator <<	autofocus.cpp	/^static ostream & operator<<(ostream & os, FocusState & state)$/;"	f	file:
+operator <<	filestorage.cpp	/^static ostream& operator<<(ostream& out, const MyData& m){$/;"	f	file:
+operator <<	tutorial_code/core/file_input_output/file_input_output.cpp	/^static ostream& operator<<(ostream& out, const MyData& m)$/;"	f	file:
+origin	camshiftdemo.cpp	/^Point origin;$/;"	v
+output	autofocus.cpp	/^    const char * output;$/;"	m	struct:Args_t	file:
+outputFileName	tutorial_code/calib3d/camera_calibration/camera_calibration.cpp	/^    string outputFileName;       \/\/ The name of the file where to write$/;"	m	class:Settings	file:
+outputFps	videostab.cpp	/^double outputFps;$/;"	v
+outputPath	videostab.cpp	/^string outputPath;$/;"	v
+p0_	tutorial_code/calib3d/real_time_pose_estimation/src/Mesh.h	/^  cv::Point3f p0_, p1_;$/;"	m	class:Ray
+p1_	tutorial_code/calib3d/real_time_pose_estimation/src/Mesh.h	/^  cv::Point3f p0_, p1_;$/;"	m	class:Ray
+pMOG2	tutorial_code/video/bg_sub.cpp	/^Ptr<BackgroundSubtractor> pMOG2; \/\/MOG2 Background subtractor$/;"	v
+p_trackbar	tutorial_code/ImgTrans/HoughLines_Demo.cpp	/^int p_trackbar = max_trackbar;$/;"	v
+paint_voronoi	delaunay2.cpp	/^static void paint_voronoi( Mat& img, Subdiv2D& subdiv )$/;"	f	file:
+params	pca.cpp	/^struct params$/;"	s	file:
+params_CANON	tutorial_code/calib3d/real_time_pose_estimation/src/main_registration.cpp	/^double params_CANON[] = { width*f\/sx,   \/\/ fx$/;"	v
+params_WEBCAM	tutorial_code/calib3d/real_time_pose_estimation/src/main_detection.cpp	/^double params_WEBCAM[] = { width*f\/sx,   \/\/ fx$/;"	v
+parseArguments	autofocus.cpp	/^static bool parseArguments(int argc, char ** argv)$/;"	f	file:
+parseCMDLine	intelperc_capture.cpp	/^static void parseCMDLine(int argc, char* argv[])$/;"	f	file:
+parseCmdArgs	stitching.cpp	/^int parseCmdArgs(int argc, char** argv)$/;"	f
+parseCmdArgs	stitching_detailed.cpp	/^static int parseCmdArgs(int argc, char** argv)$/;"	f	file:
+parseCommandLine	openni_capture.cpp	/^static void parseCommandLine( int argc, char* argv[], bool& isColorizeDisp, bool& isFixedMaxDisp, int& imageMode, bool retrievedImageFlags[],$/;"	f	file:
+pass2Only	detect_mser.cpp	/^    bool pass2Only;$/;"	m	struct:MSERParams	file:
+patternToUse	tutorial_code/calib3d/camera_calibration/camera_calibration.cpp	/^    string patternToUse;$/;"	m	class:Settings	file:
+pca	pca.cpp	/^    PCA pca;$/;"	m	struct:params	file:
+phiObs	detect_mser.cpp	/^float	thetaObs = (float)-1.570, phiObs = (float)1.570, rObs = (float)10;$/;"	v
+pickPoint	tutorial_code/Histograms_Matching/calcBackProject_Demo2.cpp	/^void pickPoint (int event, int x, int y, int, void* )$/;"	f
+pixel2world	tutorial_code/HighGUI/GDAL_IO/gdal-image.cpp	/^cv::Point2d pixel2world( const int& x, const int& y, const cv::Size& size ){$/;"	f
+ply_read_path	tutorial_code/calib3d/real_time_pose_estimation/src/main_detection.cpp	/^string ply_read_path = tutorial_path + "Data\/box.ply";         \/\/ mesh$/;"	v
+ply_read_path	tutorial_code/calib3d/real_time_pose_estimation/src/main_registration.cpp	/^string ply_read_path = tutorial_path + "Data\/box.ply";          \/\/ object mesh$/;"	v
+pnpMethod	tutorial_code/calib3d/real_time_pose_estimation/src/main_detection.cpp	/^int pnpMethod = SOLVEPNP_ITERATIVE;$/;"	v
+point	cloning_gui.cpp	/^Point point;$/;"	v
+point	create_mask.cpp	/^Point point;$/;"	v
+point	lkdemo.cpp	/^Point2f point;$/;"	v
+point	tutorial_code/photo/seamless_cloning/cloning_gui.cpp	/^Point point;$/;"	v
+prBgdPxls	grabcut.cpp	/^    vector<Point> fgdPxls, bgdPxls, prFgdPxls, prBgdPxls;$/;"	m	class:GCApplication	file:
+prFgdPxls	grabcut.cpp	/^    vector<Point> fgdPxls, bgdPxls, prFgdPxls, prBgdPxls;$/;"	m	class:GCApplication	file:
+prLblsState	grabcut.cpp	/^    uchar rectState, lblsState, prLblsState;$/;"	m	class:GCApplication	file:
+predict_and_paint	points_classifier.cpp	/^static void predict_and_paint(const Ptr<StatModel>& model, Mat& dst)$/;"	f	file:
+prefix	videostab.cpp	/^    string prefix;$/;"	m	class:MotionEstimatorL1Builder	file:
+prefix	videostab.cpp	/^    string prefix;$/;"	m	class:MotionEstimatorRansacL2Builder	file:
+prepare_train_data	letter_recog.cpp	/^prepare_train_data(const Mat& data, const Mat& responses, int ntrain_samples)$/;"	f	file:
+prepare_train_data	points_classifier.cpp	/^static Ptr<TrainData> prepare_train_data()$/;"	f	file:
+prepare_train_samples	points_classifier.cpp	/^static Mat prepare_train_samples(const vector<Point>& pts)$/;"	f	file:
+prevPhi	detect_mser.cpp	/^int prevX=-1,prevY=-1,prevTheta=-1000,prevPhi=-1000;$/;"	v
+prevTheta	detect_mser.cpp	/^int prevX=-1,prevY=-1,prevTheta=-1000,prevPhi=-1000;$/;"	v
+prevX	detect_mser.cpp	/^int prevX=-1,prevY=-1,prevTheta=-1000,prevPhi=-1000;$/;"	v
+prevY	detect_mser.cpp	/^int prevX=-1,prevY=-1,prevTheta=-1000,prevPhi=-1000;$/;"	v
+preview	stitching_detailed.cpp	/^bool preview = false;$/;"	v
+printCommandLineParams	openni_capture.cpp	/^static void printCommandLineParams()$/;"	f	file:
+printHelp	videostab.cpp	/^void printHelp()$/;"	f
+printStatistics	tutorial_code/features2D/AKAZE_tracking/utils.h	/^void printStatistics(string name, Stats stats)$/;"	f
+printStreamProperties	intelperc_capture.cpp	/^static void printStreamProperties(VideoCapture &capture)$/;"	f	file:
+printUsage	intelperc_capture.cpp	/^static void printUsage(const char *arg0)$/;"	f	file:
+printUsage	stitching.cpp	/^void printUsage()$/;"	f
+printUsage	stitching_detailed.cpp	/^static void printUsage()$/;"	f	file:
+print_help	stereo_calib.cpp	/^static int print_help()$/;"	f	file:
+print_help	stereo_match.cpp	/^static void print_help()$/;"	f	file:
+probabilistic_hough	tutorial_code/ImgTrans/HoughLines_Demo.cpp	/^Mat standard_hough, probabilistic_hough;$/;"	v
+probabilistic_name	tutorial_code/ImgTrans/HoughLines_Demo.cpp	/^const char* probabilistic_name = "Probabilistic Hough Lines Demo";$/;"	v
+process	starter_imagelist.cpp	/^int process(vector<string> images)$/;"	f	namespace:__anon8
+process	starter_video.cpp	/^    int process(VideoCapture& capture) {$/;"	f	namespace:__anon6
+process	tutorial_code/features2D/AKAZE_tracking/planar_tracking.cpp	/^Mat Tracker::process(const Mat frame, Stats& stats)$/;"	f	class:Tracker
+processImage	fitellipse.cpp	/^void processImage(int \/*h*\/, void*)$/;"	f
+processImages	tutorial_code/video/bg_sub.cpp	/^void processImages(char* fistFrameFilename) {$/;"	f
+processVideo	tutorial_code/video/bg_sub.cpp	/^void processVideo(char* videoFilename) {$/;"	f
+pt	select3dobj.cpp	/^    Point pt;$/;"	m	struct:MouseEvent	file:
+pts	cloning_gui.cpp	/^Point* pts = new Point[100];$/;"	v
+pts	create_mask.cpp	/^Point* pts = new Point[100];$/;"	v
+pts	tutorial_code/calib3d/real_time_pose_estimation/src/main_registration.cpp	/^int pts[] = {1, 2, 3, 4, 5, 6, 7, 8}; \/\/ 3 -> 4$/;"	v
+pts	tutorial_code/photo/seamless_cloning/cloning_gui.cpp	/^Point* pts = new Point[100];$/;"	v
+pts2	cloning_gui.cpp	/^Point* pts2 = new Point[100];$/;"	v
+pts2	tutorial_code/photo/seamless_cloning/cloning_gui.cpp	/^Point* pts2 = new Point[100];$/;"	v
+pts_diff	cloning_gui.cpp	/^Point* pts_diff = new Point[100];$/;"	v
+pts_diff	tutorial_code/photo/seamless_cloning/cloning_gui.cpp	/^Point* pts_diff = new Point[100];$/;"	v
+quietMode	videostab.cpp	/^bool quietMode;$/;"	v
+rObs	detect_mser.cpp	/^float	thetaObs = (float)-1.570, phiObs = (float)1.570, rObs = (float)10;$/;"	v
+radius	grabcut.cpp	/^    static const int radius = 2;$/;"	m	class:GCApplication	file:
+radius	tutorial_code/calib3d/real_time_pose_estimation/src/Utils.cpp	/^int radius = 4;$/;"	v
+randomColor	drawing.cpp	/^static Scalar randomColor(RNG& rng)$/;"	f	file:
+randomColor	tutorial_code/core/Matrix/Drawing_2.cpp	/^static Scalar randomColor( RNG& rng )$/;"	f	file:
+ransac_thresh	tutorial_code/features2D/AKAZE_tracking/planar_tracking.cpp	/^const double ransac_thresh = 2.5f; \/\/ RANSAC inlier threshold$/;"	v
+rate	autofocus.cpp	/^    double rate;$/;"	m	struct:FocusState	file:
+rateFrame	autofocus.cpp	/^static double rateFrame(Mat & frame)$/;"	f	file:
+rateMax	autofocus.cpp	/^    double rateMax;$/;"	m	struct:FocusState	file:
+ratio	tutorial_code/ImgTrans/CannyDetector_Demo.cpp	/^int ratio = 3;$/;"	v
+ratio	tutorial_code/features2D/AKAZE_tracking/stats.h	/^    double ratio;$/;"	m	struct:Stats
+ratioTest	tutorial_code/calib3d/real_time_pose_estimation/src/RobustMatcher.cpp	/^int RobustMatcher::ratioTest(std::vector<std::vector<cv::DMatch> > &matches)$/;"	f	class:RobustMatcher
+ratioTest	tutorial_code/calib3d/real_time_pose_estimation/src/main_detection.cpp	/^float ratioTest = 0.70f;          \/\/ ratio test$/;"	v
+ratio_	tutorial_code/calib3d/real_time_pose_estimation/src/RobustMatcher.h	/^  float ratio_;$/;"	m	class:RobustMatcher
+read	filestorage.cpp	/^  void read(const FileNode& node)  \/\/Read serialization for this class$/;"	f	struct:MyData
+read	filestorage.cpp	/^static void read(const FileNode& node, MyData& x, const MyData& default_value = MyData()){$/;"	f	file:
+read	tutorial_code/calib3d/camera_calibration/camera_calibration.cpp	/^    void read(const FileNode& node)                          \/\/Read serialization for this class$/;"	f	class:Settings
+read	tutorial_code/calib3d/camera_calibration/camera_calibration.cpp	/^static inline void read(const FileNode& node, Settings& x, const Settings& default_value = Settings())$/;"	f	file:
+read	tutorial_code/core/file_input_output/file_input_output.cpp	/^    void read(const FileNode& node)                          \/\/Read serialization for this class$/;"	f	class:MyData
+read	tutorial_code/core/file_input_output/file_input_output.cpp	/^static void read(const FileNode& node, MyData& x, const MyData& default_value = MyData()){$/;"	f	file:
+readCameraMatrix	select3dobj.cpp	/^static bool readCameraMatrix(const string& filename,$/;"	f	file:
+readModelViews	select3dobj.cpp	/^static bool readModelViews( const string& filename, vector<Point3f>& box,$/;"	f	file:
+readPLY	tutorial_code/calib3d/real_time_pose_estimation/src/CsvReader.cpp	/^void CsvReader::readPLY(vector<Point3f> &list_vertex, vector<vector<int> > &list_triangles)$/;"	f	class:CsvReader
+readStringList	3calibration.cpp	/^static bool readStringList( const string& filename, vector<string>& l )$/;"	f	file:
+readStringList	calibration.cpp	/^static bool readStringList( const string& filename, vector<string>& l )$/;"	f	file:
+readStringList	select3dobj.cpp	/^static bool readStringList( const string& filename, vector<string>& l )$/;"	f	file:
+readStringList	starter_imagelist.cpp	/^bool readStringList(const string& filename, vector<string>& l)$/;"	f	namespace:__anon8
+readStringList	stereo_calib.cpp	/^static bool readStringList( const string& filename, vector<string>& l )$/;"	f	file:
+readStringList	tutorial_code/calib3d/camera_calibration/camera_calibration.cpp	/^    static bool readStringList( const string& filename, vector<string>& l )$/;"	f	class:Settings
+readWarp	image_alignment.cpp	/^static int readWarp(string iFilename, Mat& warp, int motionType){$/;"	f	file:
+read_imgList	pca.cpp	/^static void read_imgList(const string& filename, vector<Mat>& images) {$/;"	f	file:
+read_num_class_data	letter_recog.cpp	/^read_num_class_data( const string& filename, int var_count,$/;"	f	file:
+readme	tutorial_code/calib3d/stereoBM/SBM_Sample.cpp	/^void readme()$/;"	f
+rect	grabcut.cpp	/^    Rect rect;$/;"	m	class:GCApplication	file:
+rectState	grabcut.cpp	/^    uchar rectState, lblsState, prLblsState;$/;"	m	class:GCApplication	file:
+red	cloning_gui.cpp	/^float red, green, blue;$/;"	v
+red	tutorial_code/photo/seamless_cloning/cloning_gui.cpp	/^float red, green, blue;$/;"	v
+refineSegments	segment_objects.cpp	/^static void refineSegments(const Mat& img, Mat& mask, Mat& dst)$/;"	f	file:
+registerPoint	tutorial_code/calib3d/real_time_pose_estimation/src/ModelRegistration.cpp	/^void ModelRegistration::registerPoint(const cv::Point2f &point2d, const cv::Point3f &point3d)$/;"	f	class:ModelRegistration
+registration	tutorial_code/calib3d/real_time_pose_estimation/src/main_registration.cpp	/^ModelRegistration registration;$/;"	v
+remap_window	tutorial_code/ImgTrans/Remap_Demo.cpp	/^const char* remap_window = "Remap demo";$/;"	v
+reprojectionError	tutorial_code/calib3d/real_time_pose_estimation/src/main_detection.cpp	/^float reprojectionError = 2.0;  \/\/ maximum allowed distance to consider it an inlier.$/;"	v
+reset	grabcut.cpp	/^void GCApplication::reset()$/;"	f	class:GCApplication
+reset	tutorial_code/calib3d/real_time_pose_estimation/src/ModelRegistration.cpp	/^void ModelRegistration::reset()$/;"	f	class:ModelRegistration
+result	tutorial_code/Histograms_Matching/MatchTemplate_Demo.cpp	/^Mat img; Mat templ; Mat result;$/;"	v
+result_name	stitching.cpp	/^string result_name = "result.jpg";$/;"	v
+result_name	stitching_detailed.cpp	/^string result_name = "result.jpg";$/;"	v
+result_window	tutorial_code/Histograms_Matching/MatchTemplate_Demo.cpp	/^const char* result_window = "Result window";$/;"	v
+right	tutorial_code/ImgTrans/copyMakeBorder_demo.cpp	/^int top, bottom, left, right;$/;"	v
+rng	points_classifier.cpp	/^RNG rng;$/;"	v
+robustMatch	tutorial_code/calib3d/real_time_pose_estimation/src/RobustMatcher.cpp	/^void RobustMatcher::robustMatch( const cv::Mat& frame, std::vector<cv::DMatch>& good_matches,$/;"	f	class:RobustMatcher
+rot2euler	tutorial_code/calib3d/real_time_pose_estimation/src/Utils.cpp	/^cv::Mat rot2euler(const cv::Mat & rotationMatrix)$/;"	f
+rotateEnable	detect_mser.cpp	/^bool    rotateEnable=true;$/;"	v
+rows	pca.cpp	/^    int rows;$/;"	m	struct:params	file:
+run	videostab.cpp	/^void run()$/;"	f
+run3Calibration	3calibration.cpp	/^static bool run3Calibration( vector<vector<Point2f> > imagePoints1,$/;"	f	file:
+runAndSave	calibration.cpp	/^static bool runAndSave(const string& outputFilename,$/;"	f	file:
+runCalibration	calibration.cpp	/^static bool runCalibration( vector<vector<Point2f> > imagePoints,$/;"	f	file:
+runCalibration	tutorial_code/calib3d/camera_calibration/camera_calibration.cpp	/^static bool runCalibration( Settings& s, Size& imageSize, Mat& cameraMatrix, Mat& distCoeffs,$/;"	f	file:
+runCalibrationAndSave	tutorial_code/calib3d/camera_calibration/camera_calibration.cpp	/^bool runCalibrationAndSave(Settings& s, Size imageSize, Mat& cameraMatrix, Mat& distCoeffs,$/;"	f
+s_trackbar	tutorial_code/ImgTrans/HoughLines_Demo.cpp	/^int s_trackbar = max_trackbar;$/;"	v
+sample_neg	train_HOG.cpp	/^void sample_neg( const vector< Mat > & full_neg_lst, vector< Mat > & neg_lst, const Size & size )$/;"	f
+save	tutorial_code/calib3d/real_time_pose_estimation/src/Model.cpp	/^void Model::save(const std::string path)$/;"	f	class:Model
+saveCameraParams	calibration.cpp	/^static void saveCameraParams( const string& filename,$/;"	f	file:
+saveCameraParams	tutorial_code/calib3d/camera_calibration/camera_calibration.cpp	/^static void saveCameraParams( Settings& s, Size& imageSize, Mat& cameraMatrix, Mat& distCoeffs,$/;"	f	file:
+saveMotionsPath	videostab.cpp	/^string saveMotionsPath;$/;"	v
+saveWarp	image_alignment.cpp	/^static int saveWarp(string fileName, const Mat& warp, int motionType)$/;"	f	file:
+saveXYZ	stereo_match.cpp	/^static void saveXYZ(const char* filename, const Mat& mat)$/;"	f	file:
+save_graph	stitching_detailed.cpp	/^bool save_graph = false;$/;"	v
+save_graph_to	stitching_detailed.cpp	/^std::string save_graph_to;$/;"	v
+seam_find_type	stitching_detailed.cpp	/^string seam_find_type = "gc_color";$/;"	v
+seam_megapix	stitching_detailed.cpp	/^double seam_megapix = 0.1;$/;"	v
+select3DBox	select3dobj.cpp	/^static int select3DBox(const string& windowname, const string& selWinName, const Mat& frame,$/;"	f	file:
+selectObject	camshiftdemo.cpp	/^bool selectObject = false;$/;"	v
+selection	camshiftdemo.cpp	/^Rect selection;$/;"	v
+setCommandOptions	facial_features.cpp	/^void setCommandOptions(vector<string>& args, int argc, char** argv)$/;"	f
+setDescriptorExtractor	tutorial_code/calib3d/real_time_pose_estimation/src/RobustMatcher.h	/^  void setDescriptorExtractor(const cv::Ptr<cv::DescriptorExtractor>& desc) { extractor_ = desc; }$/;"	f	class:RobustMatcher
+setDescriptorMatcher	tutorial_code/calib3d/real_time_pose_estimation/src/RobustMatcher.h	/^  void setDescriptorMatcher(const cv::Ptr<cv::DescriptorMatcher>& match) {  matcher_ = match; }$/;"	f	class:RobustMatcher
+setFeatureDetector	tutorial_code/calib3d/real_time_pose_estimation/src/RobustMatcher.h	/^  void setFeatureDetector(const cv::Ptr<cv::FeatureDetector>& detect) {  detector_ = detect; }$/;"	f	class:RobustMatcher
+setFirstFrame	tutorial_code/features2D/AKAZE_tracking/planar_tracking.cpp	/^void Tracker::setFirstFrame(const Mat frame, vector<Point2f> bb, string title, Stats& stats)$/;"	f	class:Tracker
+setImageAndWinName	grabcut.cpp	/^void GCApplication::setImageAndWinName( const Mat& _image, const string& _winName  )$/;"	f	class:GCApplication
+setLblsInMask	grabcut.cpp	/^void GCApplication::setLblsInMask( int flags, Point p, bool isPr )$/;"	f	class:GCApplication
+setNumMax	tutorial_code/calib3d/real_time_pose_estimation/src/ModelRegistration.h	/^  void setNumMax(int n) { max_registrations_ = n; }$/;"	f	class:ModelRegistration
+setRatio	tutorial_code/calib3d/real_time_pose_estimation/src/RobustMatcher.h	/^  void setRatio( float rat) { ratio_ = rat; }$/;"	f	class:RobustMatcher
+setRectInMask	grabcut.cpp	/^void GCApplication::setRectInMask()$/;"	f	class:GCApplication
+set_P_matrix	tutorial_code/calib3d/real_time_pose_estimation/src/PnPProblem.cpp	/^void PnPProblem::set_P_matrix( const cv::Mat &R_matrix, const cv::Mat &t_matrix)$/;"	f	class:PnPProblem
+showHelp	autofocus.cpp	/^static void showHelp(const char * pName, bool welcomeMsg)$/;"	f	file:
+showHist	camshiftdemo.cpp	/^bool showHist = true;$/;"	v
+showImage	grabcut.cpp	/^void GCApplication::showImage() const$/;"	f	class:GCApplication
+showImage	logistic_regression.cpp	/^static void showImage(const Mat &data, int columns, const String &name)$/;"	f	file:
+showUndistorsed	tutorial_code/calib3d/camera_calibration/camera_calibration.cpp	/^    bool showUndistorsed;        \/\/ Show undistorted images after calibration$/;"	m	class:Settings	file:
+sigma	laplace.cpp	/^int sigma = 3;$/;"	v
+sigma12	tutorial_code/gpu/gpu-basics-similarity/gpu-basics-similarity.cpp	/^    cuda::GpuMat sigma1_2, sigma2_2, sigma12;$/;"	m	struct:BufferMSSIM	file:
+sigma1_2	tutorial_code/gpu/gpu-basics-similarity/gpu-basics-similarity.cpp	/^    cuda::GpuMat sigma1_2, sigma2_2, sigma12;$/;"	m	struct:BufferMSSIM	file:
+sigma2_2	tutorial_code/gpu/gpu-basics-similarity/gpu-basics-similarity.cpp	/^    cuda::GpuMat sigma1_2, sigma2_2, sigma12;$/;"	m	struct:BufferMSSIM	file:
+simpleContour	shape_example.cpp	/^static vector<Point> simpleContour( const Mat& currentQuery, int n=300 )$/;"	f	file:
+sliderPos	fitellipse.cpp	/^int sliderPos = 70;$/;"	v
+smin	camshiftdemo.cpp	/^int vmin = 10, vmax = 256, smin = 30;$/;"	v
+smoothType	laplace.cpp	/^int smoothType = GAUSSIAN;$/;"	v
+source	cloning_gui.cpp	/^void source(int event, int x, int y, int, void*)$/;"	f
+source	tutorial_code/photo/seamless_cloning/cloning_gui.cpp	/^void source(int event, int x, int y, int, void*)$/;"	f
+source_window	tutorial_code/ImgTrans/Geometric_Transforms_Demo.cpp	/^const char* source_window = "Source image";$/;"	v
+source_window	tutorial_code/TrackingMotion/cornerHarris_Demo.cpp	/^const char* source_window = "Source image";$/;"	v
+source_window	tutorial_code/TrackingMotion/cornerSubPix_Demo.cpp	/^const char* source_window = "Image";$/;"	v
+source_window	tutorial_code/TrackingMotion/goodFeaturesToTrack_Demo.cpp	/^const char* source_window = "Image";$/;"	v
+squareSize	tutorial_code/calib3d/camera_calibration/camera_calibration.cpp	/^    float squareSize;            \/\/ The size of a square in your defined unit (point, millimeter,etc).$/;"	m	class:Settings	file:
+src	morphology2.cpp	/^Mat src, dst;$/;"	v
+src	tutorial_code/ImgProc/Smoothing.cpp	/^Mat src; Mat dst;$/;"	v
+src	tutorial_code/ImgProc/Threshold.cpp	/^Mat src, src_gray, dst;$/;"	v
+src1	tutorial_code/HighGUI/AddingImagesTrackbar.cpp	/^Mat src1;$/;"	v
+src2	tutorial_code/HighGUI/AddingImagesTrackbar.cpp	/^Mat src2;$/;"	v
+src_gray	tutorial_code/ImgProc/Threshold.cpp	/^Mat src, src_gray, dst;$/;"	v
+src_gray	tutorial_code/ImgTrans/HoughLines_Demo.cpp	/^Mat src_gray;$/;"	v
+src_gray	tutorial_code/ShapeDescriptors/findContours_demo.cpp	/^Mat src; Mat src_gray;$/;"	v
+src_gray	tutorial_code/ShapeDescriptors/generalContours_demo1.cpp	/^Mat src; Mat src_gray;$/;"	v
+src_gray	tutorial_code/ShapeDescriptors/generalContours_demo2.cpp	/^Mat src; Mat src_gray;$/;"	v
+src_gray	tutorial_code/ShapeDescriptors/hull_demo.cpp	/^Mat src; Mat src_gray;$/;"	v
+src_gray	tutorial_code/ShapeDescriptors/moments_demo.cpp	/^Mat src; Mat src_gray;$/;"	v
+ssim_map	tutorial_code/gpu/gpu-basics-similarity/gpu-basics-similarity.cpp	/^    cuda::GpuMat ssim_map;$/;"	m	struct:BufferMSSIM	file:
+standard_hough	tutorial_code/ImgTrans/HoughLines_Demo.cpp	/^Mat standard_hough, probabilistic_hough;$/;"	v
+standard_name	tutorial_code/ImgTrans/HoughLines_Demo.cpp	/^const char* standard_name = "Standard Hough Lines Demo";$/;"	v
+stats_update_period	tutorial_code/features2D/AKAZE_tracking/planar_tracking.cpp	/^const int stats_update_period = 10; \/\/ On-screen statistics are updated every 10 frames$/;"	v
+step	autofocus.cpp	/^    int step;$/;"	m	struct:FocusState	file:
+stepToLastMax	autofocus.cpp	/^    int stepToLastMax;$/;"	m	struct:FocusState	file:
+sx	tutorial_code/calib3d/real_time_pose_estimation/src/main_detection.cpp	/^double sx = 22.3, sy = 14.9;             \/\/ sensor size$/;"	v
+sx	tutorial_code/calib3d/real_time_pose_estimation/src/main_registration.cpp	/^double sx = 22.3, sy = 14.9;$/;"	v
+sy	tutorial_code/calib3d/real_time_pose_estimation/src/main_detection.cpp	/^double sx = 22.3, sy = 14.9;             \/\/ sensor size$/;"	v
+sy	tutorial_code/calib3d/real_time_pose_estimation/src/main_registration.cpp	/^double sx = 22.3, sy = 14.9;$/;"	v
+symmetryTest	tutorial_code/calib3d/real_time_pose_estimation/src/RobustMatcher.cpp	/^void RobustMatcher::symmetryTest( const std::vector<std::vector<cv::DMatch> >& matches1,$/;"	f	class:RobustMatcher
+t1	tutorial_code/gpu/gpu-basics-similarity/gpu-basics-similarity.cpp	/^    cuda::GpuMat gI1, gI2, gs, t1,t2;$/;"	m	struct:BufferMSSIM	file:
+t1	tutorial_code/gpu/gpu-basics-similarity/gpu-basics-similarity.cpp	/^    cuda::GpuMat gI1, gI2, gs, t1,t2;$/;"	m	struct:BufferPSNR	file:
+t2	tutorial_code/gpu/gpu-basics-similarity/gpu-basics-similarity.cpp	/^    cuda::GpuMat gI1, gI2, gs, t1,t2;$/;"	m	struct:BufferMSSIM	file:
+t2	tutorial_code/gpu/gpu-basics-similarity/gpu-basics-similarity.cpp	/^    cuda::GpuMat gI1, gI2, gs, t1,t2;$/;"	m	struct:BufferPSNR	file:
+t3	tutorial_code/gpu/gpu-basics-similarity/gpu-basics-similarity.cpp	/^    cuda::GpuMat t3;$/;"	m	struct:BufferMSSIM	file:
+templ	tutorial_code/Histograms_Matching/MatchTemplate_Demo.cpp	/^Mat img; Mat templ; Mat result;$/;"	v
+testStep	points_classifier.cpp	/^const int testStep = 5;$/;"	v
+test_and_save_classifier	letter_recog.cpp	/^static void test_and_save_classifier(const Ptr<StatModel>& model,$/;"	f	file:
+test_it	train_HOG.cpp	/^void test_it( const Size & size )$/;"	f
+tex	detect_mser.cpp	/^    ogl::Texture2D tex;$/;"	m	struct:DrawData	file:
+thetaObs	detect_mser.cpp	/^float	thetaObs = (float)-1.570, phiObs = (float)1.570, rObs = (float)10;$/;"	v
+thickness	grabcut.cpp	/^    static const int thickness = -1;$/;"	m	class:GCApplication	file:
+thickness_circ	tutorial_code/calib3d/real_time_pose_estimation/src/Utils.cpp	/^double thickness_circ = -1;$/;"	v
+thickness_font	tutorial_code/calib3d/real_time_pose_estimation/src/Utils.cpp	/^int thickness_font = 2;$/;"	v
+thresh	squares.cpp	/^int thresh = 50, N = 11;$/;"	v
+thresh	tutorial_code/ShapeDescriptors/findContours_demo.cpp	/^int thresh = 100;$/;"	v
+thresh	tutorial_code/ShapeDescriptors/generalContours_demo1.cpp	/^int thresh = 100;$/;"	v
+thresh	tutorial_code/ShapeDescriptors/generalContours_demo2.cpp	/^int thresh = 100;$/;"	v
+thresh	tutorial_code/ShapeDescriptors/hull_demo.cpp	/^int thresh = 100;$/;"	v
+thresh	tutorial_code/ShapeDescriptors/moments_demo.cpp	/^int thresh = 100;$/;"	v
+thresh	tutorial_code/TrackingMotion/cornerHarris_Demo.cpp	/^int thresh = 200;$/;"	v
+thresh_callback	tutorial_code/ShapeDescriptors/findContours_demo.cpp	/^void thresh_callback(int, void* )$/;"	f
+thresh_callback	tutorial_code/ShapeDescriptors/generalContours_demo1.cpp	/^void thresh_callback(int, void* )$/;"	f
+thresh_callback	tutorial_code/ShapeDescriptors/generalContours_demo2.cpp	/^void thresh_callback(int, void* )$/;"	f
+thresh_callback	tutorial_code/ShapeDescriptors/hull_demo.cpp	/^void thresh_callback(int, void* )$/;"	f
+thresh_callback	tutorial_code/ShapeDescriptors/moments_demo.cpp	/^void thresh_callback(int, void* )$/;"	f
+threshold_type	tutorial_code/ImgProc/Threshold.cpp	/^int threshold_type = 3;$/;"	v
+threshold_value	tutorial_code/ImgProc/Threshold.cpp	/^int threshold_value = 0;$/;"	v
+threshval	connected_components.cpp	/^int threshval = 100;$/;"	v
+timelapse	stitching_detailed.cpp	/^bool timelapse = false;$/;"	v
+timelapse_range	stitching_detailed.cpp	/^int timelapse_range = 5;$/;"	v
+timelapse_type	stitching_detailed.cpp	/^int timelapse_type = Timelapser::AS_IS;$/;"	v
+toGrayscale	pca.cpp	/^static Mat toGrayscale(InputArray _src) {$/;"	f	file:
+top	tutorial_code/ImgTrans/copyMakeBorder_demo.cpp	/^int top, bottom, left, right;$/;"	v
+trackObject	camshiftdemo.cpp	/^int trackObject = 0;$/;"	v
+trackbar_type	tutorial_code/ImgProc/Threshold.cpp	/^const char* trackbar_type = "Type: \\n 0: Binary \\n 1: Binary Inverted \\n 2: Truncate \\n 3: To Zero \\n 4: To Zero Inverted";$/;"	v
+trackbar_value	tutorial_code/ImgProc/Threshold.cpp	/^const char* trackbar_value = "Value";$/;"	v
+train_and_print_errs	tree_engine.cpp	/^static void train_and_print_errs(Ptr<StatModel> model, const Ptr<TrainData>& data)$/;"	f	file:
+train_svm	train_HOG.cpp	/^void train_svm( const vector< Mat > & gradient_lst, const vector< int > & labels )$/;"	f
+trainedPoints	points_classifier.cpp	/^vector<Point>  trainedPoints;$/;"	v
+trainedPointsMarkers	points_classifier.cpp	/^vector<int>    trainedPointsMarkers;$/;"	v
+try_cuda	stitching_detailed.cpp	/^bool try_cuda = false;$/;"	v
+tx	detect_mser.cpp	/^float	obsX = (float)0, obsY = (float)0, obsZ = (float)-10, tx = (float)0, ty = (float)0;$/;"	v
+ty	detect_mser.cpp	/^float	obsX = (float)0, obsY = (float)0, obsZ = (float)-10, tx = (float)0, ty = (float)0;$/;"	v
+up	tutorial_code/Histograms_Matching/calcBackProject_Demo2.cpp	/^int lo = 20; int up = 20;$/;"	v
+upDiff	ffilldemo.cpp	/^int loDiff = 20, upDiff = 20;$/;"	v
+updateBrightnessContrast	demhist.cpp	/^static void updateBrightnessContrast( int \/*arg*\/, void* )$/;"	f	file:
+updateKalmanFilter	tutorial_code/calib3d/real_time_pose_estimation/src/main_detection.cpp	/^void updateKalmanFilter( KalmanFilter &KF, Mat &measurement,$/;"	f
+update_map	tutorial_code/ImgTrans/Remap_Demo.cpp	/^void update_map( void )$/;"	f
+usage	calibration.cpp	/^const char * usage =$/;"	v
+usage	tutorial_code/ImgTrans/HoughCircle_Demo.cpp	/^    const std::string usage = "Usage : tutorial_HoughCircle_Demo <path_to_input_image>\\n";$/;"	m	namespace:__anon5	file:
+useMask	ffilldemo.cpp	/^bool useMask = false;$/;"	v
+v0_	tutorial_code/calib3d/real_time_pose_estimation/src/Mesh.h	/^  cv::Point3f v0_, v1_, v2_;$/;"	m	class:Triangle
+v1_	tutorial_code/calib3d/real_time_pose_estimation/src/Mesh.h	/^  cv::Point3f v0_, v1_, v2_;$/;"	m	class:Triangle
+v2_	tutorial_code/calib3d/real_time_pose_estimation/src/Mesh.h	/^  cv::Point3f v0_, v1_, v2_;$/;"	m	class:Triangle
+vI1	tutorial_code/gpu/gpu-basics-similarity/gpu-basics-similarity.cpp	/^    vector<cuda::GpuMat> vI1, vI2;$/;"	m	struct:BufferMSSIM	file:
+vI2	tutorial_code/gpu/gpu-basics-similarity/gpu-basics-similarity.cpp	/^    vector<cuda::GpuMat> vI1, vI2;$/;"	m	struct:BufferMSSIM	file:
+validate	tutorial_code/calib3d/camera_calibration/camera_calibration.cpp	/^    void validate()$/;"	f	class:Settings
+var	cloning_gui.cpp	/^int var = 0;$/;"	v
+var	create_mask.cpp	/^int var = 0;$/;"	v
+var	tutorial_code/photo/seamless_cloning/cloning_gui.cpp	/^int var = 0;$/;"	v
+verbose	autofocus.cpp	/^    bool verbose;$/;"	m	struct:Args_t	file:
+verify_points	tutorial_code/calib3d/real_time_pose_estimation/src/PnPProblem.cpp	/^std::vector<cv::Point2f> PnPProblem::verify_points(Mesh *mesh)$/;"	f	class:PnPProblem
+video_read_path	tutorial_code/calib3d/real_time_pose_estimation/src/main_detection.cpp	/^string video_read_path = tutorial_path + "Data\/box.mp4";       \/\/ recorded video$/;"	v
+vmax	camshiftdemo.cpp	/^int vmin = 10, vmax = 256, smin = 30;$/;"	v
+vmin	camshiftdemo.cpp	/^int vmin = 10, vmax = 256, smin = 30;$/;"	v
+voronoiType	distrans.cpp	/^int voronoiType = -1;$/;"	v
+w	contours2.cpp	/^const int w = 500;$/;"	v
+w	tutorial_code/core/Matrix/Drawing_1.cpp	10;"	d	file:
+warp_rotate_window	tutorial_code/ImgTrans/Geometric_Transforms_Demo.cpp	/^const char* warp_rotate_window = "Warp + Rotate";$/;"	v
+warp_type	stitching_detailed.cpp	/^string warp_type = "spherical";$/;"	v
+warp_window	tutorial_code/ImgTrans/Geometric_Transforms_Demo.cpp	/^const char* warp_window = "Warp";$/;"	v
+wave_correct	stitching_detailed.cpp	/^WaveCorrectKind wave_correct = detail::WAVE_CORRECT_HORIZ;$/;"	v
+width	tutorial_code/calib3d/real_time_pose_estimation/src/main_detection.cpp	/^double width = 640, height = 480;        \/\/ image size$/;"	v
+width	tutorial_code/calib3d/real_time_pose_estimation/src/main_registration.cpp	/^double width = 2592, height = 1944;$/;"	v
+winName	grabcut.cpp	/^    const string* winName;$/;"	m	class:GCApplication	file:
+winName	pca.cpp	/^    string winName;$/;"	m	struct:params	file:
+winName	points_classifier.cpp	/^const string winName = "points";$/;"	v
+win_height	detect_mser.cpp	/^const int win_height = 640;$/;"	v
+win_width	detect_mser.cpp	/^const int win_width = 800;$/;"	v
+windowDisparity	tutorial_code/calib3d/stereoBM/SBM_Sample.cpp	/^const char *windowDisparity = "Disparity";$/;"	v
+windowName	tutorial_code/ImgTrans/HoughCircle_Demo.cpp	/^    const std::string windowName = "Hough Circle Detection Demo";$/;"	m	namespace:__anon5	file:
+windowOriginal	autofocus.cpp	/^const char * windowOriginal = "Captured preview";$/;"	v
+window_height	tutorial_code/core/Matrix/Drawing_2.cpp	/^const int window_height = 600;$/;"	v
+window_image	tutorial_code/Histograms_Matching/calcBackProject_Demo2.cpp	/^const char* window_image = "Source image";$/;"	v
+window_name	tutorial_code/ImgProc/Morphology_2.cpp	/^const char* window_name = "Morphology Transformations Demo";$/;"	v
+window_name	tutorial_code/ImgProc/Pyramids.cpp	/^const char* window_name = "Pyramids Demo";$/;"	v
+window_name	tutorial_code/ImgProc/Smoothing.cpp	/^char window_name[] = "Smoothing Demo";$/;"	v
+window_name	tutorial_code/ImgProc/Threshold.cpp	/^const char* window_name = "Threshold Demo";$/;"	v
+window_name	tutorial_code/ImgTrans/CannyDetector_Demo.cpp	/^const char* window_name = "Edge Map";$/;"	v
+window_name	tutorial_code/ImgTrans/copyMakeBorder_demo.cpp	/^const char* window_name = "copyMakeBorder Demo";$/;"	v
+window_name	tutorial_code/objectDetection/objectDetection.cpp	/^String window_name = "Capture - Face detection";$/;"	v
+window_name	tutorial_code/objectDetection/objectDetection2.cpp	/^String window_name = "Capture - Face detection";$/;"	v
+window_width	tutorial_code/core/Matrix/Drawing_2.cpp	/^const int window_width = 900;$/;"	v
+wndname	squares.cpp	/^const char* wndname = "Square Detection Demo";$/;"	v
+work_megapix	stitching_detailed.cpp	/^double work_megapix = 0.6;$/;"	v
+world2dem	tutorial_code/HighGUI/GDAL_IO/gdal-image.cpp	/^cv::Point2d world2dem( cv::Point2d const& coordinate, const cv::Size& dem_size   ){$/;"	f
+write	filestorage.cpp	/^  void write(FileStorage& fs) const \/\/Write serialization for this class$/;"	f	struct:MyData
+write	filestorage.cpp	/^static void write(FileStorage& fs, const std::string&, const MyData& x){$/;"	f	file:
+write	tutorial_code/calib3d/camera_calibration/camera_calibration.cpp	/^    void write(FileStorage& fs) const                        \/\/Write serialization for this class$/;"	f	class:Settings
+write	tutorial_code/calib3d/camera_calibration/camera_calibration.cpp	/^static inline void write(FileStorage& fs, const String&, const Settings& s )$/;"	f	file:
+write	tutorial_code/core/file_input_output/file_input_output.cpp	/^    void write(FileStorage& fs) const                        \/\/Write serialization for this class$/;"	f	class:MyData
+write	tutorial_code/core/file_input_output/file_input_output.cpp	/^static void write(FileStorage& fs, const std::string&, const MyData& x)$/;"	f	file:
+writeExtrinsics	tutorial_code/calib3d/camera_calibration/camera_calibration.cpp	/^    bool writeExtrinsics;        \/\/ Write extrinsic parameters$/;"	m	class:Settings	file:
+writeModelViews	select3dobj.cpp	/^static bool writeModelViews(const string& filename, const vector<Point3f>& box,$/;"	f	file:
+writeOpticalFlowToFile	tvl1_optical_flow.cpp	/^static void writeOpticalFlowToFile(const Mat_<Point2f>& flow, const string& fileName)$/;"	f	file:
+writePoints	tutorial_code/calib3d/camera_calibration/camera_calibration.cpp	/^    bool writePoints;            \/\/ Write detected feature points$/;"	m	class:Settings	file:
+writeUVXYZ	tutorial_code/calib3d/real_time_pose_estimation/src/CsvWriter.cpp	/^void CsvWriter::writeUVXYZ(const vector<Point3f> &list_points3d, const vector<Point2f> &list_points2d, const Mat &descriptors)$/;"	f	class:CsvWriter
+writeXYZ	tutorial_code/calib3d/real_time_pose_estimation/src/CsvWriter.cpp	/^void CsvWriter::writeXYZ(const vector<Point3f> &list_points3d)$/;"	f	class:CsvWriter
+write_path	tutorial_code/calib3d/real_time_pose_estimation/src/main_registration.cpp	/^string write_path = tutorial_path + "Data\/cookies_ORB.yml";     \/\/ output file$/;"	v
+x_1	tutorial_code/core/Matrix/Drawing_2.cpp	/^int x_1 = -window_width\/2;$/;"	v
+x_2	tutorial_code/core/Matrix/Drawing_2.cpp	/^int x_2 = window_width*3\/2;$/;"	v
+y_1	tutorial_code/core/Matrix/Drawing_2.cpp	/^int y_1 = -window_width\/2;$/;"	v
+y_2	tutorial_code/core/Matrix/Drawing_2.cpp	/^int y_2 = window_width*3\/2;$/;"	v
+yml_read_path	tutorial_code/calib3d/real_time_pose_estimation/src/main_detection.cpp	/^string yml_read_path = tutorial_path + "Data\/cookies_ORB.yml"; \/\/ 3dpts + descriptors$/;"	v
+~CascadeDetectorAdapter	dbt_face_detection.cpp	/^        virtual ~CascadeDetectorAdapter()$/;"	f	class:CascadeDetectorAdapter
+~CsvWriter	tutorial_code/calib3d/real_time_pose_estimation/src/CsvWriter.cpp	/^CsvWriter::~CsvWriter() {$/;"	f	class:CsvWriter
+~IMotionEstimatorBuilder	videostab.cpp	/^    virtual ~IMotionEstimatorBuilder() {}$/;"	f	class:IMotionEstimatorBuilder
+~Mesh	tutorial_code/calib3d/real_time_pose_estimation/src/Mesh.cpp	/^Mesh::~Mesh()$/;"	f	class:Mesh
+~Model	tutorial_code/calib3d/real_time_pose_estimation/src/Model.cpp	/^Model::~Model()$/;"	f	class:Model
+~ModelRegistration	tutorial_code/calib3d/real_time_pose_estimation/src/ModelRegistration.cpp	/^ModelRegistration::~ModelRegistration()$/;"	f	class:ModelRegistration
+~PnPProblem	tutorial_code/calib3d/real_time_pose_estimation/src/PnPProblem.cpp	/^PnPProblem::~PnPProblem()$/;"	f	class:PnPProblem
+~Ray	tutorial_code/calib3d/real_time_pose_estimation/src/Mesh.cpp	/^Ray::~Ray()$/;"	f	class:Ray
+~RobustMatcher	tutorial_code/calib3d/real_time_pose_estimation/src/RobustMatcher.cpp	/^RobustMatcher::~RobustMatcher()$/;"	f	class:RobustMatcher
+~Triangle	tutorial_code/calib3d/real_time_pose_estimation/src/Mesh.cpp	/^Triangle::~Triangle()$/;"	f	class:Triangle
