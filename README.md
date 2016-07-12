@@ -89,8 +89,8 @@ $./bin/p2p_setup.sh init or /OPEL_DIR/$./run_daemons start
 * **OPEL Directory 내의 run_daemons [start/stop]으로 데몬들 실행 및 종료**
 ```
 $ cd /OPEL_DIR/
-$./run_damons start	(실행)
-$./run_damons stop	(종료)
+$./run_daemons start	(실행)
+$./run_daemons stop	(종료)
 ```
 ###Android device
 * OPEL Manager Application을 실행하면 자동으로 연결
