@@ -10,14 +10,20 @@
 ```
 ##Dependency Library 설치
 ```
-apt-get install g++-4.8 wiringpi libdbus-1-dev glib-2.0 libdbus-glib-1-2 libdbus-glib-1-2-dbg libdbus-glib-1-dev zip sqlite3 libsqlite3-dev 
+apt-get install g++-4.8 wiringpi libdbus-1-dev glib-2.0 libdbus-glib-1-2 libdbus-glib-1-2-dbg libdbus-glib-1-dev zip sqlite3 libsqlite3-dev
 ```
 ###dependency library (따로 설치 필요 – /OPEL_DIR/dep 디렉토리 내에 위치)
 #### bluez 
 ```
 $ cd /OPEL_DIR/dep/bluez-4.101
 $ ./configure --prefix=/usr --mandir=/usr/share/man --sysconfdir=/etc --localstatedir=/var --libexecdir=/lib 
-$ make && make install
+$ make 
+$ sudo make install
+```
+#### udhcpd
+```
+$sudo apt-get install udhcpd
+$sudo touch /var/lib/misc/udhcpd.leases
 ```
 
 #### hostap/wpa_supplicant
