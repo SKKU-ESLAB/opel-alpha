@@ -131,7 +131,6 @@ $ make install
 기타 Realtek 모델 등 nl80211와 호환되지 않는 모델은 현재 지원하지 않습니다. (Raspberry PI3는 별도 모듈없이 바로 사용가능합니다.)
 ```
 $./paring
-$./bin/p2p_setup.sh init or /OPEL_DIR/$./run_daemons start
 ```
 ###Android device
 * Bluetooth 설정에서 Raspberry-pi 찾아 연결
