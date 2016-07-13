@@ -1,3 +1,9 @@
 bin/appManager/appPackageRepository.db
 bin/appManager/deviceRepository.db
 bin/appManager/serviceDaemonRepository.db
+CMakeFiles
+*/CMakeFiles
+cmake_install.cmake
+*/cmake_install.cmake
+Makefile
+*/Makefile
