@@ -1,0 +1,14 @@
+[
+    {
+        "merged": "C:\\Users\\ES Lab\\Desktop\\android_workspace\\Opel-Manager\\build\\intermediates\\res\\merged\\debug\\menu\\eventlogger_actionbar.xml",
+        "source": "C:\\Users\\ES Lab\\Desktop\\android_workspace\\Opel-Manager\\res\\menu\\eventlogger_actionbar.xml"
+    },
+    {
+        "merged": "C:\\Users\\ES Lab\\Desktop\\android_workspace\\Opel-Manager\\build\\intermediates\\res\\merged\\debug\\menu\\config_actionbar.xml",
+        "source": "C:\\Users\\ES Lab\\Desktop\\android_workspace\\Opel-Manager\\res\\menu\\config_actionbar.xml"
+    },
+    {
+        "merged": "C:\\Users\\ES Lab\\Desktop\\android_workspace\\Opel-Manager\\build\\intermediates\\res\\merged\\debug\\menu\\main.xml",
+        "source": "C:\\Users\\ES Lab\\Desktop\\android_workspace\\Opel-Manager\\res\\menu\\main.xml"
+    }
+]

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">OPEL Manager</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="alert_dialog_ok">OK</string>
+    <string name="alert_dialog_cancel">Cancel</string>
+
+    <string name="action_event_filter">Filter</string>
+    <string name="action_event_clear">Clear</string>
+    <string name="title_activity_splash_viewer">splashViewer</string>
+
+
+</resources>
