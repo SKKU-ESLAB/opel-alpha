@@ -36,7 +36,7 @@ $ make && make install
 $ cd /OPEL_DIR/dep/opencv-3.0.0
 $ mkdir build
 $ cd build
-$ cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/usr/local ..
+$ cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/usr/local -D BUILD_TESTS=OFF -D BUILD_PERF_TESTS=OFF ..
 $ make -j 4
 $ sudo make install
 ```
