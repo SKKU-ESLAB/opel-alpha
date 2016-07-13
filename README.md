@@ -74,6 +74,9 @@ $ make install
 ##OPEL Communication Setup
 **최초 연결시 페어링 필요**
 ###OPEL device
+현재 OPEL에서 사용중인 Network Interface는 BCM43143 모델로, brcmfmac (nl80211) driver를 사용합니다.
+
+기타 Realtek 모델 등 nl80211와 호환되지 않는 모델은 현재 지원하지 않습니다. (Raspberry PI3는 별도 모듈없이 바로 사용가능합니다.)
 ```
 $./paring
 $./bin/p2p_setup.sh init or /OPEL_DIR/$./run_daemons start
