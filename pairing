@@ -1,2 +1,5 @@
-#!/bin/bash
+#/bin/bash
+export OPEL_DIR=$(pwd)
 sudo hciconfig hci0 piscan
+./bin/p2p_setup.sh deinit
+./bin/p2p_setup.sh init

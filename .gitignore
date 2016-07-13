@@ -1,0 +1,3 @@
+bin/appManager/appPackageRepository.db
+bin/appManager/deviceRepository.db
+bin/appManager/serviceDaemonRepository.db
