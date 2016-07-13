@@ -1,2 +1,0 @@
-
-var wpi = require('Wiringpi');

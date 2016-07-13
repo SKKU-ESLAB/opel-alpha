@@ -1,1 +1,0 @@
-cmd_Release/obj.target/nil.node := g++ -shared -pthread -rdynamic  -Wl,-soname=nil.node -o Release/obj.target/nil.node -Wl,--start-group Release/obj.target/nil/nil.o Release/obj.target/nil/nil_dbus_connection.o Release/obj.target/nil/nil_dbus.o Release/obj.target/nil/nil_request.o -Wl,--end-group -lglib-2.0 -ldbus-1
