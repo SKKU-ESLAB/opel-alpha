@@ -1,1 +1,0 @@
-/usr/bin/g++-4.8       CMakeFiles/cam_manager.dir/src/main.cpp.o CMakeFiles/cam_manager.dir/src/cam_core.cpp.o CMakeFiles/cam_manager.dir/src/cam_property.cpp.o CMakeFiles/cam_manager.dir/src/cam_status.cpp.o CMakeFiles/cam_manager.dir/src/cam_cap_check.cpp.o  -o ../bin/cam_manager -rdynamic -ldbus-1 -lglib-2.0 -ldbus-glib-1 -lpthread 
