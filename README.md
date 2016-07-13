@@ -1,4 +1,50 @@
 # opel-alpha
+##RPI3 Build Sequence (Test Done)
+###1. 본 Repository로부터 raspberry-pi2_3 branch 다운로드
+###2. Dependency libarary 설치
+```
+$apt-get install g++-4.8 wiringpi libdbus-1-dev glib-2.0 libdbus-glib-1-2 libdbus-glib-1-2-dbg libdbus-glib-1-dev zip sqlite3 libsqlite3-dev cmake
+```
+###3. bluez 설치
+```
+$cd dep/bluez-4.101
+$./configure --prefix=/usr --mandir=/usr/share/man --sysconfdir=/etc --localstatedir=/var --libexecdir=/lib 
+$make
+$sudo make install
+```
+###4. libxml 설치
+```
+$cd dep/libxml2-2.7.7
+$./configure --prefix=/usr/local/xml
+$make
+$sudo make install
+```
+###5. udhcpd 설치
+```
+$sudo apt-get install udhcpd
+$sudo touch /var/lib/misc/udhcpd.leases
+```
+###6. opel.conf 복사
+```
+$cd dep/
+$sudo cp opel.conf /etc/dbus-1/system.d/
+```
+###7. build
+```
+$cmake ./
+$make
+```
+###8. pairing
+```
+$./pairing
+Android에서 BT및 WFD연결
+```
+###9. Daemon 실행
+```
+$./run_daemons start
+Android OPEL Manager 실행
+```
+
 ##Directory path
 ```
 /home/pi/opel 					 Workspace (OPEL_DIR)
