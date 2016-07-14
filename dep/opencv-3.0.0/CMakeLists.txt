@@ -481,11 +481,6 @@ endif(WIN32 AND NOT MINGW)
 # ----------------------------------------------------------------------------
 if(UNIX)
   find_package(PkgConfig QUIET)
-	FIND_PATH( DBUS_INCLUDE_DIR dbus/dbus.h PATHS /usr/include/dbus-1.0 /usr/local/include/dbus-1.0 )
-	FIND_LIBRARY( DBUS_LIBRARY NAME dbus-1 PATHS /usr/lib /usr/local/lib )
-	FIND_PATH( DBUS_INCLUDE_LIB_DIR dbus/dbus-arch-deps.h PATHS /usr/lib/dbus-1.0/include /usr/local/lib/dbus-1.0/include /usr/lib/arm-linux-gnueabihf/dbus-1.0/include)
-	FIND_LIBRARY( DBUS_GLIB_LIBRARY NAME dbus-glib-1 PATHS /usr/lib /usr/local/lib )
-		
 	include(CheckFunctionExists)
   include(CheckIncludeFile)
 	#	set(OPENCV_LINKER_LIBS ${OPENCV_LINKER_LIBS} DBUS_LIBRARY)
