@@ -3,7 +3,7 @@
 ###1. 본 Repository로부터 raspberry-pi2_3 branch 다운로드
 ###2. Dependency libarary 설치
 ```
-$apt-get install g++-4.8 wiringpi libdbus-1-dev glib-2.0 libdbus-glib-1-2 libdbus-glib-1-2-dbg libdbus-glib-1-dev zip sqlite3 libsqlite3-dev cmake
+$apt-get install g++-4.8 wiringpi libdbus-1-dev glib-2.0 libdbus-glib-1-2 libdbus-glib-1-2-dbg libdbus-glib-1-dev zip sqlite3 libsqlite3-dev cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev python-dev python-numpy libjpeg-dev libpng-dev libtiff-dev libjasper-dev libdc1394-22-dev 
 ```
 ###3. bluez 설치
 ```
@@ -56,7 +56,7 @@ Android OPEL Manager 실행
 ```
 ##Dependency Library 설치
 ```
-apt-get install g++-4.8 wiringpi libdbus-1-dev glib-2.0 libdbus-glib-1-2 libdbus-glib-1-2-dbg libdbus-glib-1-dev zip sqlite3 libsqlite3-dev
+apt-get install g++-4.8 wiringpi libdbus-1-dev glib-2.0 libdbus-glib-1-2 libdbus-glib-1-2-dbg libdbus-glib-1-dev zip sqlite3 libsqlite3-dev cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev python-dev python-numpy libjpeg-dev libpng-dev libtiff-dev libjasper-dev libdc1394-22-dev
 ```
 ###dependency library (따로 설치 필요 – /OPEL_DIR/dep 디렉토리 내에 위치)
 #### bluez 
@@ -85,6 +85,9 @@ $ make && make install
 ```
 ####opencv-3.0.0
 ```
+$ sudo apt-get install libv4l-dev
+$ cd /usr/include/linux
+$ sudo ln -s ../libv4l1-videodev.h videodev.h
 $ cd /OPEL_DIR/dep/opencv-3.0.0
 $ mkdir build
 $ cd build
