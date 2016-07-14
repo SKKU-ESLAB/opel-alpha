@@ -481,15 +481,36 @@ endif(WIN32 AND NOT MINGW)
 # ----------------------------------------------------------------------------
 if(UNIX)
   find_package(PkgConfig QUIET)
-	FIND_PATH( DBUS_INCLUDE_DIR dbus/dbus.h PATHS /usr/include/dbus-1.0 /usr/local/include/dbus-1.0 )
-	FIND_LIBRARY( DBUS_LIBRARY NAME dbus-1 PATHS /usr/lib /usr/local/lib )
-	FIND_PATH( DBUS_INCLUDE_LIB_DIR dbus/dbus-arch-deps.h PATHS /usr/lib/dbus-1.0/include /usr/local/lib/dbus-1.0/include /usr/lib/arm-linux-gnueabihf/dbus-1.0/include)
-	FIND_LIBRARY( DBUS_GLIB_LIBRARY NAME dbus-glib-1 PATHS /usr/lib /usr/local/lib )
-		
-	include(CheckFunctionExists)
+#	FIND_PATH( DBUS_INCLUDE_DIR dbus/dbus.h PATHS /usr/include/dbus-1.0 /usr/local/include/dbus-1.0 )
+#	FIND_LIBRARY( DBUS_LIBRARY NAME dbus-1 PATHS /usr/lib /usr/local/lib )
+#	FIND_LIBRARY( DBUS_GLIB_LIBRARY NAME dbus-glib-1 PATHS /usr/lib /usr/local/lib )
+find_path(DBUS_INCLUDE_DIR
+    NAMES
+    dbus/dbus.h
+    HINTS
+    ${DBUS_ROOT_DIR}
+    ${_dbus_hint_INCLUDE_DIRS}
+    PATH_SUFFIXES
+    include/
+    include/dbus-1.0/
+    dbus-1.0/
+)
+
+find_path(DBUS_ARCH_INCLUDE_DIR
+    NAMES
+    dbus/dbus-arch-deps.h
+    HINTS
+    ${DBUS_ROOT_DIR}
+    ${_dbus_hint_INCLUDE_DIRS}
+    PATHS
+    # TODO use CMAKE_SYSTEM_PROCESSOR or similar?
+    #/usr/lib/${CMAKE_SYSTEM_PROCESSOR}/dbus-1.0/include/
+    /usr/lib/i386-linux-gnu/dbus-1.0/include/
+    PATH_SUFFIXES
+    dbus-1.0/include/
+)	
+  include(CheckFunctionExists)
   include(CheckIncludeFile)
-	#	set(OPENCV_LINKER_LIBS ${OPENCV_LINKER_LIBS} DBUS_LIBRARY)
-	#	set(OPENCV_LINKER_LIBS ${OPENCV_LINKER_LIBS} DBUS_GLIB_LIBRARY)
 	if(NOT APPLE)
     CHECK_INCLUDE_FILE(pthread.h HAVE_LIBPTHREAD)
     if(ANDROID)
@@ -678,8 +699,8 @@ if(INSTALL_TESTS AND OPENCV_TEST_DATA_PATH)
                    "${CMAKE_BINARY_DIR}/win-install/opencv_run_all_tests.cmd" @ONLY)
     install(PROGRAMS "${CMAKE_BINARY_DIR}/win-install/opencv_run_all_tests.cmd"
             DESTINATION ${OPENCV_TEST_INSTALL_PATH} COMPONENT tests)
-  elseif(UNIX)
     configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/templates/opencv_run_all_tests_unix.sh.in"
+  elseif(UNIX)
                    "${CMAKE_BINARY_DIR}/unix-install/opencv_run_all_tests.sh" @ONLY)
     install(PROGRAMS "${CMAKE_BINARY_DIR}/unix-install/opencv_run_all_tests.sh"
             DESTINATION ${OPENCV_TEST_INSTALL_PATH} COMPONENT tests)
