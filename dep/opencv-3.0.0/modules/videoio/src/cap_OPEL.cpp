@@ -17,7 +17,6 @@
 #include <sys/wait.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
-//#include "/usr/include/dbus-1.0/dbus/dbus.h"
 #include <dbus/dbus.h>
 #include <semaphore.h>
 #include <linux/videodev2.h>

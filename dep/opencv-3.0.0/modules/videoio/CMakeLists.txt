@@ -101,17 +101,26 @@ if(HAVE_UNICAP)
 endif(HAVE_UNICAP)
 
 if(HAVE_LIBV4L)
- 
-#	include_directories(/usr/include/dbus-1.0)
-#	include_directories(/usr/lib/arm-linux-gnueabihf/dbus-1.0/include)
-	include_directories(${DBUS_INCLUDE_DIR})
-	include_directories(${DBUS_INCLUDE_LIB_DIR})
-list(APPEND videoio_srcs ${CMAKE_CURRENT_LIST_DIR}/src/cap_OPEL.cpp)
+	find_package(PkgConfig QUIET)
+	pkg_check_modules(_dbus_hint QUIET libdbus)
+	include_directories(/usr/include/dbus-1.0)
+	include_directories(/usr/lib/arm-linux-gnueabihf/dbus-1.0/include)
+  list(APPEND videoio_srcs ${CMAKE_CURRENT_LIST_DIR}/src/cap_OPEL.cpp)
 	list(APPEND VIDEOIO_LIBRARIES "-pthread")
+
+
+	#	list(APPEND VIDEOIO_LIBRARIES "dbus-1.0")
+	#list(APPEND VIDEOIO_LIBRARIES "glib-2.0")
 	list(APPEND VIDEOIO_LIBRARIES "-ldbus-1")
 	list(APPEND VIDEOIO_LIBRARIES "-ldbus-glib-1")
 elseif(HAVE_CAMV4L OR HAVE_CAMV4L2 OR HAVE_VIDEOIO)
+	#add_definitions(`pkg-config --libs --cflags dbus-1 glib-2.0 dbus-glib-1` -g `pkg-config --libs --cflags dbus-1 glib-2.0 dbus-glib-1`)
+
+	include_directories(/usr/include/dbus-1.0)
+	include_directories(/usr/lib/arm-linux-gnueabihf/dbus-1.0/include)
   list(APPEND videoio_srcs ${CMAKE_CURRENT_LIST_DIR}/src/cap_OPEL.cpp)
+	list(APPEND VIDEOIO_LIBRARIES "-ldbus-1")
+	list(APPEND VIDEOIO_LIBRARIES "-ldbus-glib-1")
 endif()
 
 if(HAVE_OPENNI)
