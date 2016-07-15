@@ -47,7 +47,6 @@ public class MainActivity extends Activity {
 	private boolean conn_stat = false;
 	global_appList list; //Main Icon List
 	static ProgressDialog mainLoadingProgDialog;
-	WifiDirectBroadcastReceiver mReceiver = null;
 	IntentFilter mIntentFilter;
 
 	private Intent mqttServiceIntent;
@@ -64,12 +63,6 @@ public class MainActivity extends Activity {
 		mainLoadingProgDialog.setCancelable(false);
 		mainLoadingProgDialog.show();*/
 
-		mIntentFilter = new IntentFilter();
-		mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
-		mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
-		mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
-		mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
-
 		initStorageWorkspace();
 
 		list = globalData.getInstance().getAppList();
@@ -79,23 +72,6 @@ public class MainActivity extends Activity {
 			getNativeAppList(list);
 			globalData.getInstance().getEventList().open(getApplicationContext());
 			globalData.getInstance().initComplete();
-			WifiP2pManager manager = (WifiP2pManager)getSystemService(WIFI_P2P_SERVICE);
-			WifiP2pManager.Channel channel = manager.initialize(this, getMainLooper(), null);
-			globalData.getInstance().setWifiP2pManager(manager);
-			globalData.getInstance().setWifiChannel(channel);
-			globalData.getInstance().setIntentFilter(mIntentFilter);
-
-
-			// For MQTT Cloud service
-			/*
-			globalData.getInstance().getMqttManager().initMqttManager(getApplicationContext(), getIntent(), mHandler);
-			registerReceiver (globalData.getInstance().getMqttManager().getDataReceiver(), globalData.getInstance().getMqttManager().getIntentFilter());
-
-			mqttServiceIntent = new Intent(MainActivity.this, MqttBroadCastService.class);
-			startService(mqttServiceIntent);
-
-			globalData.getInstance().getMqttManager().initPublisher();
-			*/
 		}
 
 
@@ -117,7 +93,6 @@ public class MainActivity extends Activity {
 
 		//Request sensor, camera hw setting info [MORE]
 		globalData.getInstance().getCommManager().setOpelCommunicator();
-		globalData.getInstance().setWifiReceiver(new WifiDirectBroadcastReceiver(globalData.getInstance().getWifiP2pManager(), globalData.getInstance().getChannel()));
 		globalData.getInstance().getCommManager().setHandler(mHandler);
 	}
 
@@ -135,13 +110,11 @@ public class MainActivity extends Activity {
 	protected void onPause() {
 		super.onPause();
 		this.updateDisplayItem();
-		unregisterReceiver(globalData.getInstance().getWifiReceiver());
 	}
 
 	protected void onResume() {
 		super.onResume();
 		this.updateDisplayItem();
-		registerReceiver(globalData.getInstance().getWifiReceiver(), mIntentFilter);
 	}
 	protected void onDestroy() {
 		globalData.getInstance().exitApp();

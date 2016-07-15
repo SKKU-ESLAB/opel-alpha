@@ -1018,28 +1018,11 @@ public class OpelCommunicator {
 
         int res = 0;
 
-        cmfw_wfd_on(port);
-        while (false == ports[port].wfd_connect()) {
+        while (false == ports[CMFW_RFS_PORT].connect()) {
             SystemClock.sleep(1000);
-            /*
-            if ((iter) % 5 == 0) {
-                mManager.discoverPeers(mChannel, new WifiP2pManager.ActionListener() {
-                    @Override
-                    public void onSuccess() {
-
-                    }
-
-                    @Override
-                    public void onFailure(int reason) {
-
-                    }
-                });
-            }
-            */
-
         }
-        Log.d("WifiDirect", "Connected");
-        OutputStream os = ports[port].get_output_stream(true);
+
+        OutputStream os = ports[CMFW_RFS_PORT].get_output_stream(false);
         if (os == null)
             return -1;
 
@@ -1068,15 +1051,22 @@ public class OpelCommunicator {
                 dos.write(buff, 0, read_size);
                 bytes += read_size;
             }
-            InputStream is = ports[port].get_input_stream(true);
-            is.read(); //If receiver has received whole file, it close the socket --> this read returns -1 rather than blocking. This prevents the receiver from read error during receiving.
         } catch (IOException e) {
             e.printStackTrace();
             res = -1;
         }
 
-        ports[port].wfd_close();
-        cmfw_wfd_off();
+        if (res == -1)
+            return -1;
+
+        try {
+            InputStream is = ports[CMFW_RFS_PORT].get_input_stream(false);
+            is.read(); //If receiver has received whole file, it close the socket --> this read returns -1 rather than blocking. This prevents the receiver from read error during receiving.
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        ports[CMFW_RFS_PORT].close();
 
         return res;
     }
@@ -1089,14 +1079,13 @@ public class OpelCommunicator {
         byte fname[] = null, buf[] = null;
         String str_fname = null;
 
-        cmfw_wfd_on(port);
         int iter = 0;
-        while (false == ports[port].wfd_connect()) {
+        while (false == ports[CMFW_RFS_PORT].connect()) {
             SystemClock.sleep(300);
         }
         Log.d("WifiDirect", "Connected");
-        InputStream is = ports[port].get_input_stream(true);
-        OutputStream os = ports[port].get_output_stream(true);
+        InputStream is = ports[CMFW_RFS_PORT].get_input_stream(false);
+        OutputStream os = ports[CMFW_RFS_PORT].get_output_stream(false);
         if (is == null || os == null)
             return -1;
 
@@ -1117,7 +1106,7 @@ public class OpelCommunicator {
         Log.d("FileInfo", str_fname + "(" + Integer.toString(flen) + ")");
 
         if (res == -1) {
-            ports[port].wfd_close();
+            ports[CMFW_RFS_PORT].close();
             return res;
         }
         int bytes = 0;
@@ -1156,9 +1145,12 @@ public class OpelCommunicator {
                 e.printStackTrace();
             }
         }
-        ports[port].wfd_close();
+
+        Log.d("COMM", "File Recv done");
         SystemClock.sleep(500);
-        cmfw_wfd_off();
+        ports[CMFW_RFS_PORT].close();
+
+
         return res;
     }
 

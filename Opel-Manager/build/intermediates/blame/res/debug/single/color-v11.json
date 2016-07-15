@@ -1,10 +1,10 @@
 [
     {
-        "merged": "C:\\Users\\ES Lab\\Desktop\\android_workspace\\Opel-Manager\\build\\intermediates\\res\\merged\\debug\\color-v11\\abc_background_cache_hint_selector_material_light.xml",
-        "source": "C:\\Users\\ES Lab\\Desktop\\android_workspace\\Opel-Manager\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\23.1.1\\res\\color-v11\\abc_background_cache_hint_selector_material_light.xml"
+        "merged": "C:\\cygwin64\\home\\eslab\\workspace\\opel-alpha\\Opel-Manager\\build\\intermediates\\res\\merged\\debug\\color-v11\\abc_background_cache_hint_selector_material_dark.xml",
+        "source": "C:\\cygwin64\\home\\eslab\\workspace\\opel-alpha\\Opel-Manager\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\23.1.1\\res\\color-v11\\abc_background_cache_hint_selector_material_dark.xml"
     },
     {
-        "merged": "C:\\Users\\ES Lab\\Desktop\\android_workspace\\Opel-Manager\\build\\intermediates\\res\\merged\\debug\\color-v11\\abc_background_cache_hint_selector_material_dark.xml",
-        "source": "C:\\Users\\ES Lab\\Desktop\\android_workspace\\Opel-Manager\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\23.1.1\\res\\color-v11\\abc_background_cache_hint_selector_material_dark.xml"
+        "merged": "C:\\cygwin64\\home\\eslab\\workspace\\opel-alpha\\Opel-Manager\\build\\intermediates\\res\\merged\\debug\\color-v11\\abc_background_cache_hint_selector_material_light.xml",
+        "source": "C:\\cygwin64\\home\\eslab\\workspace\\opel-alpha\\Opel-Manager\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\23.1.1\\res\\color-v11\\abc_background_cache_hint_selector_material_light.xml"
     }
 ]

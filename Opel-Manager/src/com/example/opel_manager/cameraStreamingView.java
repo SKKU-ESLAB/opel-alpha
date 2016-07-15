@@ -74,7 +74,7 @@ public class cameraStreamingView extends Activity{
 		actionBar.setLogo(R.drawable.cam);
 		actionBar.setDisplayUseLogoEnabled(true);
 
-		tcpstreaming = new TCPStreaming(ip, port, handler);
+		//tcpstreaming = new TCPStreaming(ip, port, handler);
 
 		//Network Connection Initialization PSE;
 		//Network Connection Start PSE;
@@ -82,7 +82,7 @@ public class cameraStreamingView extends Activity{
 		curr = SystemClock.elapsedRealtime();
 		prev = SystemClock.elapsedRealtime();;
 
-		tcpstreaming.start();
+		//tcpstreaming.start();
 	}
 
 	@Override
@@ -94,7 +94,6 @@ public class cameraStreamingView extends Activity{
 			tcpstreaming.start();
 		}
 		super.onResume();
-		registerReceiver(globalData.getInstance().getWifiReceiver(), globalData.getInstance().getIntentFilter());
 	}
 
 	@Override
@@ -111,7 +110,6 @@ public class cameraStreamingView extends Activity{
 			tcpstreaming = null;
 		}
 		super.onPause();
-		unregisterReceiver(globalData.getInstance().getWifiReceiver());
 	}
 	synchronized private void setImg(byte[] frame)
 	{

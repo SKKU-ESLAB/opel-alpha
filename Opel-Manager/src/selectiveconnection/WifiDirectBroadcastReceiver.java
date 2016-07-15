@@ -102,47 +102,15 @@ public class WifiDirectBroadcastReceiver extends BroadcastReceiver {
 
         if(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION.equals(action  )){
             // Check to see if Wi-Fi is enabled and notify appropriate activity
-
-            int state = intent.getIntExtra(WifiP2pManager.EXTRA_WIFI_STATE, -1);
-            if(state == WifiP2pManager.WIFI_P2P_STATE_ENABLED){
-                Log.d("WifiP2p", "State: Enabled");
-            }
-            else{
-                Log.d("WifiP2p", "State: Disabled");
-            }
         } else if (WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION.equals(action)) {
             // Call WifiP2pManager.requestPeers() to get a list of current peers
-            if (mManager != null) {
-                mManager.requestPeers(mChannel, mPeerListener);
-            }
-
 
         } else if (WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION.equals(action)) {
             // Respond to new connection or disconnections
-            NetworkInfo networkInfo = (NetworkInfo) intent
-                    .getParcelableExtra(WifiP2pManager.EXTRA_NETWORK_INFO);
-
-            if (networkInfo.isConnected()) {
-                Log.d("BReceiver", "Connected!");
-                sent_connected = true;
-                connected = true;
-                // We are connected with the other device, request connection
-                // info to find group owner IP
-                mManager.requestConnectionInfo(mChannel, mConnectionListener);
-            }
-            else{
-                Log.d("BReceiver", "Disconnected!");
-                sent_connected = false;
-                connected = false;
-            }
 
         } else if (WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION.equals(action)) {
             // Respond to this device's wifi state changing
             Log.d("BReceiver", "Changed");
-            WifiP2pDevice device = intent.getParcelableExtra(WifiP2pManager.EXTRA_WIFI_P2P_DEVICE);
-            mMac = device.deviceAddress;
-            Log.d("BReceiver", mMac);
-            Log.d("Real", OpelCommunicator.getMacAddr());
         }
     }
 

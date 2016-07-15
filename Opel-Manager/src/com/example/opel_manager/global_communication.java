@@ -268,7 +268,6 @@ public class global_communication {
 			}
 			else{
 				Log.d("BTConnect", "Success");
-				opelCommunicator.cmfw_wfd_on();
 				handle_connected();
 			}
 
@@ -390,6 +389,7 @@ public class global_communication {
 					e.printStackTrace();
 				}
 
+			Log.d("OPEL", "Thread done ");
 			handle_disconnected();
 
 		}
@@ -412,6 +412,7 @@ public class global_communication {
 			if(fName.equals(""))
 				return;
 
+			Log.d("Recv", "REcv file done");
 			Bitmap bitmap = null;
 			File f = new File(globalData.getInstance().getIconDirectoryPath(), fName);
 			BitmapFactory.Options options = new BitmapFactory.Options();
@@ -894,41 +895,5 @@ public class global_communication {
 
 		return;
 	}
-	/*
-	//Send the file on internal folder
-	public void sendInternalFile(String fileName) {
 
-		String fileSize = "";
-		BufferedInputStream bis;
-
-		try {
-
-			File fd = new File(globalData.getInstance().getStoragePath(), fileName);
-
-			fileSize = String.valueOf(fd.length());
-
-			bis = new BufferedInputStream(new FileInputStream(fd));
-
-			int len;
-			int size = 4096;
-			byte[] data = new byte[size];
-			
-			sendMsg(fileName);
-			sendMsg(fileSize);
-			
-			int totalLen = 0;
-			
-			while ((len = bis.read(data, 0, 4096)) != -1) {
-				out.write(data, 0, len);
-				totalLen += len;
-			}
-			
-			Log.d("OPEL", "send File size : " + fileSize + "   " + totalLen);
-			out.flush();
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			Log.d("OPEL", "Exception: sendfile ");
-		}
-	}*/
 }

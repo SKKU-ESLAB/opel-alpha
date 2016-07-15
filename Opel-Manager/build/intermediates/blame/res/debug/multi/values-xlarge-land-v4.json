@@ -1,6 +1,6 @@
 [
     {
-        "outputFile": "C:\\Users\\ES Lab\\Desktop\\android_workspace\\Opel-Manager\\build\\intermediates\\res\\merged\\debug\\values-xlarge-land-v4\\values-xlarge-land-v4.xml",
+        "outputFile": "C:\\cygwin64\\home\\eslab\\workspace\\opel-alpha\\Opel-Manager\\build\\intermediates\\res\\merged\\debug\\values-xlarge-land-v4\\values-xlarge-land-v4.xml",
         "map": [
             {
                 "to": {
@@ -11,7 +11,7 @@
                     "endOffset": 114
                 },
                 "from": {
-                    "file": "C:\\Users\\ES Lab\\Desktop\\android_workspace\\Opel-Manager\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\23.1.1\\res\\values-xlarge-land\\values-xlarge-land.xml",
+                    "file": "C:\\cygwin64\\home\\eslab\\workspace\\opel-alpha\\Opel-Manager\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\23.1.1\\res\\values-xlarge-land\\values-xlarge-land.xml",
                     "position": {
                         "startLine": 4,
                         "startColumn": 4,

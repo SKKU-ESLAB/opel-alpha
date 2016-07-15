@@ -119,7 +119,7 @@ public class appMarketView extends Activity{
 
 			}
 			else if(url.endsWith("opk") && !globalData.getInstance().getCommManager().isConnect() ){
-				Toast.makeText(getApplicationContext(),  "Need to connect with OPEL" , 0).show();
+				Toast.makeText(getApplicationContext(),  "Need to connect with OPEL" , Toast.LENGTH_SHORT).show();
 			}
 			else{
 				view.loadUrl(url);
@@ -131,14 +131,12 @@ public class appMarketView extends Activity{
 	protected void onResume(){
 		super.onResume();
 		//IntentFilter intentFilter = new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
-		registerReceiver(globalData.getInstance().getWifiReceiver(), globalData.getInstance().getIntentFilter());
 	}
 
 
 	protected void onPause(){
 		super.onPause();
 		//if(requestQueue.isEmpty())
-		unregisterReceiver(globalData.getInstance().getWifiReceiver());
 	}
 
 

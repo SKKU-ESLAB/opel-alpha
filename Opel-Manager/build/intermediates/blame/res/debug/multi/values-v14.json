@@ -1,6 +1,6 @@
 [
     {
-        "outputFile": "C:\\Users\\ES Lab\\Desktop\\android_workspace\\Opel-Manager\\build\\intermediates\\res\\merged\\debug\\values-v14\\values-v14.xml",
+        "outputFile": "C:\\cygwin64\\home\\eslab\\workspace\\opel-alpha\\Opel-Manager\\build\\intermediates\\res\\merged\\debug\\values-v14\\values-v14.xml",
         "map": [
             {
                 "to": {
@@ -12,7 +12,7 @@
                     "endOffset": 201
                 },
                 "from": {
-                    "file": "C:\\Users\\ES Lab\\Desktop\\android_workspace\\Opel-Manager\\res\\values-v14\\styles.xml",
+                    "file": "C:\\cygwin64\\home\\eslab\\workspace\\opel-alpha\\Opel-Manager\\res\\values-v14\\styles.xml",
                     "position": {
                         "startLine": 7,
                         "startColumn": 4,
@@ -33,7 +33,7 @@
                     "endOffset": 477
                 },
                 "from": {
-                    "file": "C:\\Users\\ES Lab\\Desktop\\android_workspace\\Opel-Manager\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\23.1.1\\res\\values-v14\\values-v14.xml",
+                    "file": "C:\\cygwin64\\home\\eslab\\workspace\\opel-alpha\\Opel-Manager\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\23.1.1\\res\\values-v14\\values-v14.xml",
                     "position": {
                         "startLine": 4,
                         "startColumn": 4,
@@ -53,7 +53,7 @@
                     "endOffset": 548
                 },
                 "from": {
-                    "file": "C:\\Users\\ES Lab\\Desktop\\android_workspace\\Opel-Manager\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\23.1.1\\res\\values-v14\\values-v14.xml",
+                    "file": "C:\\cygwin64\\home\\eslab\\workspace\\opel-alpha\\Opel-Manager\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\23.1.1\\res\\values-v14\\values-v14.xml",
                     "position": {
                         "startLine": 11,
                         "startColumn": 4,
@@ -72,7 +72,7 @@
                     "endOffset": 631
                 },
                 "from": {
-                    "file": "C:\\Users\\ES Lab\\Desktop\\android_workspace\\Opel-Manager\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\23.1.1\\res\\values-v14\\values-v14.xml",
+                    "file": "C:\\cygwin64\\home\\eslab\\workspace\\opel-alpha\\Opel-Manager\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\23.1.1\\res\\values-v14\\values-v14.xml",
                     "position": {
                         "startLine": 12,
                         "startColumn": 4,
@@ -92,7 +92,7 @@
                     "endOffset": 1041
                 },
                 "from": {
-                    "file": "C:\\Users\\ES Lab\\Desktop\\android_workspace\\Opel-Manager\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\23.1.1\\res\\values-v14\\values-v14.xml",
+                    "file": "C:\\cygwin64\\home\\eslab\\workspace\\opel-alpha\\Opel-Manager\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\23.1.1\\res\\values-v14\\values-v14.xml",
                     "position": {
                         "startLine": 13,
                         "startColumn": 4,
@@ -113,7 +113,7 @@
                     "endOffset": 1463
                 },
                 "from": {
-                    "file": "C:\\Users\\ES Lab\\Desktop\\android_workspace\\Opel-Manager\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\23.1.1\\res\\values-v14\\values-v14.xml",
+                    "file": "C:\\cygwin64\\home\\eslab\\workspace\\opel-alpha\\Opel-Manager\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\23.1.1\\res\\values-v14\\values-v14.xml",
                     "position": {
                         "startLine": 19,
                         "startColumn": 4,
@@ -133,7 +133,7 @@
                     "endOffset": 1583
                 },
                 "from": {
-                    "file": "C:\\Users\\ES Lab\\Desktop\\android_workspace\\Opel-Manager\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\23.1.1\\res\\values-v14\\values-v14.xml",
+                    "file": "C:\\cygwin64\\home\\eslab\\workspace\\opel-alpha\\Opel-Manager\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\23.1.1\\res\\values-v14\\values-v14.xml",
                     "position": {
                         "startLine": 27,
                         "startColumn": 4,
@@ -152,7 +152,7 @@
                     "endOffset": 1646
                 },
                 "from": {
-                    "file": "C:\\Users\\ES Lab\\Desktop\\android_workspace\\Opel-Manager\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\23.1.1\\res\\values-v14\\values-v14.xml",
+                    "file": "C:\\cygwin64\\home\\eslab\\workspace\\opel-alpha\\Opel-Manager\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\23.1.1\\res\\values-v14\\values-v14.xml",
                     "position": {
                         "startLine": 28,
                         "startColumn": 4,
@@ -172,7 +172,7 @@
                     "endOffset": 1800
                 },
                 "from": {
-                    "file": "C:\\Users\\ES Lab\\Desktop\\android_workspace\\Opel-Manager\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\23.1.1\\res\\values-v14\\values-v14.xml",
+                    "file": "C:\\cygwin64\\home\\eslab\\workspace\\opel-alpha\\Opel-Manager\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\23.1.1\\res\\values-v14\\values-v14.xml",
                     "position": {
                         "startLine": 29,
                         "startColumn": 4,
@@ -192,7 +192,7 @@
                     "endOffset": 1863
                 },
                 "from": {
-                    "file": "C:\\Users\\ES Lab\\Desktop\\android_workspace\\Opel-Manager\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\23.1.1\\res\\values-v14\\values-v14.xml",
+                    "file": "C:\\cygwin64\\home\\eslab\\workspace\\opel-alpha\\Opel-Manager\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\23.1.1\\res\\values-v14\\values-v14.xml",
                     "position": {
                         "startLine": 32,
                         "startColumn": 4,
@@ -211,7 +211,7 @@
                     "endOffset": 1995
                 },
                 "from": {
-                    "file": "C:\\Users\\ES Lab\\Desktop\\android_workspace\\Opel-Manager\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\23.1.1\\res\\values-v14\\values-v14.xml",
+                    "file": "C:\\cygwin64\\home\\eslab\\workspace\\opel-alpha\\Opel-Manager\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\23.1.1\\res\\values-v14\\values-v14.xml",
                     "position": {
                         "startLine": 33,
                         "startColumn": 4,
