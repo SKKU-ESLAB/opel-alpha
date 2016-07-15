@@ -56,9 +56,11 @@ static sdp_session_t *bt_register_service( cmfw_port_e bt_port, int port )
 		uuid_char_arr= port_uuid[bt_port];
 	}
 	else {
-		cmfw_log( "Inavlid param" );
-		__EXIT__;
-		return NULL;
+		cmfw_log( "Other port" );
+		strcpy( service_name, "OPEL_OTHER_PORT");
+		strcpy( service_dsc, "OPEL Other Port" );
+		strcpy( service_prov, "OPEL Other Port");
+		uuid_char_arr= port_uuid[bt_port];
 	}
 
 	sdp_record_t *record = sdp_record_alloc();

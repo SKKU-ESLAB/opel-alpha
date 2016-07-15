@@ -38,7 +38,6 @@ void cmfw_init()
 	int i;
 
 	bt_init();
-	wfd_init();
 
 	for(i=0; i<DEFINED_NUM_PORTS; i++){
 		cli_socks[i].bt_sock = -1;
@@ -54,7 +53,6 @@ bool cmfw_open(cmfw_port_e port)
 void cmfw_close(cmfw_port_e port)
 {
 	bt_close(port);
-	wfd_close(port);
 }
 
 int cmfw_accept(cmfw_port_e port)
@@ -441,39 +439,22 @@ static void _wfd_cli_close(cmfw_port_e port){
 }
 int cmfw_recv_file(cmfw_port_e port, char *dest_dir)
 {
-	/*
-	   if( finfo == NULL )
-	   return CMFW_E_INVALID_PARAM;
-	 */
-
-	/* wfd on */
-	/*
-	cmfw_log("cmfw_recv_cmd...");
-	int cmd = __cmfw_recv_cmd(port);
-
-	if( cmd < 0)
-		return CMFW_E_FAIL;
-
-	cmfw_log("cmfw_process_cmd...");
-	int res = __cmfw_process_cmd(cmd, port);
-	if( res < 0 ){
-		return res;
-	}
-	*/
-	cli_socks[port].wfd_sock = wfd_accept(port);
-
-	/* ? wfd on */
-
+	cmfw_open(CMFW_RFS_PORT);
+	cli_socks[CMFW_RFS_PORT].bt_sock = cmfw_accept(CMFW_RFS_PORT);
+	if(cli_socks[CMFW_RFS_PORT].bt_sock < 0)
+		cmfw_log("%s accept failed", strerror(errno));
 
 	/* recv file */
 	cmfw_log("Receiving File ...");
 	unsigned char buf[CMFW_PACKET_SIZE];
 	int bytes = 0;
 	int res_read;
-	int wfd_sock = cli_socks[port].wfd_sock;
+	int rfs_cli_sock = cli_socks[CMFW_RFS_PORT].bt_sock;
 
-	if(wfd_sock < 0){
-		wfd_close(port);
+	if(rfs_cli_sock < 0){
+		close(cli_socks[CMFW_RFS_PORT].bt_sock);
+		cli_socks[CMFW_RFS_PORT].bt_sock = -1;
+		cmfw_close(CMFW_RFS_PORT);
 		return CMFW_E_DISCON;
 	}
 
@@ -483,10 +464,11 @@ int cmfw_recv_file(cmfw_port_e port, char *dest_dir)
 
 	unsigned char fname_len;
 	//
-	res_read = read(wfd_sock, &fname_len, 1);
+	res_read = read(rfs_cli_sock, &fname_len, 1);
 	if(res_read < 0){
-		_wfd_cli_close(port);
-		wfd_close(port);
+		close(cli_socks[CMFW_RFS_PORT].bt_sock);
+		cli_socks[CMFW_RFS_PORT].bt_sock = -1;
+		cmfw_close(CMFW_RFS_PORT);
 		return CMFW_E_DISCON;
 	}
 	cmfw_log("fname_len:%d", fname_len);
@@ -511,11 +493,12 @@ int cmfw_recv_file(cmfw_port_e port, char *dest_dir)
 		dest_file_path[len+fname_len] = '\0';
 	}
 	//
-	res_read = read(wfd_sock, to_read, fname_len);
+	res_read = read(rfs_cli_sock, to_read, fname_len);
 	if(res_read < 0){
 		free (dest_file_path);
-		_wfd_cli_close(port);
-		wfd_close(port);
+		close(cli_socks[CMFW_RFS_PORT].bt_sock);
+		cli_socks[CMFW_RFS_PORT].bt_sock = -1;
+
 		return CMFW_E_DISCON;
 	}
 
@@ -524,18 +507,20 @@ int cmfw_recv_file(cmfw_port_e port, char *dest_dir)
 	int fd_file = open(dest_file_path, O_CREAT | O_TRUNC | O_WRONLY, 0777);
 	if( fd_file < 0 ){
 		free(dest_file_path);
-		_wfd_cli_close(port);
-		wfd_close(port);
+		close(cli_socks[CMFW_RFS_PORT].bt_sock);
+		cli_socks[CMFW_RFS_PORT].bt_sock = -1;
+
 		return CMFW_E_NO_FILE;
 	}
 
 	int fsize;
 	//
-	res_read = read(wfd_sock, &fsize, 4);
+	res_read = read(rfs_cli_sock, &fsize, 4);
 	if(res_read < 0){
 		free(dest_file_path);
-		_wfd_cli_close(port);
-		wfd_close(port);
+		close(cli_socks[CMFW_RFS_PORT].bt_sock);
+		cli_socks[CMFW_RFS_PORT].bt_sock = -1;
+
 		return CMFW_E_DISCON;
 	}
 
@@ -545,11 +530,12 @@ int cmfw_recv_file(cmfw_port_e port, char *dest_dir)
 	int curr_progress = 0;
 	int prev_progress = 0;
 	while( bytes < fsize ){
-		res_read = read(wfd_sock, buf, CMFW_PACKET_SIZE);
+		res_read = read(rfs_cli_sock, buf, CMFW_PACKET_SIZE);
 		if(res_read <= 0){
 			free(dest_file_path);
-			_wfd_cli_close(port);
-			wfd_close(port);
+			close(cli_socks[CMFW_RFS_PORT].bt_sock);
+			cli_socks[CMFW_RFS_PORT].bt_sock = -1;
+
 			return CMFW_E_DISCON;
 		}
 
@@ -585,8 +571,8 @@ int cmfw_recv_file(cmfw_port_e port, char *dest_dir)
 
 	close(fd_file);
 	free(dest_file_path);
-	_wfd_cli_close(port);
-	wfd_close(port);
+	close(cli_socks[CMFW_RFS_PORT].bt_sock);
+	cli_socks[CMFW_RFS_PORT].bt_sock = -1;
 
 	/* ? recv file */
 
@@ -753,24 +739,9 @@ static char *__cmfw_token_fname(char *fname)
 
 int cmfw_send_file(cmfw_port_e port, char *fname)
 {
-	/* Wifi On */
-/*
 	int res = CMFW_E_NONE;
-	int cmd = __cmfw_recv_cmd(port);
-
-	if (cmd < 0)
-		return CMFW_E_FAIL;
-
-	res = __cmfw_process_cmd(cmd, port);
-	if(res < 0){
-		wfd_close(port);
-		return CMFW_E_FAIL;
-	}
-	*/
-	/* ?Wifi On */
-
-	int res = CMFW_E_NONE;
-	cli_socks[port].wfd_sock = wfd_accept(port);
+	cmfw_open(CMFW_RFS_PORT);
+	cli_socks[CMFW_RFS_PORT].bt_sock = cmfw_accept(CMFW_RFS_PORT);
 	/* Send file */
 	cmfw_log("Sending File .. ");
 
@@ -779,18 +750,21 @@ int cmfw_send_file(cmfw_port_e port, char *fname)
 	int fd_file;
 	char *brief_path;
 	struct timeval start, end;
-	int wfd_sock = cli_socks[port].wfd_sock;
+	int rfs_cli_sock = cli_socks[CMFW_RFS_PORT].bt_sock;
 
-	if(wfd_sock < 0){
-		wfd_close(port);
+	if(rfs_cli_sock < 0){
+		cli_socks[CMFW_RFS_PORT].bt_sock = -1;
+		cmfw_close(CMFW_RFS_PORT);
 		return CMFW_E_DISCON;
 	}
 
 
 	brief_path = __cmfw_token_fname(fname);
 	if(brief_path == NULL){
-		_wfd_cli_close(port);
-		wfd_close(port);
+		close(cli_socks[CMFW_RFS_PORT].bt_sock);
+		cli_socks[CMFW_RFS_PORT].bt_sock = -1;
+		cmfw_close(CMFW_RFS_PORT);
+
 		return CMFW_E_INVALID_PARAM;
 	}
 
@@ -799,24 +773,30 @@ int cmfw_send_file(cmfw_port_e port, char *fname)
 	//
 	fd_file = open(fname, O_RDONLY);
 	if( fd_file < 0){
-		_wfd_cli_close(port);
-		wfd_close(port);
+		close(cli_socks[CMFW_RFS_PORT].bt_sock);
+		cli_socks[CMFW_RFS_PORT].bt_sock = -1;
+		cmfw_close(CMFW_RFS_PORT);
+
 		return CMFW_E_NO_FILE;
 	}
 
 	fname_len = strlen(brief_path);
 	int n_len = htonl(fname_len);
-	res_write = write(wfd_sock, &n_len, 4);
+	res_write = write(rfs_cli_sock, &n_len, 4);
 	if(res_write < 0){
-		_wfd_cli_close(port);
-		wfd_close(port);
+		close(cli_socks[CMFW_RFS_PORT].bt_sock);
+		cli_socks[CMFW_RFS_PORT].bt_sock = -1;
+		cmfw_close(CMFW_RFS_PORT);
+
 		return CMFW_E_DISCON;
 	}
 
-	res_write = write(wfd_sock, brief_path, fname_len);
+	res_write = write(rfs_cli_sock, brief_path, fname_len);
 	if(res_write < 0){
-		_wfd_cli_close(port);
-		wfd_close(port);
+		close(cli_socks[CMFW_RFS_PORT].bt_sock);
+		cli_socks[CMFW_RFS_PORT].bt_sock = -1;
+		cmfw_close(CMFW_RFS_PORT);
+
 		return CMFW_E_DISCON;
 	}
 
@@ -825,10 +805,12 @@ int cmfw_send_file(cmfw_port_e port, char *fname)
 	lseek(fd_file, 0, SEEK_SET);
 
 	int n_flen = htonl(flen);
-	res_write = write(wfd_sock, &n_flen, 4);
+	res_write = write(rfs_cli_sock, &n_flen, 4);
 	if(res_write < 0){
-		_wfd_cli_close(port);
-		wfd_close(port);
+		close(cli_socks[CMFW_RFS_PORT].bt_sock);
+		cli_socks[CMFW_RFS_PORT].bt_sock = -1;
+		cmfw_close(CMFW_RFS_PORT);
+
 		return CMFW_E_DISCON;
 	}
 	cmfw_log("Src File Path: %s(%s:%d)[%d]", fname, brief_path, fname_len, flen);
@@ -845,7 +827,7 @@ int cmfw_send_file(cmfw_port_e port, char *fname)
 			break;
 		}
 
-		res_write = write(wfd_sock, buf, res_read);
+		res_write = write(rfs_cli_sock, buf, res_read);
 		if(res_write < 0){
 			res = CMFW_E_DISCON;
 			break;
@@ -869,10 +851,10 @@ int cmfw_send_file(cmfw_port_e port, char *fname)
 
 	close(fd_file);
 	cmfw_log("file closed");
-	_wfd_cli_close(port);
-	cmfw_log("client closed");
-	wfd_close(port);
-	cmfw_log("server closed");
+	close(cli_socks[CMFW_RFS_PORT].bt_sock);
+	cli_socks[CMFW_RFS_PORT].bt_sock = -1;
+	cmfw_close(CMFW_RFS_PORT);
+
 
 	return res;
 }
