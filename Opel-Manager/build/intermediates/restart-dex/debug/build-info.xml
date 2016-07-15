@@ -4,37 +4,40 @@
     api-level="23"
     density="xxhdpi"
     format="7"
-    timestamp="112096219633087"
+    timestamp="113542972177502"
     token="5191747942745359099" >
 
     <task
         name="javac"
-        duration="853" />
+        duration="851" />
     <task
         name="instant-run-dex"
         duration="0" />
     <task
         name="instant-run-transform"
-        duration="0" />
+        duration="107" />
     <task
         name="verifier"
-        duration="0" />
+        duration="20" />
+
+    <artifact
+        location="C:\cygwin64\home\eslab\workspace\opel-alpha\Opel-Manager\build\intermediates\transforms\dex\debug\folders\1000\5\slice_5\classes.dex"
+        type="DEX" />
 
     <build timestamp="111076537171644" >
         <artifact
             location="C:\cygwin64\home\eslab\workspace\opel-alpha\Opel-Manager\build\outputs\apk\Opel-Manager-debug.apk"
             type="MAIN" />
     </build>
-    <build timestamp="111458347370137" >
-        <artifact
-            location="C:\cygwin64\home\eslab\workspace\opel-alpha\Opel-Manager\build\intermediates\transforms\dex\debug\folders\1000\5\slice_5\classes.dex"
-            type="DEX" />
-    </build>
     <build timestamp="111739582776362" >
         <artifact
             location="C:\cygwin64\home\eslab\workspace\opel-alpha\Opel-Manager\build\intermediates\transforms\dex\debug\folders\1000\5\slice_2\classes.dex"
             type="DEX" />
     </build>
-    <build timestamp="112096219633087" />
+    <build timestamp="113542972177502" >
+        <artifact
+            location="C:\cygwin64\home\eslab\workspace\opel-alpha\Opel-Manager\build\intermediates\transforms\dex\debug\folders\1000\5\slice_5\classes.dex"
+            type="DEX" />
+    </build>
 
 </instant-run>

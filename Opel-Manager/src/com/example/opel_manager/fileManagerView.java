@@ -344,13 +344,11 @@ public class fileManagerView extends Activity{
 	@Override
 	protected void onResume() {
 		super.onResume();
-		registerReceiver(globalData.getInstance().getWifiReceiver(), globalData.getInstance().getIntentFilter());
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
-		unregisterReceiver(globalData.getInstance().getWifiReceiver());
 	}
 }
 
