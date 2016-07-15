@@ -4,21 +4,21 @@
     api-level="23"
     density="xxhdpi"
     format="7"
-    timestamp="113542972177502"
+    timestamp="113799819752955"
     token="5191747942745359099" >
 
     <task
         name="javac"
-        duration="851" />
+        duration="612" />
     <task
         name="instant-run-dex"
         duration="0" />
     <task
         name="instant-run-transform"
-        duration="107" />
+        duration="40" />
     <task
         name="verifier"
-        duration="20" />
+        duration="16" />
 
     <artifact
         location="C:\cygwin64\home\eslab\workspace\opel-alpha\Opel-Manager\build\intermediates\transforms\dex\debug\folders\1000\5\slice_5\classes.dex"
@@ -34,7 +34,7 @@
             location="C:\cygwin64\home\eslab\workspace\opel-alpha\Opel-Manager\build\intermediates\transforms\dex\debug\folders\1000\5\slice_2\classes.dex"
             type="DEX" />
     </build>
-    <build timestamp="113542972177502" >
+    <build timestamp="113799819752955" >
         <artifact
             location="C:\cygwin64\home\eslab\workspace\opel-alpha\Opel-Manager\build\intermediates\transforms\dex\debug\folders\1000\5\slice_5\classes.dex"
             type="DEX" />

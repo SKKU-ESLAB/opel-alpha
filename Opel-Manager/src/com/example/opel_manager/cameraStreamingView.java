@@ -88,11 +88,8 @@ public class cameraStreamingView extends Activity{
 	@Override
 	protected void onResume() {
 		// TODO Auto-generated method stub
-		globalData.getInstance().getCommManager().requestRunNativeJSAppCameraViewer();
-		if(tcpstreaming == null){
-			tcpstreaming = new TCPStreaming(ip, port, handler);
-			tcpstreaming.start();
-		}
+
+
 		super.onResume();
 	}
 
@@ -104,7 +101,7 @@ public class cameraStreamingView extends Activity{
 	@Override
 	protected void onPause() {
 		// TODO Auto-generated method stub
-		globalData.getInstance().getCommManager().requestTermNativeJSAppCameraViewer();
+
 		if(tcpstreaming != null){
 			tcpstreaming.Cancel();
 			tcpstreaming = null;
@@ -217,8 +214,6 @@ class TCPStreaming extends Thread {
       */
 
 		sch = false;
-		if(globalData.getInstance().getWifiReceiver().isConnected() == false)
-			globalData.getInstance().getCommManager().opelCommunicator.cmfw_wfd_on();
 	}
 
 

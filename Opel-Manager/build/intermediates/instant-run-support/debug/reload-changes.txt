@@ -1,6 +1,4 @@
-CHANGED,C:\cygwin64\home\eslab\workspace\opel-alpha\Opel-Manager\build\intermediates\transforms\instantRun\debug\folders\4000\5\enhanced\com\example\opel_manager\fileManagerView$override.class
-CHANGED,C:\cygwin64\home\eslab\workspace\opel-alpha\Opel-Manager\build\intermediates\transforms\instantRun\debug\folders\4000\5\enhanced\com\example\opel_manager\global_communication_mqtt$MqttDataReceiver$override.class
 CHANGED,C:\cygwin64\home\eslab\workspace\opel-alpha\Opel-Manager\build\intermediates\transforms\instantRun\debug\folders\4000\5\enhanced\com\android\tools\fd\runtime\AppPatchesLoaderImpl.class
-CHANGED,C:\cygwin64\home\eslab\workspace\opel-alpha\Opel-Manager\build\intermediates\transforms\instantRun\debug\folders\4000\5\enhanced\com\example\opel_manager\MainActivity$override.class
-CHANGED,C:\cygwin64\home\eslab\workspace\opel-alpha\Opel-Manager\build\intermediates\transforms\instantRun\debug\folders\4000\5\enhanced\com\example\opel_manager\ListItem_fileManager$override.class
-CHANGED,C:\cygwin64\home\eslab\workspace\opel-alpha\Opel-Manager\build\intermediates\transforms\instantRun\debug\folders\4000\5\enhanced\com\example\opel_manager\ListAdapter_fileManager$override.class
+CHANGED,C:\cygwin64\home\eslab\workspace\opel-alpha\Opel-Manager\build\intermediates\transforms\instantRun\debug\folders\4000\5\enhanced\com\example\opel_manager\cameraStreamingView$1$override.class
+CHANGED,C:\cygwin64\home\eslab\workspace\opel-alpha\Opel-Manager\build\intermediates\transforms\instantRun\debug\folders\4000\5\enhanced\com\example\opel_manager\TCPStreaming$override.class
+CHANGED,C:\cygwin64\home\eslab\workspace\opel-alpha\Opel-Manager\build\intermediates\transforms\instantRun\debug\folders\4000\5\enhanced\com\example\opel_manager\cameraStreamingView$override.class
