@@ -1,49 +1,91 @@
 # opel-alpha
+
+##Supported Hardware
+###Android Side
+####Nexus 5 (Google reference device) Marshmallow
+<img src="https://upload.wikimedia.org/wikipedia/commons/e/ed/Nexus_5_(1).jpg" width=20%>
+<img src="https://s.aolcdn.com/hss/storage/midas/965fc84051391e2ed53ce19881178931/202486815/10+am+Official+Announce_G_FB+copy.jpg" width=20%>
+###OPELTarget Board
+####Raspberry-pi 2 
+#####Device
+<a href="https://www.raspberrypi.org/products/raspberry-pi-2-model-b/">
+<img src="https://www.raspberrypi.org/wp-content/uploads/2015/01/Pi2ModB1GB_-comp.jpeg" width=20%">
+</a>
+#####Peripherals
+ + Bluetooth dongle  
+<a href="https://www.eunicorn.co.kr/kimsboard7/_product.php?inc=xu400b">
+<img src="http://image.auction.co.kr/itemimage/d5/ee/1b/d5ee1be25.jpg" width=20%>
+</a>
+ + Wi-fi dongle  
+<a href="https://www.adafruit.com/product/2638">
+<img src="https://cdn-shop.adafruit.com/970x728/2638-01.jpg" width=20%>
+</a> **or** <a href="https://www.pi-supply.com/product/broadcom-wifi-adapter-2-port-usb-hub-raspberry-pi/">
+<img src="http://www.broadcom.com/blog/wp-content/uploads/2014/08/50789_wwwHero-WICED_Pi_BlogImg.jpg" width=20%>
+</a>  
+
+> [Release File Download](http://nyx.skku.ac.kr/opel/160711.zip)
+> 
+	opel_pi.img : 저희가 사용하는 Raspberry-Pi2의 전체 Image 파일입니다. (16GB이상의 SD Card를 사용하여 이미지를 구우시면 됩니다.)
+	opel-Manager_android.zip : Android Project 입니다.
+	opel-pi2.tar.gz : OPEL Code와 Dependency가 있는 Third-party 묶음입니다.
+	README.docx : 저희가 작성한 Build guideline이며 해당 내용을 보시면 build 부터 어떻게 실행하는지에 대한 모든 내용이 상세하게 설명되어있습니다.
+
+####Raspberry-pi 3
+#####Device
+<a href="https://www.raspberrypi.org/products/raspberry-pi-3-model-b/">
+<img src="https://www.raspberrypi.org/wp-content/uploads/2016/03/pi3.jpg" width=20%>
+</a>
+> [Release Image Download](http://nyx.skku.ac.kr/opel/160713opel_rpi3.zip)  
+>
+	$cd ~/workspace/opel_alpha
+	$cmake ./
+	$make
+
+----
+
 ##RPI3 Build Sequence (Test Done)
-###1. 본 Repository로부터 raspberry-pi2_3 branch 다운로드
-###2. Dependency libarary 설치
-```
-$apt-get install g++-4.8 wiringpi libdbus-1-dev glib-2.0 libdbus-glib-1-2 libdbus-glib-1-2-dbg libdbus-glib-1-dev zip sqlite3 libsqlite3-dev cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev python-dev python-numpy libjpeg-dev libpng-dev libtiff-dev libjasper-dev libdc1394-22-dev 
-```
-###3. bluez 설치
-```
-$cd dep/bluez-4.101
-$./configure --prefix=/usr --mandir=/usr/share/man --sysconfdir=/etc --localstatedir=/var --libexecdir=/lib 
-$make
-$sudo make install
-```
-###4. libxml 설치
-```
-$cd dep/libxml2-2.7.7
-$./configure --prefix=/usr/local/xml
-$make
-$sudo make install
-```
-###5. udhcpd 설치
-```
-$sudo apt-get install udhcpd
-$sudo touch /var/lib/misc/udhcpd.leases
-```
-###6. opel.conf 복사
-```
-$cd dep/
-$sudo cp opel.conf /etc/dbus-1/system.d/
-```
-###7. build
-```
-$cmake ./
-$make
-```
-###8. pairing
-```
-$./pairing
-Android에서 BT및 WFD연결
-```
-###9. Daemon 실행
-```
-$./run_daemons start
-Android OPEL Manager 실행
-```
+#####1. 본 Repository로부터 raspberry-pi2_3 branch 다운로드
+#####2. Dependency libarary 설치
+
+	$apt-get install g++-4.8 wiringpi libdbus-1-dev glib-2.0 libdbus-glib-1-2 libdbus-glib-1-2-dbg libdbus-glib-1-dev zip sqlite3 libsqlite3-dev cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev python-dev python-numpy libjpeg-dev libpng-dev libtiff-dev libjasper-dev libdc1394-22-dev 
+
+#####3. bluez 설치
+
+	$cd dep/bluez-4.101
+	$./configure --prefix=/usr --mandir=/usr/share/man --sysconfdir=/etc --localstatedir=/var --libexecdir=/lib 
+	$make
+	$sudo make install
+
+#####4. libxml 설치
+
+	$cd dep/libxml2-2.7.7
+	$./configure --prefix=/usr/local/xml
+	$make
+	$sudo make install
+
+#####5. udhcpd 설치
+
+	$sudo apt-get install udhcpd
+	$sudo touch /var/lib/misc/udhcpd.leases
+
+#####6. opel.conf 복사
+
+	$cd dep/
+	$sudo cp opel.conf /etc/dbus-1/system.d/
+
+#####7. build
+
+	$cmake ./
+	$make
+
+#####8. pairing
+	$./pairing 
+	Android에서 BT및 WFD연결
+#####9. Daemon 실행
+	$./run_daemons start
+	Android OPEL Manager 실행
+
+---
 
 ##Directory path
 ```
