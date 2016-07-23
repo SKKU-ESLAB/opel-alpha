@@ -1,0 +1,169 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+ACC_FUNCTION	sensor_manager.h	35;"	d
+ACC_X	sensor1_acc.c	6;"	d	file:
+ACC_Y	sensor1_acc.c	7;"	d	file:
+ACC_Z	sensor1_acc.c	8;"	d	file:
+ACC_device_ops	sensor1_acc.c	/^static const struct device_ops ACC_device_ops = {$/;"	v	typeref:struct:device_ops	file:
+ACC_get	sensor1_acc.c	/^static char* ACC_get(void *data)$/;"	f	file:
+ACC_start	sensor1_acc.c	/^static void ACC_start(void *data)$/;"	f	file:
+ACC_stop	sensor1_acc.c	/^static void ACC_stop(void *data)$/;"	f	file:
+ADC_INIT	devices.c	/^static int ADC_INIT = 0;$/;"	v	file:
+ADC_LOCK	devices.c	/^static int ADC_LOCK = 0;$/;"	v	file:
+ADC_Read	devices.c	/^unsigned int ADC_Read(unsigned char channel)$/;"	f
+ADC_init	devices.c	/^int ADC_init(){$/;"	f
+API_TO_SM	sensor_manager.h	38;"	d
+Address	devices.c	7;"	d	file:
+Clock	devices.c	6;"	d	file:
+DEVICE_OPS_REGISTER	devices.h	73;"	d
+DataOut	devices.c	8;"	d	file:
+FAIL_TO_DELETE_REQUEST	sensor_manager.h	42;"	d
+FLAG1	Makefile	/^FLAG1=`pkg-config --libs --cflags dbus-1 glib-2.0 dbus-glib-1`$/;"	m
+FLAG2	Makefile	/^FLAG2=-lwiringPi -pthread -lc -lm$/;"	m
+HEADER_GUARD	sensor_manager.h	23;"	d
+LED1	sensor_manager.h	28;"	d
+LED_FUNCTION	sensor_manager.h	34;"	d
+LIGHT	sensor4_light.c	6;"	d	file:
+LIGHT_device_ops	sensor4_light.c	/^static const struct device_ops LIGHT_device_ops = {$/;"	v	typeref:struct:device_ops	file:
+LIGHT_get	sensor4_light.c	/^static char* LIGHT_get(void *data)$/;"	f	file:
+LIGHT_start	sensor4_light.c	/^static void LIGHT_start(void *data)$/;"	f	file:
+LIGHT_stop	sensor4_light.c	/^static void LIGHT_stop(void *data)$/;"	f	file:
+MAXTIMINGS	sensor_manager.h	32;"	d
+MAX_SENSOR_VALUE_NUMBER	devices.h	26;"	d
+MOTION	sensor_manager.h	29;"	d
+MOTION_FUNCTION	sensor_manager.h	33;"	d
+MOTION_PIN	sensor5_motion.c	6;"	d	file:
+MOTION_device_ops	sensor5_motion.c	/^static const struct device_ops MOTION_device_ops = {$/;"	v	typeref:struct:device_ops	file:
+MOTION_get	sensor5_motion.c	/^static char* MOTION_get(void *data)$/;"	f	file:
+MOTION_start	sensor5_motion.c	/^static void MOTION_start(void *data)$/;"	f	file:
+MOTION_stop	sensor5_motion.c	/^static void MOTION_stop(void *data)$/;"	f	file:
+OBJS	Makefile	/^OBJS=sensor_manager.o request.o devices.o sensor1_acc.o sensor2_temp.o sensor3_sound.o sensor4_light.o sensor5_motion.o sensor6_vib.o sensor7_touch.o$/;"	m
+OPEL_BUS_NAME	sensor_manager.h	25;"	d
+OPEL_INTERFACE	sensor_manager.c	6;"	d	file:
+SEND_SENSOR_DATA	sensor_manager.c	15;"	d	file:
+SEND_SENSOR_NOTIFY	sensor_manager.c	16;"	d	file:
+SENSING_EVENT_DRIVEN	sensor_manager.c	12;"	d	file:
+SENSING_INTERVAL	sensor_manager.c	11;"	d	file:
+SENSING_ONESHOT	sensor_manager.c	13;"	d	file:
+SENSOR_RUNNING	devices.h	/^	SENSOR_RUNNING,$/;"	e	enum:device_ops_status
+SENSOR_STOP	devices.h	/^	SENSOR_STOP,$/;"	e	enum:device_ops_status
+SM_TO_API	sensor_manager.h	39;"	d
+SOUND	sensor3_sound.c	6;"	d	file:
+SOUND_device_ops	sensor3_sound.c	/^static const struct device_ops SOUND_device_ops = {$/;"	v	typeref:struct:device_ops	file:
+SOUND_get	sensor3_sound.c	/^static char* SOUND_get(void *data)$/;"	f	file:
+SOUND_start	sensor3_sound.c	/^static void SOUND_start(void *data)$/;"	f	file:
+SOUND_stop	sensor3_sound.c	/^static void SOUND_stop(void *data)$/;"	f	file:
+SW	sensor_manager.h	27;"	d
+TEMP	sensor2_temp.c	6;"	d	file:
+TEMP	sensor_manager.h	30;"	d
+TEMP_FUNCTION	sensor_manager.h	36;"	d
+TEMP_device_ops	sensor2_temp.c	/^static const struct device_ops TEMP_device_ops = {$/;"	v	typeref:struct:device_ops	file:
+TEMP_get	sensor2_temp.c	/^static char* TEMP_get(void *data)$/;"	f	file:
+TEMP_start	sensor2_temp.c	/^static void TEMP_start(void *data)$/;"	f	file:
+TEMP_stop	sensor2_temp.c	/^static void TEMP_stop(void *data)$/;"	f	file:
+TOUCH	sensor7_touch.c	6;"	d	file:
+TOUCH_device_ops	sensor7_touch.c	/^static const struct device_ops TOUCH_device_ops = {$/;"	v	typeref:struct:device_ops	file:
+TOUCH_get	sensor7_touch.c	/^static char* TOUCH_get(void *data)$/;"	f	file:
+TOUCH_start	sensor7_touch.c	/^static void TOUCH_start(void *data)$/;"	f	file:
+TOUCH_stop	sensor7_touch.c	/^static void TOUCH_stop(void *data)$/;"	f	file:
+VALUE_CHANGED	sensor_manager.c	8;"	d	file:
+VALUE_UNCHANGED	sensor_manager.c	9;"	d	file:
+VIBRATION	sensor6_vib.c	6;"	d	file:
+VIBRATION_device_ops	sensor6_vib.c	/^static const struct device_ops VIBRATION_device_ops = {$/;"	v	typeref:struct:device_ops	file:
+VIBRATION_get	sensor6_vib.c	/^static char* VIBRATION_get(void *data)$/;"	f	file:
+VIBRATION_start	sensor6_vib.c	/^static void VIBRATION_start(void *data)$/;"	f	file:
+VIBRATION_stop	sensor6_vib.c	/^static void VIBRATION_stop(void *data)$/;"	f	file:
+__DEVICES_H__	devices.h	24;"	d
+_requestData	sensor_manager.h	/^typedef struct _requestData{$/;"	s
+_sensorList	devices.h	/^typedef struct _sensorList{$/;"	s
+addRequest	request.c	/^void addRequest(requestHeader *rh, requestData* input){$/;"	f
+addSensor	devices.c	/^void addSensor(const struct device_ops *dev)$/;"	f
+calculateNextTime	request.c	/^void calculateNextTime(struct timeval* time, int interval){$/;"	f
+cond	devices.h	/^	pthread_cond_t cond;$/;"	m	struct:_sensorList
+connection	sensor_manager.c	/^DBusConnection *connection;$/;"	v
+count	devices.h	/^	int	count;$/;"	m	struct:__anon3
+data	devices.h	/^	void *data;$/;"	m	struct:__anon2
+dbusAddress	sensor_manager.h	41;"	d
+dbus_respone	sensor_manager.c	/^static DBusHandlerResult dbus_respone(DBusConnection *connection, DBusMessage *message, void *user_data)$/;"	f	file:
+deleteRequestByPid	request.c	/^int deleteRequestByPid(sensorList* sl, int pid){$/;"	f
+deleteRequestByPidRqnum	request.c	/^int deleteRequestByPidRqnum(sensorList* sl, int pid, int rq_num){$/;"	f
+deleteSensor	devices.c	/^void deleteSensor(const struct device_ops *dev){$/;"	f
+dev	devices.h	/^	struct device_ops *dev;$/;"	m	struct:_sensorList	typeref:struct:_sensorList::device_ops
+device_ops	devices.h	/^struct device_ops {$/;"	s
+device_ops_status	devices.h	/^enum device_ops_status {$/;"	g
+flag	sensor5_motion.c	/^static int flag = 0;$/;"	v	file:
+get	devices.h	/^	char* (*get) (void *data);$/;"	m	struct:device_ops
+getInterface	sensor_manager.c	/^char* getInterface(sensorList* sl){$/;"	f
+getPath	sensor_manager.c	/^char* getPath(sensorList* sl){$/;"	f
+getRequestByPidRqnum	request.c	/^requestData* getRequestByPidRqnum(sensorList* sl, int pid, int rq_num){$/;"	f
+getSensorByName	devices.c	/^sensorList* getSensorByName(sensorHead* sh, char* sensor_name){$/;"	f
+getSensorHead	devices.c	/^sensorHead* getSensorHead(void){$/;"	f
+getSensorListByPidRqnum	request.c	/^sensorList* getSensorListByPidRqnum(sensorList* sl, int pid, int rq_num){$/;"	f
+getSleepTime	sensor_manager.c	/^struct timespec getSleepTime(requestHeader* rh){$/;"	f
+handle_type	sensor_manager.h	/^	int handle_type;$/;"	m	struct:_requestData
+init	sensor6_vib.c	/^static unsigned char init = 0;$/;"	v	file:
+initDbus	sensor_manager.c	/^void initDbus(){$/;"	f
+initRequestHeader	request.c	/^requestHeader* initRequestHeader(){$/;"	f
+initSensors	devices.c	/^sensorHead* initSensors(void){$/;"	f
+introspect	sensor_manager.c	/^static DBusHandlerResult introspect(DBusConnection *connection, DBusMessage *message, void *iface_user_data){$/;"	f	file:
+main	sensor_manager.c	/^int main(void)$/;"	f
+makeDbusAddress	sensor_manager.c	/^void makeDbusAddress(requestData* rd){$/;"	f
+mutex	devices.h	/^	pthread_mutex_t mutex;$/;"	m	struct:_sensorList
+name	devices.h	/^	char *name;$/;"	m	struct:device_ops
+next	devices.h	/^	struct _sensorList* next;$/;"	m	struct:_sensorList	typeref:struct:_sensorList::_sensorList
+next	sensor_manager.h	/^	struct _requestData* next;$/;"	m	struct:_requestData	typeref:struct:_requestData::_requestData
+next_run_time	sensor_manager.h	/^	struct timeval next_run_time;$/;"	m	struct:_requestData	typeref:struct:_requestData::timeval
+num_of_request	sensor_manager.h	/^	int num_of_request;$/;"	m	struct:__anon1
+pid	sensor_manager.h	/^	unsigned int pid;$/;"	m	struct:_requestData
+pid_to_char	sensor_manager.c	/^void pid_to_char(unsigned int input, char* output){$/;"	f
+prev_sensor_data	sensor_manager.h	/^	char prev_sensor_data[100];$/;"	m	struct:_requestData
+printRequest	request.c	/^void printRequest(requestHeader *rh){$/;"	f
+requestData	sensor_manager.h	/^}requestData;$/;"	t	typeref:struct:_requestData
+requestHeader	sensor_manager.h	/^}requestHeader;$/;"	t	typeref:struct:__anon1
+rh	devices.h	/^	requestHeader* rh;$/;"	m	struct:_sensorList
+rq_num	sensor_manager.h	/^	int rq_num;$/;"	m	struct:_requestData
+scheduleRequest	request.c	/^int scheduleRequest(requestHeader *rh){$/;"	f
+sendSensorData	sensor_manager.c	/^void sendSensorData(sensorList* sl){$/;"	f
+sendSensorNotify	sensor_manager.c	/^void sendSensorNotify(sensorList* sl){$/;"	f
+senseor_thread	devices.h	/^	pthread_t senseor_thread;$/;"	m	struct:_sensorList
+sensing_interval	sensor_manager.h	/^	int sensing_interval; \/\/ms$/;"	m	struct:_requestData
+sensing_level	sensor_manager.h	/^	int sensing_level;$/;"	m	struct:_requestData
+sensorData	devices.h	/^}sensorData;$/;"	t	typeref:struct:__anon2
+sensorDataParsing	sensor_manager.c	/^int sensorDataParsing(sensorList* sl, char* input, char* type){$/;"	f
+sensorGet	devices.h	/^static inline char* sensorGet(sensorList* sl, void *data)$/;"	f
+sensorHead	devices.h	/^}sensorHead;$/;"	t	typeref:struct:__anon3
+sensorList	devices.h	/^}sensorList;$/;"	t	typeref:struct:_sensorList
+sensorManagerEventGet	sensor_manager.c	/^static sensorManagerEventGet(DBusConnection *connection, DBusMessage *message, void *iface_user_data){$/;"	f	file:
+sensorManagerEventRegister	sensor_manager.c	/^static sensorManagerEventRegister(DBusConnection *connection, DBusMessage *message, void *iface_user_data){$/;"	f	file:
+sensorManagerEventUnregister	sensor_manager.c	/^static sensorManagerEventUnregister(DBusConnection *connection, DBusMessage *message, void *iface_user_data){$/;"	f	file:
+sensorManagerEventUpdate	sensor_manager.c	/^static sensorManagerEventUpdate(DBusConnection *connection, DBusMessage *message, void *iface_user_data){$/;"	f	file:
+sensorStart	devices.h	/^static inline int sensorStart(sensorList* sl, void *data)$/;"	f
+sensorStop	devices.h	/^static inline int sensorStop(sensorList* sl, void *data)$/;"	f
+sensorThread	sensor_manager.c	/^void* sensorThread(void* args){$/;"	f
+sensorThreadInit	sensor_manager.c	/^void sensorThreadInit(){$/;"	f
+sensor_data	devices.h	/^	double sensor_data[MAX_SENSOR_VALUE_NUMBER];$/;"	m	struct:_sensorList
+sensor_data	sensor_manager.h	/^	char sensor_data[100];$/;"	m	struct:_requestData
+sensor_data_ori	devices.h	/^	char *sensor_data_ori;$/;"	m	struct:_sensorList
+sensor_data_prev	devices.h	/^	char *sensor_data_prev;$/;"	m	struct:_sensorList
+sensor_head	devices.c	/^static sensorHead *sensor_head = NULL;$/;"	v	file:
+sensor_head_main	sensor_manager.c	/^static sensorHead *sensor_head_main;$/;"	v	file:
+sensor_name	sensor_manager.h	/^	const char* sensor_name;$/;"	m	struct:_requestData
+start	devices.h	/^	sensorList *start;$/;"	m	struct:__anon3
+start	devices.h	/^	void (*start) (void *data);$/;"	m	struct:device_ops
+start	sensor_manager.h	/^	requestData* start;$/;"	m	struct:__anon1
+state	sensor6_vib.c	/^static unsigned char state = 0;$/;"	v	file:
+status	devices.h	/^	int status;$/;"	m	struct:_sensorList
+status	devices.h	/^	int status;$/;"	m	struct:device_ops
+stop	devices.h	/^	void (*stop) (void *data);$/;"	m	struct:device_ops
+target_interface	sensor_manager.h	/^	char	target_interface[20];$/;"	m	struct:_requestData
+target_path	sensor_manager.h	/^	char	target_path[20];$/;"	m	struct:_requestData
+touch_flag	sensor7_touch.c	/^static int touch_flag = 0;$/;"	v	file:
+type	devices.h	/^	char *type;$/;"	m	struct:__anon2
+valueName	devices.h	/^	char *valueName;$/;"	m	struct:device_ops
+valueType	devices.h	/^	char *valueType;$/;"	m	struct:device_ops
+vib_fuc	sensor6_vib.c	/^void vib_fuc(){$/;"	f
+working	sensor6_vib.c	/^static unsigned char working = 0;$/;"	v	file:
