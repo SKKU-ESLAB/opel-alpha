@@ -1,4 +1,4 @@
-cscope 15 $HOME/opel-alpha/opel_sensor_manager               0000201853
+cscope 15 $HOME/opel-alpha/opel_sensor_manager               0000202719
 	@devices.c
 
 1 
@@ -2886,6 +2886,168 @@ VIBRATION_devi˚_›s
 6 
 	#TOUCH
  25
+
+7 
+touch_Êag
+ = 0;
+
+	)
+
+10 
+	$TOUCH_°¨t
+(*
+d©a
+)
+
+12 i‡(!
+touch_Êag
+){
+
+13 
+	`wúögPiSëup
+();
+
+14 
+	`pöMode
+(
+TOUCH
+, 
+INPUT
+);
+
+15 
+touch_Êag
+ = 1;
+
+16 
+	`¥ötf
+("Touch init\n");
+
+18 
+	`¥ötf
+("Touch sensor is start\n");
+
+19 
+	}
+}
+
+21 
+	$TOUCH_°›
+(*
+d©a
+)
+
+23 
+	`¥ötf
+("Touch sensor isÅerminated\n");
+
+24 
+	}
+}
+
+26 * 
+	$TOUCH_gë
+(*
+d©a
+)
+
+28 
+vÆue
+;
+
+29 
+vÆue_c
+[20];
+
+31 
+vÆue
+ = 
+	`digôÆRód
+(
+TOUCH
+);
+
+33 
+	`•rötf
+(
+vÆue_c
+, "%d\n", 
+vÆue
+);
+
+34 
+	`¥ötf
+("[SM] Touch VÆuê:%d \n", 
+vÆue
+);
+
+37  
+vÆue_c
+;
+
+38 
+	}
+}
+
+40 c⁄° 
+devi˚_›s
+ 
+	gTOUCH_devi˚_›s
+ = {
+
+41 .
+«me
+ = "TOUCH",
+
+42 .
+	gvÆueTy≥
+ = "INT",
+
+43 .
+	gvÆueName
+ = "TOUCH",
+
+44 .
+	g°¨t
+ = 
+TOUCH_°¨t
+,
+
+45 .
+	g°›
+ = 
+TOUCH_°›
+,
+
+46 .
+	ggë
+ = 
+TOUCH_gë
+
+
+49 
+DEVICE_OPS_REGISTER
+(&
+TOUCH_devi˚_›s
+)
+
+	@sensor8_test.c
+
+1 
+	~<°dio.h
+>
+
+2 
+	~<°dlib.h
+>
+
+4 
+	~"devi˚s.h
+"
+
+6 
+	#TOUCH
+ 125
 
 7 
 touch_Êag
@@ -35652,8 +35814,8 @@ __END_DECLS
 .
 1
 /usr/include
-35
-687
+36
+702
 devices.c
 devices.h
 request.c
@@ -35664,6 +35826,7 @@ sensor4_light.c
 sensor5_motion.c
 sensor6_vib.c
 sensor7_touch.c
+sensor8_test.c
 sensor_manager.c
 sensor_manager.h
 /usr/include/math.h

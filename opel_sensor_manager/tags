@@ -22,8 +22,6 @@ Clock	devices.c	6;"	d	file:
 DEVICE_OPS_REGISTER	devices.h	73;"	d
 DataOut	devices.c	8;"	d	file:
 FAIL_TO_DELETE_REQUEST	sensor_manager.h	42;"	d
-FLAG1	Makefile	/^FLAG1=`pkg-config --libs --cflags dbus-1 glib-2.0 dbus-glib-1`$/;"	m
-FLAG2	Makefile	/^FLAG2=-lwiringPi -pthread -lc -lm$/;"	m
 HEADER_GUARD	sensor_manager.h	23;"	d
 LED1	sensor_manager.h	28;"	d
 LED_FUNCTION	sensor_manager.h	34;"	d
@@ -41,7 +39,6 @@ MOTION_device_ops	sensor5_motion.c	/^static const struct device_ops MOTION_devic
 MOTION_get	sensor5_motion.c	/^static char* MOTION_get(void *data)$/;"	f	file:
 MOTION_start	sensor5_motion.c	/^static void MOTION_start(void *data)$/;"	f	file:
 MOTION_stop	sensor5_motion.c	/^static void MOTION_stop(void *data)$/;"	f	file:
-OBJS	Makefile	/^OBJS=sensor_manager.o request.o devices.o sensor1_acc.o sensor2_temp.o sensor3_sound.o sensor4_light.o sensor5_motion.o sensor6_vib.o sensor7_touch.o$/;"	m
 OPEL_BUS_NAME	sensor_manager.h	25;"	d
 OPEL_INTERFACE	sensor_manager.c	6;"	d	file:
 SEND_SENSOR_DATA	sensor_manager.c	15;"	d	file:
@@ -66,10 +63,15 @@ TEMP_get	sensor2_temp.c	/^static char* TEMP_get(void *data)$/;"	f	file:
 TEMP_start	sensor2_temp.c	/^static void TEMP_start(void *data)$/;"	f	file:
 TEMP_stop	sensor2_temp.c	/^static void TEMP_stop(void *data)$/;"	f	file:
 TOUCH	sensor7_touch.c	6;"	d	file:
+TOUCH	sensor8_test.c	6;"	d	file:
 TOUCH_device_ops	sensor7_touch.c	/^static const struct device_ops TOUCH_device_ops = {$/;"	v	typeref:struct:device_ops	file:
+TOUCH_device_ops	sensor8_test.c	/^static const struct device_ops TOUCH_device_ops = {$/;"	v	typeref:struct:device_ops	file:
 TOUCH_get	sensor7_touch.c	/^static char* TOUCH_get(void *data)$/;"	f	file:
+TOUCH_get	sensor8_test.c	/^static char* TOUCH_get(void *data)$/;"	f	file:
 TOUCH_start	sensor7_touch.c	/^static void TOUCH_start(void *data)$/;"	f	file:
+TOUCH_start	sensor8_test.c	/^static void TOUCH_start(void *data)$/;"	f	file:
 TOUCH_stop	sensor7_touch.c	/^static void TOUCH_stop(void *data)$/;"	f	file:
+TOUCH_stop	sensor8_test.c	/^static void TOUCH_stop(void *data)$/;"	f	file:
 VALUE_CHANGED	sensor_manager.c	8;"	d	file:
 VALUE_UNCHANGED	sensor_manager.c	9;"	d	file:
 VIBRATION	sensor6_vib.c	6;"	d	file:
@@ -162,6 +164,7 @@ stop	devices.h	/^	void (*stop) (void *data);$/;"	m	struct:device_ops
 target_interface	sensor_manager.h	/^	char	target_interface[20];$/;"	m	struct:_requestData
 target_path	sensor_manager.h	/^	char	target_path[20];$/;"	m	struct:_requestData
 touch_flag	sensor7_touch.c	/^static int touch_flag = 0;$/;"	v	file:
+touch_flag	sensor8_test.c	/^static int touch_flag = 0;$/;"	v	file:
 type	devices.h	/^	char *type;$/;"	m	struct:__anon2
 valueName	devices.h	/^	char *valueName;$/;"	m	struct:device_ops
 valueType	devices.h	/^	char *valueType;$/;"	m	struct:device_ops
