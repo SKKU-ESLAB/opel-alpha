@@ -55,6 +55,12 @@ static sdp_session_t *bt_register_service( cmfw_port_e bt_port, int port )
 		strcpy( service_prov, "OPEL Control Port");
 		uuid_char_arr= port_uuid[bt_port];
 	}
+	else if( bt_port == CMFW_RFS_PORT ){
+		strcpy( service_name, "OPEL_RFS_PORT");
+		strcpy( service_dsc, "OPEL RFS Port");
+		strcpy( service_prov, "OPEL RFS Port");
+		uuid_char_arr = port_uuid[bt_port];
+	}
 	else {
 		cmfw_log( "Inavlid param" );
 		__EXIT__;
