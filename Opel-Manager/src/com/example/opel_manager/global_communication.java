@@ -140,9 +140,11 @@ public class global_communication {
 		if(myClientTask != null)
 			myClientTask.setHandler(handler);
 
+		/*
 		if(socket == null || socket.isConnected() == false){
 			Connect();
 		}
+		*/
 	}
 
 	public int getUPDATE_UI(){
