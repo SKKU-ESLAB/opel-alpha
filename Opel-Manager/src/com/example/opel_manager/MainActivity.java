@@ -1,19 +1,24 @@
 package com.example.opel_manager;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.wifi.WifiManager;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -21,6 +26,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -37,7 +43,10 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Set;
 
+import selectiveconnection.DeviceListActivity;
+import selectiveconnection.OpelCommunicator;
 import selectiveconnection.WifiDirectBroadcastReceiver;
 
 public class MainActivity extends Activity {
@@ -51,18 +60,127 @@ public class MainActivity extends Activity {
 	IntentFilter mIntentFilter;
 
 	private Intent mqttServiceIntent;
+
 	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		if(requestCode == 1){
+			if(resultCode == RESULT_CANCELED){
+				Toast.makeText(this, "블루투스 권한획득 실패", Toast.LENGTH_SHORT);
+				finish();
+			}
+			else{
+				BluetoothAdapter ba = BluetoothAdapter.getDefaultAdapter();
+
+				Set<BluetoothDevice> bds = ba.getBondedDevices();
+				boolean found = false;
+				if(bds.size() > 0){
+					for(BluetoothDevice tmpDevice : bds) {
+						if(tmpDevice.getName().contains(OpelCommunicator.CMFW_BT_NAME)){
+							found = true;
+							break;
+						}
+					}
+				}
+
+				if(!found){
+					Intent serverIntent = new Intent(this, DeviceListActivity.class);
+					startActivityForResult(serverIntent, 2);
+				}
+			}
+		}
+		else if(requestCode == 2){
+			if(resultCode == Activity.RESULT_OK) {
+				try {
+					Log.d("OPEL", "Pairing request done");
+					String address = data.getExtras().getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS);
+
+					if (address.length() > 1)
+						globalData.getInstance().getCommManager().Connect();
+				} catch (RuntimeException e) {
+					e.printStackTrace();
+				}
+			}
+			else{
+				Toast.makeText(this, "Failed pairing operation", Toast.LENGTH_SHORT).show();
+			}
+		}
+	}
+
+	public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults){
+		switch(requestCode){
+			case 1:
+				if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+
+				}
+				else{
+					Toast.makeText(this, "권한 획득 실패", Toast.LENGTH_SHORT).show();
+					this.finish();
+				}
+				break;
+			case 2:
+				if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+
+				}
+				else{
+					Toast.makeText(this, "권한 획득 실패", Toast.LENGTH_SHORT).show();
+					this.finish();
+				}
 
 
+
+		}
+	}
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main_activity);
+		boolean found = false;
 
-	/*	mainLoadingProgDialog = new ProgressDialog( MainActivity.this );
-		mainLoadingProgDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-		mainLoadingProgDialog.setMessage("Loading...");
-		mainLoadingProgDialog.setCancelable(false);
-		mainLoadingProgDialog.show();*/
+		if(checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+			Log.d("OPEL", "Requesting Permission");
+
+			if(ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+				Toast.makeText(this, "앱 실행을 위해서는 저장소 권한을 설정해야 합니다.", Toast.LENGTH_SHORT).show();
+				ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+			}
+			else{
+				ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+			}
+		}
+		else{
+			Log.d("OPEL", "Permission granted");
+		}
+
+		if(checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+			ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 2);
+
+		else {
+			if (BluetoothAdapter.getDefaultAdapter() == null) {
+				Toast.makeText(this, "Bluetooth를 지원해야 합니다.", Toast.LENGTH_SHORT).show();
+			} else if (!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
+				Intent enable_bt_intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+				startActivityForResult(enable_bt_intent, 1);
+			} else {
+				BluetoothAdapter ba = BluetoothAdapter.getDefaultAdapter();
+
+				Set<BluetoothDevice> bds = ba.getBondedDevices();
+
+				if (bds.size() > 0) {
+					for (BluetoothDevice tmpDevice : bds) {
+						if (tmpDevice.getName().contains(OpelCommunicator.CMFW_BT_NAME)) {
+							found = true;
+							break;
+						}
+					}
+				}
+
+				if (!found) {
+					Intent serverIntent = new Intent(this, DeviceListActivity.class);
+					startActivityForResult(serverIntent, 2);
+				}
+			}
+
+		}
 
 		mIntentFilter = new IntentFilter();
 		mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
@@ -119,6 +237,10 @@ public class MainActivity extends Activity {
 		globalData.getInstance().getCommManager().setOpelCommunicator();
 		globalData.getInstance().setWifiReceiver(new WifiDirectBroadcastReceiver(globalData.getInstance().getWifiP2pManager(), globalData.getInstance().getChannel()));
 		globalData.getInstance().getCommManager().setHandler(mHandler);
+
+		if(found){
+			globalData.getInstance().getCommManager().Connect();
+		}
 	}
 
 	@Override
@@ -218,8 +340,29 @@ public class MainActivity extends Activity {
 
 				// [Native] Connect
 				else if (list.allApplicationList.get(position).getTitle().equals("Connect")) {
-					if(conn_stat == false)
-						globalData.getInstance().getCommManager().Connect();
+					if(conn_stat == false) {
+						boolean found = false;
+						BluetoothAdapter ba = BluetoothAdapter.getDefaultAdapter();
+
+						Set<BluetoothDevice> bds = ba.getBondedDevices();
+
+						if(bds.size() > 0){
+							for(BluetoothDevice tmpDevice : bds) {
+								if(tmpDevice.getName().contains(OpelCommunicator.CMFW_BT_NAME)){
+									found = true;
+									break;
+								}
+							}
+						}
+
+						if(!found){
+							Intent serverIntent = new Intent(MainActivity.this, DeviceListActivity.class);
+							startActivityForResult(serverIntent, 2);
+						}
+						else {
+							globalData.getInstance().getCommManager().Connect();
+						}
+					}
 					else
 						Toast.makeText(getApplicationContext(), "Not disconnected",0).show();
 				}
@@ -422,7 +565,7 @@ public class MainActivity extends Activity {
 			else if (inputMessage.what == global_communication.COMM_CONNECT_FAILED){
 				Log.d("OPEL", "Toast disconnected");
 				conn_stat = false;
-				Toast.makeText(getApplicationContext(), "Failed connecting to OPEL", 0).show();
+				Toast.makeText(getApplicationContext(), "Failed connecting to OPEL, re-connect with CONNECT button", Toast.LENGTH_LONG).show();
 			}
 			else if (inputMessage.what == global_communication.COMM_ALREADY_CONNECTED){
 				Log.d("OPEL", "Toast already connecteed");

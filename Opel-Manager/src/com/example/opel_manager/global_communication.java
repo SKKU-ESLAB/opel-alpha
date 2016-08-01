@@ -140,9 +140,11 @@ public class global_communication {
 		if(myClientTask != null)
 			myClientTask.setHandler(handler);
 
+		/*
 		if(socket == null || socket.isConnected() == false){
 			Connect();
 		}
+		*/
 	}
 
 	public int getUPDATE_UI(){
@@ -268,7 +270,6 @@ public class global_communication {
 			}
 			else{
 				Log.d("BTConnect", "Success");
-				opelCommunicator.cmfw_wfd_on();
 				handle_connected();
 			}
 
@@ -885,8 +886,9 @@ public class global_communication {
 
 		sendMsg(fileName);
 		sendMsg(fileSize);
-		if(opelCommunicator.cmfw_send_file(port, fd) < 0) {
-			handle_disconnected();
+		if (opelCommunicator.cmfw_send_file(port, fd) < 0) {
+			//handle_disconnected();
+			Log.d("OPEL", "Sendfile failed");
 			return;
 		}
 
@@ -894,41 +896,4 @@ public class global_communication {
 
 		return;
 	}
-	/*
-	//Send the file on internal folder
-	public void sendInternalFile(String fileName) {
-
-		String fileSize = "";
-		BufferedInputStream bis;
-
-		try {
-
-			File fd = new File(globalData.getInstance().getStoragePath(), fileName);
-
-			fileSize = String.valueOf(fd.length());
-
-			bis = new BufferedInputStream(new FileInputStream(fd));
-
-			int len;
-			int size = 4096;
-			byte[] data = new byte[size];
-			
-			sendMsg(fileName);
-			sendMsg(fileSize);
-			
-			int totalLen = 0;
-			
-			while ((len = bis.read(data, 0, 4096)) != -1) {
-				out.write(data, 0, len);
-				totalLen += len;
-			}
-			
-			Log.d("OPEL", "send File size : " + fileSize + "   " + totalLen);
-			out.flush();
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			Log.d("OPEL", "Exception: sendfile ");
-		}
-	}*/
 }
