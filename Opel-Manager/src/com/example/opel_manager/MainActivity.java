@@ -1,5 +1,6 @@
 package com.example.opel_manager;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Notification;
@@ -58,11 +59,6 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main_activity);
 
-	/*	mainLoadingProgDialog = new ProgressDialog( MainActivity.this );
-		mainLoadingProgDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-		mainLoadingProgDialog.setMessage("Loading...");
-		mainLoadingProgDialog.setCancelable(false);
-		mainLoadingProgDialog.show();*/
 
 		mIntentFilter = new IntentFilter();
 		mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);

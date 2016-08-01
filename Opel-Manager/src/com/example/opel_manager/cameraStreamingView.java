@@ -220,7 +220,7 @@ class TCPStreaming extends Thread {
 
 		sch = false;
 		if(globalData.getInstance().getWifiReceiver().isConnected() == false)
-			globalData.getInstance().getCommManager().opelCommunicator.cmfw_wfd_on();
+			globalData.getInstance().getCommManager().opelCommunicator.cmfw_wfd_on(true);
 	}
 
 
@@ -319,7 +319,7 @@ class TCPStreaming extends Thread {
 		sch = true;
 		while(sch){
 			if(tcpSocket == null) {
-				globalData.getInstance().getCommManager().opelCommunicator.cmfw_wfd_on();
+				globalData.getInstance().getCommManager().opelCommunicator.cmfw_wfd_on(true);
 				connect();
 				if(tcpSocket == null || tcpSocket.isConnected() == false)
 					try {

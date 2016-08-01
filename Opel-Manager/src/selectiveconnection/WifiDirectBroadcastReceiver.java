@@ -15,6 +15,7 @@ import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 import android.os.Handler;
 import android.util.Log;
 
+import java.net.InetAddress;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -26,6 +27,7 @@ import selectiveconnection.OpelCommunicator;
 public class WifiDirectBroadcastReceiver extends BroadcastReceiver {
     private WifiP2pManager mManager;
     private WifiP2pManager.Channel mChannel;
+    private WifiP2pDevice opelDevice;
 
     public WifiP2pManager.ConnectionInfoListener mConnectionListener;
     public PeerListListener mPeerListener;
@@ -41,15 +43,21 @@ public class WifiDirectBroadcastReceiver extends BroadcastReceiver {
 
         this.mManager = manager;
         this.mChannel = channel;
+        opelDevice = null;
 
         mPeerListener = new PeerListListener() {
             @Override
             public void onPeersAvailable(WifiP2pDeviceList peers) {
 
                 WifiP2pConfig config = new WifiP2pConfig();
+
                 for(WifiP2pDevice device : peers.getDeviceList()){
                     if(device.deviceName.equals(OpelCommunicator.CMFW_WFD_NAME)) {
                         Log.d("BReceiver", "Found device connecting...");
+                        opelDevice = device;
+                        if(opelDevice.status != WifiP2pDevice.AVAILABLE)
+                            return;
+
                         if (device.status == WifiP2pDevice.AVAILABLE) {
                             config.deviceAddress = device.deviceAddress;
 
@@ -59,6 +67,7 @@ public class WifiDirectBroadcastReceiver extends BroadcastReceiver {
                             }
                             else if(device.wpsKeypadSupported()){
                                 config.wps.setup = WpsInfo.KEYPAD;
+                                config.wps.pin = new String("12345670");
                                 Log.d("WPSINFO", "KeyPad");
                             }
                             else{
@@ -70,7 +79,6 @@ public class WifiDirectBroadcastReceiver extends BroadcastReceiver {
                                 public void onSuccess() {
                                     Log.d("BReceiver", "Succedded to send connect msg");
                                     sent_connected = true;
-                                    mManager.stopPeerDiscovery(mChannel, null);
                                 }
 
                                 @Override
@@ -93,7 +101,6 @@ public class WifiDirectBroadcastReceiver extends BroadcastReceiver {
         mConnectionListener = new WifiP2pManager.ConnectionInfoListener() {
             @Override
             public void onConnectionInfoAvailable(WifiP2pInfo info) {
-
             }
         };
     }
@@ -122,31 +129,29 @@ public class WifiDirectBroadcastReceiver extends BroadcastReceiver {
             NetworkInfo networkInfo = (NetworkInfo) intent
                     .getParcelableExtra(WifiP2pManager.EXTRA_NETWORK_INFO);
 
-            if (networkInfo.isConnected()) {
-                Log.d("BReceiver", "Connected!");
-                sent_connected = true;
-                connected = true;
-                // We are connected with the other device, request connection
-                // info to find group owner IP
-                mManager.requestConnectionInfo(mChannel, mConnectionListener);
+            if(networkInfo.isConnected()){
+                Log.d("Breceiver", "Connected");
             }
-            else{
-                Log.d("BReceiver", "Disconnected!");
-                sent_connected = false;
-                connected = false;
+            else if(networkInfo.isConnectedOrConnecting()){
+                Log.d("Breceiver", "Connecting");
+            }
+            else if(networkInfo.isAvailable()){
+                Log.d("Breceiver", "Available");
             }
 
         } else if (WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION.equals(action)) {
             // Respond to this device's wifi state changing
-            Log.d("BReceiver", "Changed");
-            WifiP2pDevice device = intent.getParcelableExtra(WifiP2pManager.EXTRA_WIFI_P2P_DEVICE);
-            mMac = device.deviceAddress;
-            Log.d("BReceiver", mMac);
-            Log.d("Real", OpelCommunicator.getMacAddr());
         }
     }
 
     public boolean isConnected(){
-        return connected;
+        if(opelDevice == null)
+            return false;
+
+        Log.d("BReceiver", Integer.toString(opelDevice.status));
+
+        if(opelDevice.status==WifiP2pDevice.CONNECTED)
+            return true;
+        return false;
     }
 }
