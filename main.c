@@ -113,12 +113,12 @@ int abtGstEncoderListen(abtGstEncoderInfo *pGstEncInfo,
 		abtServerInfo *pServInfo
 		) {
 
-	static uint32_t data[4] = {0x00000000, 0x00000000, 0x00000000, 0x00000000};
+	static uint64_t data[4] = {0x00000000, 0x00000000, 0x00000000, 0x00000000};
 
-	data[0] = (uint32_t) pGstEncInfo;
-	data[1] = (uint32_t) pMedInfo;
-	data[2] = (uint32_t) pFileList;
-	data[3] = (uint32_t) pServInfo;
+	data[0] = (uint64_t) pGstEncInfo;
+	data[1] = (uint64_t) pMedInfo;
+	data[2] = (uint64_t) pFileList;
+	data[3] = (uint64_t) pServInfo;
 
 	// gst_bus_add_watch(pGstEncInfo->bus, bus_call, pGstEncInfo->loop);
 	pGstEncInfo->bus_watch_id = gst_bus_add_watch(pGstEncInfo->bus, bus_call, (void *) data);
@@ -130,10 +130,10 @@ int abtGstEncoderListen(abtGstEncoderInfo *pGstEncInfo,
 
 static gboolean bus_call(GstBus *bus, GstMessage *msg, gpointer data) {
 
-	abtGstEncoderInfo *pGstEncInfo = ((abtGstEncoderInfo *) ((uint32_t *) data)[0]);
-	abtMediaInfo *pMedInfo = ((abtMediaInfo *) ((uint32_t *) data)[1]);
-	abtFileList *pFileList = ((abtFileList *) ((uint32_t *) data)[2]);
-	abtServerInfo *pServInfo = ((abtServerInfo *) ((uint32_t *) data)[3]);
+	abtGstEncoderInfo *pGstEncInfo = ((abtGstEncoderInfo *) ((uint64_t *) data)[0]);
+	abtMediaInfo *pMedInfo = ((abtMediaInfo *) ((uint64_t *) data)[1]);
+	abtFileList *pFileList = ((abtFileList *) ((uint64_t *) data)[2]);
+	abtServerInfo *pServInfo = ((abtServerInfo *) ((uint64_t *) data)[3]);
 
 	// GMainLoop *loop = (GMainLoop *) data;
 

@@ -1,0 +1,4 @@
+*.o
+main
+tags
+cscope.out

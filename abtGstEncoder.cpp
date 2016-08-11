@@ -34,10 +34,10 @@ int abtGstEncoderRun(abtGstEncoderInfo *pGstEncInfo, abtMediaInfo *pMedInfo) {
 	pthread_t tid1;
 	pthread_t tid2;
 
-	static uint32_t data[2] = {0x00000000, 0x00000000};
+	static uint64_t data[2] = {0x00000000, 0x00000000};
 
-	data[0] = (uint32_t) pGstEncInfo;
-	data[1] = (uint32_t) pMedInfo;
+	data[0] = (uint64_t) pGstEncInfo;
+	data[1] = (uint64_t) pMedInfo;
 
 	pthread_create(&tid1,
 			NULL,
@@ -88,7 +88,7 @@ int abtGstEncoderDestroy(abtGstEncoderInfo *pGstEncInfo) {
 int _abtGstEncoderConstruct(abtGstEncoderInfo *pGstEncInfo, abtMediaInfo *pMedInfo) {
 
 	char *s = NULL;
-	static uint32_t data[2] = {0x00000000, 0x00000000};
+	static uint64_t data[2] = {0x00000000, 0x00000000};
 
 	s = (char *) calloc(ABT_FILE_PATH_LENGTH + ABT_FILE_NAME_LENGTH, sizeof(char));
 
@@ -138,8 +138,8 @@ int _abtGstEncoderConstruct(abtGstEncoderInfo *pGstEncInfo, abtMediaInfo *pMedIn
 			"stream-type", 0,
 			"format", GST_FORMAT_TIME, NULL);
 
-	data[0] = ((uint32_t) pGstEncInfo);
-	data[1] = ((uint32_t) pMedInfo);
+	data[0] = ((uint64_t) pGstEncInfo);
+	data[1] = ((uint64_t) pMedInfo);
 	g_signal_connect(pGstEncInfo->src, "need-data", G_CALLBACK(cb_need_data), (void *) data);
 
 	sprintf(s, "%s%s%s", pMedInfo->file_path, pMedInfo->file_name, pMedInfo->file_ext);
@@ -164,8 +164,8 @@ int _abtGstEncoderRun(abtGstEncoderInfo *pGstEncInfo) {
 
 int _abtCountdown(void *data) {
 
-	abtGstEncoderInfo *pGstEncInfo = (abtGstEncoderInfo *)(((uint32_t *) data)[0]);
-	abtMediaInfo *pMedInfo = (abtMediaInfo *)(((uint32_t *) data)[1]);
+	abtGstEncoderInfo *pGstEncInfo = (abtGstEncoderInfo *)(((uint64_t *) data)[0]);
+	abtMediaInfo *pMedInfo = (abtMediaInfo *)(((uint64_t *) data)[1]);
 
 	sleep(pMedInfo->time_length);
 	gst_app_src_end_of_stream(GST_APP_SRC(pGstEncInfo->src));
@@ -176,8 +176,8 @@ int _abtCountdown(void *data) {
 
 static void cb_need_data(GstElement *appsrc, guint unused_size, gpointer user_data) {
 
-	abtGstEncoderInfo *pGstEncInfo = (abtGstEncoderInfo *)(((uint32_t *) user_data)[0]);
-	abtMediaInfo *pMedInfo = (abtMediaInfo *)(((uint32_t *) user_data)[1]);
+	abtGstEncoderInfo *pGstEncInfo = (abtGstEncoderInfo *)(((uint64_t *) user_data)[0]);
+	abtMediaInfo *pMedInfo = (abtMediaInfo *)(((uint64_t *) user_data)[1]);
 
 	static gboolean white = FALSE;
 	static GstClockTime timestamp = 0;
