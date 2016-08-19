@@ -109,11 +109,12 @@ public:
 	void responseRequestFilefromFileManager(jsonString js);
 	bool response_Dbus_FaceRecognition(char* json);
 
+	bool wfdOn(void);
+
 
 };
 
 
-static comManager* instance;
 
 #endif
 

@@ -221,6 +221,9 @@ int main(){
 
 		else if(!strcmp(msgType,RUN_NATIVE_CAMERAVIEWER)){
 			if(pidOfCameraViewer == 0){
+				while(false == cm->wfdOn()){
+					sleep(1);
+				}
 				pidOfCameraViewer = asManager.runNativeJSApp(1); 
 
 			}
