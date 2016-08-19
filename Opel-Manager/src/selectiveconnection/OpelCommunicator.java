@@ -344,8 +344,7 @@ public class OpelCommunicator {
 
     private cmfw_port_c ports[];
 
-
-
+    public static final int CMFW_WFD_OFF_TIME = 10;
     public static final int CMFW_CONTROL_PORT = 0;
     public static final int CMFW_DEFAULT_PORT = 1;
     public static final int CMFW_RFS_PORT = 2;
@@ -387,11 +386,67 @@ public class OpelCommunicator {
     private WifiP2pManager mManager;
     private Channel mChannel;
 
-    private int wfd_in_use;
+    public int wfd_in_use;
 
     //public WifiP2pManager.PeerListListener mPeerListener;
     private List<WifiP2pDevice> peers;
     private String mMac;
+
+    private class WfdOffThread extends Thread{
+        private boolean running;
+        WfdOffThread(){
+            running = false;
+        }
+        public boolean isRunning(){
+            return running;
+        }
+        public void run(){
+            running = true;
+            int iter = CMFW_WFD_OFF_TIME*10;
+            int prev_iter = 0;
+            while(wfd_in_use <= 0 && iter-- > 0){
+                try {
+                    sleep(100);
+                    if(prev_iter != iter/10) {
+                        prev_iter = iter / 10;
+                        Log.d("WFD_OFF", "WFD off after " + Integer.toString(iter / 10) + "seconds");
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            if(wfd_in_use <= 0){
+                ports[CMFW_DEFAULT_PORT].wfd_close();
+                mManager.stopPeerDiscovery(mChannel, new WifiP2pManager.ActionListener() {
+                    @Override
+                    public void onSuccess() {
+                        Log.d("WifiP2p", "Stop discovery");
+                    }
+
+                    @Override
+                    public void onFailure(int reason) {
+                    }
+                });
+                //mManager.cancelConnect(mChannel, );
+                globalData.getInstance().getWifiReceiver().removing = true;
+                mManager.removeGroup(mChannel, new WifiP2pManager.ActionListener() {
+                    @Override
+                    public void onSuccess() {
+                        Log.d("WifiP2p", "Removed from group");
+                    }
+
+                    @Override
+                    public void onFailure(int reason) {
+                        Log.d("WifiP2p", "Remove failed");
+
+                    }
+                });
+            }
+            running = false;
+        }
+    }
+    private WfdOffThread wfd_off_thread;
 
     public static String getMacAddr() {
         try {
@@ -445,6 +500,8 @@ public class OpelCommunicator {
         }
 
         wfd_in_use = 0;
+
+        wfd_off_thread = new WfdOffThread();
     }
 
     public void close(int port)
@@ -459,66 +516,6 @@ public class OpelCommunicator {
         return ports[port].connect();
     }
 
-    BluetoothServerSocket cmfw_open_ctrl()
-    {
-        BluetoothServerSocket tmp_bss = null;
-        try {
-            tmp_bss = BluetoothAdapter.getDefaultAdapter().listenUsingRfcommWithServiceRecord("OPEL_CTRL_PORT", UUID.fromString(ports_uuid[CMFW_CONTROL_PORT]));
-        } catch (IOException e) {
-            e.printStackTrace();
-            tmp_bss = null;
-        }
-
-        return tmp_bss;
-    }
-
-    private int cmfw_recv_cmd(int port)
-    {
-        int res = 0;
-        InputStream is = ports[port].get_input_stream(false);
-        if(is == null)
-            return -1;
-        DataInputStream dis = new DataInputStream(is);
-
-        byte to_read = -1;
-
-        try{
-            to_read = dis.readByte();
-            to_read = (byte) (0x0F & to_read);
-        } catch(IOException e){
-            e.printStackTrace();
-            Log.d("cmfw_recv_cmd", "recv cmd failed");
-            close(port);
-            res = -1;
-        }
-
-        if( res == 0 )
-            res = 0xFF & to_read;
-
-        return res;
-    }
-    private int cmfw_send_cmd(int port, int cmd)
-    {
-        int res = 0;
-
-        OutputStream os = ports[port].get_output_stream(false);
-        if(os == null)
-            return -1;
-        DataOutputStream dos = new DataOutputStream(os);
-
-        byte to_write = (byte) (0x10 | (0x0F & cmd));
-
-        try{
-            dos.writeByte(to_write);
-        } catch(IOException e){
-            e.printStackTrace();
-            Log.d("cmfw_send_cmd", "Header write failed");
-            close(port);
-            res = -1;
-        }
-
-        return res;
-    }
     public int cmfw_send_msg(int port, byte[] buf, int len)
     {
         int res = 0;
@@ -620,13 +617,6 @@ public class OpelCommunicator {
         return res;
     }
 
-    public void close_all()
-    {
-        for(int i=0; i<DEFINED_PORT_NUM; i++){
-            ports[i].close();
-            ports[i].close();
-        }
-    }
 
     public int cmfw_send_msg(int port, String buf)
     {
@@ -785,7 +775,6 @@ public class OpelCommunicator {
     public int cmfw_wfd_on(boolean retry)
     {
         if(!retry) {
-            wfd_in_use++;
             if(ports[CMFW_CONTROL_PORT].connect()){
                 byte[] buf = new byte[4096];
                 String msg;
@@ -795,24 +784,33 @@ public class OpelCommunicator {
                 Log.d("OPEL", "Control Message:"+msg);
                 if(msg.equals("off")) {
                     ports[CMFW_CONTROL_PORT].close();
-                    wfd_in_use--;
                     return -1;
                 }
                 else {
-                    ports[CMFW_CONTROL_PORT].close();
+                    if(globalData.getInstance().getWifiReceiver().isConnected()) {
+                        wfd_in_use++;
+                        cmfw_send_msg(CMFW_CONTROL_PORT, "on");
+                        ports[CMFW_CONTROL_PORT].close();
+                        return 0;
+                    }
+                    else{
+                        //Not connected --> new Thread to connect wfd
+                        cmfw_send_msg(CMFW_CONTROL_PORT, "off");
+                        ports[CMFW_CONTROL_PORT].close();
+                    }
                 }
             }
             else {
                 Log.d("OPEL", "Control port connection failed");
-                wfd_in_use--;
                 return -1;
             }
         }
 
+
+        Log.d("WFD_ON", "Scan!");
+
         synchronized (mManager) {
             do {
-                Log.d("WFD_ON", "Scan!");
-
                 mManager.discoverPeers(mChannel, new WifiP2pManager.ActionListener() {
                     @Override
                     public void onSuccess() {
@@ -824,62 +822,51 @@ public class OpelCommunicator {
 
                     }
                 });
-            }while(false);
+            } while (false);
         }
 
-
-        return 0;
+        //WFD connecting action just started -> now use bt than wfd
+        return -1;
     }
-    public int cmfw_wfd_off(){
+
+    public int cmfw_wfd_off()
+    {
+        Log.d("WFD_OFF", "wfd_in_use = "+Integer.toString(wfd_in_use));
         if(--wfd_in_use > 0){
             Log.d("WifiP2p", "WFD in use");
             return 0;
         }
-        ports[CMFW_DEFAULT_PORT].wfd_close();
-        mManager.stopPeerDiscovery(mChannel, new WifiP2pManager.ActionListener() {
-            @Override
-            public void onSuccess() {
-                Log.d("WifiP2p", "Stop discovery");
-            }
+        else if(wfd_in_use < 0)
+            wfd_in_use = 0;
 
-            @Override
-            public void onFailure(int reason) {
-            }
-        });
-        //mManager.cancelConnect(mChannel, );
-        mManager.removeGroup(mChannel, new WifiP2pManager.ActionListener() {
-            @Override
-            public void onSuccess() {
-                Log.d("WifiP2p", "Removed from group");
-            }
-
-            @Override
-            public void onFailure(int reason) {
-                Log.d("WifiP2p", "Remove failed");
-
-            }
-        });
+        if(!wfd_off_thread.isRunning()) {
+            wfd_off_thread = new WfdOffThread();
+            wfd_off_thread.start();
+        }
 
         return 0;
     }
+
     public int cmfw_send_file(int port, File fd)
     {
 
         int res = 0;
         int iter = 0;
         boolean by_wfd;
+
         if(cmfw_wfd_on(false) < 0)
             by_wfd = false;
         else
             by_wfd = true;
 
-        while (by_wfd && false == ports[port].wfd_connect()) {
-            SystemClock.sleep(1000);
+        if (by_wfd && false == ports[port].wfd_connect()) {
+            by_wfd = false;
         }
-        if(!by_wfd){
+        if(!by_wfd) {
             ports[CMFW_RFS_PORT].connect();
+            Log.d("WifiDirect", "Connected");
         }
-        Log.d("WifiDirect", "Connected");
+
         OutputStream os;
         InputStream is;
         if(by_wfd) {
@@ -932,13 +919,12 @@ public class OpelCommunicator {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        if(by_wfd) {
-            ports[port].wfd_close();
-        }
-        else {
+
+        if(!by_wfd){
             ports[CMFW_RFS_PORT].close();
         }
-        cmfw_wfd_off();
+        else
+            cmfw_wfd_off();
 
         return res;
     }
@@ -960,8 +946,9 @@ public class OpelCommunicator {
             by_wfd = true;
 
 
-        while (by_wfd && false == ports[port].wfd_connect()) {
-            SystemClock.sleep(1000);
+
+        if (by_wfd && false == ports[port].wfd_connect()) {
+            by_wfd = false;
         }
         if(!by_wfd){
             ports[CMFW_RFS_PORT].connect();
@@ -1044,12 +1031,11 @@ public class OpelCommunicator {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        if(by_wfd)
-            ports[port].wfd_close();
-        else
+        if(!by_wfd)
             ports[CMFW_RFS_PORT].close();
-        SystemClock.sleep(500);
-        cmfw_wfd_off();
+        else
+            cmfw_wfd_off();
+
         return res;
     }
 
