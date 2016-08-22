@@ -126,6 +126,11 @@ static inline char* sensorGet(sensorList* sl, void *data)
 	return '\0';
 }
 
+int isWiringPiSetup();
+int setupWiringPi();
+
+
+
 
 /*
 void devices_init(void *data);

@@ -10,7 +10,7 @@ static int touch_flag = 0;
 static void TOUCH_start(void *data)
 {
 	if (!touch_flag){
-		wiringPiSetup();
+		setupWiringPi();
 		pinMode(TOUCH, INPUT);
 		touch_flag = 1;
 		printf("Touch init\n");
