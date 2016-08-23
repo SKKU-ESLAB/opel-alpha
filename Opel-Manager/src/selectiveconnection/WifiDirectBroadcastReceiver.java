@@ -9,11 +9,14 @@ import android.net.wifi.WpsInfo;
 import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
+import android.net.wifi.p2p.WifiP2pGroup;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 import android.os.Handler;
 import android.util.Log;
+
+import com.example.opel_manager.globalData;
 
 import java.net.InetAddress;
 import java.util.Collection;
@@ -35,8 +38,9 @@ public class WifiDirectBroadcastReceiver extends BroadcastReceiver {
     static public String mMac = null;
 
     boolean sent_connected = false;
+    boolean connection = false;
 
-    boolean connected = false;
+    public boolean removing = false;
 
     public WifiDirectBroadcastReceiver(WifiP2pManager manager, WifiP2pManager.Channel channel){
         super();
@@ -126,18 +130,31 @@ public class WifiDirectBroadcastReceiver extends BroadcastReceiver {
 
         } else if (WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION.equals(action)) {
             // Respond to new connection or disconnections
-            NetworkInfo networkInfo = (NetworkInfo) intent
-                    .getParcelableExtra(WifiP2pManager.EXTRA_NETWORK_INFO);
 
-            if(networkInfo.isConnected()){
-                Log.d("Breceiver", "Connected");
-            }
-            else if(networkInfo.isConnectedOrConnecting()){
-                Log.d("Breceiver", "Connecting");
-            }
-            else if(networkInfo.isAvailable()){
-                Log.d("Breceiver", "Available");
-            }
+                NetworkInfo networkInfo = (NetworkInfo) intent
+                        .getParcelableExtra(WifiP2pManager.EXTRA_NETWORK_INFO);
+
+                if (networkInfo.isConnected()) {
+                    WifiP2pGroup p2pGroup = (WifiP2pGroup)intent.getParcelableExtra(WifiP2pManager.EXTRA_WIFI_P2P_GROUP);
+                    if(p2pGroup.getOwner().deviceName != null && p2pGroup.getOwner().deviceName.equals(OpelCommunicator.CMFW_WFD_NAME)) {
+                        Log.d("Breceiver", "Connected:" + Integer.toString(globalData.getInstance().getCommManager().opelCommunicator.wfd_in_use));
+
+                        opelDevice = p2pGroup.getOwner();
+                        connection = true;
+
+                        if (isConnected() && globalData.getInstance().getCommManager().opelCommunicator.wfd_in_use == 0)
+                            globalData.getInstance().getCommManager().opelCommunicator.cmfw_wfd_off();
+                    }
+                } else if (networkInfo.isConnectedOrConnecting()) {
+                    Log.d("Breceiver", "Connecting");
+                } else if (networkInfo.isAvailable()) {
+                    if(opelDevice != null) {
+                        Log.d("Breceiver", "Available");
+                        opelDevice = null;
+                        removing = false;
+                        connection = false;
+                    }
+                }
 
         } else if (WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION.equals(action)) {
             // Respond to this device's wifi state changing
@@ -150,8 +167,8 @@ public class WifiDirectBroadcastReceiver extends BroadcastReceiver {
 
         Log.d("BReceiver", Integer.toString(opelDevice.status));
 
-        if(opelDevice.status==WifiP2pDevice.CONNECTED)
-            return true;
+        if(removing == false)
+            return connection;
         return false;
     }
 }

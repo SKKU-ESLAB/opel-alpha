@@ -110,6 +110,7 @@ public class cameraStreamingView extends Activity{
 			tcpstreaming.Cancel();
 			tcpstreaming = null;
 		}
+		globalData.getInstance().getCommManager().opelCommunicator.cmfw_wfd_off();
 		super.onPause();
 		unregisterReceiver(globalData.getInstance().getWifiReceiver());
 	}
@@ -219,8 +220,6 @@ class TCPStreaming extends Thread {
       */
 
 		sch = false;
-		if(globalData.getInstance().getWifiReceiver().isConnected() == false)
-			globalData.getInstance().getCommManager().opelCommunicator.cmfw_wfd_on(true);
 	}
 
 
@@ -319,16 +318,16 @@ class TCPStreaming extends Thread {
 		sch = true;
 		while(sch){
 			if(tcpSocket == null) {
-				globalData.getInstance().getCommManager().opelCommunicator.cmfw_wfd_on(true);
-				connect();
-				if(tcpSocket == null || tcpSocket.isConnected() == false)
+				while(globalData.getInstance().getCommManager().opelCommunicator.cmfw_wfd_on(false) < 0){
 					try {
-						this.sleep(1000,0);
+						sleep(1000);
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-				continue;
+				}
+				connect();
+				if(tcpSocket == null || tcpSocket.isConnected() == false)
+					break;
 			}
 			if(prev_stat != stat){
 				prev_stat = stat;
@@ -353,15 +352,6 @@ class TCPStreaming extends Thread {
 					//Log.d("TCPStreaming", offset+"/"+totalLen);
 
 					onReceived(frame);
-               /*
-               try {
-                  sleep(33);
-               } catch (InterruptedException e) {
-                  e.printStackTrace();
-               }*/
-
-
-
 
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
