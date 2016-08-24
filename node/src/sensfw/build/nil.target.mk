@@ -29,10 +29,10 @@ CFLAGS_CC_Debug := \
 	-fno-exceptions
 
 INCS_Debug := \
-	-I/home/pi/.node-gyp/0.10.28/include/node \
-	-I/home/pi/.node-gyp/0.10.28/src \
-	-I/home/pi/.node-gyp/0.10.28/deps/uv/include \
-	-I/home/pi/.node-gyp/0.10.28/deps/v8/include \
+	-I/home/pi/.node-gyp/0.10.29/include/node \
+	-I/home/pi/.node-gyp/0.10.29/src \
+	-I/home/pi/.node-gyp/0.10.29/deps/uv/include \
+	-I/home/pi/.node-gyp/0.10.29/deps/v8/include \
 	-I/usr/include/glib-2.0 \
 	-I/usr/lib/arm-linux-gnueabihf/glib-2.0/include \
 	-I/usr/include/dbus-1.0 \
@@ -65,10 +65,10 @@ CFLAGS_CC_Release := \
 	-fno-exceptions
 
 INCS_Release := \
-	-I/home/pi/.node-gyp/0.10.28/include/node \
-	-I/home/pi/.node-gyp/0.10.28/src \
-	-I/home/pi/.node-gyp/0.10.28/deps/uv/include \
-	-I/home/pi/.node-gyp/0.10.28/deps/v8/include \
+	-I/home/pi/.node-gyp/0.10.29/include/node \
+	-I/home/pi/.node-gyp/0.10.29/src \
+	-I/home/pi/.node-gyp/0.10.29/deps/uv/include \
+	-I/home/pi/.node-gyp/0.10.29/deps/v8/include \
 	-I/usr/include/glib-2.0 \
 	-I/usr/lib/arm-linux-gnueabihf/glib-2.0/include \
 	-I/usr/include/dbus-1.0 \
