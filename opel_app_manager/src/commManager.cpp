@@ -28,6 +28,7 @@
 
 static const char *INTF_NAME = "Opel Manager";
 static sdp_session_t *session_priv;
+static comManager* instance;
 comManager::comManager(){
 
 	cmfw_init();
@@ -632,4 +633,8 @@ int comManager::getIpAddress (const char * ifr_n, char out[]) {
     return 0; 
 
 }	
+
+bool comManager::wfdOn(void){
+	return cmfw_wfd_on(CMFW_DEFAULT_PORT);
+}
 

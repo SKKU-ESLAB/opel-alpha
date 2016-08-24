@@ -12,61 +12,90 @@
 #include <cmfw_wfd.h>
 #include <tmp_control.h>
 static int wfd_sock[DEFINED_NUM_PORTS];
-static int wfd_port_nums[DEFINED_NUM_PORTS];
+static short wfd_port_nums[DEFINED_NUM_PORTS];
 
 void wfd_init()
 {
 	__ENTER__;
-	static bool initialized;
-	int i;
-
-	if(initialized)
-		return;
-	initialized = true;
-	for(i=0; i<DEFINED_NUM_PORTS; i++){
-		wfd_sock[i] = -1;
-		wfd_port_nums[i] = 10001+i;
-		cmfw_log("wfd_port:%d-%d", i, wfd_port_nums[i]);
-	}
 
 	char buf[256];
 	tmpc_get("wifi/wifi-direct/init", buf, 256);
 	int value = atoi(buf);
 	if( value == 1 ){
 		cmfw_log("P2p already inited");
-		return;
+	}
+	else{
+		strcpy(buf, getenv("OPEL_DIR"));
+		strcat(buf, "/bin/p2p_setup.sh init");
+		system( buf );
 	}
 
+	int i;
 
+	for(i=0; i<DEFINED_NUM_PORTS; i++){
+		wfd_sock[i] = -1;
+		wfd_port_nums[i] = 10001+i;
+		cmfw_log("wfd_port:%d-%d", i, wfd_port_nums[i]);
+	}
+	wfd_sock[CMFW_DEFAULT_PORT] = wfd_open(CMFW_DEFAULT_PORT);
+	/*
+	for(i=0; i<DEFINED_NUM_PORTS; i++){
+		cmfw_log("Open Try: %d", (cmfw_port_e)i);
+		wfd_sock[i] = wfd_open((cmfw_port_e)i);
+	}
+	*/
 
-	system( "./bin/p2p_setup.sh init" );
 	
 	cmfw_log("Wifi direct init done");
 	__EXIT__;
 }
 
-void wfd_deinit()
+void wfd_on(cmfw_port_e port)
 {
+	__ENTER__;
+	if(wfd_sock[port] > 0){
+		char buf[256]; 
+		strcpy(buf, getenv("OPEL_DIR"));
+		strcat(buf, "/bin/p2p_setup.sh start");
+		system(buf);
+		cmfw_log("P2p start!");
+	}
+	else{
+		cmfw_log("wfd_open failed?%d", wfd_sock[port]);
+	}
+
+	__EXIT__;
 }
 
-static bool started;
-void wfd_on()
+void wfd_reset()
+{
+	__ENTER__;
+	char buf[256]; 
+	strcpy(buf, getenv("OPEL_DIR"));
+	strcat(buf, "/bin/p2p_setup.sh stop");
+	system(buf);
+	cmfw_log("P2p reset");
+
+	__EXIT__;
+}
+bool wfd_is_on()
 {
 	__ENTER__;
 
 	char buf[256];
-
 	tmpc_get("wifi/wifi-direct/wfd_stat", buf, 256);
 	int value = atoi(buf);
 	if(value == 1){
 		cmfw_log("P2p already started!");
-		return;
+		__EXIT__;
+		return true;
 	}
 	else{
-	 //system("./bin/p2p_setup.sh start");
-		cmfw_log("P2p start!");
+		cmfw_log("P2p off");
+		__EXIT__;
+		return false;
 	}
-	started = true;
+
 	__EXIT__;
 }
 
@@ -118,17 +147,6 @@ void wfd_close(cmfw_port_e port)
 		close(wfd_sock[port]);
 
 	wfd_sock[port] = -1;
-
-	//system("./bin/p2p_setup.sh stop");
-
-	/*
-	int i;
-	for(i=0; i<DEFINED_NUM_PORTS; i++){
-		if(wfd_sock[i] > 0)
-			break;
-	}
-	*/
-	
 }
 int wfd_accept(cmfw_port_e port)
 {
@@ -138,8 +156,6 @@ int wfd_accept(cmfw_port_e port)
 	struct sockaddr_in caddr;
 	struct hostent *h;
 	
-	if((res = wfd_open(port)) < 0)
-		return res;
 
 	caddr_len = sizeof(caddr);
 	cmfw_log("WFD Server(PORT:%d) now accepting...", wfd_port_nums[port]);
@@ -155,7 +171,7 @@ int wfd_accept(cmfw_port_e port)
 	cmfw_log("Server connected to (%s) \n",\
 			inet_ntoa(*(struct in_addr *)&caddr.sin_addr));
 
-	wfd_close(port);
+	//wfd_close(port);
 
 
 	res = cli_fd;

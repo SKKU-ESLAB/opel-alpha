@@ -1,11 +1,10 @@
 #!/bin/bash
 
 start_daemons(){
-	export OPEL_DIR=$(pwd)
-	${OPEL_DIR}/bin/p2p_setup.sh init
+	sudo hciconfig hci0 piscan
 	${OPEL_DIR}/bin/run.sh &
 	sudo ${OPEL_DIR}/bin/sensorManager &
-	cd ./bin/appManager
+	cd ${OPEL_DIR}/bin/appManager
 	./sysAppManager
 }
 
@@ -13,9 +12,11 @@ stop_daemons(){
 	pkill -x cam_manager
 	pkill -x node
 	pkill -x sysAppManager
-	sudo pkill sensorManager
+	sudo pkill -x sensorManager
+	${OPEL_DIR}/bin/p2p_setup.sh stop
 }
 
+export OPEL_DIR=$(pwd)
 case $1 in
 "start")
 start_daemons

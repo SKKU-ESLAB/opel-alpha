@@ -13,7 +13,9 @@ void wfd_init();
 void wfd_deinit();
 
 //This listeners should be freed in after_work_cb
-void wfd_on(void);
+void wfd_reset(void);
+void wfd_on(cmfw_port_e port);
+bool wfd_is_on(void);
 int wfd_open(cmfw_port_e port);
 void wfd_close(cmfw_port_e port);
 int wfd_accept(cmfw_port_e port);

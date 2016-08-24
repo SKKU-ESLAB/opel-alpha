@@ -1,6 +1,12 @@
+bin/sensorManager
+bin/cam_manager
+bin/appManager/sysAppManager
 bin/appManager/appPackageRepository.db
 bin/appManager/deviceRepository.db
 bin/appManager/serviceDaemonRepository.db
+lib
+tags
+CMakeCache.txt
 CMakeFiles
 */CMakeFiles
 cmake_install.cmake

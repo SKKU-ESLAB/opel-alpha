@@ -56,6 +56,6 @@ int cmfw_recv_file(cmfw_port_e port, char *dest_dir);
    */
 int cmfw_send_msg(cmfw_port_e port, char *buf, int len);
 int cmfw_send_file(cmfw_port_e port, char *fname);
-void cmfw_wfd_on(cmfw_port_e port);
+bool cmfw_wfd_on(cmfw_port_e port);
 
 #endif //?__OPEL_CMFW_H__
