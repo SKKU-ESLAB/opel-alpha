@@ -10,7 +10,7 @@ static int flag = 0;
 static void MOTION_start(void *data)
 {
 	if(!flag){
-		wiringPiSetup();
+		setupWiringPi();
 		pinMode(MOTION_PIN, INPUT);
 		flag = 1;
 	}

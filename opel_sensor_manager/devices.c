@@ -9,9 +9,10 @@ static sensorHead *sensor_head = NULL;
 
 static int ADC_INIT = 0;
 static int ADC_LOCK = 0;
+static int wiring_pi_setup;
 
 int ADC_init(){
-	if (wiringPiSetup() < 0){
+	if (setupWiringPi() < 0){
 		printf("Error : Fail to init WiringPi\n");
 		return 1;
 	}
@@ -157,7 +158,20 @@ int countSensor(void);
 /*
 	Sensor On/Off 등의 컨트롤에 대한 정보도 추가.
 */
+int isWiringPiSetup()
+{
+	return wiring_pi_setup;
+}
+int setupWiringPi()
+{
+	int res=0;
+	if(!wiring_pi_setup){
+		res = wiringPiSetup();
+		wiring_pi_setup=1;
+	}
 
+	return res;
+}
 
 
 

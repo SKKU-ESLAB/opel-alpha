@@ -420,8 +420,9 @@ static void _bt_cli_close(cmfw_port_e port){
 		close(cli_socks[port].bt_sock);
 	cli_socks[port].bt_sock = -1;
 }
-static bool _wfd_on(cmfw_port_e port){
+bool cmfw_wfd_on(cmfw_port_e port){
 	bool by_wfd;
+	char buf[256];
 
 	wfd_reset();
 	wfd_on(port);
@@ -430,6 +431,15 @@ static bool _wfd_on(cmfw_port_e port){
 		cmfw_send_msg(CMFW_CONTROL_PORT, "on", 2);
 	else
 		cmfw_send_msg(CMFW_CONTROL_PORT, "off", 3);
+
+
+	if(by_wfd){
+		cmfw_recv_msg(CMFW_CONTROL_PORT, buf, 256);
+		cmfw_log("wfd_on ack message: %s", buf);
+	}
+
+	if(strcmp(buf, "off") == 0)
+		by_wfd = false;
 
 	close(cli_socks[CMFW_CONTROL_PORT].bt_sock);
 	cli_socks[CMFW_CONTROL_PORT].bt_sock = -1;
@@ -441,7 +451,7 @@ int cmfw_recv_file(cmfw_port_e port, char *dest_dir)
 {
 
 	/* wfd on */
-	bool by_wfd = _wfd_on(port);
+	bool by_wfd = cmfw_wfd_on(port);
 	/* ? wfd on */
 	if(by_wfd)
 		cli_socks[port].wfd_sock = wfd_accept(port);
@@ -756,7 +766,7 @@ static char *__cmfw_token_fname(char *fname)
 int cmfw_send_file(cmfw_port_e port, char *fname)
 {
 	/* Wifi On */
-	bool by_wfd = _wfd_on(port);
+	bool by_wfd = cmfw_wfd_on(port);
 	/* ?Wifi On */
 
 	int res = CMFW_E_NONE;

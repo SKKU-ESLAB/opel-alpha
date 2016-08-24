@@ -19,7 +19,7 @@ static void VIBRATION_start(void *data)
 	working = 1;
 	
 	if (!init){
-		wiringPiSetup();
+		setupWiringPi();
 		pinMode(VIBRATION, INPUT);
 		wiringPiISR(VIBRATION, INT_EDGE_FALLING, &vib_fuc); //Falling function!!!!!!!!!!
 		init = 1;
