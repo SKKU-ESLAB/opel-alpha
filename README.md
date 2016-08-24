@@ -47,7 +47,8 @@
 #####1. 본 Repository로부터 raspberry-pi2_3 branch 다운로드
 #####2. Dependency libarary 설치
 
-	$apt-get install g++-4.8 wiringpi libdbus-1-dev glib-2.0 libdbus-glib-1-2 libdbus-glib-1-2-dbg libdbus-glib-1-dev zip sqlite3 libsqlite3-dev cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev python-dev python-numpy libjpeg-dev libpng-dev libtiff-dev libjasper-dev libdc1394-22-dev 
+	$sudo apt-get update
+	$sudo apt-get install g++-4.8 wiringpi libdbus-1-dev glib-2.0 libdbus-glib-1-2 libdbus-glib-1-2-dbg libdbus-glib-1-dev zip sqlite3 libsqlite3-dev cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev python-dev python-numpy libjpeg-dev libpng-dev libtiff-dev libjasper-dev libdc1394-22-dev automake libtool
 
 #####3. bluez 설치
 
@@ -67,20 +68,26 @@
 
 	$sudo apt-get install udhcpd
 	$sudo touch /var/lib/misc/udhcpd.leases
+	
+#####6. libuv 설치
+	
+	$cd dep/libuv-v1.7.5/
+	$./autogen.sh
+	$./configure
+	$./make
+	$./sudo make install
+	$sudo ldconfig
 
-#####6. opel.conf 복사
+#####7. opel.conf 복사
 
 	$cd dep/
 	$sudo cp opel.conf /etc/dbus-1/system.d/
 
-#####7. build
+#####8. build
 
 	$cmake ./
 	$make
 
-#####8. pairing
-	$./pairing 
-	Android에서 BT및 WFD연결
 #####9. Daemon 실행
 	$./run_daemons start
 	Android OPEL Manager 실행
@@ -98,7 +105,8 @@
 ```
 ##Dependency Library 설치
 ```
-apt-get install g++-4.8 wiringpi libdbus-1-dev glib-2.0 libdbus-glib-1-2 libdbus-glib-1-2-dbg libdbus-glib-1-dev zip sqlite3 libsqlite3-dev cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev python-dev python-numpy libjpeg-dev libpng-dev libtiff-dev libjasper-dev libdc1394-22-dev
+$sudo apt-get update
+$sudo apt-get install g++-4.8 wiringpi libdbus-1-dev glib-2.0 libdbus-glib-1-2 libdbus-glib-1-2-dbg libdbus-glib-1-dev zip sqlite3 libsqlite3-dev cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev python-dev python-numpy libjpeg-dev libpng-dev libtiff-dev libjasper-dev libdc1394-22-dev automake libtool
 ```
 ###dependency library (따로 설치 필요 – /OPEL_DIR/dep 디렉토리 내에 위치)
 #### bluez 
@@ -169,19 +177,6 @@ $ make install
 	* Android Package File을 통해 설치 (APK 파일 실행)
 
 ##OPEL Communication Setup
-**최초 연결시 페어링 필요**
-###OPEL device
-현재 OPEL에서 사용중인 Network Interface는 BCM43143 모델로, brcmfmac (nl80211) driver를 사용합니다.
-
-기타 Realtek 모델 등 nl80211와 호환되지 않는 모델은 현재 지원하지 않습니다. (Raspberry PI3는 별도 모듈없이 바로 사용가능합니다.)
-```
-$./paring
-```
-###Android device
-* Bluetooth 설정에서 Raspberry-pi 찾아 연결
-* Wifi Setting -> Advanced -> Wi-fi Direct -> OPEL 장치 연결
-	* PIN: 12345670
-	* 이 후, PIN 필요 없고 프로그램 실행 시 자동 연결.
 
 ##Program 실행 방법
 ###OPEL device
