@@ -1,14 +1,11 @@
-cmd_Release/obj.target/nil/nil.o := g++ '-DNODE_GYP_MODULE_NAME=nil' '-D_LARGEFILE_SOURCE' '-D_FILE_OFFSET_BITS=64' '-DBUILDING_NODE_EXTENSION' -I/home/pi/.node-gyp/0.10.29/include/node -I/home/pi/.node-gyp/0.10.29/src -I/home/pi/.node-gyp/0.10.29/deps/uv/include -I/home/pi/.node-gyp/0.10.29/deps/v8/include -I/usr/include/glib-2.0 -I/usr/lib/arm-linux-gnueabihf/glib-2.0/include -I/usr/include/dbus-1.0 -I/usr/lib/arm-linux-gnueabihf/dbus-1.0/include  -fPIC -Wall -Wextra -Wno-unused-parameter -pthread -O2 -fno-strict-aliasing -fno-tree-vrp -fno-omit-frame-pointer -fno-rtti -fno-exceptions -MMD -MF ./Release/.deps/Release/obj.target/nil/nil.o.d.raw   -c -o Release/obj.target/nil/nil.o ../nil.cc
+cmd_Release/obj.target/nil/nil.o := g++ '-DNODE_GYP_MODULE_NAME=nil' '-DUSING_UV_SHARED=1' '-DUSING_V8_SHARED=1' '-DV8_DEPRECATION_WARNINGS=1' '-D_LARGEFILE_SOURCE' '-D_FILE_OFFSET_BITS=64' '-DBUILDING_NODE_EXTENSION' -I/home/pi/.node-gyp/4.0.0/include/node -I/home/pi/.node-gyp/4.0.0/src -I/home/pi/.node-gyp/4.0.0/deps/uv/include -I/home/pi/.node-gyp/4.0.0/deps/v8/include -I/usr/include/glib-2.0 -I/usr/lib/arm-linux-gnueabihf/glib-2.0/include -I/usr/include/dbus-1.0 -I/usr/lib/arm-linux-gnueabihf/dbus-1.0/include  -fPIC -pthread -Wall -Wextra -Wno-unused-parameter -O3 -ffunction-sections -fdata-sections -fno-omit-frame-pointer -fno-rtti -fno-exceptions -std=gnu++0x -MMD -MF ./Release/.deps/Release/obj.target/nil/nil.o.d.raw   -c -o Release/obj.target/nil/nil.o ../nil.cc
 Release/obj.target/nil/nil.o: ../nil.cc \
- /home/pi/.node-gyp/0.10.29/src/node.h \
- /home/pi/.node-gyp/0.10.29/deps/uv/include/uv.h \
- /home/pi/.node-gyp/0.10.29/deps/uv/include/uv-private/uv-unix.h \
- /home/pi/.node-gyp/0.10.29/deps/uv/include/uv-private/ngx-queue.h \
- /home/pi/.node-gyp/0.10.29/deps/uv/include/uv-private/uv-linux.h \
- /home/pi/.node-gyp/0.10.29/deps/v8/include/v8.h \
- /home/pi/.node-gyp/0.10.29/deps/v8/include/v8stdint.h \
- /home/pi/.node-gyp/0.10.29/src/node_object_wrap.h \
- /home/pi/.node-gyp/0.10.29/src/node.h /usr/include/glib-2.0/glib.h \
+ /home/pi/.node-gyp/4.0.0/include/node/node.h \
+ /home/pi/.node-gyp/4.0.0/include/node/v8.h \
+ /home/pi/.node-gyp/4.0.0/include/node/v8-version.h \
+ /home/pi/.node-gyp/4.0.0/include/node/v8config.h \
+ /home/pi/.node-gyp/4.0.0/include/node/node_version.h \
+ /home/pi/.node-gyp/4.0.0/include/node/v8.h /usr/include/glib-2.0/glib.h \
  /usr/include/glib-2.0/glib/galloca.h /usr/include/glib-2.0/glib/gtypes.h \
  /usr/lib/arm-linux-gnueabihf/glib-2.0/include/glibconfig.h \
  /usr/include/glib-2.0/glib/gmacros.h \
@@ -89,17 +86,20 @@ Release/obj.target/nil/nil.o: ../nil.cc \
  /usr/include/dbus-1.0/dbus/dbus-server.h \
  /usr/include/dbus-1.0/dbus/dbus-signature.h \
  /usr/include/dbus-1.0/dbus/dbus-syntax.h \
- /usr/include/dbus-1.0/dbus/dbus-threads.h ../nil.h
+ /usr/include/dbus-1.0/dbus/dbus-threads.h \
+ /home/pi/.node-gyp/4.0.0/include/node/uv.h \
+ /home/pi/.node-gyp/4.0.0/include/node/uv-errno.h \
+ /home/pi/.node-gyp/4.0.0/include/node/uv-version.h \
+ /home/pi/.node-gyp/4.0.0/include/node/uv-unix.h \
+ /home/pi/.node-gyp/4.0.0/include/node/uv-threadpool.h \
+ /home/pi/.node-gyp/4.0.0/include/node/uv-linux.h ../nil.h
 ../nil.cc:
-/home/pi/.node-gyp/0.10.29/src/node.h:
-/home/pi/.node-gyp/0.10.29/deps/uv/include/uv.h:
-/home/pi/.node-gyp/0.10.29/deps/uv/include/uv-private/uv-unix.h:
-/home/pi/.node-gyp/0.10.29/deps/uv/include/uv-private/ngx-queue.h:
-/home/pi/.node-gyp/0.10.29/deps/uv/include/uv-private/uv-linux.h:
-/home/pi/.node-gyp/0.10.29/deps/v8/include/v8.h:
-/home/pi/.node-gyp/0.10.29/deps/v8/include/v8stdint.h:
-/home/pi/.node-gyp/0.10.29/src/node_object_wrap.h:
-/home/pi/.node-gyp/0.10.29/src/node.h:
+/home/pi/.node-gyp/4.0.0/include/node/node.h:
+/home/pi/.node-gyp/4.0.0/include/node/v8.h:
+/home/pi/.node-gyp/4.0.0/include/node/v8-version.h:
+/home/pi/.node-gyp/4.0.0/include/node/v8config.h:
+/home/pi/.node-gyp/4.0.0/include/node/node_version.h:
+/home/pi/.node-gyp/4.0.0/include/node/v8.h:
 /usr/include/glib-2.0/glib.h:
 /usr/include/glib-2.0/glib/galloca.h:
 /usr/include/glib-2.0/glib/gtypes.h:
@@ -194,4 +194,10 @@ Release/obj.target/nil/nil.o: ../nil.cc \
 /usr/include/dbus-1.0/dbus/dbus-signature.h:
 /usr/include/dbus-1.0/dbus/dbus-syntax.h:
 /usr/include/dbus-1.0/dbus/dbus-threads.h:
+/home/pi/.node-gyp/4.0.0/include/node/uv.h:
+/home/pi/.node-gyp/4.0.0/include/node/uv-errno.h:
+/home/pi/.node-gyp/4.0.0/include/node/uv-version.h:
+/home/pi/.node-gyp/4.0.0/include/node/uv-unix.h:
+/home/pi/.node-gyp/4.0.0/include/node/uv-threadpool.h:
+/home/pi/.node-gyp/4.0.0/include/node/uv-linux.h:
 ../nil.h:

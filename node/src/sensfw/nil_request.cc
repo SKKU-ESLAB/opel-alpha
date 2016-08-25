@@ -52,7 +52,8 @@ requestList * newRequest(requestList *rList){
 		rList = rList->next;
 	}
 
-	rList->next = (requestList*)malloc(sizeof(requestList));
+//	rList->next = (requestList*)malloc(sizeof(requestList));
+  rList->next = new requestList();
 	rList->next->next = NULL;
 	rList->next->rq_num = rList->rq_num + 1;
 
