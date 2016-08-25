@@ -19,8 +19,8 @@ ADD_EXECUTABLE(sensorManager sensor_manager.c request.c devices.c sensor1_acc.c 
 
 TARGET_LINK_LIBRARIES(sensorManager pthread wiringPi c m dbus-glib-1 dbus-1 glib-2.0)
 set_target_properties(sensorManager
-		PROPERTIES
-		RUNTIME_OUTPUT_DIRECTORY "../bin")
+	PROPERTIES
+	RUNTIME_OUTPUT_DIRECTORY "../bin")
 
 INCLUDE_DIRECTORIES(./)
 INCLUDE_DIRECTORIES(/usr/local/include)
@@ -33,4 +33,3 @@ LINK_DIRECTORIES(/usr/lib/dbus-1.0)
 
 
 ADD_DEFINITIONS(-Wall -O2)
-

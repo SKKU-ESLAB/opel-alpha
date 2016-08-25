@@ -1,3 +1,12 @@
-CMakeFiles
+tags
+cscope.out
+build/
+bin/
+build.sh
+sensor8*
 Makefile
-cmake_install.cmake
+*.o
+*.so
+sensorManager
+test
+
