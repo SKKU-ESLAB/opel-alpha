@@ -66,17 +66,8 @@ static char nilPath[100];
 static char nilInterface[100];
 
 //static Persistent<Function> callback;
-
-static const char* SUPPORT_LIST[] = {
-	"ACC",
-	"MOTION",
-	"TEMP",
-	"SOUND",
-	"VIBRATION",
-	"TOUCH",
-	"LIGHT",
-	"END"
-};
+static int SENSOR_NUM;
+static char** SUPPORT_LIST;
 //
 //------------------------------------------------------------------------------------//
 
@@ -84,8 +75,8 @@ static const char* SUPPORT_LIST[] = {
 
 #endif  
 
-
-
+void read_sensorlist();
+void delete_sensorlist();
 
 void _debug(char* text);
 gboolean NIL_DbusConnection(DBusConnection *bus_cnxn);

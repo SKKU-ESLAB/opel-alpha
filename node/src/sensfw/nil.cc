@@ -660,6 +660,17 @@ void all_request_unregister(){
 
 	printf("[NIL] send All_UNREGISTER message to %s | %s\n", SM_PATH, SM_INTERFACE);
 }
+
+void delete_sensorlist()
+{
+	int i;
+
+	for(i=0;i<SENSOR_NUM;i++){
+		free(SUPPORT_LIST[i]);
+	}
+	free(SUPPORT_LIST);
+}
+
 void exit_handler(void){
 	all_request_unregister();
 	//Perform unregister
@@ -668,6 +679,7 @@ void sigint_handler(int signo)
 {
 	//Perform unregister
 	all_request_unregister();
+	delete_sensorlist();
 	signal(SIGINT, SIG_DFL);
 	//Sig call
 	kill(getpid(), SIGINT);
@@ -682,7 +694,49 @@ void nativeInterfaceLayerInit(){
 	gettimeofday(&time_to_delay, NULL);
 }
 
+void read_sensorlist()
+{
+	char *opelEnvPath, sensorFile[1024], buf[100];
+	int i,j,len,line = 0;
+	FILE* fp;
+
+	// Find the directory where sensor list file is
+	opelEnvPath = getenv("OPEL_DIR");
+	sprintf(sensorFile, "%s%s", opelEnvPath, "/opel_sensor_manager/SENSOR_LIST");
+	
+	// Read the sensor list file written by user
+	fp = fopen(sensorFile, "r");
+	if(fp == NULL){
+		perror("Error opening file 'SENSOR LIST'");
+		exit(1);
+	}
+	
+	while(1){
+		if( fgets(buf, 100, fp) == NULL)
+			break;
+		line++;
+	}
+	// Alloc sensor_list
+	SENSOR_NUM = line;
+	SUPPORT_LIST = (char**) malloc(line * sizeof(char*));
+	
+	fseek(fp,0,SEEK_SET);
+	
+	for(i=0;i<line;i++){
+		fgets(buf, 100, fp);
+		len = strlen(buf);
+		buf[len-1]='\0';
+	
+		SUPPORT_LIST[i] = (char*) malloc( len * sizeof(char));
+		sprintf(SUPPORT_LIST[i], "%s", buf);	
+	}
+
+	fclose(fp);
+
+}
+
 void init(Handle<Object> exports) {
+	read_sensorlist();
 	nativeInterfaceLayerInit();
 	opelCon = DbusInit(); //Init Dbus message receiver (by PID)
 
