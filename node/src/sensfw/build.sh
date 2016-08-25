@@ -1,4 +1,4 @@
 #!/bin/bash
 node-gyp rebuild
-cp ./build/Release/nil.node ~/opel/node/sensfw/
+cp ./build/Release/nil.node ../../sensfw
 
