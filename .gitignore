@@ -3,3 +3,4 @@ main
 tags
 cscope.out
 *.swp
+./build
