@@ -1,9 +1,9 @@
 #include "OPELgstElement.h"
-extern  bool typeElementAllocator(const char *name, const char *element_name,
+extern bool typeElementAllocator(const char *name, const char *element_name,
     GstElement **element, int eid, typeElement **type_element_array)
 {
    __OPEL_FUNCTION_ENTER__;
-   if(!element || !type_element_array)
+   if(element == NULL || type_element_array == NULL)
    {
     __OPEL_FUNCTION_EXIT__; 
      OPEL_DBG_ERR("Element, Type Element Array is NULL"); 
@@ -11,11 +11,27 @@ extern  bool typeElementAllocator(const char *name, const char *element_name,
    }
    type_element_array[eid]->name = name;
    type_element_array[eid]->element_name = element_name;
+   type_element_array[eid]->caps = NULL;
    type_element_array[eid]->element = element[eid];
    type_element_array[eid]->type = eid;
    __OPEL_FUNCTION_EXIT__;
    return true;
 }
+extern bool typeElementCapAllocator(unsigned eid, 
+    typeElement **type_element_array, GstCaps *cap)
+{
+  __OPEL_FUNCTION_ENTER__;
+  if(type_element_array == NULL || cap == NULL)
+  {
+    __OPEL_FUNCTION_EXIT__; 
+     OPEL_DBG_ERR("Element, Type Element Array is NULL"); 
+     return false;
+  }
+  type_element_array[eid]->caps = cap;
+  
+  __OPEL_FUNCTION_EXIT__;
+  return true;
+} 
 
 OPELGstElement::OPELGstElement()
 {
@@ -41,8 +57,12 @@ OPELGstElement::~OPELGstElement()
     free(this->type_element_array[pipe_idx]);
   }  
   free(this->type_element_array); 
-
-  if(this->main_loop != NULL)
-    g_main_loop_unref(this->main_loop);
 }
 
+OPELGstElementCapsProps::OPELGstElementCapsProps()
+{ 
+}
+
+OPELGstElementCapsProps::~OPELGstElementCapsProps()
+{
+}

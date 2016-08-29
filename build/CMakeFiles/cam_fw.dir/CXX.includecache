@@ -19,6 +19,8 @@ gst/app/gstappsrc.h
 -
 stdlib.h
 -
+string
+-
 OPELdbugLog.h
 .././include/OPELdbugLog.h
 
