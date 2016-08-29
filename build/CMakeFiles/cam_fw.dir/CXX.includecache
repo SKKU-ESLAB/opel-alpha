@@ -1,0 +1,32 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+.././include/OPELdbugLog.h
+stdarg.h
+-
+stdio.h
+-
+
+.././include/OPELgstElement.h
+gst/gst.h
+-
+gst/app/gstappsrc.h
+-
+stdlib.h
+-
+OPELdbugLog.h
+.././include/OPELdbugLog.h
+
+/home/ubuntu/opel-tx1/src/OPELgstElement.cpp
+OPELgstElement.h
+/home/ubuntu/opel-tx1/src/OPELgstElement.h
+
+/home/ubuntu/opel-tx1/src/main.cpp
+OPELgstElement.h
+/home/ubuntu/opel-tx1/src/OPELgstElement.h
+
