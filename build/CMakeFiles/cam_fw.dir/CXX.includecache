@@ -22,11 +22,11 @@ stdlib.h
 OPELdbugLog.h
 .././include/OPELdbugLog.h
 
-/home/ubuntu/opel-tx1/src/OPELgstElement.cpp
+.././include/OPELgstElementTx1.h
 OPELgstElement.h
-/home/ubuntu/opel-tx1/src/OPELgstElement.h
+.././include/OPELgstElement.h
 
-/home/ubuntu/opel-tx1/src/main.cpp
-OPELgstElement.h
-/home/ubuntu/opel-tx1/src/OPELgstElement.h
+/home/ubuntu/opel-alpha/src/OPELgstElementTx1.cpp
+OPELgstElementTx1.h
+/home/ubuntu/opel-alpha/src/OPELgstElementTx1.h
 

@@ -38,10 +38,10 @@ EQUALS = =
 CMAKE_EDIT_COMMAND = /usr/bin/ccmake
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/ubuntu/opel-tx1
+CMAKE_SOURCE_DIR = /home/ubuntu/opel-alpha
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/ubuntu/opel-tx1/build
+CMAKE_BINARY_DIR = /home/ubuntu/opel-alpha/build
 
 # Include any dependencies generated for this target.
 include CMakeFiles/cam_fw.dir/depend.make
@@ -54,17 +54,17 @@ include CMakeFiles/cam_fw.dir/flags.make
 
 CMakeFiles/cam_fw.dir/src/main.o: CMakeFiles/cam_fw.dir/flags.make
 CMakeFiles/cam_fw.dir/src/main.o: ../src/main.cpp
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/ubuntu/opel-tx1/build/CMakeFiles $(CMAKE_PROGRESS_1)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/ubuntu/opel-alpha/build/CMakeFiles $(CMAKE_PROGRESS_1)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/cam_fw.dir/src/main.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/cam_fw.dir/src/main.o -c /home/ubuntu/opel-tx1/src/main.cpp
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/cam_fw.dir/src/main.o -c /home/ubuntu/opel-alpha/src/main.cpp
 
 CMakeFiles/cam_fw.dir/src/main.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/cam_fw.dir/src/main.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E /home/ubuntu/opel-tx1/src/main.cpp > CMakeFiles/cam_fw.dir/src/main.i
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E /home/ubuntu/opel-alpha/src/main.cpp > CMakeFiles/cam_fw.dir/src/main.i
 
 CMakeFiles/cam_fw.dir/src/main.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/cam_fw.dir/src/main.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S /home/ubuntu/opel-tx1/src/main.cpp -o CMakeFiles/cam_fw.dir/src/main.s
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S /home/ubuntu/opel-alpha/src/main.cpp -o CMakeFiles/cam_fw.dir/src/main.s
 
 CMakeFiles/cam_fw.dir/src/main.o.requires:
 .PHONY : CMakeFiles/cam_fw.dir/src/main.o.requires
@@ -77,17 +77,17 @@ CMakeFiles/cam_fw.dir/src/main.o.provides.build: CMakeFiles/cam_fw.dir/src/main.
 
 CMakeFiles/cam_fw.dir/src/OPELgstElement.o: CMakeFiles/cam_fw.dir/flags.make
 CMakeFiles/cam_fw.dir/src/OPELgstElement.o: ../src/OPELgstElement.cpp
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/ubuntu/opel-tx1/build/CMakeFiles $(CMAKE_PROGRESS_2)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/ubuntu/opel-alpha/build/CMakeFiles $(CMAKE_PROGRESS_2)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/cam_fw.dir/src/OPELgstElement.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/cam_fw.dir/src/OPELgstElement.o -c /home/ubuntu/opel-tx1/src/OPELgstElement.cpp
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/cam_fw.dir/src/OPELgstElement.o -c /home/ubuntu/opel-alpha/src/OPELgstElement.cpp
 
 CMakeFiles/cam_fw.dir/src/OPELgstElement.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/cam_fw.dir/src/OPELgstElement.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E /home/ubuntu/opel-tx1/src/OPELgstElement.cpp > CMakeFiles/cam_fw.dir/src/OPELgstElement.i
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E /home/ubuntu/opel-alpha/src/OPELgstElement.cpp > CMakeFiles/cam_fw.dir/src/OPELgstElement.i
 
 CMakeFiles/cam_fw.dir/src/OPELgstElement.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/cam_fw.dir/src/OPELgstElement.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S /home/ubuntu/opel-tx1/src/OPELgstElement.cpp -o CMakeFiles/cam_fw.dir/src/OPELgstElement.s
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S /home/ubuntu/opel-alpha/src/OPELgstElement.cpp -o CMakeFiles/cam_fw.dir/src/OPELgstElement.s
 
 CMakeFiles/cam_fw.dir/src/OPELgstElement.o.requires:
 .PHONY : CMakeFiles/cam_fw.dir/src/OPELgstElement.o.requires
@@ -98,16 +98,41 @@ CMakeFiles/cam_fw.dir/src/OPELgstElement.o.provides: CMakeFiles/cam_fw.dir/src/O
 
 CMakeFiles/cam_fw.dir/src/OPELgstElement.o.provides.build: CMakeFiles/cam_fw.dir/src/OPELgstElement.o
 
+CMakeFiles/cam_fw.dir/src/OPELgstElementTx1.o: CMakeFiles/cam_fw.dir/flags.make
+CMakeFiles/cam_fw.dir/src/OPELgstElementTx1.o: ../src/OPELgstElementTx1.cpp
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/ubuntu/opel-alpha/build/CMakeFiles $(CMAKE_PROGRESS_3)
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/cam_fw.dir/src/OPELgstElementTx1.o"
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/cam_fw.dir/src/OPELgstElementTx1.o -c /home/ubuntu/opel-alpha/src/OPELgstElementTx1.cpp
+
+CMakeFiles/cam_fw.dir/src/OPELgstElementTx1.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/cam_fw.dir/src/OPELgstElementTx1.i"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E /home/ubuntu/opel-alpha/src/OPELgstElementTx1.cpp > CMakeFiles/cam_fw.dir/src/OPELgstElementTx1.i
+
+CMakeFiles/cam_fw.dir/src/OPELgstElementTx1.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/cam_fw.dir/src/OPELgstElementTx1.s"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S /home/ubuntu/opel-alpha/src/OPELgstElementTx1.cpp -o CMakeFiles/cam_fw.dir/src/OPELgstElementTx1.s
+
+CMakeFiles/cam_fw.dir/src/OPELgstElementTx1.o.requires:
+.PHONY : CMakeFiles/cam_fw.dir/src/OPELgstElementTx1.o.requires
+
+CMakeFiles/cam_fw.dir/src/OPELgstElementTx1.o.provides: CMakeFiles/cam_fw.dir/src/OPELgstElementTx1.o.requires
+	$(MAKE) -f CMakeFiles/cam_fw.dir/build.make CMakeFiles/cam_fw.dir/src/OPELgstElementTx1.o.provides.build
+.PHONY : CMakeFiles/cam_fw.dir/src/OPELgstElementTx1.o.provides
+
+CMakeFiles/cam_fw.dir/src/OPELgstElementTx1.o.provides.build: CMakeFiles/cam_fw.dir/src/OPELgstElementTx1.o
+
 # Object files for target cam_fw
 cam_fw_OBJECTS = \
 "CMakeFiles/cam_fw.dir/src/main.o" \
-"CMakeFiles/cam_fw.dir/src/OPELgstElement.o"
+"CMakeFiles/cam_fw.dir/src/OPELgstElement.o" \
+"CMakeFiles/cam_fw.dir/src/OPELgstElementTx1.o"
 
 # External object files for target cam_fw
 cam_fw_EXTERNAL_OBJECTS =
 
 cam_fw: CMakeFiles/cam_fw.dir/src/main.o
 cam_fw: CMakeFiles/cam_fw.dir/src/OPELgstElement.o
+cam_fw: CMakeFiles/cam_fw.dir/src/OPELgstElementTx1.o
 cam_fw: CMakeFiles/cam_fw.dir/build.make
 cam_fw: CMakeFiles/cam_fw.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --red --bold "Linking CXX executable cam_fw"
@@ -119,6 +144,7 @@ CMakeFiles/cam_fw.dir/build: cam_fw
 
 CMakeFiles/cam_fw.dir/requires: CMakeFiles/cam_fw.dir/src/main.o.requires
 CMakeFiles/cam_fw.dir/requires: CMakeFiles/cam_fw.dir/src/OPELgstElement.o.requires
+CMakeFiles/cam_fw.dir/requires: CMakeFiles/cam_fw.dir/src/OPELgstElementTx1.o.requires
 .PHONY : CMakeFiles/cam_fw.dir/requires
 
 CMakeFiles/cam_fw.dir/clean:
@@ -126,6 +152,6 @@ CMakeFiles/cam_fw.dir/clean:
 .PHONY : CMakeFiles/cam_fw.dir/clean
 
 CMakeFiles/cam_fw.dir/depend:
-	cd /home/ubuntu/opel-tx1/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/ubuntu/opel-tx1 /home/ubuntu/opel-tx1 /home/ubuntu/opel-tx1/build /home/ubuntu/opel-tx1/build /home/ubuntu/opel-tx1/build/CMakeFiles/cam_fw.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/ubuntu/opel-alpha/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/ubuntu/opel-alpha /home/ubuntu/opel-alpha /home/ubuntu/opel-alpha/build /home/ubuntu/opel-alpha/build /home/ubuntu/opel-alpha/build/CMakeFiles/cam_fw.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/cam_fw.dir/depend
 

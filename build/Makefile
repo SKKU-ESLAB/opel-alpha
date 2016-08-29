@@ -42,10 +42,10 @@ EQUALS = =
 CMAKE_EDIT_COMMAND = /usr/bin/ccmake
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/ubuntu/opel-tx1
+CMAKE_SOURCE_DIR = /home/ubuntu/opel-alpha
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/ubuntu/opel-tx1/build
+CMAKE_BINARY_DIR = /home/ubuntu/opel-alpha/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -72,9 +72,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/ubuntu/opel-tx1/build/CMakeFiles /home/ubuntu/opel-tx1/build/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/ubuntu/opel-alpha/build/CMakeFiles /home/ubuntu/opel-alpha/build/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/ubuntu/opel-tx1/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/ubuntu/opel-alpha/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -130,6 +130,21 @@ src/OPELgstElement.s:
 .PHONY : src/OPELgstElement.s
 
 # target to build an object file
+src/OPELgstElementTx1.o:
+	$(MAKE) -f CMakeFiles/cam_fw.dir/build.make CMakeFiles/cam_fw.dir/src/OPELgstElementTx1.o
+.PHONY : src/OPELgstElementTx1.o
+
+# target to preprocess a source file
+src/OPELgstElementTx1.i:
+	$(MAKE) -f CMakeFiles/cam_fw.dir/build.make CMakeFiles/cam_fw.dir/src/OPELgstElementTx1.i
+.PHONY : src/OPELgstElementTx1.i
+
+# target to generate assembly for a file
+src/OPELgstElementTx1.s:
+	$(MAKE) -f CMakeFiles/cam_fw.dir/build.make CMakeFiles/cam_fw.dir/src/OPELgstElementTx1.s
+.PHONY : src/OPELgstElementTx1.s
+
+# target to build an object file
 src/main.o:
 	$(MAKE) -f CMakeFiles/cam_fw.dir/build.make CMakeFiles/cam_fw.dir/src/main.o
 .PHONY : src/main.o
@@ -156,6 +171,9 @@ help:
 	@echo "... src/OPELgstElement.o"
 	@echo "... src/OPELgstElement.i"
 	@echo "... src/OPELgstElement.s"
+	@echo "... src/OPELgstElementTx1.o"
+	@echo "... src/OPELgstElementTx1.i"
+	@echo "... src/OPELgstElementTx1.s"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"

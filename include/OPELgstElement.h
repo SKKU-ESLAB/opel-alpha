@@ -8,7 +8,13 @@
 #include "OPELdbugLog.h"
 
 
-#define NUM_OF_GST_ELEMENT 6
+#define TARGET_BOARD_TX1 1
+
+#define NUM_OF_GST_ELEMENT_TX1 6
+
+#ifdef TARGET_BOARD_TX1
+#define NUM_OF_GST_ELEMENT NUM_OF_GST_ELEMENT_TX1
+#endif /*TARGET_BOARD_TX1*/
 
 #define NUM_OF_GST_TYPE_ELEMENT NUM_OF_GST_ELEMENT
 
@@ -51,22 +57,19 @@ typedef enum{
   kSINK,
 }elementId;
 
-
-class OPELGstElement {
+class OPELGstElement 
+{
   public:
     ~OPELGstElement();
-    static OPELGstElement* getInstance(void);
-    bool OPELGstElementFactory(); 
-    bool OPELGstPipelineMake();
-  private: 
-    static OPELGstElement* opel_gst_element;
     OPELGstElement();
-
+    virtual bool OPELGstElementFactory(void) = 0; 
+    virtual bool OPELGstPipelineMake(void) = 0;
+    virtual void OPELGstElementCapFactory(void) = 0;
+  protected: 
     GstElement** element_array;
     typeElement** type_element_array;
 
     GMainLoop *main_loop;
-    GstBuffer *buffer;
 
     GstCaps *caps_src;
     GstCaps *caps_src_to_conv;
@@ -77,7 +80,7 @@ class OPELGstElement {
 
 };
 
-static bool typeElementAllocator(const char *name, const char *element_name,
+extern bool typeElementAllocator(const char *name, const char *element_name,
     GstElement **element, int eid, typeElement **type_element_array);
 
 #endif /* OPEL_GST_ELEMENT_H */

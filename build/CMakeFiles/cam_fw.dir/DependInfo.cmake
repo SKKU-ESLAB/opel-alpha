@@ -4,8 +4,9 @@ SET(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 SET(CMAKE_DEPENDS_CHECK_CXX
-  "/home/ubuntu/opel-tx1/src/OPELgstElement.cpp" "/home/ubuntu/opel-tx1/build/CMakeFiles/cam_fw.dir/src/OPELgstElement.o"
-  "/home/ubuntu/opel-tx1/src/main.cpp" "/home/ubuntu/opel-tx1/build/CMakeFiles/cam_fw.dir/src/main.o"
+  "/home/ubuntu/opel-alpha/src/OPELgstElement.cpp" "/home/ubuntu/opel-alpha/build/CMakeFiles/cam_fw.dir/src/OPELgstElement.o"
+  "/home/ubuntu/opel-alpha/src/OPELgstElementTx1.cpp" "/home/ubuntu/opel-alpha/build/CMakeFiles/cam_fw.dir/src/OPELgstElementTx1.o"
+  "/home/ubuntu/opel-alpha/src/main.cpp" "/home/ubuntu/opel-alpha/build/CMakeFiles/cam_fw.dir/src/main.o"
   )
 SET(CMAKE_CXX_COMPILER_ID "GNU")
 

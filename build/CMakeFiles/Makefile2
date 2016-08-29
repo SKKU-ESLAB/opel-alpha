@@ -50,10 +50,10 @@ EQUALS = =
 CMAKE_EDIT_COMMAND = /usr/bin/ccmake
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/ubuntu/opel-tx1
+CMAKE_SOURCE_DIR = /home/ubuntu/opel-alpha
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/ubuntu/opel-tx1/build
+CMAKE_BINARY_DIR = /home/ubuntu/opel-alpha/build
 
 #=============================================================================
 # Target rules for target CMakeFiles/cam_fw.dir
@@ -62,7 +62,7 @@ CMAKE_BINARY_DIR = /home/ubuntu/opel-tx1/build
 CMakeFiles/cam_fw.dir/all:
 	$(MAKE) -f CMakeFiles/cam_fw.dir/build.make CMakeFiles/cam_fw.dir/depend
 	$(MAKE) -f CMakeFiles/cam_fw.dir/build.make CMakeFiles/cam_fw.dir/build
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/ubuntu/opel-tx1/build/CMakeFiles  1 2
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/ubuntu/opel-alpha/build/CMakeFiles  1 2 3
 	@echo "Built target cam_fw"
 .PHONY : CMakeFiles/cam_fw.dir/all
 
@@ -72,9 +72,9 @@ all: CMakeFiles/cam_fw.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/cam_fw.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/ubuntu/opel-tx1/build/CMakeFiles 2
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/ubuntu/opel-alpha/build/CMakeFiles 3
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/cam_fw.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/ubuntu/opel-tx1/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/ubuntu/opel-alpha/build/CMakeFiles 0
 .PHONY : CMakeFiles/cam_fw.dir/rule
 
 # Convenience name for target.

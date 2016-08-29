@@ -5,6 +5,11 @@ CMakeFiles/cam_fw.dir/src/OPELgstElement.o: .././include/OPELdbugLog.h
 CMakeFiles/cam_fw.dir/src/OPELgstElement.o: .././include/OPELgstElement.h
 CMakeFiles/cam_fw.dir/src/OPELgstElement.o: ../src/OPELgstElement.cpp
 
+CMakeFiles/cam_fw.dir/src/OPELgstElementTx1.o: .././include/OPELdbugLog.h
+CMakeFiles/cam_fw.dir/src/OPELgstElementTx1.o: .././include/OPELgstElement.h
+CMakeFiles/cam_fw.dir/src/OPELgstElementTx1.o: .././include/OPELgstElementTx1.h
+CMakeFiles/cam_fw.dir/src/OPELgstElementTx1.o: ../src/OPELgstElementTx1.cpp
+
 CMakeFiles/cam_fw.dir/src/main.o: .././include/OPELdbugLog.h
 CMakeFiles/cam_fw.dir/src/main.o: .././include/OPELgstElement.h
 CMakeFiles/cam_fw.dir/src/main.o: ../src/main.cpp
