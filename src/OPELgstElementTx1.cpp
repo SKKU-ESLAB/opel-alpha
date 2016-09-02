@@ -25,10 +25,8 @@ OPELGstElementTx1::~OPELGstElementTx1()
 
 OPELGstElementTx1 *OPELGstElementTx1::getInstance(void)
 {
-  __OPEL_FUNCTION_ENTER__;
   if(opel_gst_element_tx1 == NULL)
     opel_gst_element_tx1 = new OPELGstElementTx1();
-  __OPEL_FUNCTION_EXIT__;
   return opel_gst_element_tx1;
 }
 

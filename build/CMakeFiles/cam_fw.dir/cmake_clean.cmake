@@ -2,6 +2,7 @@ FILE(REMOVE_RECURSE
   "CMakeFiles/cam_fw.dir/src/main.o"
   "CMakeFiles/cam_fw.dir/src/OPELgstElement.o"
   "CMakeFiles/cam_fw.dir/src/OPELgstElementTx1.o"
+  "CMakeFiles/cam_fw.dir/src/OPELcamProperty.o"
   "cam_fw.pdb"
   "cam_fw"
 )

@@ -115,6 +115,21 @@ cam_fw/fast:
 .PHONY : cam_fw/fast
 
 # target to build an object file
+src/OPELcamProperty.o:
+	$(MAKE) -f CMakeFiles/cam_fw.dir/build.make CMakeFiles/cam_fw.dir/src/OPELcamProperty.o
+.PHONY : src/OPELcamProperty.o
+
+# target to preprocess a source file
+src/OPELcamProperty.i:
+	$(MAKE) -f CMakeFiles/cam_fw.dir/build.make CMakeFiles/cam_fw.dir/src/OPELcamProperty.i
+.PHONY : src/OPELcamProperty.i
+
+# target to generate assembly for a file
+src/OPELcamProperty.s:
+	$(MAKE) -f CMakeFiles/cam_fw.dir/build.make CMakeFiles/cam_fw.dir/src/OPELcamProperty.s
+.PHONY : src/OPELcamProperty.s
+
+# target to build an object file
 src/OPELgstElement.o:
 	$(MAKE) -f CMakeFiles/cam_fw.dir/build.make CMakeFiles/cam_fw.dir/src/OPELgstElement.o
 .PHONY : src/OPELgstElement.o
@@ -168,6 +183,9 @@ help:
 	@echo "... cam_fw"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
+	@echo "... src/OPELcamProperty.o"
+	@echo "... src/OPELcamProperty.i"
+	@echo "... src/OPELcamProperty.s"
 	@echo "... src/OPELgstElement.o"
 	@echo "... src/OPELgstElement.i"
 	@echo "... src/OPELgstElement.s"

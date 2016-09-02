@@ -19,6 +19,7 @@ const char *element_caps_tx1_conv[] = {"video/x-raw(memory:NVMM)",
 const char *element_caps_tx1_enc[] = {"video/x-h264", "stream-format"};
 
 
+
 class OPELGstElementTx1 : public OPELGstElement
 {
   public: 
