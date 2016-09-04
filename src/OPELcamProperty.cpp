@@ -1,5 +1,22 @@
 #include "OPELcamProperty.h"
 
+template<class Archive> void ElementXMLSerialization::serialize(Archive & ar,
+    const unsigned int version)
+{
+     ar & this->v_element_property; 
+}
+
+void ElementXMLSerialization::setVElementProperty(
+    const std::vector<ElementProperty*> &_v_element_property)
+{
+  this->v_element_property = _v_element_property;
+}
+
+std::vector<ElementProperty*> ElementXMLSerialization::getVElementProperty(void)
+{
+  return this->v_element_property;
+}
+
 ElementProperty::ElementProperty(elementType _type)
 {
   assert(_type > 0 && _type < MAX_ELEMENT_TYPE_NUM);

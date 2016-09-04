@@ -5,8 +5,13 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <vector>
+#include <fstream>
+#include <boost/archive/xml_iarchive.hpp>
+#include <boost/archive/xml_oarchive.hpp>
+
 
 #define MAX_ELEMENT_TYPE_NUM 8
+
 
 typedef enum _elementType{
    kPIPELINE = 0,
@@ -47,6 +52,7 @@ typedef struct _udpSinkProp{
   unsigned port;
 }udpSinkProp;
 
+
 class ElementProperty{
   public:
     ElementProperty(elementType _type);
@@ -76,7 +82,7 @@ class ElementProperty{
     cameraSrcProp* camProp;
     fileSinkProp* fileProp;
     convProp* conProp;
-  private:
+  protected:
     std::string element_name;
     std::string element_nickname;
     elementType type;
@@ -85,6 +91,18 @@ class ElementProperty{
     unsigned height;
 };
 
-extern std::vector<ElementProperty*> v_element_property;
+class ElementXMLSerialization{
+  private:
+    friend class boost::serialization::access;
+    template<class Archive> void serialize(Archive & ar,
+        const unsigned int version);
+    std::vector<ElementProperty*> v_element_property;
+  public:
+    void setVElementProperty(const std::vector<ElementProperty*>
+        &_v_element_property);
+    std::vector<ElementProperty*> getVElementProperty(void);
+};
+
+static std::vector<ElementProperty*> v_element_property;
 
 #endif /* OPEL_CAMERA_PROPERTY_H */

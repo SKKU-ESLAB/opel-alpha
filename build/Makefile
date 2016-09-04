@@ -130,6 +130,21 @@ src/OPELcamProperty.s:
 .PHONY : src/OPELcamProperty.s
 
 # target to build an object file
+src/OPELcamRequest.o:
+	$(MAKE) -f CMakeFiles/cam_fw.dir/build.make CMakeFiles/cam_fw.dir/src/OPELcamRequest.o
+.PHONY : src/OPELcamRequest.o
+
+# target to preprocess a source file
+src/OPELcamRequest.i:
+	$(MAKE) -f CMakeFiles/cam_fw.dir/build.make CMakeFiles/cam_fw.dir/src/OPELcamRequest.i
+.PHONY : src/OPELcamRequest.i
+
+# target to generate assembly for a file
+src/OPELcamRequest.s:
+	$(MAKE) -f CMakeFiles/cam_fw.dir/build.make CMakeFiles/cam_fw.dir/src/OPELcamRequest.s
+.PHONY : src/OPELcamRequest.s
+
+# target to build an object file
 src/OPELgstElement.o:
 	$(MAKE) -f CMakeFiles/cam_fw.dir/build.make CMakeFiles/cam_fw.dir/src/OPELgstElement.o
 .PHONY : src/OPELgstElement.o
@@ -186,6 +201,9 @@ help:
 	@echo "... src/OPELcamProperty.o"
 	@echo "... src/OPELcamProperty.i"
 	@echo "... src/OPELcamProperty.s"
+	@echo "... src/OPELcamRequest.o"
+	@echo "... src/OPELcamRequest.i"
+	@echo "... src/OPELcamRequest.s"
 	@echo "... src/OPELgstElement.o"
 	@echo "... src/OPELgstElement.i"
 	@echo "... src/OPELgstElement.s"

@@ -144,12 +144,36 @@ CMakeFiles/cam_fw.dir/src/OPELcamProperty.o.provides: CMakeFiles/cam_fw.dir/src/
 
 CMakeFiles/cam_fw.dir/src/OPELcamProperty.o.provides.build: CMakeFiles/cam_fw.dir/src/OPELcamProperty.o
 
+CMakeFiles/cam_fw.dir/src/OPELcamRequest.o: CMakeFiles/cam_fw.dir/flags.make
+CMakeFiles/cam_fw.dir/src/OPELcamRequest.o: ../src/OPELcamRequest.cpp
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/ubuntu/opel-alpha/build/CMakeFiles $(CMAKE_PROGRESS_5)
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/cam_fw.dir/src/OPELcamRequest.o"
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/cam_fw.dir/src/OPELcamRequest.o -c /home/ubuntu/opel-alpha/src/OPELcamRequest.cpp
+
+CMakeFiles/cam_fw.dir/src/OPELcamRequest.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/cam_fw.dir/src/OPELcamRequest.i"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E /home/ubuntu/opel-alpha/src/OPELcamRequest.cpp > CMakeFiles/cam_fw.dir/src/OPELcamRequest.i
+
+CMakeFiles/cam_fw.dir/src/OPELcamRequest.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/cam_fw.dir/src/OPELcamRequest.s"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S /home/ubuntu/opel-alpha/src/OPELcamRequest.cpp -o CMakeFiles/cam_fw.dir/src/OPELcamRequest.s
+
+CMakeFiles/cam_fw.dir/src/OPELcamRequest.o.requires:
+.PHONY : CMakeFiles/cam_fw.dir/src/OPELcamRequest.o.requires
+
+CMakeFiles/cam_fw.dir/src/OPELcamRequest.o.provides: CMakeFiles/cam_fw.dir/src/OPELcamRequest.o.requires
+	$(MAKE) -f CMakeFiles/cam_fw.dir/build.make CMakeFiles/cam_fw.dir/src/OPELcamRequest.o.provides.build
+.PHONY : CMakeFiles/cam_fw.dir/src/OPELcamRequest.o.provides
+
+CMakeFiles/cam_fw.dir/src/OPELcamRequest.o.provides.build: CMakeFiles/cam_fw.dir/src/OPELcamRequest.o
+
 # Object files for target cam_fw
 cam_fw_OBJECTS = \
 "CMakeFiles/cam_fw.dir/src/main.o" \
 "CMakeFiles/cam_fw.dir/src/OPELgstElement.o" \
 "CMakeFiles/cam_fw.dir/src/OPELgstElementTx1.o" \
-"CMakeFiles/cam_fw.dir/src/OPELcamProperty.o"
+"CMakeFiles/cam_fw.dir/src/OPELcamProperty.o" \
+"CMakeFiles/cam_fw.dir/src/OPELcamRequest.o"
 
 # External object files for target cam_fw
 cam_fw_EXTERNAL_OBJECTS =
@@ -158,6 +182,7 @@ cam_fw: CMakeFiles/cam_fw.dir/src/main.o
 cam_fw: CMakeFiles/cam_fw.dir/src/OPELgstElement.o
 cam_fw: CMakeFiles/cam_fw.dir/src/OPELgstElementTx1.o
 cam_fw: CMakeFiles/cam_fw.dir/src/OPELcamProperty.o
+cam_fw: CMakeFiles/cam_fw.dir/src/OPELcamRequest.o
 cam_fw: CMakeFiles/cam_fw.dir/build.make
 cam_fw: CMakeFiles/cam_fw.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --red --bold "Linking CXX executable cam_fw"
@@ -171,6 +196,7 @@ CMakeFiles/cam_fw.dir/requires: CMakeFiles/cam_fw.dir/src/main.o.requires
 CMakeFiles/cam_fw.dir/requires: CMakeFiles/cam_fw.dir/src/OPELgstElement.o.requires
 CMakeFiles/cam_fw.dir/requires: CMakeFiles/cam_fw.dir/src/OPELgstElementTx1.o.requires
 CMakeFiles/cam_fw.dir/requires: CMakeFiles/cam_fw.dir/src/OPELcamProperty.o.requires
+CMakeFiles/cam_fw.dir/requires: CMakeFiles/cam_fw.dir/src/OPELcamRequest.o.requires
 .PHONY : CMakeFiles/cam_fw.dir/requires
 
 CMakeFiles/cam_fw.dir/clean:
