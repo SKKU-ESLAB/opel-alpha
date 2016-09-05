@@ -8,7 +8,7 @@
 #include <fstream>
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
-
+#include <boost/serialization/vector.hpp>
 
 #define MAX_ELEMENT_TYPE_NUM 8
 
