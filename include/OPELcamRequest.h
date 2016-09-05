@@ -1,7 +1,6 @@
 #ifndef OPEL_CAM_REQUEST_H
 #define OPEL_CAM_REQUEST_H
 #include "OPELcamProperty.h"
-#include "OPELdbugLog.h"
 #include <dbus/dbus.h>
 #include <glib.h>
 #include <dbus/dbus-glib-lowlevel.h>

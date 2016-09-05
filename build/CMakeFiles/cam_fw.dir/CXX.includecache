@@ -6,3 +6,37 @@
 
 #IncludeRegexTransform: 
 
+../include/OPELcamProperty.h
+iostream
+-
+string
+-
+stdlib.h
+-
+assert.h
+-
+vector
+-
+fstream
+-
+boost/serialization/vector.hpp
+-
+boost/serialization/nvp.hpp
+-
+OPELdbugLog.h
+../include/OPELdbugLog.h
+
+../include/OPELdbugLog.h
+stdarg.h
+-
+stdio.h
+-
+
+/home/ubuntu/opel-alpha/src/main.cpp
+OPELcamProperty.h
+/home/ubuntu/opel-alpha/src/OPELcamProperty.h
+boost/archive/xml_iarchive.hpp
+-
+boost/archive/xml_oarchive.hpp
+-
+

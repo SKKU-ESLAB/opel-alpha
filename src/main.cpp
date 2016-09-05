@@ -1,5 +1,9 @@
 #include "OPELcamProperty.h"
-#include "OPELdbugLog.h"
+
+#include <boost/archive/xml_iarchive.hpp>
+#include <boost/archive/xml_oarchive.hpp>
+
+std::vector<ElementProperty*> *v_element_property;
 
 const char *path_configuration_Tx1 = "~/opel-alpha/ \
 OPELTx1Configuartion.xml";
@@ -24,19 +28,36 @@ ElementXMLSerialization* openXMLconfig(const char *_path_xml)
   __OPEL_FUNCTION_EXIT__;
   return element_property;
 }
+
 ElementXMLSerialization* readXMLconfig(std::ifstream& _xml_file)
 {
   ElementXMLSerialization *_element_property = new ElementXMLSerialization();
   _element_property->setVElementProperty(v_element_property);    
-  boost::archive::xml_iarchive ia(_xml_file, 0); 
+  boost::archive::xml_iarchive ia(_xml_file);
+
+//  ia >> BOOST_SERIALIZATION_NVP(*_element_property);
+
   return _element_property;
 }
+
 void writeXMLconfig(const char *_path_xml)
 {
+  __OPEL_FUNCTION_ENTER__;
+  ElementXMLSerialization _element_property_serialization;
+  ElementProperty *tx1_element_set = NULL;
+  //Default Tx1 Property Setup
+  setTx1DefaultProperty();
   
+  _element_property_serialization.setVElementProperty(v_element_property);
+   
+/*  std::ofstream xml_file;
+  xml_file.open(_path_xml, std::ios::out);
+   
+  boost::archive::xml_oarchive oa(xml_file);*/
 
-
+//  oa << BOOST_SERIALIZATION_NVP(_element_property_serialization);
 }
+
 int main(int argc, char** argv)
 {
   __OPEL_FUNCTION_ENTER__; 
@@ -48,11 +69,14 @@ int main(int argc, char** argv)
   if(tx1_element_property == NULL)
     writeXMLconfig(path_configuration_Tx1);
 
-
+  printVectorElement(v_element_property);
 
 exit:
   if(tx1_element_property != NULL)
     delete tx1_element_property;
+  deleteVectorElement(v_element_property);
+  if(v_element_property != NULL)
+    delete v_element_property;
   __OPEL_FUNCTION_EXIT__;
   return 0;
 }
