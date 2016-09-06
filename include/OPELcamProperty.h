@@ -117,6 +117,7 @@ class UDPSinkProp
 
 class ElementProperty{
   public:
+    ElementProperty() {};
     ElementProperty(elementType _type);
     ElementProperty(elementType _type, const char *_element_name, 
         const char *_element_nickname);
@@ -146,29 +147,12 @@ class ElementProperty{
     {
       using boost::serialization::make_nvp;
       ar & make_nvp("element_name", this->element_name);
-      switch(this->type)
-      {
-        case kSRC:
-          ar & make_nvp("element_property", this->camProp);
-          break;
-        case kTEE:
-          break;
-        case kQUEUE:
-          break;
-        case kCONV:
-          ar & make_nvp("element_property", this->conProp);
-          break;
-        case kENC:
-          ar & make_nvp("element_property", this->encProp);
-          break;
-        case kMUX:
-          break;
-        case kSINK:
-          ar & make_nvp("element_property", this->fileProp);
-          break;
-        default:
-          break;
-      }
+      ar & make_nvp("element_nickname", this->element_nickname);
+      ar & make_nvp("element_type", this->type);
+      ar & make_nvp("element_property", this->camProp);
+      ar & make_nvp("element_property", this->conProp);
+      ar & make_nvp("element_property", this->encProp);
+      ar & make_nvp("element_property", this->fileProp);
     }
 
     UDPSinkProp udpProp;
@@ -188,7 +172,7 @@ class ElementProperty{
 };
 
 class ElementXMLSerialization{
-  public:
+  private:
     friend class boost::serialization::access;
     template<class Archive> void serialize(Archive & ar,
         const unsigned int version)
@@ -196,17 +180,20 @@ class ElementXMLSerialization{
       using boost::serialization::make_nvp;
       ar & make_nvp("element_vector", (*this->_v_element_property));
     }
-    
+  public:
     void setVElementProperty(std::vector<ElementProperty*>
-        *_v_element_property);
+        *__v_element_property);
     std::vector<ElementProperty*>* getVElementProperty(void);
+    ElementXMLSerialization() {}
+    ElementXMLSerialization(std::vector<ElementProperty*> 
+        *__v_element_property) : _v_element_property(__v_element_property) {}
   private:
     std::vector<ElementProperty*> *_v_element_property;
-    int a;
 };
 
 extern std::vector<ElementProperty*> *v_element_property;
 
+void allocVectorElementProperty(void);
 void setTx1DefaultProperty(void);
 void printVectorElement(std::vector<ElementProperty*> *_v_element_property);
 void printElement(ElementProperty *_element); 

@@ -4,10 +4,12 @@
 
 std::vector<ElementProperty*> *v_element_property;
 
+
 const char *path_configuration_Tx1 = "/home/ubuntu/opel-alpha/OPELTx1Configuartion.xml";
 
 ElementXMLSerialization* readXMLconfig(std::ifstream& _xml_file);
 ElementXMLSerialization* openXMLconfig(const char *_path_xml);
+void writeXMLconfig(const char *_path_xml);
 
 ElementXMLSerialization* openXMLconfig(const char *_path_xml)
 {
@@ -32,11 +34,17 @@ ElementXMLSerialization* openXMLconfig(const char *_path_xml)
 
 ElementXMLSerialization* readXMLconfig(std::ifstream& _xml_file)
 {
-  ElementXMLSerialization *_element_property = new ElementXMLSerialization();
-  _element_property->setVElementProperty(v_element_property);    
+  assert(!_xml_file.fail());
+  
+  allocVectorElementProperty();
+  ElementXMLSerialization *_element_property_serialization = 
+    new ElementXMLSerialization(v_element_property); 
+  
   boost::archive::xml_iarchive ia(_xml_file);
-
-  return _element_property;
+  ia >> boost::serialization::make_nvp("OPEL_TX1_Element_Property", 
+      (*_element_property_serialization));
+  _xml_file.close();
+  return _element_property_serialization;
 }
 
 void writeXMLconfig(const char *_path_xml)
@@ -56,10 +64,10 @@ void writeXMLconfig(const char *_path_xml)
     boost::archive::xml_oarchive oa(xml_file);
     oa << boost::serialization::make_nvp("OPEL_TX1_Element_Property",
         _element_property_serialization);
-    //    oa << BOOST_SERIALIZATION_NVP(_element_property_serialization);
   } else {
     OPEL_DBG_VERB("Failed to Open XML File");
   }
+  xml_file.close();
 }
 
 int main(int argc, char** argv)

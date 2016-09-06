@@ -30,7 +30,7 @@ void setTx1DefaultProperty(void)
   */
   
    (*element_vector)[kSRC] = src;
-   (*element_vector)[kCONV] = conv;
+  (*element_vector)[kCONV] = conv;
    (*element_vector)[kENC] = enc;
    (*element_vector)[kMUX] = mux;
    (*element_vector)[kSINK] = sink;
@@ -39,6 +39,7 @@ void setTx1DefaultProperty(void)
 
    __OPEL_FUNCTION_EXIT__;
 }
+
 void printProperty(ElementProperty *_element, elementType _type)
 {
    switch(_type)
@@ -65,8 +66,8 @@ void printProperty(ElementProperty *_element, elementType _type)
       default:
         break;
    }
-
 }
+
 void printElement(ElementProperty *_element) 
 {
    assert(_element != NULL);
@@ -117,6 +118,11 @@ void printVectorElement(std::vector<ElementProperty*> *_v_element_property)
   }
 
 }
+void allocVectorElementProperty(void)
+{
+  assert(v_element_property == NULL);
+  v_element_property = new std::vector<ElementProperty*>(MAX_ELEMENT_TYPE_NUM);
+}
 
 void deleteVectorElement(std::vector<ElementProperty*> *_v_element_property)
 { 
@@ -135,17 +141,11 @@ void deleteVectorElement(std::vector<ElementProperty*> *_v_element_property)
   }
 
 }
-/*
-template<class Archive> void ElementXMLSerialization::serialize(Archive & ar,
-    const unsigned int version)
-{
-      ar & BOOST_SERIALIZATION_NVP(this->a);
-}
-*/
+
 void ElementXMLSerialization::setVElementProperty(
-    std::vector<ElementProperty*> *_v_element_property)
+    std::vector<ElementProperty*> *__v_element_property)
 {
-  this->_v_element_property = _v_element_property;
+  this->_v_element_property = __v_element_property;
 }
 
 std::vector<ElementProperty*>* ElementXMLSerialization::getVElementProperty(void)
