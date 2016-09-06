@@ -1,12 +1,10 @@
 #include "OPELcamProperty.h"
-
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
 
 std::vector<ElementProperty*> *v_element_property;
 
-const char *path_configuration_Tx1 = "~/opel-alpha/ \
-OPELTx1Configuartion.xml";
+const char *path_configuration_Tx1 = "/home/ubuntu/opel-alpha/OPELTx1Configuartion.xml";
 
 ElementXMLSerialization* readXMLconfig(std::ifstream& _xml_file);
 ElementXMLSerialization* openXMLconfig(const char *_path_xml);
@@ -24,7 +22,10 @@ ElementXMLSerialization* openXMLconfig(const char *_path_xml)
   __OPEL_FUNCTION_EXIT__;
     return NULL;
   }
-  element_property = readXMLconfig(xml_file); 
+  
+  if(xml_file.good())
+    element_property = readXMLconfig(xml_file); 
+  
   __OPEL_FUNCTION_EXIT__;
   return element_property;
 }
@@ -35,8 +36,6 @@ ElementXMLSerialization* readXMLconfig(std::ifstream& _xml_file)
   _element_property->setVElementProperty(v_element_property);    
   boost::archive::xml_iarchive ia(_xml_file);
 
-//  ia >> BOOST_SERIALIZATION_NVP(*_element_property);
-
   return _element_property;
 }
 
@@ -45,17 +44,22 @@ void writeXMLconfig(const char *_path_xml)
   __OPEL_FUNCTION_ENTER__;
   ElementXMLSerialization _element_property_serialization;
   ElementProperty *tx1_element_set = NULL;
+
   //Default Tx1 Property Setup
   setTx1DefaultProperty();
-  
-  _element_property_serialization.setVElementProperty(v_element_property);
-   
-/*  std::ofstream xml_file;
-  xml_file.open(_path_xml, std::ios::out);
-   
-  boost::archive::xml_oarchive oa(xml_file);*/
 
-//  oa << BOOST_SERIALIZATION_NVP(_element_property_serialization);
+  _element_property_serialization.setVElementProperty(v_element_property);
+
+  std::ofstream xml_file;
+  xml_file.open(_path_xml, std::ios::out);
+  if(xml_file.good()){ 
+    boost::archive::xml_oarchive oa(xml_file);
+    oa << boost::serialization::make_nvp("OPEL_TX1_Element_Property",
+        _element_property_serialization);
+    //    oa << BOOST_SERIALIZATION_NVP(_element_property_serialization);
+  } else {
+    OPEL_DBG_VERB("Failed to Open XML File");
+  }
 }
 
 int main(int argc, char** argv)
@@ -70,6 +74,8 @@ int main(int argc, char** argv)
     writeXMLconfig(path_configuration_Tx1);
 
   printVectorElement(v_element_property);
+
+  
 
 exit:
   if(tx1_element_property != NULL)

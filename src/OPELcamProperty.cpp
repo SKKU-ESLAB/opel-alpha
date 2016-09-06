@@ -135,22 +135,22 @@ void deleteVectorElement(std::vector<ElementProperty*> *_v_element_property)
   }
 
 }
-
+/*
 template<class Archive> void ElementXMLSerialization::serialize(Archive & ar,
     const unsigned int version)
 {
-     ar & BOOST_SERIALIZATION_NVP(this->v_element_property);
+      ar & BOOST_SERIALIZATION_NVP(this->a);
 }
-
+*/
 void ElementXMLSerialization::setVElementProperty(
     std::vector<ElementProperty*> *_v_element_property)
 {
-  this->v_element_property = _v_element_property;
+  this->_v_element_property = _v_element_property;
 }
 
 std::vector<ElementProperty*>* ElementXMLSerialization::getVElementProperty(void)
 {
-  return this->v_element_property;
+  return this->_v_element_property;
 }
 
 ElementProperty::ElementProperty(elementType _type, const char *_element_name, 

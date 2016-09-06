@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE boost_serialization>
+<boost_serialization signature="serialization::archive" version="14">
+<OPEL_TX1_Element_Property class_id="0" tracking_level="0" version="0">
+	<element_vector class_id="1" tracking_level="0" version="0">
+		<count>7</count>
+		<item_version>0</item_version>
+		<item class_id="2" tracking_level="1" version="0" object_id="_0">
+			<element_name>nvcamerasrc</element_name>
+			<element_property class_id="3" tracking_level="0" version="0">
+				<fps_range>30.0 30.0</fps_range>
+			</element_property>
+		</item>
+		<item class_id="-1"></item>
+		<item class_id="-1"></item>
+		<item class_id_reference="2" object_id="_1">
+			<element_name>nvvidconv</element_name>
+			<element_property class_id="4" tracking_level="0" version="0">
+				<flip_method>2</flip_method>
+			</element_property>
+		</item>
+		<item class_id_reference="2" object_id="_2">
+			<element_name>omxh264enc</element_name>
+			<element_property class_id="5" tracking_level="0" version="0">
+				<quality_level>0</quality_level>
+				<bitrate>8000000</bitrate>
+			</element_property>
+		</item>
+		<item class_id_reference="2" object_id="_3">
+			<element_name>mp4mux</element_name>
+		</item>
+		<item class_id_reference="2" object_id="_4">
+			<element_name>filesink</element_name>
+			<element_property class_id="6" tracking_level="0" version="0">
+				<location>~/hihihi.mp4</location>
+			</element_property>
+		</item>
+	</element_vector>
+</OPEL_TX1_Element_Property>
+</boost_serialization>
+
