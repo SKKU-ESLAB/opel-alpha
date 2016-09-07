@@ -1,7 +1,13 @@
 #include "OPELgstElementTx1.h"
 OPELGstElementTx1 *OPELGstElementTx1::opel_gst_element_tx1 = NULL; 
 
-OPELGstElementTx1::OPELGstElementTx1() : is_rtsp_src(false) 
+void OPELGstElementTx1::setElementPropertyVector(std::vector<ElementProperty*>
+    *__v_element_property)
+{
+   this->_v_element_property = __v_element_property;
+}
+
+OPELGstElementTx1::OPELGstElementTx1()  
 {
  this->caps_array = (GstCaps**)malloc(
      sizeof(GstCaps*) * NUM_OF_GST_ELEMENT); 
@@ -11,13 +17,11 @@ OPELGstElementTx1::OPELGstElementTx1() : is_rtsp_src(false)
 }
 OPELGstElementTx1::~OPELGstElementTx1()
 {
-  if(this->main_loop != NULL)
-    g_main_loop_unref(this->main_loop);
   
   if(this->caps_array != NULL)
     for(int pipe_idx=0; pipe_idx<NUM_OF_GST_ELEMENT; pipe_idx++)
     {   
-      gst_caps_unref(caps_array[pipe_idx]);
+//      gst_caps_unref(caps_array[pipe_idx]);
       caps_array[pipe_idx] = NULL;
     }
   free(this->caps_array);
@@ -39,7 +43,7 @@ bool OPELGstElementTx1::OPELGstElementCapFactory(void)
     __OPEL_FUNCTION_EXIT__;
     return false;
   }
-
+/*
   if(!is_rtsp_src){ 
   OPEL_GST_CAPS_NEW_SIMPLE(caps_array, kSRC, "video/x-raw(memory:NVMM)", "width",
       G_TYPE_INT, 1920, "height", G_TYPE_INT, 1080, "format", G_TYPE_STRING, 
@@ -62,7 +66,7 @@ bool OPELGstElementTx1::OPELGstElementCapFactory(void)
     __OPEL_FUNCTION_EXIT__;
     return false;
   }
-  
+  */
   __OPEL_FUNCTION_EXIT__;
   return true;
 }
@@ -70,14 +74,14 @@ bool OPELGstElementTx1::OPELGstElementCapFactory(void)
 bool OPELGstElementTx1::OPELGstElementPropFactory(void)
 {
  __OPEL_FUNCTION_ENTER__;
-
+/*
  if(!is_rtsp_src){
  OPEL_G_OBJECT_SET(element_array, kSRC, "fpsRange", "30.0 30.0", NULL);
  }
  OPEL_G_OBJECT_SET(element_array, kCONV, "flip-method", 2, NULL);
  OPEL_G_OBJECT_SET(element_array, kENC, "bitrate", 8000000, NULL);
  OPEL_G_OBJECT_SET(element_array, kSINK, "location", "~/recording/recording_data", NULL);
-
+*/
  __OPEL_FUNCTION_EXIT__;
   return true;
 }
@@ -86,6 +90,7 @@ bool OPELGstElementTx1::OPELGstPipelineMake(void)
 {
   __OPEL_FUNCTION_ENTER__;
   gboolean ret=true;
+/*
   gst_bin_add_many(GST_BIN(element_array[kPIPELINE]), element_array[kSRC],
       element_array[kCONV], element_array[kENC], element_array[kMUX],
       element_array[kSINK], NULL);
@@ -107,18 +112,20 @@ bool OPELGstElementTx1::OPELGstPipelineMake(void)
           type_element_array[pipe_idx]->caps);
     }
   }
-  return true;
+  */
+
   __OPEL_FUNCTION_EXIT__;
+  return true;
 }
 
 bool OPELGstElementTx1::OPELGstElementFactory(void)
 {
   __OPEL_FUNCTION_ENTER__;
-  const char** element_name = element_name_tx1;
-  if(this->is_rtsp_src)
-     element_name = element_name_tx1_rtsp;
+//  const char** element_name = element_name_tx1;
+//  if(this->is_rtsp_src)
+//     element_name = element_name_tx1_rtsp;
 
-  
+/*  
   OPEL_GST_PIPELINE_NEW(this->element_array, kPIPELINE, 
       element_name[kPIPELINE]);
   OPEL_GST_ELEMENT_FACTORY_MAKE(this->element_array, kSRC, 
@@ -156,15 +163,8 @@ bool OPELGstElementTx1::OPELGstElementFactory(void)
       __OPEL_FUNCTION_EXIT__;
       return false;
     }
+    */
   __OPEL_FUNCTION_EXIT__;
   return true;
 }
 
-void OPELGstElementTx1::setIsRtspSrc(bool _is_rtsp_src)
-{
-  this->is_rtsp_src = _is_rtsp_src;
-}
-bool OPELGstElementTx1::getIsRtspSrc(void) const
-{
-  return this->is_rtsp_src; 
-}

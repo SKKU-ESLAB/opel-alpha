@@ -29,8 +29,6 @@ OPELdbugLog.h
 ../include/OPELdbugLog.h
 
 ../include/OPELcamRequest.h
-OPELcamProperty.h
-../include/OPELcamProperty.h
 dbus/dbus.h
 -
 glib.h
@@ -39,6 +37,8 @@ dbus/dbus-glib-lowlevel.h
 -
 dbus/dbus-protocol.h
 -
+dbus/dbus-glib.h
+-
 
 ../include/OPELdbugLog.h
 stdarg.h
@@ -46,19 +46,43 @@ stdarg.h
 stdio.h
 -
 
-/home/ubuntu/opel-alpha/src/OPELcamProperty.cpp
+../include/OPELgstElement.h
 OPELcamProperty.h
-/home/ubuntu/opel-alpha/src/OPELcamProperty.h
+../include/OPELcamProperty.h
+gst/gst.h
+-
+gst/app/gstappsrc.h
+-
+stdlib.h
+-
+string
+-
+
+../include/OPELgstElementTx1.h
+OPELgstElement.h
+../include/OPELgstElement.h
 
 /home/ubuntu/opel-alpha/src/OPELcamRequest.cpp
 OPELcamRequest.h
 /home/ubuntu/opel-alpha/src/OPELcamRequest.h
+OPELdbugLog.h
+/home/ubuntu/opel-alpha/src/OPELdbugLog.h
+
+/home/ubuntu/opel-alpha/src/OPELgstElementTx1.cpp
+OPELgstElementTx1.h
+/home/ubuntu/opel-alpha/src/OPELgstElementTx1.h
 
 /home/ubuntu/opel-alpha/src/main.cpp
-OPELcamProperty.h
-/home/ubuntu/opel-alpha/src/OPELcamProperty.h
+OPELgstElementTx1.h
+/home/ubuntu/opel-alpha/src/OPELgstElementTx1.h
+OPELcamRequest.h
+/home/ubuntu/opel-alpha/src/OPELcamRequest.h
 boost/archive/xml_iarchive.hpp
 -
 boost/archive/xml_oarchive.hpp
+-
+signal.h
+-
+unistd.h
 -
 

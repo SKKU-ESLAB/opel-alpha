@@ -1,15 +1,29 @@
-#include "OPELcamProperty.h"
+#include "OPELgstElementTx1.h"
+#include "OPELcamRequest.h"
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
-
-std::vector<ElementProperty*> *v_element_property;
-
+#include <signal.h>
+#include <unistd.h>
 
 const char *path_configuration_Tx1 = "/home/ubuntu/opel-alpha/OPELTx1Configuartion.xml";
 
+GMainLoop *loop;
+
+std::vector<ElementProperty*> *v_element_property;
+
+void signalHandler(int signo);
+
 ElementXMLSerialization* readXMLconfig(std::ifstream& _xml_file);
 ElementXMLSerialization* openXMLconfig(const char *_path_xml);
+
+
 void writeXMLconfig(const char *_path_xml);
+
+void signalHandler(int signo)
+{
+  if(loop && g_main_loop_is_running(loop))
+    g_main_loop_quit(loop);
+}
 
 ElementXMLSerialization* openXMLconfig(const char *_path_xml)
 {
@@ -74,16 +88,39 @@ int main(int argc, char** argv)
 {
   __OPEL_FUNCTION_ENTER__; 
   int ret;
+  DBusError dbus_error;
+  DBusConnection *dbus_conn;
+
   ElementXMLSerialization *tx1_element_property = NULL; 
 
   tx1_element_property = openXMLconfig(path_configuration_Tx1);
-
   if(tx1_element_property == NULL)
     writeXMLconfig(path_configuration_Tx1);
 
-  printVectorElement(v_element_property);
+//  printVectorElement(v_element_property);
+ 
+  loop = g_main_loop_new(NULL, false);
+  dbus_error_init(&dbus_error);
+  dbus_conn = dbus_bus_get(DBUS_BUS_SYSTEM, &dbus_error);
 
+  OPELGstElementTx1 *tx1 = OPELGstElementTx1::getInstance();
   
+  if(dbus_error_is_set(&dbus_error))
+  {
+    OPEL_DBG_ERR("Error Connecting to the D-bus Daemon");
+    dbus_error_free(&dbus_error);
+    goto exit;
+  }
+
+  dbus_bus_add_match(dbus_conn, "type='signal',interface='org.opel.camera.daemon'", NULL);
+  dbus_connection_add_filter(dbus_conn, msg_dbus_filter, loop, NULL);
+  dbus_connection_setup_with_g_main(dbus_conn, NULL);
+  signal(SIGINT, signalHandler);
+  
+  
+  g_main_loop_run(loop);
+
+
 
 exit:
   if(tx1_element_property != NULL)
@@ -91,6 +128,12 @@ exit:
   deleteVectorElement(v_element_property);
   if(v_element_property != NULL)
     delete v_element_property;
+  if(tx1 != NULL)
+    delete tx1;
+  if(loop != NULL)
+    g_main_loop_unref(loop);
+  if(dbus_conn != NULL)
+    dbus_connection_unref(dbus_conn);
   __OPEL_FUNCTION_EXIT__;
   return 0;
 }

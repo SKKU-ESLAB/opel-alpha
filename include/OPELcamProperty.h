@@ -11,10 +11,6 @@
 #include <boost/serialization/vector.hpp>
 #include "OPELdbugLog.h"
 
-
-#define MAX_ELEMENT_TYPE_NUM 7
-
-
 std::string inline charToString(const char* _str)
 {
   std::string tmp = _str;
@@ -36,7 +32,7 @@ typedef enum _elementType{
 class EncorderProp 
 {
   public:
-    friend class boost::serialization::access;
+     friend class boost::serialization::access;
     template<class Archive> void serialize(Archive &ar, 
         const unsigned int version)
     {
@@ -118,6 +114,7 @@ class UDPSinkProp
 class ElementProperty{
   public:
     ElementProperty() {};
+
     ElementProperty(elementType _type);
     ElementProperty(elementType _type, const char *_element_name, 
         const char *_element_nickname);
@@ -140,7 +137,7 @@ class ElementProperty{
 
     void setHeight(unsigned _height);
     unsigned getHeight(void) const;
-    
+
     friend class boost::serialization::access;
     template<class Archive> void serialize(Archive &ar, 
         const unsigned int version)
@@ -149,10 +146,32 @@ class ElementProperty{
       ar & make_nvp("element_name", this->element_name);
       ar & make_nvp("element_nickname", this->element_nickname);
       ar & make_nvp("element_type", this->type);
-      ar & make_nvp("element_property", this->camProp);
-      ar & make_nvp("element_property", this->conProp);
-      ar & make_nvp("element_property", this->encProp);
-      ar & make_nvp("element_property", this->fileProp);
+
+      switch(this->type)
+      {
+        case kSRC:
+          ar & make_nvp("element_property", this->camProp);
+          ar & make_nvp("element_property", this->rtspProp);
+          break;
+        case kTEE:
+          break;
+        case kQUEUE:
+          break;
+        case kCONV:
+          ar & make_nvp("element_property", this->conProp);
+          break;
+        case kENC:
+          ar & make_nvp("element_property", this->encProp);
+          break;
+        case kMUX:
+          break;
+        case kSINK:
+          ar & make_nvp("element_property", this->fileProp);
+          ar & make_nvp("element_property", this->udpProp);
+          break;
+        default:
+          break;
+      }
     }
 
     UDPSinkProp udpProp;

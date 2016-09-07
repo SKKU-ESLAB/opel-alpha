@@ -45,24 +45,17 @@ OPELGstElement::OPELGstElement()
 
 OPELGstElement::~OPELGstElement()
 {
-  for(int pipe_idx=0; pipe_idx<NUM_OF_GST_ELEMENT; pipe_idx++)
-    OPEL_GST_ELEMENT_UNREF(this->element_array, pipe_idx);
+//  for(int pipe_idx=0; pipe_idx<NUM_OF_GST_ELEMENT; pipe_idx++)
+//    OPEL_GST_ELEMENT_UNREF(this->element_array, pipe_idx);
       
   free(this->element_array);
 
   for(int pipe_idx=0; pipe_idx<NUM_OF_GST_TYPE_ELEMENT; pipe_idx++)
   {   
     if(this->type_element_array[pipe_idx]->caps != NULL)
-      gst_caps_unref(type_element_array[pipe_idx]->caps);
+//      gst_caps_unref(type_element_array[pipe_idx]->caps);
     free(this->type_element_array[pipe_idx]);
   }  
   free(this->type_element_array); 
 }
 
-OPELGstElementCapsProps::OPELGstElementCapsProps()
-{ 
-}
-
-OPELGstElementCapsProps::~OPELGstElementCapsProps()
-{
-}

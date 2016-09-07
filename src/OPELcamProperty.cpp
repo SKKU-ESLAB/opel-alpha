@@ -4,36 +4,38 @@ void setTx1DefaultProperty(void)
 {
    __OPEL_FUNCTION_ENTER__;
    std::vector<ElementProperty*> *element_vector = 
-     new std::vector<ElementProperty*>(MAX_ELEMENT_TYPE_NUM); 
-   ElementProperty *src = new ElementProperty(kSRC, "nvcamerasrc", "nvcamerasrc");
+     new std::vector<ElementProperty*>(); 
+   ElementProperty *nv_src = new ElementProperty(kSRC, "nvcamerasrc", "nvcamerasrc");
+   ElementProperty *rtsp_src = new ElementProperty(kSRC, "rtspsrc", "rtspsrc");
    ElementProperty *tee = new ElementProperty(kTEE, "tee", "tee");
    ElementProperty *queue = new ElementProperty(kQUEUE, "queue", "queue");
-   ElementProperty *conv = new ElementProperty(kCONV, "nvvidconv", "nvvidconv");
-   ElementProperty *enc = new ElementProperty(kENC, "omxh264enc", "omxh264enc");
-   ElementProperty *mux = new ElementProperty(kMUX, "mp4mux", "mp4mux");
+   ElementProperty *i420_conv = new ElementProperty(kCONV, "nvvidconv", "nvvidconv");
+   ElementProperty *h264_enc = new ElementProperty(kENC, "omxh264enc", "omxh264enc");
+   ElementProperty *jpeg_enc = new ElementProperty(kENC, "nvjpegenc", "nvjpegenc");
+   ElementProperty *mp4_mux = new ElementProperty(kMUX, "mp4mux", "mp4mux");
    ElementProperty *sink = new ElementProperty(kSINK, "filesink", "filesink");
-   
-   src->camProp.fpsRange = charToString("30.0 30.0");
-   enc->encProp.bitrate = 8000000;
-   enc->encProp.quality_level = 0;
-   conv->conProp.flip_method = 2;
-   sink->fileProp.location = charToString("~/hihihi.mp4");
-  
-   /* 
-   element_vector->push_back(src);
+   ElementProperty *jpeg_sink = new ElementProperty(kSINK, "filesink", "filesink"); 
+   ElementProperty *udp_sink = new ElementProperty(kSINK, "udpsink", "udpsink");
+
+   nv_src->camProp.fpsRange = charToString("30.0 30.0");
+   h264_enc->encProp.bitrate = 8000000;
+   h264_enc->encProp.quality_level = 0;
+   i420_conv->conProp.flip_method = 2;
+   sink->fileProp.location = charToString("/home/ubuntu/hihihi.mp4");
+   jpeg_sink->fileProp.location = charToString("/home/ubuntu/hihihi.jpeg");
+
+   element_vector->push_back(nv_src);
+   element_vector->push_back(rtsp_src);
    element_vector->push_back(tee);
    element_vector->push_back(queue);
-   element_vector->push_back(conv);
-   element_vector->push_back(enc);
-   element_vector->push_back(mux);
+   element_vector->push_back(i420_conv);
+   element_vector->push_back(h264_enc);
+   element_vector->push_back(jpeg_enc);
+   element_vector->push_back(mp4_mux);
    element_vector->push_back(sink);
-  */
+   element_vector->push_back(jpeg_sink);
+   element_vector->push_back(udp_sink);
   
-   (*element_vector)[kSRC] = src;
-  (*element_vector)[kCONV] = conv;
-   (*element_vector)[kENC] = enc;
-   (*element_vector)[kMUX] = mux;
-   (*element_vector)[kSINK] = sink;
 
    v_element_property = element_vector;
 
@@ -121,7 +123,7 @@ void printVectorElement(std::vector<ElementProperty*> *_v_element_property)
 void allocVectorElementProperty(void)
 {
   assert(v_element_property == NULL);
-  v_element_property = new std::vector<ElementProperty*>(MAX_ELEMENT_TYPE_NUM);
+  v_element_property = new std::vector<ElementProperty*>();
 }
 
 void deleteVectorElement(std::vector<ElementProperty*> *_v_element_property)

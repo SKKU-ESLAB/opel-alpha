@@ -1,12 +1,12 @@
 #ifndef OPEL_GST_ELEMENT_H
 #define OPEL_GST_ELEMENT_H
-
+#include "OPELcamProperty.h"
 #include <gst/gst.h>
 #include <gst/app/gstappsrc.h>
 #include <stdlib.h>
 #include <string>
 
-#include "OPELdbugLog.h"
+//#include "OPELdbugLog.h"
 
 
 #define TARGET_BOARD_TX1 1
@@ -32,7 +32,6 @@
     else \
     OPEL_DBG_ERR("Element Array is NULL"); \
   }while(0)
-
 
 #define OPEL_GST_CAPS_NEW_SIMPLE(caps, eid, ...) \
   do{ if(caps != NULL) \
@@ -72,12 +71,12 @@ typedef struct {
 }typeElement;
 
 typedef enum{
-  kPIPELINE = 0,
-  kSRC,
-  kCONV,
-  kENC, 
-  kMUX, 
-  kSINK,
+  kePIPELINE = 0,
+  keSRC,
+  keCONV,
+  keENC, 
+  keMUX, 
+  keSINK,
 }elementId;
 
 class OPELGstElement 
@@ -89,40 +88,14 @@ class OPELGstElement
     virtual bool OPELGstPipelineMake(void) = 0;
     virtual bool OPELGstElementCapFactory(void) = 0;
     virtual bool OPELGstElementPropFactory(void) = 0;
+    virtual void setElementPropertyVector(std::vector<ElementProperty*> 
+        *__v_element_property) = 0;
   protected: 
+    std::vector<ElementProperty*> *_v_element_property;
     GstElement** element_array;
     typeElement** type_element_array;
 };
 
-class OPELGstElementCapsProps
-{
-  public:
-    OPELGstElementCapsProps();
-    ~OPELGstElementCapsProps();
-    GstCaps* getGstCaps(void);
-    void setGstCaps(GstCaps  *_caps);
-    unsigned getWidth(void);
-    void setWidth(unsigned _width);
-    unsigned getHeight(void);
-    void setHeight(unsigned _height);
-    unsigned getFps(void);
-    void setFps(unsigned _fps);
-    std::string getPixelFormat(void);
-    void setPixelFormat(std::string _pixel_format);
-    std::string getStreamFormat(void);
-    void setStreamFormat(std::string _stream_format); 
-  private:
-/*Caps*/
-    GstCaps *caps;
-    elementId type;
-    unsigned width;
-    unsigned height;
-    unsigned fps; 
-    std::string pixel_format;
-    std::string stream_format;
-/*Properties*/
-
-};
 
 
 extern bool typeElementAllocator(const char *name, const char *element_name,
