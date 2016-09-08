@@ -1,30 +1,69 @@
 #include "OPELgstElementTx1.h"
 OPELGstElementTx1 *OPELGstElementTx1::opel_gst_element_tx1 = NULL; 
 
+void printTypeElement(std::vector<typeElement*> *_type_element_vector)
+{
+   assert(_type_element_vector != NULL);
+
+   for(int i=0; i<_type_element_vector->size(); i++)
+   {
+     std::cout << *((*_type_element_vector)[i]->name) << std::endl;
+     std::cout << *((*_type_element_vector)[i]->nickname) << std::endl;
+   }
+
+}
+
+static void initializeTypeElement(typeElement *type_element, 
+    ElementProperty *element_property)
+{
+  assert(type_element != NULL && element_property != NULL);
+
+  type_element->name = new std::string(element_property->getElementName());
+  type_element->nickname = new std::string(element_property->getElementNickName());
+  type_element->element_prop = element_property;
+  type_element->type = element_property->getElementType();
+}
+
 void OPELGstElementTx1::setElementPropertyVector(std::vector<ElementProperty*>
     *__v_element_property)
 {
+   assert(__v_element_property != NULL);
+
    this->_v_element_property = __v_element_property;
+   for(int i=0; i< this->_v_element_property->size(); i++)
+   {
+     typeElement *tmp = (typeElement*)malloc(sizeof(typeElement));
+     initializeTypeElement(tmp, (*this->_v_element_property)[i]);
+     this->_type_element_vector->push_back(tmp);
+     tmp = NULL;
+   }
+}
+
+void freeTypeElementMember(typeElement *type_element)
+{
+   assert(type_element != NULL);
+   if(type_element->name != NULL)
+      delete type_element->name;
+   if(type_element->nickname != NULL)
+     delete type_element->nickname;
+// buggy
+//   if(type_element->caps != NULL)
+//     gst_caps_unref(type_element->caps);
+   if(type_element->element != NULL)
+     gst_object_unref(GST_OBJECT(type_element->element));
 }
 
 OPELGstElementTx1::OPELGstElementTx1()  
 {
- this->caps_array = (GstCaps**)malloc(
-     sizeof(GstCaps*) * NUM_OF_GST_ELEMENT); 
- if(this->caps_array == NULL)
-   OPEL_DBG_ERR("Capabilites array allocation failed");
 
 }
 OPELGstElementTx1::~OPELGstElementTx1()
 {
-  
-  if(this->caps_array != NULL)
-    for(int pipe_idx=0; pipe_idx<NUM_OF_GST_ELEMENT; pipe_idx++)
-    {   
-//      gst_caps_unref(caps_array[pipe_idx]);
-      caps_array[pipe_idx] = NULL;
-    }
-  free(this->caps_array);
+  for(int i=0; i < this->_type_element_vector->size(); i++)
+  {
+    freeTypeElementMember((*this->_type_element_vector)[i]);     
+    delete (*this->_type_element_vector)[i];  
+  }
 }
 
 OPELGstElementTx1 *OPELGstElementTx1::getInstance(void)
@@ -36,13 +75,8 @@ OPELGstElementTx1 *OPELGstElementTx1::getInstance(void)
 
 bool OPELGstElementTx1::OPELGstElementCapFactory(void)
 {
+  assert(_type_element_vector != NULL);
   __OPEL_FUNCTION_ENTER__;
-  if(this->caps_array == NULL)
-  {
-    OPEL_DBG_ERR("Capabilites array is null");
-    __OPEL_FUNCTION_EXIT__;
-    return false;
-  }
 /*
   if(!is_rtsp_src){ 
   OPEL_GST_CAPS_NEW_SIMPLE(caps_array, kSRC, "video/x-raw(memory:NVMM)", "width",
@@ -73,8 +107,9 @@ bool OPELGstElementTx1::OPELGstElementCapFactory(void)
 
 bool OPELGstElementTx1::OPELGstElementPropFactory(void)
 {
- __OPEL_FUNCTION_ENTER__;
-/*
+  assert(_type_element_vector != NULL);
+  __OPEL_FUNCTION_ENTER__;
+ /*
  if(!is_rtsp_src){
  OPEL_G_OBJECT_SET(element_array, kSRC, "fpsRange", "30.0 30.0", NULL);
  }
@@ -88,9 +123,13 @@ bool OPELGstElementTx1::OPELGstElementPropFactory(void)
 
 bool OPELGstElementTx1::OPELGstPipelineMake(void)
 {
+  assert(_type_element_vector != NULL);
   __OPEL_FUNCTION_ENTER__;
-  gboolean ret=true;
-/*
+
+
+
+  
+  /*
   gst_bin_add_many(GST_BIN(element_array[kPIPELINE]), element_array[kSRC],
       element_array[kCONV], element_array[kENC], element_array[kMUX],
       element_array[kSINK], NULL);
@@ -120,50 +159,21 @@ bool OPELGstElementTx1::OPELGstPipelineMake(void)
 
 bool OPELGstElementTx1::OPELGstElementFactory(void)
 {
+  assert(this->_type_element_vector != NULL);
   __OPEL_FUNCTION_ENTER__;
-//  const char** element_name = element_name_tx1;
-//  if(this->is_rtsp_src)
-//     element_name = element_name_tx1_rtsp;
+  
+  typeElement *iter = NULL;
+  
+  OPEL_GST_ELEMENT_FACTORY_MAKE(this->pipeline, "pipeline", NULL);
+  
+  for(int i=0; i<this->_type_element_vector->size(); i++)
+  {
+    iter = (*this->_type_element_vector)[i];
+    OPEL_GST_ELEMENT_FACTORY_MAKE(iter->element, 
+        stringToGchar(iter->name), stringToGchar(iter->nickname));
+//    g_print("Element Factory : %s\n", stringToGchar(iter->name)); 
+  }
 
-/*  
-  OPEL_GST_PIPELINE_NEW(this->element_array, kPIPELINE, 
-      element_name[kPIPELINE]);
-  OPEL_GST_ELEMENT_FACTORY_MAKE(this->element_array, kSRC, 
-      element_name[kSRC], "src");
-  OPEL_GST_ELEMENT_FACTORY_MAKE(this->element_array, kCONV, 
-      element_name[kCONV], "convert");
-  OPEL_GST_ELEMENT_FACTORY_MAKE(this->element_array, kENC, 
-      element_name[kENC], "encorder");
-  OPEL_GST_ELEMENT_FACTORY_MAKE(this->element_array, kMUX, 
-      element_name[kMUX], "mux");
-  OPEL_GST_ELEMENT_FACTORY_MAKE(this->element_array, kSINK, 
-      element_name[kSINK], "filesink");
-  for(int pipe_idx=0; pipe_idx<NUM_OF_GST_ELEMENT; pipe_idx++)
-    if(this->element_array[pipe_idx] == NULL)
-    {
-      __OPEL_FUNCTION_EXIT__;
-      return false;
-    }
-
-  typeElementAllocator("pipeline", element_name_tx1[kPIPELINE], this->element_array,
-      kPIPELINE, this->type_element_array);
-  typeElementAllocator("src", element_name[kSRC], this->element_array,
-      kSRC, this->type_element_array);
-  typeElementAllocator("convert", element_name[kCONV], this->element_array,
-      kCONV, this->type_element_array);
-  typeElementAllocator("encorder", element_name[kENC], this->element_array,
-      kENC, this->type_element_array);
-  typeElementAllocator("mux", element_name[kMUX], this->element_array,
-      kMUX, this->type_element_array);
-  typeElementAllocator("filesink", element_name[kSINK], this->element_array,
-      kSINK, this->type_element_array);
-  for(int pipe_idx=0; pipe_idx<NUM_OF_GST_TYPE_ELEMENT; pipe_idx++)
-    if(this->type_element_array == NULL)
-    {
-      __OPEL_FUNCTION_EXIT__;
-      return false;
-    }
-    */
   __OPEL_FUNCTION_EXIT__;
   return true;
 }

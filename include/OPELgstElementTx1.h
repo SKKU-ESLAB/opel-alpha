@@ -14,11 +14,20 @@ class OPELGstElementTx1 : public OPELGstElement
     virtual bool OPELGstElementPropFactory(void);
     virtual void setElementPropertyVector(std::vector<ElementProperty*>
                 *__v_element_property);
+
+    GstElement* getPipeline(void){ return this->pipeline; }
+    void setPipeline(GstElement* _pipeline){ this->pipeline = _pipeline; }
+
+   
   private:
     static OPELGstElementTx1 *opel_gst_element_tx1;
     OPELGstElementTx1();
-    GstCaps **caps_array;
+    GstElement *pipeline;
 };
 
 
+static void freeTypeElementMember(typeElement *type_element);
+static void initializeTypeElement(typeElement *type_element,
+        ElementProperty *element_property);
+void printTypeElement(std::vector<typeElement*> *_type_element_vector);
 #endif /* OPEL_GST_ELEMENT_TX1_H */

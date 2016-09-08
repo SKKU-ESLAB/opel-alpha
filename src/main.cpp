@@ -7,7 +7,7 @@
 
 const char *path_configuration_Tx1 = "/home/ubuntu/opel-alpha/OPELTx1Configuartion.xml";
 
-GMainLoop *loop;
+static GMainLoop *loop;
 
 std::vector<ElementProperty*> *v_element_property;
 
@@ -98,12 +98,19 @@ int main(int argc, char** argv)
     writeXMLconfig(path_configuration_Tx1);
 
 //  printVectorElement(v_element_property);
- 
+  gst_init(&argc, &argv);
+  
   loop = g_main_loop_new(NULL, false);
   dbus_error_init(&dbus_error);
   dbus_conn = dbus_bus_get(DBUS_BUS_SYSTEM, &dbus_error);
 
   OPELGstElementTx1 *tx1 = OPELGstElementTx1::getInstance();
+  
+  tx1->setElementPropertyVector(v_element_property);
+
+  //  printTypeElement(tx1->getTypeElementVector());
+
+  tx1->OPELGstElementFactory();
   
   if(dbus_error_is_set(&dbus_error))
   {
@@ -118,6 +125,9 @@ int main(int argc, char** argv)
   signal(SIGINT, signalHandler);
   
   
+
+  
+   
   g_main_loop_run(loop);
 
 

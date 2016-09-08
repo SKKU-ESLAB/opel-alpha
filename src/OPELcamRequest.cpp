@@ -4,13 +4,11 @@
 DBusHandlerResult msg_dbus_filter(DBusConnection *conn, 
     DBusMessage *msg, void *user_data)
 {
-  __OPEL_FUNCTION_ENTER__;
-  
-  dbusRequest *request = (dbusRequest*)user_data;
-  
+  __OPEL_FUNCTION_ENTER__; 
+
   if(dbus_message_is_signal(msg, dbus_interface, rec_init_request))
   {
-     OPEL_DBG_VERB("Get Recording Initialization Request");
+    OPEL_DBG_VERB("Get Recording Initialization Request");
     /*     dbus_message_get_args(msg, NULL, DBUS_TYPE_UINT64,
        &(request->msg_type), DBUS_TYPE_UINT64, &(request->u.init_type), 
        DBUS_TYPE_UINT64, &(request->fps), DBUS_TYPE_UINT64, &(request->width),
@@ -34,9 +32,6 @@ DBusHandlerResult msg_dbus_filter(DBusConnection *conn,
   
   
   }
-
-  
-    
   
   __OPEL_FUNCTION_EXIT__;
   return DBUS_HANDLER_RESULT_HANDLED;

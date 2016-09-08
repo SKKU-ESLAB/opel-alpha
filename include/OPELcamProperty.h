@@ -9,14 +9,22 @@
 #include <boost/serialization/nvp.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/vector.hpp>
+#include <gst/gst.h>
 #include "OPELdbugLog.h"
 
-std::string inline charToString(const char* _str)
+inline std::string charToString(const char* _str)
 {
   std::string tmp = _str;
   return tmp;
 }
 
+inline gchar* stringToGchar(std::string* _str)
+{
+  unsigned int _str_size = _str->size();
+  unsigned char *_char_str = (unsigned char*)malloc(_str_size+1);
+  strcpy((char*)_char_str, _str->c_str()); 
+  return (gchar*)_char_str;
+}
 
 typedef enum _elementType{
    kSRC = 0,
@@ -98,7 +106,6 @@ class ConvProp
 class UDPSinkProp
 {
   public:
-    
     friend class boost::serialization::access;
     template<class Archive> void serialize(Archive &ar, 
         const unsigned int version)
@@ -106,7 +113,6 @@ class UDPSinkProp
       using boost::serialization::make_nvp;
       ar & make_nvp("host_ip", this->host);
     }
-    
     std::string host;
     unsigned port;
 };

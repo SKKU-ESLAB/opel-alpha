@@ -19,7 +19,7 @@ static const gchar *opencv_stop_request = "openCVStop";
 extern DBusHandlerResult msg_dbus_filter(DBusConnection *conn, 
     DBusMessage *msg, void *user_data);
 
-typedef struct _dbusRequest{
+typedef struct _dbusReques{
   unsigned fps;
   unsigned width;
   unsigned height;

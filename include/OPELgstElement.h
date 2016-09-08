@@ -40,11 +40,9 @@
     OPEL_DBG_ERR("Caps Array is NULL"); \
   }while(0)
 
-#define OPEL_GST_ELEMENT_FACTORY_MAKE(element, eid, name, nickname) \
-  do{ if(element != NULL) \
-    element[eid] = gst_element_factory_make(name, nickname); \
-    else \
-    OPEL_DBG_ERR("Element Array is NULL"); \
+#define OPEL_GST_ELEMENT_FACTORY_MAKE(element, name, nickname) \
+  do{ \
+    element = gst_element_factory_make(name, nickname); \
   }while(0)
 
 #define OPEL_GST_PIPELINE_NEW(element, eid, name) \
@@ -63,21 +61,14 @@
     
 
 typedef struct {
-  const char *name;
-  const char *element_name;
+  std::string *name;
+  std::string *nickname;
   GstCaps *caps;
   GstElement *element;
+  ElementProperty *element_prop;
   unsigned type;
 }typeElement;
 
-typedef enum{
-  kePIPELINE = 0,
-  keSRC,
-  keCONV,
-  keENC, 
-  keMUX, 
-  keSINK,
-}elementId;
 
 class OPELGstElement 
 {
@@ -90,12 +81,13 @@ class OPELGstElement
     virtual bool OPELGstElementPropFactory(void) = 0;
     virtual void setElementPropertyVector(std::vector<ElementProperty*> 
         *__v_element_property) = 0;
+    std::vector<typeElement*>* getTypeElementVector(void) 
+    { return this-> _type_element_vector; }
+
   protected: 
     std::vector<ElementProperty*> *_v_element_property;
-    GstElement** element_array;
-    typeElement** type_element_array;
+    std::vector<typeElement*> *_type_element_vector;
 };
-
 
 
 extern bool typeElementAllocator(const char *name, const char *element_name,
