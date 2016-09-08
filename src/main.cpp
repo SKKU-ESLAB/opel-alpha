@@ -97,7 +97,7 @@ int main(int argc, char** argv)
   if(tx1_element_property == NULL)
     writeXMLconfig(path_configuration_Tx1);
 
-//  printVectorElement(v_element_property);
+  //  printVectorElement(v_element_property);
   gst_init(&argc, &argv);
   
   loop = g_main_loop_new(NULL, false);

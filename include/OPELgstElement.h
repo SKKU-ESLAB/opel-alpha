@@ -26,11 +26,11 @@
     OPEL_DBG_ERR("Element Array or GstCap is NULL"); \
   }while(0)
 
-#define OPEL_G_OBJECT_SET(element, eid, ...) \
+#define OPEL_G_OBJECT_SET(element, ...) \
   do{ if(element != NULL) \
-      g_object_set(G_OBJECT(element[eid]), __VA_ARGS__); \
+      g_object_set(G_OBJECT(element), __VA_ARGS__); \
     else \
-    OPEL_DBG_ERR("Element Array is NULL"); \
+    OPEL_DBG_ERR("GstElement is NULL"); \
   }while(0)
 
 #define OPEL_GST_CAPS_NEW_SIMPLE(caps, eid, ...) \
@@ -66,7 +66,9 @@ typedef struct {
   GstCaps *caps;
   GstElement *element;
   ElementProperty *element_prop;
+  Property *prop;
   unsigned type;
+  unsigned sub_type;
 }typeElement;
 
 

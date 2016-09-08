@@ -10,7 +10,6 @@ void printTypeElement(std::vector<typeElement*> *_type_element_vector)
      std::cout << *((*_type_element_vector)[i]->name) << std::endl;
      std::cout << *((*_type_element_vector)[i]->nickname) << std::endl;
    }
-
 }
 
 static void initializeTypeElement(typeElement *type_element, 
@@ -22,6 +21,7 @@ static void initializeTypeElement(typeElement *type_element,
   type_element->nickname = new std::string(element_property->getElementNickName());
   type_element->element_prop = element_property;
   type_element->type = element_property->getElementType();
+  type_element->sub_type = element_property->getSubType();
 }
 
 void OPELGstElementTx1::setElementPropertyVector(std::vector<ElementProperty*>
@@ -109,7 +109,15 @@ bool OPELGstElementTx1::OPELGstElementPropFactory(void)
 {
   assert(_type_element_vector != NULL);
   __OPEL_FUNCTION_ENTER__;
- /*
+  
+  typeElement *iter = NULL;
+  
+  for(int i=0; i<this->_type_element_vector->size(); i++)
+  {
+    iter = (*this->_type_element_vector)[i];
+  }
+ 
+  /*
  if(!is_rtsp_src){
  OPEL_G_OBJECT_SET(element_array, kSRC, "fpsRange", "30.0 30.0", NULL);
  }
@@ -125,9 +133,6 @@ bool OPELGstElementTx1::OPELGstPipelineMake(void)
 {
   assert(_type_element_vector != NULL);
   __OPEL_FUNCTION_ENTER__;
-
-
-
   
   /*
   gst_bin_add_many(GST_BIN(element_array[kPIPELINE]), element_array[kSRC],

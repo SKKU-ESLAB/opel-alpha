@@ -9,9 +9,9 @@
 #include <boost/serialization/nvp.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/vector.hpp>
+#include <boost/serialization/split_member.hpp>
 #include <gst/gst.h>
 #include "OPELdbugLog.h"
-
 inline std::string charToString(const char* _str)
 {
   std::string tmp = _str;
@@ -36,8 +36,36 @@ typedef enum _elementType{
    kSINK,
 }elementType;
 
+typedef enum _srcElementType{
+  kCAM = 0,
+  kRTSP,
+}srcElementType;
 
-class EncorderProp 
+typedef enum _convElementType{
+  kDEFAULT = 0,
+}convElementType;
+
+typedef enum _encElementType{
+  kH264 = 0,
+  kNVJPEG,
+}encElementType;
+
+typedef enum _muxElementType{
+  kMP4 = 0,
+  kAVI,
+}muxElementType;
+
+typedef enum _sinkElementType{
+  kREC_SINK = 0,
+  kJPEG_SINK,
+  kUDP_SINK,
+}sinkElementType;
+
+class Property
+{
+};
+
+class EncorderProp : public Property 
 {
   public:
      friend class boost::serialization::access;
@@ -48,10 +76,13 @@ class EncorderProp
       ar & make_nvp("quality_level", this->quality_level);
       ar & make_nvp("bitrate", this->bitrate);
     }
+    
+    static const char *n_quality_level;
+    static const char *n_bitrate;
     unsigned quality_level;
     unsigned bitrate;
 };
-class RTSPSrcProp
+class RTSPSrcProp : public Property
 {
   public:
     friend class boost::serialization::access;
@@ -63,11 +94,14 @@ class RTSPSrcProp
       ar & make_nvp("user_id", this->user_id);
       ar & make_nvp("user_pw", this->user_pw);
     }
+    static const char *n_location;
+    static const char *n_user_id;
+    static const char *n_user_pwd;
     std::string location;
     std::string user_id;
     std::string user_pw;
 };
-class CameraSrcProp
+class CameraSrcProp : public Property
 {
   public:
     friend class boost::serialization::access;
@@ -77,9 +111,10 @@ class CameraSrcProp
       using boost::serialization::make_nvp;
       ar & make_nvp("fps_range", this->fpsRange);
     }
+    static const char *n_fpsRange;
     std::string fpsRange;
 };
-class FileSinkProp
+class FileSinkProp : public Property
 {
   public:
     friend class boost::serialization::access;
@@ -89,9 +124,10 @@ class FileSinkProp
       using boost::serialization::make_nvp;
       ar & make_nvp("location", this->location);
     }
+    static const char *n_location;
     std::string location;
 };
-class ConvProp
+class ConvProp : public Property
 {
   public:
     friend class boost::serialization::access;
@@ -101,9 +137,10 @@ class ConvProp
       using boost::serialization::make_nvp;
       ar & make_nvp("flip_method", this->flip_method);
     }
+    static const char *n_flip_method;
     unsigned flip_method;
 };
-class UDPSinkProp
+class UDPSinkProp : public Property
 {
   public:
     friend class boost::serialization::access;
@@ -113,17 +150,22 @@ class UDPSinkProp
       using boost::serialization::make_nvp;
       ar & make_nvp("host_ip", this->host);
     }
+    static const char *n_host;
+    static const char *n_port;
     std::string host;
     unsigned port;
 };
+
+Property* serializationSubElement(unsigned _sub_type);
+Property* deSerializationSubElement(unsigned _sub_type);
 
 class ElementProperty{
   public:
     ElementProperty() {};
 
     ElementProperty(elementType _type);
-    ElementProperty(elementType _type, const char *_element_name, 
-        const char *_element_nickname);
+    ElementProperty(elementType _type, unsigned sub_type, 
+        const char *_element_name, const char *_element_nickname);
     ~ElementProperty();
 
     void setElementName(std::string _element_name);
@@ -143,16 +185,19 @@ class ElementProperty{
 
     void setHeight(unsigned _height);
     unsigned getHeight(void) const;
+    
+    unsigned getSubType(void) const { return this->sub_type; }
+    void setSubType(unsigned _sub_type) { this->sub_type = _sub_type; } 
 
     friend class boost::serialization::access;
     template<class Archive> void serialize(Archive &ar, 
-        const unsigned int version)
+        const unsigned int version) 
     {
       using boost::serialization::make_nvp;
       ar & make_nvp("element_name", this->element_name);
       ar & make_nvp("element_nickname", this->element_nickname);
       ar & make_nvp("element_type", this->type);
-
+      ar & make_nvp("element_sub_type", this->sub_type); 
       switch(this->type)
       {
         case kSRC:
@@ -164,7 +209,7 @@ class ElementProperty{
         case kQUEUE:
           break;
         case kCONV:
-          ar & make_nvp("element_property", this->conProp);
+          ar & make_nvp("element_property", this->conProp); 
           break;
         case kENC:
           ar & make_nvp("element_property", this->encProp);
@@ -179,18 +224,17 @@ class ElementProperty{
           break;
       }
     }
-
     UDPSinkProp udpProp;
     EncorderProp encProp;
     RTSPSrcProp rtspProp;
     CameraSrcProp camProp;
     FileSinkProp fileProp;
     ConvProp conProp;
-
   protected:
     std::string element_name;
     std::string element_nickname;
     elementType type;
+    unsigned sub_type;
     unsigned fps;     
     unsigned width;
     unsigned height;
