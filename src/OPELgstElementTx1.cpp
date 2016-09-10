@@ -11,7 +11,48 @@ void printTypeElement(std::vector<typeElement*> *_type_element_vector)
      std::cout << *((*_type_element_vector)[i]->nickname) << std::endl;
    }
 }
+static void inline setTypeProperty(unsigned _sub_type, 
+    typeElement *_type_element, ElementProperty *element_property)
+{
+  assert(_type_element != NULL && element_property != NULL);
+  switch(_sub_type)
+  {
+    case kCAM:
+      _type_element->prop = element_property->camProp; 
+      break;
+    case kRTSP:
+      _type_element->prop = element_property->rtspProp; 
+      break;
+    case kDEFAULT:
+      _type_element->prop = element_property->conProp; 
+      break;
+    case kH264:
+      _type_element->prop = element_property->encProp; 
+      break;
+    case kNVJPEG:
+      _type_element->prop = NULL;
+      break;
+    case kMP4:
+      _type_element->prop = NULL;
+      break;
+    case kREC_SINK:
+      _type_element->prop = element_property->fileProp; 
+      break;
+    case kJPEG_SINK:
+      _type_element->prop = element_property->fileProp; 
+      break;
+    case kUDP_SINK:
+      _type_element->prop = element_property->udpProp;
+      break;
+    case kNO_PROP:
+      _type_element->prop = NULL;
+      break;
+    default:
+        OPEL_DBG_ERR("Invalid Sub-Type");
+      break;
 
+  }
+}
 static void initializeTypeElement(typeElement *type_element, 
     ElementProperty *element_property)
 {
@@ -22,6 +63,8 @@ static void initializeTypeElement(typeElement *type_element,
   type_element->element_prop = element_property;
   type_element->type = element_property->getElementType();
   type_element->sub_type = element_property->getSubType();
+  setTypeProperty(type_element->sub_type, type_element, element_property); 
+   
 }
 
 void OPELGstElementTx1::setElementPropertyVector(std::vector<ElementProperty*>
@@ -77,30 +120,6 @@ bool OPELGstElementTx1::OPELGstElementCapFactory(void)
 {
   assert(_type_element_vector != NULL);
   __OPEL_FUNCTION_ENTER__;
-/*
-  if(!is_rtsp_src){ 
-  OPEL_GST_CAPS_NEW_SIMPLE(caps_array, kSRC, "video/x-raw(memory:NVMM)", "width",
-      G_TYPE_INT, 1920, "height", G_TYPE_INT, 1080, "format", G_TYPE_STRING, 
-      "I420", "framerate", GST_TYPE_FRACTION, 30, 1, NULL);
-  typeElementCapAllocator(kSRC, this->type_element_array, caps_array[kSRC]);
-  }
-
-  OPEL_GST_CAPS_NEW_SIMPLE(caps_array, kCONV, "video/x-raw(memory:NVMM)", "format", 
-      G_TYPE_STRING, "I420", NULL);
-  typeElementCapAllocator(kCONV, this->type_element_array, caps_array[kCONV]);
-
-  OPEL_GST_CAPS_NEW_SIMPLE(caps_array, kENC, "video/x-h264", "stream-format", 
-      G_TYPE_STRING, "avc", NULL);
-  typeElementCapAllocator(kENC, this->type_element_array, caps_array[kENC]);
-  
-  
-  if(!caps_array[kSRC] || !caps_array[kCONV] || !caps_array[kENC])
-  {
-    OPEL_DBG_ERR("Capabilities setting error");
-    __OPEL_FUNCTION_EXIT__;
-    return false;
-  }
-  */
   __OPEL_FUNCTION_EXIT__;
   return true;
 }
@@ -115,16 +134,15 @@ bool OPELGstElementTx1::OPELGstElementPropFactory(void)
   for(int i=0; i<this->_type_element_vector->size(); i++)
   {
     iter = (*this->_type_element_vector)[i];
+    if(iter->prop != NULL)
+      iter->prop->setGstObjectProperty(iter->element);
+    else
+    {
+      std::cout << "Element Name : " <<  *iter->name << std::endl;
+    }
+
   }
  
-  /*
- if(!is_rtsp_src){
- OPEL_G_OBJECT_SET(element_array, kSRC, "fpsRange", "30.0 30.0", NULL);
- }
- OPEL_G_OBJECT_SET(element_array, kCONV, "flip-method", 2, NULL);
- OPEL_G_OBJECT_SET(element_array, kENC, "bitrate", 8000000, NULL);
- OPEL_G_OBJECT_SET(element_array, kSINK, "location", "~/recording/recording_data", NULL);
-*/
  __OPEL_FUNCTION_EXIT__;
   return true;
 }

@@ -36,33 +36,24 @@ typedef enum _elementType{
    kSINK,
 }elementType;
 
-typedef enum _srcElementType{
+typedef enum _subElementType{
   kCAM = 0,
   kRTSP,
-}srcElementType;
-
-typedef enum _convElementType{
-  kDEFAULT = 0,
-}convElementType;
-
-typedef enum _encElementType{
-  kH264 = 0,
+  kDEFAULT,
+  kH264,
   kNVJPEG,
-}encElementType;
-
-typedef enum _muxElementType{
-  kMP4 = 0,
-  kAVI,
-}muxElementType;
-
-typedef enum _sinkElementType{
-  kREC_SINK = 0,
+  kMP4,
+  kREC_SINK,
   kJPEG_SINK,
   kUDP_SINK,
-}sinkElementType;
+  kNO_PROP,
+}subElementType;
+
 
 class Property
 {
+  public:
+    virtual void setGstObjectProperty(GstElement *element) = 0;
 };
 
 class EncorderProp : public Property 
@@ -76,7 +67,12 @@ class EncorderProp : public Property
       ar & make_nvp("quality_level", this->quality_level);
       ar & make_nvp("bitrate", this->bitrate);
     }
-    
+    virtual void setGstObjectProperty(GstElement *element)
+    {
+      assert(element != NULL);
+      g_object_set(G_OBJECT(element), this->n_quality_level, this->quality_level, 
+          this->n_bitrate, this->bitrate, NULL);
+    }
     static const char *n_quality_level;
     static const char *n_bitrate;
     unsigned quality_level;
@@ -93,6 +89,15 @@ class RTSPSrcProp : public Property
       ar & make_nvp("location", this->location);
       ar & make_nvp("user_id", this->user_id);
       ar & make_nvp("user_pw", this->user_pw);
+    }
+    virtual void setGstObjectProperty(GstElement *element)
+    {
+      assert(element != NULL);
+      if(!(this->location.empty())){
+        g_object_set(G_OBJECT(element), this->n_location, this->location.c_str(), 
+            this->n_user_id, this->user_id.c_str(), this->n_user_pwd, 
+            this->user_pw.c_str(), NULL);
+      }
     }
     static const char *n_location;
     static const char *n_user_id;
@@ -111,6 +116,12 @@ class CameraSrcProp : public Property
       using boost::serialization::make_nvp;
       ar & make_nvp("fps_range", this->fpsRange);
     }
+    virtual void setGstObjectProperty(GstElement *element)
+    {
+      assert(element != NULL);
+      g_object_set(G_OBJECT(element), this->n_fpsRange, this->fpsRange.c_str(),
+          NULL); 
+    }
     static const char *n_fpsRange;
     std::string fpsRange;
 };
@@ -123,6 +134,11 @@ class FileSinkProp : public Property
     {
       using boost::serialization::make_nvp;
       ar & make_nvp("location", this->location);
+    }
+    virtual void setGstObjectProperty(GstElement *element)
+    {
+      assert(element != NULL);
+      g_object_set(G_OBJECT(element), this->n_location, this->location.c_str(), NULL); 
     }
     static const char *n_location;
     std::string location;
@@ -137,6 +153,11 @@ class ConvProp : public Property
       using boost::serialization::make_nvp;
       ar & make_nvp("flip_method", this->flip_method);
     }
+    virtual void setGstObjectProperty(GstElement *element)
+    {
+      assert(element != NULL);
+      g_object_set(G_OBJECT(element), this->n_flip_method, this->flip_method, NULL); 
+    }
     static const char *n_flip_method;
     unsigned flip_method;
 };
@@ -150,6 +171,15 @@ class UDPSinkProp : public Property
       using boost::serialization::make_nvp;
       ar & make_nvp("host_ip", this->host);
     }
+    virtual void setGstObjectProperty(GstElement *element)
+    {
+      assert(element != NULL);
+      if(!(this->host.empty())){
+      g_object_set(G_OBJECT(element), this->n_host, this->host.c_str(),
+          this->n_port, this->port, NULL); 
+      }
+        //Do Nothing
+    }
     static const char *n_host;
     static const char *n_port;
     std::string host;
@@ -161,7 +191,7 @@ Property* deSerializationSubElement(unsigned _sub_type);
 
 class ElementProperty{
   public:
-    ElementProperty() {};
+    ElementProperty();
 
     ElementProperty(elementType _type);
     ElementProperty(elementType _type, unsigned sub_type, 
@@ -201,35 +231,35 @@ class ElementProperty{
       switch(this->type)
       {
         case kSRC:
-          ar & make_nvp("element_property", this->camProp);
-          ar & make_nvp("element_property", this->rtspProp);
+          ar & make_nvp("element_property", *camProp);
+          ar & make_nvp("element_property", *rtspProp);
           break;
         case kTEE:
           break;
         case kQUEUE:
           break;
         case kCONV:
-          ar & make_nvp("element_property", this->conProp); 
+          ar & make_nvp("element_property", *conProp); 
           break;
         case kENC:
-          ar & make_nvp("element_property", this->encProp);
+          ar & make_nvp("element_property", *encProp);
           break;
         case kMUX:
           break;
         case kSINK:
-          ar & make_nvp("element_property", this->fileProp);
-          ar & make_nvp("element_property", this->udpProp);
+          ar & make_nvp("element_property", *fileProp);
+          ar & make_nvp("element_property", *udpProp);
           break;
         default:
           break;
       }
     }
-    UDPSinkProp udpProp;
-    EncorderProp encProp;
-    RTSPSrcProp rtspProp;
-    CameraSrcProp camProp;
-    FileSinkProp fileProp;
-    ConvProp conProp;
+    UDPSinkProp *udpProp;
+    EncorderProp *encProp;
+    RTSPSrcProp *rtspProp;
+    CameraSrcProp *camProp;
+    FileSinkProp *fileProp;
+    ConvProp *conProp;
   protected:
     std::string element_name;
     std::string element_nickname;

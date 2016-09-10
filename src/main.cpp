@@ -49,7 +49,7 @@ ElementXMLSerialization* openXMLconfig(const char *_path_xml)
 ElementXMLSerialization* readXMLconfig(std::ifstream& _xml_file)
 {
   assert(!_xml_file.fail());
-  
+  __OPEL_FUNCTION_ENTER__; 
   allocVectorElementProperty();
   ElementXMLSerialization *_element_property_serialization = 
     new ElementXMLSerialization(v_element_property); 
@@ -58,6 +58,7 @@ ElementXMLSerialization* readXMLconfig(std::ifstream& _xml_file)
   ia >> boost::serialization::make_nvp("OPEL_TX1_Element_Property", 
       (*_element_property_serialization));
   _xml_file.close();
+  __OPEL_FUNCTION_EXIT__;
   return _element_property_serialization;
 }
 
@@ -111,7 +112,8 @@ int main(int argc, char** argv)
   //  printTypeElement(tx1->getTypeElementVector());
 
   tx1->OPELGstElementFactory();
-  
+  tx1->OPELGstElementPropFactory();
+
   if(dbus_error_is_set(&dbus_error))
   {
     OPEL_DBG_ERR("Error Connecting to the D-bus Daemon");
@@ -126,7 +128,6 @@ int main(int argc, char** argv)
   
   
 
-  
    
   g_main_loop_run(loop);
 

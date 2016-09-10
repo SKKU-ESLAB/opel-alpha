@@ -66,6 +66,10 @@ string
 OPELgstElement.h
 ../include/OPELgstElement.h
 
+/home/ubuntu/opel-alpha/src/OPELcamProperty.cpp
+OPELcamProperty.h
+/home/ubuntu/opel-alpha/src/OPELcamProperty.h
+
 /home/ubuntu/opel-alpha/src/OPELgstElement.cpp
 OPELgstElement.h
 /home/ubuntu/opel-alpha/src/OPELgstElement.h

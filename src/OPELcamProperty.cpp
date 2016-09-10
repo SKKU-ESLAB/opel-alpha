@@ -1,11 +1,18 @@
 #include "OPELcamProperty.h"
 
-const char *EncorderProp::n_quality_level = "quality_level";
+const char *EncorderProp::n_quality_level = "quality-level";
 const char *EncorderProp::n_bitrate = "bitrate";
+
+const char *RTSPSrcProp::n_location = "location";
+
+const char *RTSPSrcProp::n_user_id = "user_id";
+const char *RTSPSrcProp::n_user_pwd= "user_pw";
+
+const char *CameraSrcProp::n_fpsRange = "fpsRange";
 
 const char *FileSinkProp::n_location = "location";
 
-const char *ConvProp::n_flip_method = "filp_method";
+const char *ConvProp::n_flip_method = "flip-method";
 
 const char *UDPSinkProp::n_host = "host";
 const char *UDPSinkProp::n_port = "port";
@@ -19,9 +26,9 @@ void setTx1DefaultProperty(void)
        "nvcamerasrc", "nvcamerasrc");
    ElementProperty *rtsp_src = new ElementProperty(kSRC, kRTSP, 
        "rtspsrc", "rtspsrc");
-   ElementProperty *tee = new ElementProperty(kTEE, kDEFAULT, 
+   ElementProperty *tee = new ElementProperty(kTEE, kNO_PROP, 
        "tee", "tee");
-   ElementProperty *queue = new ElementProperty(kQUEUE, kDEFAULT, 
+   ElementProperty *queue = new ElementProperty(kQUEUE, kNO_PROP, 
        "queue", "queue");
    ElementProperty *i420_conv = new ElementProperty(kCONV, kDEFAULT, 
        "nvvidconv", "nvvidconv");
@@ -40,12 +47,12 @@ void setTx1DefaultProperty(void)
    ElementProperty *udp_sink = new ElementProperty(kSINK, kUDP_SINK, 
        "udpsink", "udpsink");
    
-   nv_src->camProp.fpsRange = charToString("30.0 30.0");
-   h264_enc->encProp.bitrate = 8000000;
-   h264_enc->encProp.quality_level = 0;
-   i420_conv->conProp.flip_method = 2;
-   sink->fileProp.location = charToString("/home/ubuntu/hihihi.mp4");
-   jpeg_sink->fileProp.location = charToString("/home/ubuntu/hihihi.jpeg");
+   nv_src->camProp->fpsRange = charToString("30.0 30.0");
+   h264_enc->encProp->bitrate = 8000000;
+   h264_enc->encProp->quality_level = 0;
+   i420_conv->conProp->flip_method = 2;
+   sink->fileProp->location = charToString("/home/ubuntu/hihihi.mp4");
+   jpeg_sink->fileProp->location = charToString("/home/ubuntu/hihihi.jpeg");
     
    element_vector->push_back(nv_src);
    element_vector->push_back(rtsp_src);
@@ -172,7 +179,6 @@ void ElementXMLSerialization::setVElementProperty(
 {
   this->_v_element_property = __v_element_property;
 }
-
 std::vector<ElementProperty*>* ElementXMLSerialization::getVElementProperty(void)
 {
   return this->_v_element_property;
@@ -188,14 +194,50 @@ ElementProperty::ElementProperty(elementType _type, unsigned _sub_type,
 
   this->element_name = tmp_element_name;
   this->element_nickname = tmp_element_nickname;
+
+  this->udpProp = new UDPSinkProp();
+  this->encProp = new EncorderProp();
+  this->rtspProp = new RTSPSrcProp();
+  this->camProp = new CameraSrcProp();
+  this->fileProp = new FileSinkProp();
+  this->conProp = new ConvProp();
+
 }
 ElementProperty::ElementProperty(elementType _type)
-{
+{ 
+  this->udpProp = new UDPSinkProp();
+  this->encProp = new EncorderProp();
+  this->rtspProp = new RTSPSrcProp();
+  this->camProp = new CameraSrcProp();
+  this->fileProp = new FileSinkProp();
+  this->conProp = new ConvProp();
   this->type = _type;
+}
+
+ElementProperty::ElementProperty()
+{
+  this->udpProp = new UDPSinkProp();
+  this->encProp = new EncorderProp();
+  this->rtspProp = new RTSPSrcProp();
+  this->camProp = new CameraSrcProp();
+  this->fileProp = new FileSinkProp();
+  this->conProp = new ConvProp();
 }
 
 ElementProperty::~ElementProperty()
 {
+  if(this->udpProp != NULL)
+   delete this->udpProp;
+  if(this->encProp != NULL)
+    delete this->encProp;
+  if(this->rtspProp != NULL)
+    delete this->rtspProp;
+  if(this->camProp != NULL)
+    delete this->camProp;
+  if(this->fileProp != NULL)
+    delete this->fileProp;
+  if(this->conProp != NULL)
+    delete this->conProp;
 }
 
 void ElementProperty::setElementName(std::string _element_name)
