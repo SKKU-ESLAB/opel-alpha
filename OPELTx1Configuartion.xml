@@ -18,6 +18,9 @@
 				<user_id></user_id>
 				<user_pw></user_pw>
 			</element_property>
+			<fps>30</fps>
+			<width>1920</width>
+			<height>1080</height>
 		</item>
 		<item class_id_reference="2" object_id="_1">
 			<element_name>rtspsrc</element_name>
@@ -32,6 +35,9 @@
 				<user_id></user_id>
 				<user_pw></user_pw>
 			</element_property>
+			<fps>30</fps>
+			<width>1920</width>
+			<height>1080</height>
 		</item>
 		<item class_id_reference="2" object_id="_2">
 			<element_name>tee</element_name>

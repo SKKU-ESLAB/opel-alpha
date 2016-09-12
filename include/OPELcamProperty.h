@@ -26,6 +26,14 @@ inline gchar* stringToGchar(std::string* _str)
   return (gchar*)_char_str;
 }
 
+inline gchar* strToGcharNonPtr(std::string _str)
+{
+  unsigned int _str_size = _str.size();
+  unsigned char *_char_str = (unsigned char*)malloc(_str_size+1);
+  strcpy((char*)_char_str, _str.c_str());
+  return (gchar*)_char_str;
+}
+
 typedef enum _elementType{
    kSRC = 0,
    kTEE,
@@ -233,6 +241,9 @@ class ElementProperty{
         case kSRC:
           ar & make_nvp("element_property", *camProp);
           ar & make_nvp("element_property", *rtspProp);
+          ar & make_nvp("fps", this->fps);
+          ar & make_nvp("width", this->width);
+          ar & make_nvp("height", this->height);
           break;
         case kTEE:
           break;

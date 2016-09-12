@@ -34,6 +34,21 @@ OPELGstElement::OPELGstElement()
 
 OPELGstElement::~OPELGstElement()
 {
+  assert(this->_type_element_vector != NULL);
   delete this->_type_element_vector;
 }
 
+typeElement* findByElementName(std::vector<typeElement*> *_v_element,
+    const char *_str)
+{
+  assert(_str != NULL && _v_element != NULL);
+  std::string target = charToString(_str);
+  typeElement* iter = NULL;
+  for(int i=0; i < _v_element->size(); i++)
+  {
+     iter = (*_v_element)[i];
+     if(target == *(iter->name)) 
+        return iter;
+  }
+  return NULL;
+}

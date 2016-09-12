@@ -113,6 +113,9 @@ int main(int argc, char** argv)
 
   tx1->OPELGstElementFactory();
   tx1->OPELGstElementPropFactory();
+  tx1->OPELGstElementCapFactory();
+  tx1->OPELGstPipelineMake();
+
 
   if(dbus_error_is_set(&dbus_error))
   {

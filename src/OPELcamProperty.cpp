@@ -2,20 +2,15 @@
 
 const char *EncorderProp::n_quality_level = "quality-level";
 const char *EncorderProp::n_bitrate = "bitrate";
-
 const char *RTSPSrcProp::n_location = "location";
-
 const char *RTSPSrcProp::n_user_id = "user_id";
 const char *RTSPSrcProp::n_user_pwd= "user_pw";
-
 const char *CameraSrcProp::n_fpsRange = "fpsRange";
-
 const char *FileSinkProp::n_location = "location";
-
 const char *ConvProp::n_flip_method = "flip-method";
-
 const char *UDPSinkProp::n_host = "host";
 const char *UDPSinkProp::n_port = "port";
+
 
 void setTx1DefaultProperty(void)
 {
@@ -46,6 +41,14 @@ void setTx1DefaultProperty(void)
        "filesink", "filesink"); 
    ElementProperty *udp_sink = new ElementProperty(kSINK, kUDP_SINK, 
        "udpsink", "udpsink");
+ 
+   nv_src->setWidth(1920);
+   nv_src->setHeight(1080);
+   nv_src->setFps(30);
+
+   rtsp_src->setWidth(1920);
+   rtsp_src->setHeight(1080);
+   rtsp_src->setFps(30);
    
    nv_src->camProp->fpsRange = charToString("30.0 30.0");
    h264_enc->encProp->bitrate = 8000000;

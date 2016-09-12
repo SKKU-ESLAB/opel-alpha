@@ -8,10 +8,9 @@
 
 //#include "OPELdbugLog.h"
 
+#define TARGET_SRC_IS_CAM 1
 
 #define TARGET_BOARD_TX1 1
-
-#define NUM_OF_GST_ELEMENT_TX1 6
 
 #ifdef TARGET_BOARD_TX1
 #define NUM_OF_GST_ELEMENT NUM_OF_GST_ELEMENT_TX1
@@ -33,9 +32,9 @@
     OPEL_DBG_ERR("GstElement is NULL"); \
   }while(0)
 
-#define OPEL_GST_CAPS_NEW_SIMPLE(caps, eid, ...) \
+#define OPEL_GST_CAPS_NEW_SIMPLE(caps, ...) \
   do{ if(caps != NULL) \
-    caps[eid] = gst_caps_new_simple(__VA_ARGS__); \
+    caps = gst_caps_new_simple(__VA_ARGS__); \
     else \
     OPEL_DBG_ERR("Caps Array is NULL"); \
   }while(0)
@@ -96,4 +95,6 @@ extern bool typeElementAllocator(const char *name, const char *element_name,
     GstElement **element, int eid, typeElement **type_element_array);
 extern bool typeElementCapAllocator(unsigned eid,
     typeElement **type_element_array, GstCaps *cap);
+typeElement* findByElementName(std::vector<typeElement*> *_v_element, 
+    const char *_str);
 #endif /* OPEL_GST_ELEMENT_H */

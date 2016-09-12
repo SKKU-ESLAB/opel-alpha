@@ -23,6 +23,7 @@ class OPELGstElementTx1 : public OPELGstElement
     static OPELGstElementTx1 *opel_gst_element_tx1;
     OPELGstElementTx1();
     GstElement *pipeline;
+    GstCaps *src2conv;
 };
 
 

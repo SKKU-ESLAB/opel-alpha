@@ -1,6 +1,7 @@
 #include "OPELgstElementTx1.h"
 OPELGstElementTx1 *OPELGstElementTx1::opel_gst_element_tx1 = NULL; 
 
+
 void printTypeElement(std::vector<typeElement*> *_type_element_vector)
 {
    assert(_type_element_vector != NULL);
@@ -89,11 +90,9 @@ void freeTypeElementMember(typeElement *type_element)
       delete type_element->name;
    if(type_element->nickname != NULL)
      delete type_element->nickname;
-// buggy
-//   if(type_element->caps != NULL)
-//     gst_caps_unref(type_element->caps);
-   if(type_element->element != NULL)
-     gst_object_unref(GST_OBJECT(type_element->element));
+//buggy
+  if(type_element->caps != NULL)
+     gst_caps_unref(type_element->caps);
 }
 
 OPELGstElementTx1::OPELGstElementTx1()  
@@ -107,6 +106,9 @@ OPELGstElementTx1::~OPELGstElementTx1()
     freeTypeElementMember((*this->_type_element_vector)[i]);     
     delete (*this->_type_element_vector)[i];  
   }
+  if(this->pipeline != NULL)
+    gst_object_unref(pipeline);
+  //deletion all element in typeElement list 
 }
 
 OPELGstElementTx1 *OPELGstElementTx1::getInstance(void)
@@ -120,6 +122,26 @@ bool OPELGstElementTx1::OPELGstElementCapFactory(void)
 {
   assert(_type_element_vector != NULL);
   __OPEL_FUNCTION_ENTER__;
+  typeElement *src_element = NULL;
+  ElementProperty *prop_element = NULL;
+#if TARGET_SRC_IS_CAM
+  src_element = findByElementName(this->_type_element_vector, "nvcamerasrc");
+  if(src_element == NULL)
+  { 
+    __OPEL_FUNCTION_EXIT__;
+    return false;
+  }
+  prop_element = src_element->element_prop;
+
+  src_element->caps  = gst_caps_new_simple("video/x-raw", 
+      "width", G_TYPE_INT, prop_element->getWidth(), 
+      "height", G_TYPE_INT, prop_element->getHeight(), 
+      "framerate", GST_TYPE_FRACTION, prop_element->getFps(), 1, 
+      "format", G_TYPE_STRING, "I420", NULL);
+
+   
+    
+#endif
   __OPEL_FUNCTION_EXIT__;
   return true;
 }
@@ -136,14 +158,9 @@ bool OPELGstElementTx1::OPELGstElementPropFactory(void)
     iter = (*this->_type_element_vector)[i];
     if(iter->prop != NULL)
       iter->prop->setGstObjectProperty(iter->element);
-    else
-    {
-      std::cout << "Element Name : " <<  *iter->name << std::endl;
-    }
-
   }
  
- __OPEL_FUNCTION_EXIT__;
+  __OPEL_FUNCTION_EXIT__;
   return true;
 }
 
@@ -151,30 +168,26 @@ bool OPELGstElementTx1::OPELGstPipelineMake(void)
 {
   assert(_type_element_vector != NULL);
   __OPEL_FUNCTION_ENTER__;
+  gboolean ret = false;
+
+  typeElement* tee = 
+    findByElementName(this->_type_element_vector, "tee");
+  typeElement* cam_src = 
+    findByElementName(this->_type_element_vector, "nvcamerasrc");
+
+  std::cout <<"find name : " <<  *(tee->name) << std::endl;
+
+  gst_bin_add_many(GST_BIN(this->pipeline), cam_src->element, 
+      tee->element, NULL);
+
+  ret = gst_element_link_many(cam_src->element, tee->element, NULL);
   
-  /*
-  gst_bin_add_many(GST_BIN(element_array[kPIPELINE]), element_array[kSRC],
-      element_array[kCONV], element_array[kENC], element_array[kMUX],
-      element_array[kSINK], NULL);
-  ret = gst_element_link_many(element_array[kSRC],
-      element_array[kCONV], element_array[kENC], element_array[kMUX],
-      element_array[kSINK], NULL);
-  if(ret == false)
+  if(!ret)
   {
-    OPEL_DBG_ERR("Gstreamer element Linking error");
-    __OPEL_FUNCTION_EXIT__;
-    return ret;
+     OPEL_DBG_ERR("Gst Element Link Failed");
+     __OPEL_FUNCTION_EXIT__;  
+     return false;
   }
-  for(int pipe_idx=0; pipe_idx<NUM_OF_GST_ELEMENT; pipe_idx++)
-  {
-    int next_element = pipe_idx+1;
-    if(type_element_array[pipe_idx]->caps != NULL)
-    { 
-      OPEL_GST_ELEMENT_LINK_FILTERED(element_array, pipe_idx, next_element, 
-          type_element_array[pipe_idx]->caps);
-    }
-  }
-  */
 
   __OPEL_FUNCTION_EXIT__;
   return true;
