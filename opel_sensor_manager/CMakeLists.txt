@@ -15,9 +15,9 @@ set(ROOT_DIR /home/pi/__home_directory/OPEL/sensor_manager)
 set(MYLIB_PATH /home/pi)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
-ADD_EXECUTABLE(sensorManager sensor_manager.c request.c devices.c sensor1_acc.c sensor2_temp.c sensor3_sound.c sensor4_light.c sensor5_motion.c sensor6_vib.c sensor7_touch.c)
+ADD_EXECUTABLE(sensorManager sensor_manager.c request.c devices.c jetsonGPIO.c sensor0_button.c)
 
-TARGET_LINK_LIBRARIES(sensorManager pthread wiringPi c m dbus-glib-1 dbus-1 glib-2.0)
+TARGET_LINK_LIBRARIES(sensorManager pthread c m dbus-glib-1 dbus-1 glib-2.0)
 set_target_properties(sensorManager
 	PROPERTIES
 	RUNTIME_OUTPUT_DIRECTORY "../bin")
