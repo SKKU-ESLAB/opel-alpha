@@ -2,12 +2,12 @@ tags
 cscope.out
 build/
 bin/
-build.sh
+
 sensor8*
-Makefile
+
 *.o
 *.so
 
 sensorManager
-test
+
 
