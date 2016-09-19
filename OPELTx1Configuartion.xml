@@ -43,13 +43,13 @@
 			<element_name>tee</element_name>
 			<element_nickname>tee</element_nickname>
 			<element_type>1</element_type>
-			<element_sub_type>9</element_sub_type>
+			<element_sub_type>10</element_sub_type>
 		</item>
 		<item class_id_reference="2" object_id="_3">
 			<element_name>queue</element_name>
 			<element_nickname>queue</element_nickname>
 			<element_type>2</element_type>
-			<element_sub_type>9</element_sub_type>
+			<element_sub_type>10</element_sub_type>
 		</item>
 		<item class_id_reference="2" object_id="_4">
 			<element_name>nvvidconv</element_name>
@@ -64,7 +64,7 @@
 			<element_name>nvvidconv</element_name>
 			<element_nickname>nvvidconv</element_nickname>
 			<element_type>3</element_type>
-			<element_sub_type>2</element_sub_type>
+			<element_sub_type>3</element_sub_type>
 			<element_property>
 				<flip_method>0</flip_method>
 			</element_property>
@@ -73,7 +73,7 @@
 			<element_name>omxh264enc</element_name>
 			<element_nickname>omxh264enc</element_nickname>
 			<element_type>4</element_type>
-			<element_sub_type>3</element_sub_type>
+			<element_sub_type>4</element_sub_type>
 			<element_property class_id="6" tracking_level="0" version="0">
 				<quality_level>0</quality_level>
 				<bitrate>8000000</bitrate>
@@ -83,7 +83,7 @@
 			<element_name>nvjpegenc</element_name>
 			<element_nickname>nvjpegenc</element_nickname>
 			<element_type>4</element_type>
-			<element_sub_type>4</element_sub_type>
+			<element_sub_type>5</element_sub_type>
 			<element_property>
 				<quality_level>0</quality_level>
 				<bitrate>0</bitrate>
@@ -93,13 +93,13 @@
 			<element_name>mp4mux</element_name>
 			<element_nickname>mp4mux</element_nickname>
 			<element_type>5</element_type>
-			<element_sub_type>5</element_sub_type>
+			<element_sub_type>6</element_sub_type>
 		</item>
 		<item class_id_reference="2" object_id="_9">
 			<element_name>filesink</element_name>
 			<element_nickname>filesink</element_nickname>
 			<element_type>6</element_type>
-			<element_sub_type>6</element_sub_type>
+			<element_sub_type>7</element_sub_type>
 			<element_property class_id="7" tracking_level="0" version="0">
 				<location>/home/ubuntu/hihihi.mp4</location>
 			</element_property>
@@ -111,7 +111,7 @@
 			<element_name>filesink</element_name>
 			<element_nickname>filesink</element_nickname>
 			<element_type>6</element_type>
-			<element_sub_type>7</element_sub_type>
+			<element_sub_type>8</element_sub_type>
 			<element_property>
 				<location>/home/ubuntu/hihihi.jpeg</location>
 			</element_property>
@@ -123,7 +123,7 @@
 			<element_name>udpsink</element_name>
 			<element_nickname>udpsink</element_nickname>
 			<element_type>6</element_type>
-			<element_sub_type>8</element_sub_type>
+			<element_sub_type>9</element_sub_type>
 			<element_property>
 				<location></location>
 			</element_property>

@@ -43,12 +43,28 @@ typeElement* findByElementName(std::vector<typeElement*> *_v_element,
 {
   assert(_str != NULL && _v_element != NULL);
   std::string target = charToString(_str);
-  typeElement* iter = NULL;
+  typeElement *iter = NULL;
   for(int i=0; i < _v_element->size(); i++)
   {
      iter = (*_v_element)[i];
      if(target == *(iter->name)) 
         return iter;
   }
+  OPEL_DBG_ERR("Cannot Find Element By Element Name");
+  return NULL;
+}
+typeElement* findByElementNameNSubType(std::vector<typeElement*> *_v_element, 
+    const char *_str, unsigned _sub_type)
+{
+  assert(_str != NULL && _v_element != NULL);
+  std::string target = charToString(_str);
+  typeElement *iter = NULL;
+  for(int i=0; i < _v_element->size(); i++)
+  {
+    iter = (*_v_element)[i];
+    if((target == *(iter->name)) && (iter->sub_type == _sub_type)) 
+      return iter;
+  }
+  OPEL_DBG_ERR("Cannot Find Element By Element Name and Sub Type");
   return NULL;
 }

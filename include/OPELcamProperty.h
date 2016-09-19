@@ -47,7 +47,8 @@ typedef enum _elementType{
 typedef enum _subElementType{
   kCAM = 0,
   kRTSP,
-  kDEFAULT,
+  kI420,
+  kBGR,
   kH264,
   kNVJPEG,
   kMP4,

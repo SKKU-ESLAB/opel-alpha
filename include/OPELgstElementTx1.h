@@ -11,6 +11,8 @@ class OPELGstElementTx1 : public OPELGstElement
     virtual bool OPELGstElementFactory(void);
     virtual bool OPELGstPipelineMake(void);
     virtual bool OPELGstElementCapFactory(void);
+    bool OPELGstElementRecordingCapFactory(void);
+    bool OPELGstElementRecordingPipelineMake(void);
     virtual bool OPELGstElementPropFactory(void);
     virtual void setElementPropertyVector(std::vector<ElementProperty*>
                 *__v_element_property);

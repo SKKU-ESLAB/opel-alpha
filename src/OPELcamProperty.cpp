@@ -25,9 +25,9 @@ void setTx1DefaultProperty(void)
        "tee", "tee");
    ElementProperty *queue = new ElementProperty(kQUEUE, kNO_PROP, 
        "queue", "queue");
-   ElementProperty *i420_conv = new ElementProperty(kCONV, kDEFAULT, 
+   ElementProperty *i420_conv = new ElementProperty(kCONV, kI420, 
        "nvvidconv", "nvvidconv");
-   ElementProperty *bgr_conv = new ElementProperty(kCONV, kDEFAULT, 
+   ElementProperty *bgr_conv = new ElementProperty(kCONV, kBGR, 
        "nvvidconv", "nvvidconv");
    ElementProperty *h264_enc = new ElementProperty(kENC, kH264, 
        "omxh264enc", "omxh264enc");

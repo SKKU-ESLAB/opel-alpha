@@ -5,6 +5,7 @@
 #include <dbus/dbus-glib-lowlevel.h>
 #include <dbus/dbus-protocol.h>
 #include <dbus/dbus-glib.h>
+#include <string>
 
 static const gchar *dbus_interface = "org.opel.camera.daemon";
 
@@ -17,13 +18,16 @@ static const gchar *opencv_start_request = "openCVStart";
 static const gchar *opencv_stop_request = "openCVStop";
 
 extern DBusHandlerResult msg_dbus_filter(DBusConnection *conn, 
-    DBusMessage *msg, void *user_data);
+    DBusMessage *msg, void *_type_element_vector);
+
 
 typedef struct _dbusReques{
+  std::string *file_path;
   unsigned fps;
   unsigned width;
   unsigned height;
   unsigned num_frames;
 }dbusRequest;
+
 
 #endif /* OPEL_CAM_REQUEST_H */

@@ -5,18 +5,9 @@
 #include <gst/app/gstappsrc.h>
 #include <stdlib.h>
 #include <string>
+#include "OPELconfig.h"
 
-//#include "OPELdbugLog.h"
-
-#define TARGET_SRC_IS_CAM 1
-
-#define TARGET_BOARD_TX1 1
-
-#ifdef TARGET_BOARD_TX1
-#define NUM_OF_GST_ELEMENT NUM_OF_GST_ELEMENT_TX1
-#endif /*TARGET_BOARD_TX1*/
-
-#define NUM_OF_GST_TYPE_ELEMENT NUM_OF_GST_ELEMENT
+//#define TARGET_SRC_IS_CAM 1
 
 #define OPEL_GST_ELEMENT_LINK_FILTERED(element, eid_1, eid_2, cap) \
   do{ if(element != NULL && cap != NULL) \
@@ -64,6 +55,7 @@ typedef struct {
   std::string *nickname;
   GstCaps *caps;
   GstElement *element;
+  GstPad *pad;
   ElementProperty *element_prop;
   Property *prop;
   unsigned type;
@@ -97,4 +89,6 @@ extern bool typeElementCapAllocator(unsigned eid,
     typeElement **type_element_array, GstCaps *cap);
 typeElement* findByElementName(std::vector<typeElement*> *_v_element, 
     const char *_str);
+typeElement* findByElementNameNSubType(std::vector<typeElement*> *_v_element, 
+    const char *_str, unsigned _sub_type);
 #endif /* OPEL_GST_ELEMENT_H */

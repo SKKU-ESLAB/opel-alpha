@@ -24,8 +24,11 @@ static void inline setTypeProperty(unsigned _sub_type,
     case kRTSP:
       _type_element->prop = element_property->rtspProp; 
       break;
-    case kDEFAULT:
+    case kI420:
       _type_element->prop = element_property->conProp; 
+      break;
+    case kBGR:
+      _type_element->prop = element_property->conProp;
       break;
     case kH264:
       _type_element->prop = element_property->encProp; 
@@ -85,14 +88,13 @@ void OPELGstElementTx1::setElementPropertyVector(std::vector<ElementProperty*>
 
 void freeTypeElementMember(typeElement *type_element)
 {
-   assert(type_element != NULL);
-   if(type_element->name != NULL)
-      delete type_element->name;
-   if(type_element->nickname != NULL)
-     delete type_element->nickname;
-//buggy
+  assert(type_element != NULL);
+  if(type_element->name != NULL)
+    delete type_element->name;
+  if(type_element->nickname != NULL)
+    delete type_element->nickname;
   if(type_element->caps != NULL)
-     gst_caps_unref(type_element->caps);
+    gst_caps_unref(type_element->caps);
 }
 
 OPELGstElementTx1::OPELGstElementTx1()  
@@ -108,7 +110,6 @@ OPELGstElementTx1::~OPELGstElementTx1()
   }
   if(this->pipeline != NULL)
     gst_object_unref(pipeline);
-  //deletion all element in typeElement list 
 }
 
 OPELGstElementTx1 *OPELGstElementTx1::getInstance(void)
@@ -123,24 +124,45 @@ bool OPELGstElementTx1::OPELGstElementCapFactory(void)
   assert(_type_element_vector != NULL);
   __OPEL_FUNCTION_ENTER__;
   typeElement *src_element = NULL;
+  typeElement *conv_element = NULL;
   ElementProperty *prop_element = NULL;
+  typeElement *tee_element = NULL;
+
 #if TARGET_SRC_IS_CAM
   src_element = findByElementName(this->_type_element_vector, "nvcamerasrc");
-  if(src_element == NULL)
-  { 
+  conv_element = findByElementNameNSubType(this->_type_element_vector, "nvvidconv",
+      kI420);
+  tee_element = findByElementName(this->_type_element_vector, "tee");
+
+  if(!src_element || !conv_element)
+  {
+    OPEL_DBG_ERR("Get TypeElement Pointer is NULL");
     __OPEL_FUNCTION_EXIT__;
     return false;
   }
-  prop_element = src_element->element_prop;
+  
+#if OPEL_LOG_VERBOSE
+  std::cout <<"find name : " <<  *(src_element->name) << " sub_type : " 
+    << src_element->sub_type << std::endl;
+  std::cout <<"find name : " <<  *(conv_element->name) << " sub_type : " 
+    << conv_element->sub_type << std::endl;
+#endif
 
-  src_element->caps  = gst_caps_new_simple("video/x-raw", 
+  prop_element = src_element->element_prop;
+  
+
+  src_element->caps = gst_caps_new_simple("video/x-raw(memory:NVMM)", 
       "width", G_TYPE_INT, prop_element->getWidth(), 
       "height", G_TYPE_INT, prop_element->getHeight(), 
       "framerate", GST_TYPE_FRACTION, prop_element->getFps(), 1, 
+      "format", G_TYPE_STRING, "I420", 
+      NULL);
+
+  conv_element->caps = gst_caps_new_simple("video/x-raw(memory:NVMM)", 
       "format", G_TYPE_STRING, "I420", NULL);
 
-   
-    
+ // tee_element->caps = gst_caps_new_simple("video/x-raw(memory:NVMM)",
+       
 #endif
   __OPEL_FUNCTION_EXIT__;
   return true;
@@ -174,17 +196,33 @@ bool OPELGstElementTx1::OPELGstPipelineMake(void)
     findByElementName(this->_type_element_vector, "tee");
   typeElement* cam_src = 
     findByElementName(this->_type_element_vector, "nvcamerasrc");
+  typeElement* conv = 
+    findByElementNameNSubType(this->_type_element_vector, "nvvidconv", kI420);
+  typeElement* queue = 
+     findByElementName(this->_type_element_vector, "queue");
 
-  std::cout <<"find name : " <<  *(tee->name) << std::endl;
+
+#if OPEL_LOG_VERBOSE
+  std::cout <<"find name : " <<  *(tee->name) << " sub_type : " << tee->sub_type << std::endl;
+  std::cout <<"find name : " <<  *(cam_src->name) << " sub_type : " << cam_src->sub_type << std::endl;
+  std::cout <<"find name : " <<  *(conv->name) << " sub_type : " << conv->sub_type << std::endl;
+#endif
 
   gst_bin_add_many(GST_BIN(this->pipeline), cam_src->element, 
-      tee->element, NULL);
-
-  ret = gst_element_link_many(cam_src->element, tee->element, NULL);
-  
+      conv->element, tee->element, NULL);
+ 
+  ret = gst_element_link_filtered(cam_src->element, conv->element, cam_src->caps);
   if(!ret)
   {
-     OPEL_DBG_ERR("Gst Element Link Failed");
+     OPEL_DBG_ERR("Gst Element Link filtered Failed");
+     __OPEL_FUNCTION_EXIT__;  
+     return false;
+  }
+  
+  ret = gst_element_link_filtered(conv->element, tee->element, conv->caps);
+  if(!ret)
+  {
+     OPEL_DBG_ERR("Gst Element Link filtered Failed");
      __OPEL_FUNCTION_EXIT__;  
      return false;
   }
@@ -207,10 +245,75 @@ bool OPELGstElementTx1::OPELGstElementFactory(void)
     iter = (*this->_type_element_vector)[i];
     OPEL_GST_ELEMENT_FACTORY_MAKE(iter->element, 
         stringToGchar(iter->name), stringToGchar(iter->nickname));
-//    g_print("Element Factory : %s\n", stringToGchar(iter->name)); 
+#if OPEL_LOG_VERBOSE
+    g_print("Element Factory : %s\n", stringToGchar(iter->name)); 
+#endif
   }
 
   __OPEL_FUNCTION_EXIT__;
   return true;
 }
+
+bool OPELGstElementTx1::OPELGstElementRecordingCapFactory(void)
+{
+  assert(this->_type_element_vector != NULL);
+  __OPEL_FUNCTION_ENTER__;
+  
+  typeElement *_enc = findByElementName(this->_type_element_vector, "omxh264enc"); 
+
+  _enc->caps = gst_caps_new_simple("video/x-h264", 
+      "stream-format", G_TYPE_STRING, "avc", NULL);
+  
+
+  __OPEL_FUNCTION_EXIT__;
+  return true;
+}
+bool OPELGstElementTx1::OPELGstElementRecordingPipelineMake(void)
+{
+  assert(this->_type_element_vector != NULL);
+  __OPEL_FUNCTION_ENTER__;
+  bool ret = true;
+ 
+  typeElement *_tee = findByElementName(this->_type_element_vector, "tee"); 
+  typeElement *_queue = findByElementName(this->_type_element_vector, "queue"); 
+  typeElement *_enc = findByElementName(this->_type_element_vector, "omxh264enc"); 
+  typeElement *_mux = findByElementName(this->_type_element_vector, "mp4mux"); 
+  typeElement *_sink = findByElementNameNSubType(this->_type_element_vector, 
+      "filesink", kREC_SINK); 
+ 
+  if(!_tee || !_queue || !_enc || !_mux || !_sink)
+  {
+    OPEL_DBG_ERR("Get TypeElement Pointer is NULL");
+    __OPEL_FUNCTION_EXIT__;
+    return false;
+  }
+
+  gst_bin_add_many(GST_BIN(this->pipeline), _queue->element, _enc->element,
+      _mux->element, _sink->element, NULL);
+
+  ret = gst_element_link_many(_tee->element, _queue->element, _enc->element, NULL);
+  if(!ret)
+  {
+    OPEL_DBG_ERR("Gst Element Link Many Failed");
+    __OPEL_FUNCTION_EXIT__;  
+    return ret;
+  }
+  ret = gst_element_link_filtered(_enc->element, _mux->element, _enc->caps);
+  if(!ret)
+  {
+    OPEL_DBG_ERR("Gst Element Link Filtered Failed");
+    __OPEL_FUNCTION_EXIT__;  
+    return ret;
+  }
+  ret = gst_element_link(_mux->element, _sink->element); 
+  if(!ret)
+  {
+    OPEL_DBG_ERR("Gst Element Link Failed");
+    __OPEL_FUNCTION_EXIT__;  
+    return ret;
+  } 
+  __OPEL_FUNCTION_EXIT__;
+  return true;
+}
+
 

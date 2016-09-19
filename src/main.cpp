@@ -18,7 +18,20 @@ ElementXMLSerialization* openXMLconfig(const char *_path_xml);
 
 
 void writeXMLconfig(const char *_path_xml);
-
+static gboolean
+message_cb(GstBus *bus, GstMessage *message, gpointer user_data)
+{
+  switch(GST_MESSAGE_TYPE(message))
+  {
+      case GST_MESSAGE_ERROR:
+        break;
+      case GST_MESSAGE_WARNING:
+        break;
+      case GST_MESSAGE_EOS:
+        break;
+  }
+  return true;
+}
 void signalHandler(int signo)
 {
   if(loop && g_main_loop_is_running(loop))
@@ -88,17 +101,22 @@ void writeXMLconfig(const char *_path_xml)
 int main(int argc, char** argv)
 {
   __OPEL_FUNCTION_ENTER__; 
-  int ret;
+  bool ret;
+  GstBus *bus;
   DBusError dbus_error;
   DBusConnection *dbus_conn;
-
+  GstElement *_pipeline;
+  std::vector<typeElement*> *_type_element_vector = NULL;
   ElementXMLSerialization *tx1_element_property = NULL; 
 
   tx1_element_property = openXMLconfig(path_configuration_Tx1);
   if(tx1_element_property == NULL)
     writeXMLconfig(path_configuration_Tx1);
 
-  //  printVectorElement(v_element_property);
+#if OPEL_LOG_VERBOSE
+  printVectorElement(v_element_property);
+#endif
+
   gst_init(&argc, &argv);
   
   loop = g_main_loop_new(NULL, false);
@@ -109,14 +127,27 @@ int main(int argc, char** argv)
   
   tx1->setElementPropertyVector(v_element_property);
 
-  //  printTypeElement(tx1->getTypeElementVector());
+#if OPEL_LOG_VERBOSE
+  printTypeElement(tx1->getTypeElementVector());
+#endif
+ 
 
-  tx1->OPELGstElementFactory();
-  tx1->OPELGstElementPropFactory();
-  tx1->OPELGstElementCapFactory();
-  tx1->OPELGstPipelineMake();
-
-
+  ret = tx1->OPELGstElementFactory();
+  if(!ret)
+    goto exit;
+  ret = tx1->OPELGstElementPropFactory();
+  if(!ret)
+    goto exit;
+  ret = tx1->OPELGstElementCapFactory();
+  if(!ret)
+    goto exit;
+  ret = tx1->OPELGstPipelineMake();
+  if(!ret)
+    goto exit;
+ 
+  _type_element_vector = tx1->getTypeElementVector();
+  _pipeline = tx1->getPipeline();
+  
   if(dbus_error_is_set(&dbus_error))
   {
     OPEL_DBG_ERR("Error Connecting to the D-bus Daemon");
@@ -125,18 +156,23 @@ int main(int argc, char** argv)
   }
 
   dbus_bus_add_match(dbus_conn, "type='signal',interface='org.opel.camera.daemon'", NULL);
-  dbus_connection_add_filter(dbus_conn, msg_dbus_filter, loop, NULL);
+  dbus_connection_add_filter(dbus_conn, msg_dbus_filter, 
+      (void*)_type_element_vector, NULL);
   dbus_connection_setup_with_g_main(dbus_conn, NULL);
   signal(SIGINT, signalHandler);
   
-  
+  bus = gst_pipeline_get_bus(GST_PIPELINE(_pipeline));
+  gst_bus_add_signal_watch(bus);
+  g_signal_connect(G_OBJECT(bus), "message", G_CALLBACK(message_cb), NULL);
 
-   
+  gst_object_unref(GST_OBJECT(bus));
+  
+  
   g_main_loop_run(loop);
 
 
-
 exit:
+  
   if(tx1_element_property != NULL)
     delete tx1_element_property;
   deleteVectorElement(v_element_property);
