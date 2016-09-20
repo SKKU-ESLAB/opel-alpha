@@ -187,7 +187,7 @@ int main(int argc, char** argv)
   gst_object_unref(GST_OBJECT(bus));
   
   g_main_loop_run(loop);
-
+  
 
 exit:
   if(tx1_element_property != NULL)

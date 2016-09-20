@@ -32,6 +32,20 @@ gst/gst.h
 OPELdbugLog.h
 ../include/OPELdbugLog.h
 
+../include/OPELcamRequest.h
+dbus/dbus.h
+-
+glib.h
+-
+dbus/dbus-glib-lowlevel.h
+-
+dbus/dbus-protocol.h
+-
+dbus/dbus-glib.h
+-
+string
+-
+
 ../include/OPELconfig.h
 
 ../include/OPELdbugLog.h
@@ -58,7 +72,9 @@ OPELconfig.h
 OPELgstElement.h
 ../include/OPELgstElement.h
 
-/home/ubuntu/opel-alpha/src/OPELgstElementTx1.cpp
+/home/ubuntu/opel-alpha/src/OPELcamRequest.cpp
+OPELcamRequest.h
+/home/ubuntu/opel-alpha/src/OPELcamRequest.h
 OPELgstElementTx1.h
 /home/ubuntu/opel-alpha/src/OPELgstElementTx1.h
 

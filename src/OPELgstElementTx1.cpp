@@ -150,7 +150,7 @@ bool OPELGstElementTx1::OPELGstElementCapFactory(void)
   std::cout <<"find name : " <<  *(conv_element->name) << " sub_type : " 
     << conv_element->sub_type << std::endl;
 #endif
-
+  
   prop_element = src_element->element_prop;
   
 #if OPEL_LOG_VERBOSE
@@ -201,7 +201,7 @@ bool OPELGstElementTx1::OPELGstElementPropFactory(void)
     if(iter->prop != NULL)
       iter->prop->setGstObjectProperty(iter->element);
   }
- 
+  
   __OPEL_FUNCTION_EXIT__;
   return true;
 }
@@ -237,7 +237,6 @@ bool OPELGstElementTx1::OPELGstPipelineMake(void)
      __OPEL_FUNCTION_EXIT__;  
      return false;
   }
-
   ret = gst_element_link_filtered(conv->element, tee->element, conv->caps);
   if(!ret)
   {
@@ -245,7 +244,6 @@ bool OPELGstElementTx1::OPELGstPipelineMake(void)
      __OPEL_FUNCTION_EXIT__;  
      return false;
   }
-
   
   __OPEL_FUNCTION_EXIT__;
   return true;
@@ -269,6 +267,7 @@ bool OPELGstElementTx1::OPELGstElementFactory(void)
     g_print("Element Factory : %s\n", stringToGchar(iter->name)); 
 #endif
   }
+  
   __OPEL_FUNCTION_EXIT__;
   return true;
 }
@@ -325,6 +324,7 @@ bool OPELGstElementTx1::OPELGstElementRecordingPipelineMake(void)
     return ret;
   }
   ret = gst_element_link_filtered(_enc->element, _mux->element, _enc->caps);
+  
   if(!ret)
   {
     OPEL_DBG_ERR("Gst Element Link Filtered Failed");
@@ -332,6 +332,7 @@ bool OPELGstElementTx1::OPELGstElementRecordingPipelineMake(void)
     return ret;
   }
   ret = gst_element_link(_mux->element, _sink->element); 
+ 
   if(!ret)
   {
     OPEL_DBG_ERR("Gst Element Link Failed");

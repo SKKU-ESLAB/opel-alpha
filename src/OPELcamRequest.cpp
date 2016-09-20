@@ -1,7 +1,18 @@
 #include "OPELcamRequest.h"
 #include "OPELgstElementTx1.h"
 
-static void recordingInit(std::vector<typeElement*> *_type_element_v)
+static gboolean timeOutCallback(gpointer _tee)
+{
+  OPEL_DBG_ERR("Time Out Callback Invoked");
+  typeElement *tee = (typeElement*)_tee;
+  OPEL_DBG_ERR("%s : Get Pad Element", tee->name->c_str());
+  GstPad *queue_pad = gst_element_get_static_pad(tee->element, "sink");
+  gst_pad_send_event(queue_pad, gst_event_new_eos());
+ 
+  return true;
+}
+
+static typeElement *recordingInit(std::vector<typeElement*> *_type_element_v)
 {
    assert(_type_element_v != NULL);
    __OPEL_FUNCTION_ENTER__;
@@ -16,13 +27,12 @@ static void recordingInit(std::vector<typeElement*> *_type_element_v)
    typeElement *enc = findByElementName(_type_element_v, "omxh264enc");
    typeElement *mux = findByElementName(_type_element_v, "mp4mux");
    typeElement *sink = findByElementNameNSubType(_type_element_v, "filesink", kREC_SINK);
-
    
    if(!tee || !queue || !enc || !mux || !sink)
    {
       OPEL_DBG_ERR("Get TypeElement Pointer is NULL");
       __OPEL_FUNCTION_EXIT__;
-      return;
+      return NULL;
    }
    templ = gst_element_class_get_pad_template(GST_ELEMENT_GET_CLASS(tee->element), "src_%u");
    tee->pad = gst_element_request_pad(tee->element, templ, NULL, NULL);
@@ -37,7 +47,8 @@ static void recordingInit(std::vector<typeElement*> *_type_element_v)
    
    queue->pad = gst_element_get_static_pad(queue->element, "sink");
    gst_pad_link(tee->pad, queue->pad);
-     
+
+   return queue;
     
    __OPEL_FUNCTION_EXIT__;
 }
@@ -48,10 +59,9 @@ DBusHandlerResult msg_dbus_filter(DBusConnection *conn,
   __OPEL_FUNCTION_ENTER__; 
 
   bool ret;
-
+  typeElement *tee;
   OPELGstElementTx1 *tx1 = OPELGstElementTx1::getInstance();
-  
-  recordingInit((std::vector<typeElement*>*) _type_element_vector);
+  tee = recordingInit((std::vector<typeElement*>*) _type_element_vector);
 
   ret = gst_element_set_state(tx1->getPipeline(), GST_STATE_PLAYING);
   if(ret == GST_STATE_CHANGE_FAILURE)
@@ -60,8 +70,11 @@ DBusHandlerResult msg_dbus_filter(DBusConnection *conn,
       __OPEL_FUNCTION_EXIT__;
       return DBUS_HANDLER_RESULT_HANDLED;
   }
+  
 
+  g_timeout_add_seconds(10, timeOutCallback, (void*)tee);   
 
+  
   if(dbus_message_is_signal(msg, dbus_interface, rec_init_request))
   {
     OPEL_DBG_VERB("Get Recording Initialization Request");
@@ -76,19 +89,24 @@ DBusHandlerResult msg_dbus_filter(DBusConnection *conn,
 
   if(dbus_message_is_signal(msg, dbus_interface, rec_start_request))
   {
-     OPEL_DBG_VERB("Get Recording Start Request");
+    OPEL_DBG_VERB("Get Recording Start Request");
+    ret = gst_element_set_state(tx1->getPipeline(), GST_STATE_PLAYING);
+    if(ret == GST_STATE_CHANGE_FAILURE)
+    {
+      OPEL_DBG_ERR("Unable to set the pipeline to the playing state. \n");
+      __OPEL_FUNCTION_EXIT__;
+      return DBUS_HANDLER_RESULT_HANDLED;
+    }
     /*     dbus_message_get_args(msg, NULL, DBUS_TYPE_UINT64,
-       &(request->msg_type), DBUS_TYPE_UINT64, &(request->u.dynamic_type), 
-       DBUS_TYPE_UINT64, &(request->fps), DBUS_TYPE_UINT64, &(request->width),
-       DBUS_TYPE_UINT64, &(request->height), DBUS_TYPE_UINT64, 
-       &(request->num_frames), DBUS_TYPE_INVALID); */
+           &(request->msg_type), DBUS_TYPE_UINT64, &(request->u.dynamic_type), 
+           DBUS_TYPE_UINT64, &(request->fps), DBUS_TYPE_UINT64, &(request->width),
+           DBUS_TYPE_UINT64, &(request->height), DBUS_TYPE_UINT64, 
+           &(request->num_frames), DBUS_TYPE_INVALID); */
   }
   
   if(dbus_message_is_signal(msg, dbus_interface, rec_stop_request))
   {
-     OPEL_DBG_VERB("Get Recording Start Request");
-  
-  
+    OPEL_DBG_VERB("Get Recording Start Request");
   }
   
   __OPEL_FUNCTION_EXIT__;
