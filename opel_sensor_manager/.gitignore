@@ -4,10 +4,7 @@ build/
 bin/
 
 sensor8*
-
 *.o
 *.so
-
 sensorManager
-
 
