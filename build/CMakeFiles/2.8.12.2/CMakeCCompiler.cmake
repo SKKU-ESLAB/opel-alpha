@@ -1,7 +1,7 @@
 set(CMAKE_C_COMPILER "/usr/bin/cc")
 set(CMAKE_C_COMPILER_ARG1 "")
 set(CMAKE_C_COMPILER_ID "GNU")
-set(CMAKE_C_COMPILER_VERSION "4.8.4")
+set(CMAKE_C_COMPILER_VERSION "4.7.3")
 set(CMAKE_C_PLATFORM_ID "Linux")
 
 set(CMAKE_AR "/usr/bin/ar")
@@ -49,7 +49,7 @@ endif()
 
 
 set(CMAKE_C_IMPLICIT_LINK_LIBRARIES "c")
-set(CMAKE_C_IMPLICIT_LINK_DIRECTORIES "/usr/lib/gcc/aarch64-linux-gnu/4.8;/usr/lib/aarch64-linux-gnu;/usr/lib;/lib/aarch64-linux-gnu;/lib")
+set(CMAKE_C_IMPLICIT_LINK_DIRECTORIES "/usr/lib/gcc/aarch64-linux-gnu/4.7;/usr/lib/aarch64-linux-gnu;/usr/lib;/lib/aarch64-linux-gnu")
 set(CMAKE_C_IMPLICIT_LINK_FRAMEWORK_DIRECTORIES "")
 
 

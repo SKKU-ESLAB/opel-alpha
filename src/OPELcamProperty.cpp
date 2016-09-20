@@ -52,7 +52,7 @@ void setTx1DefaultProperty(void)
    
    nv_src->camProp->fpsRange = charToString("30.0 30.0");
    h264_enc->encProp->bitrate = 8000000;
-   h264_enc->encProp->quality_level = 0;
+   h264_enc->encProp->quality_level = 2;
    i420_conv->conProp->flip_method = 2;
    sink->fileProp->location = charToString("/home/ubuntu/hihihi.mp4");
    jpeg_sink->fileProp->location = charToString("/home/ubuntu/hihihi.jpeg");

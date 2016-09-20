@@ -28,7 +28,8 @@ static void recordingInit(std::vector<typeElement*> *_type_element_v)
    tee->pad = gst_element_request_pad(tee->element, templ, NULL, NULL);
 
 #if OPEL_LOG_VERBOSE
-    OPEL_DBG_VERB("Obtained request pad %s for convert branch", gst_pad_get_name(templ));  
+    OPEL_DBG_VERB("Obtained request pad %s for %s", gst_pad_get_name(templ), 
+        tee->element->name->c_str());  
 #endif
     
    tx1->OPELGstElementRecordingCapFactory();
@@ -46,11 +47,21 @@ DBusHandlerResult msg_dbus_filter(DBusConnection *conn,
 {
   __OPEL_FUNCTION_ENTER__; 
 
+  bool ret;
+
   OPELGstElementTx1 *tx1 = OPELGstElementTx1::getInstance();
   
   recordingInit((std::vector<typeElement*>*) _type_element_vector);
-  gst_element_set_state(tx1->getPipeline(), GST_STATE_PLAYING);
-  
+
+  ret = gst_element_set_state(tx1->getPipeline(), GST_STATE_PLAYING);
+  if(ret == GST_STATE_CHANGE_FAILURE)
+  {
+      OPEL_DBG_ERR("Unable to set the pipeline to the playing state. \n");
+      __OPEL_FUNCTION_EXIT__;
+      return DBUS_HANDLER_RESULT_HANDLED;
+  }
+
+
   if(dbus_message_is_signal(msg, dbus_interface, rec_init_request))
   {
     OPEL_DBG_VERB("Get Recording Initialization Request");

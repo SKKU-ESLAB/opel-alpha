@@ -21,19 +21,38 @@ void writeXMLconfig(const char *_path_xml);
 static gboolean
 message_cb(GstBus *bus, GstMessage *message, gpointer user_data)
 {
+  GError *err;
+  gchar *debug_info;
+
   switch(GST_MESSAGE_TYPE(message))
   {
       case GST_MESSAGE_ERROR:
+         gst_message_parse_error(message, &err, &debug_info);
+        OPEL_DBG_ERR("Error Received From Element %s: %s\n",
+            GST_OBJECT_NAME (message->src), err->message);
+        OPEL_DBG_ERR("Debugging information: %s\n", debug_info ? debug_info : "none");
+        g_clear_error(&err);
+        g_free(debug_info);
         break;
       case GST_MESSAGE_WARNING:
         break;
       case GST_MESSAGE_EOS:
+        OPEL_DBG_VERB("End-Of-Stream reached. \n");
         break;
   }
   return true;
 }
+
 void signalHandler(int signo)
 {
+  bool ret;
+  OPELGstElementTx1 *tx1 = OPELGstElementTx1::getInstance();
+  GstElement *pipeline = tx1->getPipeline();
+  ret = gst_element_set_state(pipeline, GST_STATE_NULL);
+  if(ret == GST_STATE_CHANGE_FAILURE)
+  {
+    OPEL_DBG_ERR("Unable to set the pipeline to the null state. \n");
+  }
   if(loop && g_main_loop_is_running(loop))
     g_main_loop_quit(loop);
 }
@@ -167,12 +186,10 @@ int main(int argc, char** argv)
 
   gst_object_unref(GST_OBJECT(bus));
   
-  
   g_main_loop_run(loop);
 
 
 exit:
-  
   if(tx1_element_property != NULL)
     delete tx1_element_property;
   deleteVectorElement(v_element_property);
@@ -184,6 +201,8 @@ exit:
     g_main_loop_unref(loop);
   if(dbus_conn != NULL)
     dbus_connection_unref(dbus_conn);
+  if(bus != NULL)
+    gst_object_unref(bus);
   __OPEL_FUNCTION_EXIT__;
   return 0;
 }

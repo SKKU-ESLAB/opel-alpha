@@ -28,41 +28,41 @@ The CXX compiler identification is GNU, found in "/home/ubuntu/opel-alpha/build/
 Determining if the C compiler works passed with the following output:
 Change Dir: /home/ubuntu/opel-alpha/build/CMakeFiles/CMakeTmp
 
-Run Build Command:/usr/bin/make "cmTryCompileExec3006606396/fast"
-/usr/bin/make -f CMakeFiles/cmTryCompileExec3006606396.dir/build.make CMakeFiles/cmTryCompileExec3006606396.dir/build
+Run Build Command:/usr/bin/make "cmTryCompileExec510215672/fast"
+/usr/bin/make -f CMakeFiles/cmTryCompileExec510215672.dir/build.make CMakeFiles/cmTryCompileExec510215672.dir/build
 make[1]: Entering directory `/home/ubuntu/opel-alpha/build/CMakeFiles/CMakeTmp'
 /usr/bin/cmake -E cmake_progress_report /home/ubuntu/opel-alpha/build/CMakeFiles/CMakeTmp/CMakeFiles 1
-Building C object CMakeFiles/cmTryCompileExec3006606396.dir/testCCompiler.c.o
-/usr/bin/cc    -o CMakeFiles/cmTryCompileExec3006606396.dir/testCCompiler.c.o   -c /home/ubuntu/opel-alpha/build/CMakeFiles/CMakeTmp/testCCompiler.c
-Linking C executable cmTryCompileExec3006606396
-/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec3006606396.dir/link.txt --verbose=1
-/usr/bin/cc       CMakeFiles/cmTryCompileExec3006606396.dir/testCCompiler.c.o  -o cmTryCompileExec3006606396 -rdynamic 
+Building C object CMakeFiles/cmTryCompileExec510215672.dir/testCCompiler.c.o
+/usr/bin/cc    -o CMakeFiles/cmTryCompileExec510215672.dir/testCCompiler.c.o   -c /home/ubuntu/opel-alpha/build/CMakeFiles/CMakeTmp/testCCompiler.c
+Linking C executable cmTryCompileExec510215672
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec510215672.dir/link.txt --verbose=1
+/usr/bin/cc       CMakeFiles/cmTryCompileExec510215672.dir/testCCompiler.c.o  -o cmTryCompileExec510215672 -rdynamic 
 make[1]: Leaving directory `/home/ubuntu/opel-alpha/build/CMakeFiles/CMakeTmp'
 
 
 Detecting C compiler ABI info compiled with the following output:
 Change Dir: /home/ubuntu/opel-alpha/build/CMakeFiles/CMakeTmp
 
-Run Build Command:/usr/bin/make "cmTryCompileExec1727051399/fast"
-/usr/bin/make -f CMakeFiles/cmTryCompileExec1727051399.dir/build.make CMakeFiles/cmTryCompileExec1727051399.dir/build
+Run Build Command:/usr/bin/make "cmTryCompileExec2159285800/fast"
+/usr/bin/make -f CMakeFiles/cmTryCompileExec2159285800.dir/build.make CMakeFiles/cmTryCompileExec2159285800.dir/build
 make[1]: Entering directory `/home/ubuntu/opel-alpha/build/CMakeFiles/CMakeTmp'
 /usr/bin/cmake -E cmake_progress_report /home/ubuntu/opel-alpha/build/CMakeFiles/CMakeTmp/CMakeFiles 1
-Building C object CMakeFiles/cmTryCompileExec1727051399.dir/CMakeCCompilerABI.c.o
-/usr/bin/cc    -o CMakeFiles/cmTryCompileExec1727051399.dir/CMakeCCompilerABI.c.o   -c /usr/share/cmake-2.8/Modules/CMakeCCompilerABI.c
-Linking C executable cmTryCompileExec1727051399
-/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec1727051399.dir/link.txt --verbose=1
-/usr/bin/cc     -v CMakeFiles/cmTryCompileExec1727051399.dir/CMakeCCompilerABI.c.o  -o cmTryCompileExec1727051399 -rdynamic  
+Building C object CMakeFiles/cmTryCompileExec2159285800.dir/CMakeCCompilerABI.c.o
+/usr/bin/cc    -o CMakeFiles/cmTryCompileExec2159285800.dir/CMakeCCompilerABI.c.o   -c /usr/share/cmake-2.8/Modules/CMakeCCompilerABI.c
+Linking C executable cmTryCompileExec2159285800
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec2159285800.dir/link.txt --verbose=1
+/usr/bin/cc     -v CMakeFiles/cmTryCompileExec2159285800.dir/CMakeCCompilerABI.c.o  -o cmTryCompileExec2159285800 -rdynamic  
 Using built-in specs.
 COLLECT_GCC=/usr/bin/cc
-COLLECT_LTO_WRAPPER=/usr/lib/gcc/aarch64-linux-gnu/4.8/lto-wrapper
+COLLECT_LTO_WRAPPER=/usr/lib/gcc/aarch64-linux-gnu/4.7/lto-wrapper
 Target: aarch64-linux-gnu
-Configured with: ../src/configure -v --with-pkgversion='Ubuntu/Linaro 4.8.4-2ubuntu1~14.04.3' --with-bugurl=file:///usr/share/doc/gcc-4.8/README.Bugs --enable-languages=c,c++,java,go,d,fortran,objc,obj-c++ --prefix=/usr --program-suffix=-4.8 --enable-shared --enable-linker-build-id --libexecdir=/usr/lib --without-included-gettext --enable-threads=posix --with-gxx-include-dir=/usr/include/c++/4.8 --libdir=/usr/lib --enable-nls --with-sysroot=/ --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --enable-gnu-unique-object --disable-libmudflap --disable-libsanitizer --disable-libquadmath --enable-plugin --with-system-zlib --disable-browser-plugin --enable-java-awt=gtk --enable-gtk-cairo --with-java-home=/usr/lib/jvm/java-1.5.0-gcj-4.8-arm64/jre --enable-java-home --with-jvm-root-dir=/usr/lib/jvm/java-1.5.0-gcj-4.8-arm64 --with-jvm-jar-dir=/usr/lib/jvm-exports/java-1.5.0-gcj-4.8-arm64 --with-arch-directory=arm64 --with-ecj-jar=/usr/share/java/eclipse-ecj.jar --enable-multiarch --disable-werror --enable-checking=release --build=aarch64-linux-gnu --host=aarch64-linux-gnu --target=aarch64-linux-gnu
+Configured with: ../src/configure -v --with-pkgversion='Ubuntu/Linaro 4.7.3-12ubuntu1' --with-bugurl=file:///usr/share/doc/gcc-4.7/README.Bugs --enable-languages=c,c++,fortran --prefix=/usr --program-suffix=-4.7 --enable-shared --enable-linker-build-id --libexecdir=/usr/lib --without-included-gettext --enable-threads=posix --with-gxx-include-dir=/usr/include/c++/4.7 --libdir=/usr/lib --enable-nls --with-sysroot=/ --enable-clocale=gnu --enable-libstdcxx-debug --enable-gnu-unique-object --disable-libssp --disable-libmudflap --disable-libgomp --disable-libitm --enable-plugin --with-system-zlib --with-cloog --enable-cloog-backend=ppl --disable-cloog-version-check --disable-ppl-version-check --enable-multiarch --disable-werror --enable-checking=release --build=aarch64-linux-gnu --host=aarch64-linux-gnu --target=aarch64-linux-gnu
 Thread model: posix
-gcc version 4.8.4 (Ubuntu/Linaro 4.8.4-2ubuntu1~14.04.3) 
-COMPILER_PATH=/usr/lib/gcc/aarch64-linux-gnu/4.8/:/usr/lib/gcc/aarch64-linux-gnu/4.8/:/usr/lib/gcc/aarch64-linux-gnu/:/usr/lib/gcc/aarch64-linux-gnu/4.8/:/usr/lib/gcc/aarch64-linux-gnu/
-LIBRARY_PATH=/usr/lib/gcc/aarch64-linux-gnu/4.8/:/usr/lib/gcc/aarch64-linux-gnu/4.8/../../../aarch64-linux-gnu/:/usr/lib/gcc/aarch64-linux-gnu/4.8/../../../../lib/:/lib/aarch64-linux-gnu/:/lib/../lib/:/usr/lib/aarch64-linux-gnu/:/usr/lib/../lib/:/usr/lib/gcc/aarch64-linux-gnu/4.8/../../../:/lib/:/usr/lib/
-COLLECT_GCC_OPTIONS='-v' '-o' 'cmTryCompileExec1727051399' '-rdynamic'
- /usr/lib/gcc/aarch64-linux-gnu/4.8/collect2 --sysroot=/ --build-id --eh-frame-hdr --hash-style=gnu --as-needed -export-dynamic -dynamic-linker /lib/ld-linux-aarch64.so.1 -X -z relro -o cmTryCompileExec1727051399 /usr/lib/gcc/aarch64-linux-gnu/4.8/../../../aarch64-linux-gnu/crt1.o /usr/lib/gcc/aarch64-linux-gnu/4.8/../../../aarch64-linux-gnu/crti.o /usr/lib/gcc/aarch64-linux-gnu/4.8/crtbegin.o -L/usr/lib/gcc/aarch64-linux-gnu/4.8 -L/usr/lib/gcc/aarch64-linux-gnu/4.8/../../../aarch64-linux-gnu -L/usr/lib/gcc/aarch64-linux-gnu/4.8/../../../../lib -L/lib/aarch64-linux-gnu -L/lib/../lib -L/usr/lib/aarch64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/aarch64-linux-gnu/4.8/../../.. CMakeFiles/cmTryCompileExec1727051399.dir/CMakeCCompilerABI.c.o -lgcc --as-needed -lgcc_s --no-as-needed -lc -lgcc --as-needed -lgcc_s --no-as-needed /usr/lib/gcc/aarch64-linux-gnu/4.8/crtend.o /usr/lib/gcc/aarch64-linux-gnu/4.8/../../../aarch64-linux-gnu/crtn.o
+gcc version 4.7.3 (Ubuntu/Linaro 4.7.3-12ubuntu1) 
+COMPILER_PATH=/usr/lib/gcc/aarch64-linux-gnu/4.7/:/usr/lib/gcc/aarch64-linux-gnu/4.7/:/usr/lib/gcc/aarch64-linux-gnu/:/usr/lib/gcc/aarch64-linux-gnu/4.7/:/usr/lib/gcc/aarch64-linux-gnu/
+LIBRARY_PATH=/usr/lib/gcc/aarch64-linux-gnu/4.7/:/usr/lib/gcc/aarch64-linux-gnu/4.7/../../../aarch64-linux-gnu/:/usr/lib/gcc/aarch64-linux-gnu/4.7/../../../:/lib/aarch64-linux-gnu/:/usr/lib/aarch64-linux-gnu/
+COLLECT_GCC_OPTIONS='-v' '-o' 'cmTryCompileExec2159285800' '-rdynamic'
+ /usr/lib/gcc/aarch64-linux-gnu/4.7/collect2 --sysroot=/ --build-id --eh-frame-hdr --hash-style=gnu --as-needed -export-dynamic -dynamic-linker /lib/ld-linux-aarch64.so.1 -X -z relro -o cmTryCompileExec2159285800 /usr/lib/gcc/aarch64-linux-gnu/4.7/../../../aarch64-linux-gnu/crt1.o /usr/lib/gcc/aarch64-linux-gnu/4.7/../../../aarch64-linux-gnu/crti.o /usr/lib/gcc/aarch64-linux-gnu/4.7/crtbegin.o -L/usr/lib/gcc/aarch64-linux-gnu/4.7 -L/usr/lib/gcc/aarch64-linux-gnu/4.7/../../../aarch64-linux-gnu -L/usr/lib/gcc/aarch64-linux-gnu/4.7/../../.. -L/lib/aarch64-linux-gnu -L/usr/lib/aarch64-linux-gnu CMakeFiles/cmTryCompileExec2159285800.dir/CMakeCCompilerABI.c.o -lgcc --as-needed -lgcc_s --no-as-needed -lc -lgcc --as-needed -lgcc_s --no-as-needed /usr/lib/gcc/aarch64-linux-gnu/4.7/crtend.o /usr/lib/gcc/aarch64-linux-gnu/4.7/../../../aarch64-linux-gnu/crtn.o
 make[1]: Leaving directory `/home/ubuntu/opel-alpha/build/CMakeFiles/CMakeTmp'
 
 
@@ -70,27 +70,27 @@ Parsed C implicit link information from above output:
   link line regex: [^( *|.*[/\])(ld|([^/\]+-)?ld|collect2)[^/\]*( |$)]
   ignore line: [Change Dir: /home/ubuntu/opel-alpha/build/CMakeFiles/CMakeTmp]
   ignore line: []
-  ignore line: [Run Build Command:/usr/bin/make "cmTryCompileExec1727051399/fast"]
-  ignore line: [/usr/bin/make -f CMakeFiles/cmTryCompileExec1727051399.dir/build.make CMakeFiles/cmTryCompileExec1727051399.dir/build]
+  ignore line: [Run Build Command:/usr/bin/make "cmTryCompileExec2159285800/fast"]
+  ignore line: [/usr/bin/make -f CMakeFiles/cmTryCompileExec2159285800.dir/build.make CMakeFiles/cmTryCompileExec2159285800.dir/build]
   ignore line: [make[1]: Entering directory `/home/ubuntu/opel-alpha/build/CMakeFiles/CMakeTmp']
   ignore line: [/usr/bin/cmake -E cmake_progress_report /home/ubuntu/opel-alpha/build/CMakeFiles/CMakeTmp/CMakeFiles 1]
-  ignore line: [Building C object CMakeFiles/cmTryCompileExec1727051399.dir/CMakeCCompilerABI.c.o]
-  ignore line: [/usr/bin/cc    -o CMakeFiles/cmTryCompileExec1727051399.dir/CMakeCCompilerABI.c.o   -c /usr/share/cmake-2.8/Modules/CMakeCCompilerABI.c]
-  ignore line: [Linking C executable cmTryCompileExec1727051399]
-  ignore line: [/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec1727051399.dir/link.txt --verbose=1]
-  ignore line: [/usr/bin/cc     -v CMakeFiles/cmTryCompileExec1727051399.dir/CMakeCCompilerABI.c.o  -o cmTryCompileExec1727051399 -rdynamic  ]
+  ignore line: [Building C object CMakeFiles/cmTryCompileExec2159285800.dir/CMakeCCompilerABI.c.o]
+  ignore line: [/usr/bin/cc    -o CMakeFiles/cmTryCompileExec2159285800.dir/CMakeCCompilerABI.c.o   -c /usr/share/cmake-2.8/Modules/CMakeCCompilerABI.c]
+  ignore line: [Linking C executable cmTryCompileExec2159285800]
+  ignore line: [/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec2159285800.dir/link.txt --verbose=1]
+  ignore line: [/usr/bin/cc     -v CMakeFiles/cmTryCompileExec2159285800.dir/CMakeCCompilerABI.c.o  -o cmTryCompileExec2159285800 -rdynamic  ]
   ignore line: [Using built-in specs.]
   ignore line: [COLLECT_GCC=/usr/bin/cc]
-  ignore line: [COLLECT_LTO_WRAPPER=/usr/lib/gcc/aarch64-linux-gnu/4.8/lto-wrapper]
+  ignore line: [COLLECT_LTO_WRAPPER=/usr/lib/gcc/aarch64-linux-gnu/4.7/lto-wrapper]
   ignore line: [Target: aarch64-linux-gnu]
-  ignore line: [Configured with: ../src/configure -v --with-pkgversion='Ubuntu/Linaro 4.8.4-2ubuntu1~14.04.3' --with-bugurl=file:///usr/share/doc/gcc-4.8/README.Bugs --enable-languages=c,c++,java,go,d,fortran,objc,obj-c++ --prefix=/usr --program-suffix=-4.8 --enable-shared --enable-linker-build-id --libexecdir=/usr/lib --without-included-gettext --enable-threads=posix --with-gxx-include-dir=/usr/include/c++/4.8 --libdir=/usr/lib --enable-nls --with-sysroot=/ --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --enable-gnu-unique-object --disable-libmudflap --disable-libsanitizer --disable-libquadmath --enable-plugin --with-system-zlib --disable-browser-plugin --enable-java-awt=gtk --enable-gtk-cairo --with-java-home=/usr/lib/jvm/java-1.5.0-gcj-4.8-arm64/jre --enable-java-home --with-jvm-root-dir=/usr/lib/jvm/java-1.5.0-gcj-4.8-arm64 --with-jvm-jar-dir=/usr/lib/jvm-exports/java-1.5.0-gcj-4.8-arm64 --with-arch-directory=arm64 --with-ecj-jar=/usr/share/java/eclipse-ecj.jar --enable-multiarch --disable-werror --enable-checking=release --build=aarch64-linux-gnu --host=aarch64-linux-gnu --target=aarch64-linux-gnu]
+  ignore line: [Configured with: ../src/configure -v --with-pkgversion='Ubuntu/Linaro 4.7.3-12ubuntu1' --with-bugurl=file:///usr/share/doc/gcc-4.7/README.Bugs --enable-languages=c,c++,fortran --prefix=/usr --program-suffix=-4.7 --enable-shared --enable-linker-build-id --libexecdir=/usr/lib --without-included-gettext --enable-threads=posix --with-gxx-include-dir=/usr/include/c++/4.7 --libdir=/usr/lib --enable-nls --with-sysroot=/ --enable-clocale=gnu --enable-libstdcxx-debug --enable-gnu-unique-object --disable-libssp --disable-libmudflap --disable-libgomp --disable-libitm --enable-plugin --with-system-zlib --with-cloog --enable-cloog-backend=ppl --disable-cloog-version-check --disable-ppl-version-check --enable-multiarch --disable-werror --enable-checking=release --build=aarch64-linux-gnu --host=aarch64-linux-gnu --target=aarch64-linux-gnu]
   ignore line: [Thread model: posix]
-  ignore line: [gcc version 4.8.4 (Ubuntu/Linaro 4.8.4-2ubuntu1~14.04.3) ]
-  ignore line: [COMPILER_PATH=/usr/lib/gcc/aarch64-linux-gnu/4.8/:/usr/lib/gcc/aarch64-linux-gnu/4.8/:/usr/lib/gcc/aarch64-linux-gnu/:/usr/lib/gcc/aarch64-linux-gnu/4.8/:/usr/lib/gcc/aarch64-linux-gnu/]
-  ignore line: [LIBRARY_PATH=/usr/lib/gcc/aarch64-linux-gnu/4.8/:/usr/lib/gcc/aarch64-linux-gnu/4.8/../../../aarch64-linux-gnu/:/usr/lib/gcc/aarch64-linux-gnu/4.8/../../../../lib/:/lib/aarch64-linux-gnu/:/lib/../lib/:/usr/lib/aarch64-linux-gnu/:/usr/lib/../lib/:/usr/lib/gcc/aarch64-linux-gnu/4.8/../../../:/lib/:/usr/lib/]
-  ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'cmTryCompileExec1727051399' '-rdynamic']
-  link line: [ /usr/lib/gcc/aarch64-linux-gnu/4.8/collect2 --sysroot=/ --build-id --eh-frame-hdr --hash-style=gnu --as-needed -export-dynamic -dynamic-linker /lib/ld-linux-aarch64.so.1 -X -z relro -o cmTryCompileExec1727051399 /usr/lib/gcc/aarch64-linux-gnu/4.8/../../../aarch64-linux-gnu/crt1.o /usr/lib/gcc/aarch64-linux-gnu/4.8/../../../aarch64-linux-gnu/crti.o /usr/lib/gcc/aarch64-linux-gnu/4.8/crtbegin.o -L/usr/lib/gcc/aarch64-linux-gnu/4.8 -L/usr/lib/gcc/aarch64-linux-gnu/4.8/../../../aarch64-linux-gnu -L/usr/lib/gcc/aarch64-linux-gnu/4.8/../../../../lib -L/lib/aarch64-linux-gnu -L/lib/../lib -L/usr/lib/aarch64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/aarch64-linux-gnu/4.8/../../.. CMakeFiles/cmTryCompileExec1727051399.dir/CMakeCCompilerABI.c.o -lgcc --as-needed -lgcc_s --no-as-needed -lc -lgcc --as-needed -lgcc_s --no-as-needed /usr/lib/gcc/aarch64-linux-gnu/4.8/crtend.o /usr/lib/gcc/aarch64-linux-gnu/4.8/../../../aarch64-linux-gnu/crtn.o]
-    arg [/usr/lib/gcc/aarch64-linux-gnu/4.8/collect2] ==> ignore
+  ignore line: [gcc version 4.7.3 (Ubuntu/Linaro 4.7.3-12ubuntu1) ]
+  ignore line: [COMPILER_PATH=/usr/lib/gcc/aarch64-linux-gnu/4.7/:/usr/lib/gcc/aarch64-linux-gnu/4.7/:/usr/lib/gcc/aarch64-linux-gnu/:/usr/lib/gcc/aarch64-linux-gnu/4.7/:/usr/lib/gcc/aarch64-linux-gnu/]
+  ignore line: [LIBRARY_PATH=/usr/lib/gcc/aarch64-linux-gnu/4.7/:/usr/lib/gcc/aarch64-linux-gnu/4.7/../../../aarch64-linux-gnu/:/usr/lib/gcc/aarch64-linux-gnu/4.7/../../../:/lib/aarch64-linux-gnu/:/usr/lib/aarch64-linux-gnu/]
+  ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'cmTryCompileExec2159285800' '-rdynamic']
+  link line: [ /usr/lib/gcc/aarch64-linux-gnu/4.7/collect2 --sysroot=/ --build-id --eh-frame-hdr --hash-style=gnu --as-needed -export-dynamic -dynamic-linker /lib/ld-linux-aarch64.so.1 -X -z relro -o cmTryCompileExec2159285800 /usr/lib/gcc/aarch64-linux-gnu/4.7/../../../aarch64-linux-gnu/crt1.o /usr/lib/gcc/aarch64-linux-gnu/4.7/../../../aarch64-linux-gnu/crti.o /usr/lib/gcc/aarch64-linux-gnu/4.7/crtbegin.o -L/usr/lib/gcc/aarch64-linux-gnu/4.7 -L/usr/lib/gcc/aarch64-linux-gnu/4.7/../../../aarch64-linux-gnu -L/usr/lib/gcc/aarch64-linux-gnu/4.7/../../.. -L/lib/aarch64-linux-gnu -L/usr/lib/aarch64-linux-gnu CMakeFiles/cmTryCompileExec2159285800.dir/CMakeCCompilerABI.c.o -lgcc --as-needed -lgcc_s --no-as-needed -lc -lgcc --as-needed -lgcc_s --no-as-needed /usr/lib/gcc/aarch64-linux-gnu/4.7/crtend.o /usr/lib/gcc/aarch64-linux-gnu/4.7/../../../aarch64-linux-gnu/crtn.o]
+    arg [/usr/lib/gcc/aarch64-linux-gnu/4.7/collect2] ==> ignore
     arg [--sysroot=/] ==> ignore
     arg [--build-id] ==> ignore
     arg [--eh-frame-hdr] ==> ignore
@@ -102,19 +102,16 @@ Parsed C implicit link information from above output:
     arg [-X] ==> ignore
     arg [-zrelro] ==> ignore
     arg [-o] ==> ignore
-    arg [cmTryCompileExec1727051399] ==> ignore
-    arg [/usr/lib/gcc/aarch64-linux-gnu/4.8/../../../aarch64-linux-gnu/crt1.o] ==> ignore
-    arg [/usr/lib/gcc/aarch64-linux-gnu/4.8/../../../aarch64-linux-gnu/crti.o] ==> ignore
-    arg [/usr/lib/gcc/aarch64-linux-gnu/4.8/crtbegin.o] ==> ignore
-    arg [-L/usr/lib/gcc/aarch64-linux-gnu/4.8] ==> dir [/usr/lib/gcc/aarch64-linux-gnu/4.8]
-    arg [-L/usr/lib/gcc/aarch64-linux-gnu/4.8/../../../aarch64-linux-gnu] ==> dir [/usr/lib/gcc/aarch64-linux-gnu/4.8/../../../aarch64-linux-gnu]
-    arg [-L/usr/lib/gcc/aarch64-linux-gnu/4.8/../../../../lib] ==> dir [/usr/lib/gcc/aarch64-linux-gnu/4.8/../../../../lib]
+    arg [cmTryCompileExec2159285800] ==> ignore
+    arg [/usr/lib/gcc/aarch64-linux-gnu/4.7/../../../aarch64-linux-gnu/crt1.o] ==> ignore
+    arg [/usr/lib/gcc/aarch64-linux-gnu/4.7/../../../aarch64-linux-gnu/crti.o] ==> ignore
+    arg [/usr/lib/gcc/aarch64-linux-gnu/4.7/crtbegin.o] ==> ignore
+    arg [-L/usr/lib/gcc/aarch64-linux-gnu/4.7] ==> dir [/usr/lib/gcc/aarch64-linux-gnu/4.7]
+    arg [-L/usr/lib/gcc/aarch64-linux-gnu/4.7/../../../aarch64-linux-gnu] ==> dir [/usr/lib/gcc/aarch64-linux-gnu/4.7/../../../aarch64-linux-gnu]
+    arg [-L/usr/lib/gcc/aarch64-linux-gnu/4.7/../../..] ==> dir [/usr/lib/gcc/aarch64-linux-gnu/4.7/../../..]
     arg [-L/lib/aarch64-linux-gnu] ==> dir [/lib/aarch64-linux-gnu]
-    arg [-L/lib/../lib] ==> dir [/lib/../lib]
     arg [-L/usr/lib/aarch64-linux-gnu] ==> dir [/usr/lib/aarch64-linux-gnu]
-    arg [-L/usr/lib/../lib] ==> dir [/usr/lib/../lib]
-    arg [-L/usr/lib/gcc/aarch64-linux-gnu/4.8/../../..] ==> dir [/usr/lib/gcc/aarch64-linux-gnu/4.8/../../..]
-    arg [CMakeFiles/cmTryCompileExec1727051399.dir/CMakeCCompilerABI.c.o] ==> ignore
+    arg [CMakeFiles/cmTryCompileExec2159285800.dir/CMakeCCompilerABI.c.o] ==> ignore
     arg [-lgcc] ==> lib [gcc]
     arg [--as-needed] ==> ignore
     arg [-lgcc_s] ==> lib [gcc_s]
@@ -124,52 +121,49 @@ Parsed C implicit link information from above output:
     arg [--as-needed] ==> ignore
     arg [-lgcc_s] ==> lib [gcc_s]
     arg [--no-as-needed] ==> ignore
-    arg [/usr/lib/gcc/aarch64-linux-gnu/4.8/crtend.o] ==> ignore
-    arg [/usr/lib/gcc/aarch64-linux-gnu/4.8/../../../aarch64-linux-gnu/crtn.o] ==> ignore
+    arg [/usr/lib/gcc/aarch64-linux-gnu/4.7/crtend.o] ==> ignore
+    arg [/usr/lib/gcc/aarch64-linux-gnu/4.7/../../../aarch64-linux-gnu/crtn.o] ==> ignore
   remove lib [gcc]
   remove lib [gcc_s]
   remove lib [gcc]
   remove lib [gcc_s]
-  collapse library dir [/usr/lib/gcc/aarch64-linux-gnu/4.8] ==> [/usr/lib/gcc/aarch64-linux-gnu/4.8]
-  collapse library dir [/usr/lib/gcc/aarch64-linux-gnu/4.8/../../../aarch64-linux-gnu] ==> [/usr/lib/aarch64-linux-gnu]
-  collapse library dir [/usr/lib/gcc/aarch64-linux-gnu/4.8/../../../../lib] ==> [/usr/lib]
+  collapse library dir [/usr/lib/gcc/aarch64-linux-gnu/4.7] ==> [/usr/lib/gcc/aarch64-linux-gnu/4.7]
+  collapse library dir [/usr/lib/gcc/aarch64-linux-gnu/4.7/../../../aarch64-linux-gnu] ==> [/usr/lib/aarch64-linux-gnu]
+  collapse library dir [/usr/lib/gcc/aarch64-linux-gnu/4.7/../../..] ==> [/usr/lib]
   collapse library dir [/lib/aarch64-linux-gnu] ==> [/lib/aarch64-linux-gnu]
-  collapse library dir [/lib/../lib] ==> [/lib]
   collapse library dir [/usr/lib/aarch64-linux-gnu] ==> [/usr/lib/aarch64-linux-gnu]
-  collapse library dir [/usr/lib/../lib] ==> [/usr/lib]
-  collapse library dir [/usr/lib/gcc/aarch64-linux-gnu/4.8/../../..] ==> [/usr/lib]
   implicit libs: [c]
-  implicit dirs: [/usr/lib/gcc/aarch64-linux-gnu/4.8;/usr/lib/aarch64-linux-gnu;/usr/lib;/lib/aarch64-linux-gnu;/lib]
+  implicit dirs: [/usr/lib/gcc/aarch64-linux-gnu/4.7;/usr/lib/aarch64-linux-gnu;/usr/lib;/lib/aarch64-linux-gnu]
   implicit fwks: []
 
 
 Determining if the CXX compiler works passed with the following output:
 Change Dir: /home/ubuntu/opel-alpha/build/CMakeFiles/CMakeTmp
 
-Run Build Command:/usr/bin/make "cmTryCompileExec4230689198/fast"
-/usr/bin/make -f CMakeFiles/cmTryCompileExec4230689198.dir/build.make CMakeFiles/cmTryCompileExec4230689198.dir/build
+Run Build Command:/usr/bin/make "cmTryCompileExec1024413040/fast"
+/usr/bin/make -f CMakeFiles/cmTryCompileExec1024413040.dir/build.make CMakeFiles/cmTryCompileExec1024413040.dir/build
 make[1]: Entering directory `/home/ubuntu/opel-alpha/build/CMakeFiles/CMakeTmp'
 /usr/bin/cmake -E cmake_progress_report /home/ubuntu/opel-alpha/build/CMakeFiles/CMakeTmp/CMakeFiles 1
-Building CXX object CMakeFiles/cmTryCompileExec4230689198.dir/testCXXCompiler.cxx.o
-/usr/bin/c++     -o CMakeFiles/cmTryCompileExec4230689198.dir/testCXXCompiler.cxx.o -c /home/ubuntu/opel-alpha/build/CMakeFiles/CMakeTmp/testCXXCompiler.cxx
-Linking CXX executable cmTryCompileExec4230689198
-/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec4230689198.dir/link.txt --verbose=1
-/usr/bin/c++        CMakeFiles/cmTryCompileExec4230689198.dir/testCXXCompiler.cxx.o  -o cmTryCompileExec4230689198 -rdynamic 
+Building CXX object CMakeFiles/cmTryCompileExec1024413040.dir/testCXXCompiler.cxx.o
+/usr/bin/c++     -o CMakeFiles/cmTryCompileExec1024413040.dir/testCXXCompiler.cxx.o -c /home/ubuntu/opel-alpha/build/CMakeFiles/CMakeTmp/testCXXCompiler.cxx
+Linking CXX executable cmTryCompileExec1024413040
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec1024413040.dir/link.txt --verbose=1
+/usr/bin/c++        CMakeFiles/cmTryCompileExec1024413040.dir/testCXXCompiler.cxx.o  -o cmTryCompileExec1024413040 -rdynamic 
 make[1]: Leaving directory `/home/ubuntu/opel-alpha/build/CMakeFiles/CMakeTmp'
 
 
 Detecting CXX compiler ABI info compiled with the following output:
 Change Dir: /home/ubuntu/opel-alpha/build/CMakeFiles/CMakeTmp
 
-Run Build Command:/usr/bin/make "cmTryCompileExec1205900097/fast"
-/usr/bin/make -f CMakeFiles/cmTryCompileExec1205900097.dir/build.make CMakeFiles/cmTryCompileExec1205900097.dir/build
+Run Build Command:/usr/bin/make "cmTryCompileExec1479591187/fast"
+/usr/bin/make -f CMakeFiles/cmTryCompileExec1479591187.dir/build.make CMakeFiles/cmTryCompileExec1479591187.dir/build
 make[1]: Entering directory `/home/ubuntu/opel-alpha/build/CMakeFiles/CMakeTmp'
 /usr/bin/cmake -E cmake_progress_report /home/ubuntu/opel-alpha/build/CMakeFiles/CMakeTmp/CMakeFiles 1
-Building CXX object CMakeFiles/cmTryCompileExec1205900097.dir/CMakeCXXCompilerABI.cpp.o
-/usr/bin/c++     -o CMakeFiles/cmTryCompileExec1205900097.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake-2.8/Modules/CMakeCXXCompilerABI.cpp
-Linking CXX executable cmTryCompileExec1205900097
-/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec1205900097.dir/link.txt --verbose=1
-/usr/bin/c++      -v CMakeFiles/cmTryCompileExec1205900097.dir/CMakeCXXCompilerABI.cpp.o  -o cmTryCompileExec1205900097 -rdynamic  
+Building CXX object CMakeFiles/cmTryCompileExec1479591187.dir/CMakeCXXCompilerABI.cpp.o
+/usr/bin/c++     -o CMakeFiles/cmTryCompileExec1479591187.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake-2.8/Modules/CMakeCXXCompilerABI.cpp
+Linking CXX executable cmTryCompileExec1479591187
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec1479591187.dir/link.txt --verbose=1
+/usr/bin/c++      -v CMakeFiles/cmTryCompileExec1479591187.dir/CMakeCXXCompilerABI.cpp.o  -o cmTryCompileExec1479591187 -rdynamic  
 Using built-in specs.
 COLLECT_GCC=/usr/bin/c++
 COLLECT_LTO_WRAPPER=/usr/lib/gcc/aarch64-linux-gnu/4.8/lto-wrapper
@@ -179,8 +173,8 @@ Thread model: posix
 gcc version 4.8.4 (Ubuntu/Linaro 4.8.4-2ubuntu1~14.04.3) 
 COMPILER_PATH=/usr/lib/gcc/aarch64-linux-gnu/4.8/:/usr/lib/gcc/aarch64-linux-gnu/4.8/:/usr/lib/gcc/aarch64-linux-gnu/:/usr/lib/gcc/aarch64-linux-gnu/4.8/:/usr/lib/gcc/aarch64-linux-gnu/
 LIBRARY_PATH=/usr/lib/gcc/aarch64-linux-gnu/4.8/:/usr/lib/gcc/aarch64-linux-gnu/4.8/../../../aarch64-linux-gnu/:/usr/lib/gcc/aarch64-linux-gnu/4.8/../../../../lib/:/lib/aarch64-linux-gnu/:/lib/../lib/:/usr/lib/aarch64-linux-gnu/:/usr/lib/../lib/:/usr/lib/gcc/aarch64-linux-gnu/4.8/../../../:/lib/:/usr/lib/
-COLLECT_GCC_OPTIONS='-v' '-o' 'cmTryCompileExec1205900097' '-rdynamic' '-shared-libgcc'
- /usr/lib/gcc/aarch64-linux-gnu/4.8/collect2 --sysroot=/ --build-id --eh-frame-hdr --hash-style=gnu --as-needed -export-dynamic -dynamic-linker /lib/ld-linux-aarch64.so.1 -X -z relro -o cmTryCompileExec1205900097 /usr/lib/gcc/aarch64-linux-gnu/4.8/../../../aarch64-linux-gnu/crt1.o /usr/lib/gcc/aarch64-linux-gnu/4.8/../../../aarch64-linux-gnu/crti.o /usr/lib/gcc/aarch64-linux-gnu/4.8/crtbegin.o -L/usr/lib/gcc/aarch64-linux-gnu/4.8 -L/usr/lib/gcc/aarch64-linux-gnu/4.8/../../../aarch64-linux-gnu -L/usr/lib/gcc/aarch64-linux-gnu/4.8/../../../../lib -L/lib/aarch64-linux-gnu -L/lib/../lib -L/usr/lib/aarch64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/aarch64-linux-gnu/4.8/../../.. CMakeFiles/cmTryCompileExec1205900097.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /usr/lib/gcc/aarch64-linux-gnu/4.8/crtend.o /usr/lib/gcc/aarch64-linux-gnu/4.8/../../../aarch64-linux-gnu/crtn.o
+COLLECT_GCC_OPTIONS='-v' '-o' 'cmTryCompileExec1479591187' '-rdynamic' '-shared-libgcc'
+ /usr/lib/gcc/aarch64-linux-gnu/4.8/collect2 --sysroot=/ --build-id --eh-frame-hdr --hash-style=gnu --as-needed -export-dynamic -dynamic-linker /lib/ld-linux-aarch64.so.1 -X -z relro -o cmTryCompileExec1479591187 /usr/lib/gcc/aarch64-linux-gnu/4.8/../../../aarch64-linux-gnu/crt1.o /usr/lib/gcc/aarch64-linux-gnu/4.8/../../../aarch64-linux-gnu/crti.o /usr/lib/gcc/aarch64-linux-gnu/4.8/crtbegin.o -L/usr/lib/gcc/aarch64-linux-gnu/4.8 -L/usr/lib/gcc/aarch64-linux-gnu/4.8/../../../aarch64-linux-gnu -L/usr/lib/gcc/aarch64-linux-gnu/4.8/../../../../lib -L/lib/aarch64-linux-gnu -L/lib/../lib -L/usr/lib/aarch64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/aarch64-linux-gnu/4.8/../../.. CMakeFiles/cmTryCompileExec1479591187.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /usr/lib/gcc/aarch64-linux-gnu/4.8/crtend.o /usr/lib/gcc/aarch64-linux-gnu/4.8/../../../aarch64-linux-gnu/crtn.o
 make[1]: Leaving directory `/home/ubuntu/opel-alpha/build/CMakeFiles/CMakeTmp'
 
 
@@ -188,15 +182,15 @@ Parsed CXX implicit link information from above output:
   link line regex: [^( *|.*[/\])(ld|([^/\]+-)?ld|collect2)[^/\]*( |$)]
   ignore line: [Change Dir: /home/ubuntu/opel-alpha/build/CMakeFiles/CMakeTmp]
   ignore line: []
-  ignore line: [Run Build Command:/usr/bin/make "cmTryCompileExec1205900097/fast"]
-  ignore line: [/usr/bin/make -f CMakeFiles/cmTryCompileExec1205900097.dir/build.make CMakeFiles/cmTryCompileExec1205900097.dir/build]
+  ignore line: [Run Build Command:/usr/bin/make "cmTryCompileExec1479591187/fast"]
+  ignore line: [/usr/bin/make -f CMakeFiles/cmTryCompileExec1479591187.dir/build.make CMakeFiles/cmTryCompileExec1479591187.dir/build]
   ignore line: [make[1]: Entering directory `/home/ubuntu/opel-alpha/build/CMakeFiles/CMakeTmp']
   ignore line: [/usr/bin/cmake -E cmake_progress_report /home/ubuntu/opel-alpha/build/CMakeFiles/CMakeTmp/CMakeFiles 1]
-  ignore line: [Building CXX object CMakeFiles/cmTryCompileExec1205900097.dir/CMakeCXXCompilerABI.cpp.o]
-  ignore line: [/usr/bin/c++     -o CMakeFiles/cmTryCompileExec1205900097.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake-2.8/Modules/CMakeCXXCompilerABI.cpp]
-  ignore line: [Linking CXX executable cmTryCompileExec1205900097]
-  ignore line: [/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec1205900097.dir/link.txt --verbose=1]
-  ignore line: [/usr/bin/c++      -v CMakeFiles/cmTryCompileExec1205900097.dir/CMakeCXXCompilerABI.cpp.o  -o cmTryCompileExec1205900097 -rdynamic  ]
+  ignore line: [Building CXX object CMakeFiles/cmTryCompileExec1479591187.dir/CMakeCXXCompilerABI.cpp.o]
+  ignore line: [/usr/bin/c++     -o CMakeFiles/cmTryCompileExec1479591187.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake-2.8/Modules/CMakeCXXCompilerABI.cpp]
+  ignore line: [Linking CXX executable cmTryCompileExec1479591187]
+  ignore line: [/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec1479591187.dir/link.txt --verbose=1]
+  ignore line: [/usr/bin/c++      -v CMakeFiles/cmTryCompileExec1479591187.dir/CMakeCXXCompilerABI.cpp.o  -o cmTryCompileExec1479591187 -rdynamic  ]
   ignore line: [Using built-in specs.]
   ignore line: [COLLECT_GCC=/usr/bin/c++]
   ignore line: [COLLECT_LTO_WRAPPER=/usr/lib/gcc/aarch64-linux-gnu/4.8/lto-wrapper]
@@ -206,8 +200,8 @@ Parsed CXX implicit link information from above output:
   ignore line: [gcc version 4.8.4 (Ubuntu/Linaro 4.8.4-2ubuntu1~14.04.3) ]
   ignore line: [COMPILER_PATH=/usr/lib/gcc/aarch64-linux-gnu/4.8/:/usr/lib/gcc/aarch64-linux-gnu/4.8/:/usr/lib/gcc/aarch64-linux-gnu/:/usr/lib/gcc/aarch64-linux-gnu/4.8/:/usr/lib/gcc/aarch64-linux-gnu/]
   ignore line: [LIBRARY_PATH=/usr/lib/gcc/aarch64-linux-gnu/4.8/:/usr/lib/gcc/aarch64-linux-gnu/4.8/../../../aarch64-linux-gnu/:/usr/lib/gcc/aarch64-linux-gnu/4.8/../../../../lib/:/lib/aarch64-linux-gnu/:/lib/../lib/:/usr/lib/aarch64-linux-gnu/:/usr/lib/../lib/:/usr/lib/gcc/aarch64-linux-gnu/4.8/../../../:/lib/:/usr/lib/]
-  ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'cmTryCompileExec1205900097' '-rdynamic' '-shared-libgcc']
-  link line: [ /usr/lib/gcc/aarch64-linux-gnu/4.8/collect2 --sysroot=/ --build-id --eh-frame-hdr --hash-style=gnu --as-needed -export-dynamic -dynamic-linker /lib/ld-linux-aarch64.so.1 -X -z relro -o cmTryCompileExec1205900097 /usr/lib/gcc/aarch64-linux-gnu/4.8/../../../aarch64-linux-gnu/crt1.o /usr/lib/gcc/aarch64-linux-gnu/4.8/../../../aarch64-linux-gnu/crti.o /usr/lib/gcc/aarch64-linux-gnu/4.8/crtbegin.o -L/usr/lib/gcc/aarch64-linux-gnu/4.8 -L/usr/lib/gcc/aarch64-linux-gnu/4.8/../../../aarch64-linux-gnu -L/usr/lib/gcc/aarch64-linux-gnu/4.8/../../../../lib -L/lib/aarch64-linux-gnu -L/lib/../lib -L/usr/lib/aarch64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/aarch64-linux-gnu/4.8/../../.. CMakeFiles/cmTryCompileExec1205900097.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /usr/lib/gcc/aarch64-linux-gnu/4.8/crtend.o /usr/lib/gcc/aarch64-linux-gnu/4.8/../../../aarch64-linux-gnu/crtn.o]
+  ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'cmTryCompileExec1479591187' '-rdynamic' '-shared-libgcc']
+  link line: [ /usr/lib/gcc/aarch64-linux-gnu/4.8/collect2 --sysroot=/ --build-id --eh-frame-hdr --hash-style=gnu --as-needed -export-dynamic -dynamic-linker /lib/ld-linux-aarch64.so.1 -X -z relro -o cmTryCompileExec1479591187 /usr/lib/gcc/aarch64-linux-gnu/4.8/../../../aarch64-linux-gnu/crt1.o /usr/lib/gcc/aarch64-linux-gnu/4.8/../../../aarch64-linux-gnu/crti.o /usr/lib/gcc/aarch64-linux-gnu/4.8/crtbegin.o -L/usr/lib/gcc/aarch64-linux-gnu/4.8 -L/usr/lib/gcc/aarch64-linux-gnu/4.8/../../../aarch64-linux-gnu -L/usr/lib/gcc/aarch64-linux-gnu/4.8/../../../../lib -L/lib/aarch64-linux-gnu -L/lib/../lib -L/usr/lib/aarch64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/aarch64-linux-gnu/4.8/../../.. CMakeFiles/cmTryCompileExec1479591187.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /usr/lib/gcc/aarch64-linux-gnu/4.8/crtend.o /usr/lib/gcc/aarch64-linux-gnu/4.8/../../../aarch64-linux-gnu/crtn.o]
     arg [/usr/lib/gcc/aarch64-linux-gnu/4.8/collect2] ==> ignore
     arg [--sysroot=/] ==> ignore
     arg [--build-id] ==> ignore
@@ -220,7 +214,7 @@ Parsed CXX implicit link information from above output:
     arg [-X] ==> ignore
     arg [-zrelro] ==> ignore
     arg [-o] ==> ignore
-    arg [cmTryCompileExec1205900097] ==> ignore
+    arg [cmTryCompileExec1479591187] ==> ignore
     arg [/usr/lib/gcc/aarch64-linux-gnu/4.8/../../../aarch64-linux-gnu/crt1.o] ==> ignore
     arg [/usr/lib/gcc/aarch64-linux-gnu/4.8/../../../aarch64-linux-gnu/crti.o] ==> ignore
     arg [/usr/lib/gcc/aarch64-linux-gnu/4.8/crtbegin.o] ==> ignore
@@ -232,7 +226,7 @@ Parsed CXX implicit link information from above output:
     arg [-L/usr/lib/aarch64-linux-gnu] ==> dir [/usr/lib/aarch64-linux-gnu]
     arg [-L/usr/lib/../lib] ==> dir [/usr/lib/../lib]
     arg [-L/usr/lib/gcc/aarch64-linux-gnu/4.8/../../..] ==> dir [/usr/lib/gcc/aarch64-linux-gnu/4.8/../../..]
-    arg [CMakeFiles/cmTryCompileExec1205900097.dir/CMakeCXXCompilerABI.cpp.o] ==> ignore
+    arg [CMakeFiles/cmTryCompileExec1479591187.dir/CMakeCXXCompilerABI.cpp.o] ==> ignore
     arg [-lstdc++] ==> lib [stdc++]
     arg [-lm] ==> lib [m]
     arg [-lgcc_s] ==> lib [gcc_s]

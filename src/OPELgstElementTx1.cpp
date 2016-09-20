@@ -123,10 +123,13 @@ bool OPELGstElementTx1::OPELGstElementCapFactory(void)
 {
   assert(_type_element_vector != NULL);
   __OPEL_FUNCTION_ENTER__;
+  char caps_buffer[256];
   typeElement *src_element = NULL;
   typeElement *conv_element = NULL;
   ElementProperty *prop_element = NULL;
   typeElement *tee_element = NULL;
+  
+  bool ret = true;
 
 #if TARGET_SRC_IS_CAM
   src_element = findByElementName(this->_type_element_vector, "nvcamerasrc");
@@ -150,18 +153,35 @@ bool OPELGstElementTx1::OPELGstElementCapFactory(void)
 
   prop_element = src_element->element_prop;
   
+#if OPEL_LOG_VERBOSE
+ std::cout << " Width : " << prop_element->getWidth() << " Height : " << 
+   prop_element->getHeight() << std::endl;
+#endif
 
-  src_element->caps = gst_caps_new_simple("video/x-raw(memory:NVMM)", 
-      "width", G_TYPE_INT, prop_element->getWidth(), 
-      "height", G_TYPE_INT, prop_element->getHeight(), 
-      "framerate", GST_TYPE_FRACTION, prop_element->getFps(), 1, 
-      "format", G_TYPE_STRING, "I420", 
-      NULL);
+#if OPEL_LOG_VERBOSE
+   OPEL_DBG_ERR("Obtained request pad %s for %s", gst_pad_get_name(src_element->pad), 
+       src_element->name->c_str());
+#endif
 
-  conv_element->caps = gst_caps_new_simple("video/x-raw(memory:NVMM)", 
-      "format", G_TYPE_STRING, "I420", NULL);
+   sprintf(caps_buffer, "video/x-raw(memory:NVMM), format=(string){I420}, \
+       width=(int){%d}, height=(int){%d}",
+       prop_element->getWidth(), prop_element->getHeight());
 
- // tee_element->caps = gst_caps_new_simple("video/x-raw(memory:NVMM)",
+   src_element->caps = gst_caps_from_string(caps_buffer);
+   if(src_element->caps == NULL)
+   {
+     OPEL_DBG_ERR("%s : Setting Caps Failed", src_element->name->c_str());
+     __OPEL_FUNCTION_EXIT__;
+     return false;
+   }
+   conv_element->caps = gst_caps_from_string("video/x-raw(memory:NVMM)");
+
+  if(conv_element->caps == NULL)
+  {
+    OPEL_DBG_ERR("%s : Setting Caps Failed", conv_element->name->c_str());
+    __OPEL_FUNCTION_EXIT__;
+    return false;
+  }
        
 #endif
   __OPEL_FUNCTION_EXIT__;
@@ -191,7 +211,6 @@ bool OPELGstElementTx1::OPELGstPipelineMake(void)
   assert(_type_element_vector != NULL);
   __OPEL_FUNCTION_ENTER__;
   gboolean ret = false;
-
   typeElement* tee = 
     findByElementName(this->_type_element_vector, "tee");
   typeElement* cam_src = 
@@ -210,7 +229,7 @@ bool OPELGstElementTx1::OPELGstPipelineMake(void)
 
   gst_bin_add_many(GST_BIN(this->pipeline), cam_src->element, 
       conv->element, tee->element, NULL);
- 
+
   ret = gst_element_link_filtered(cam_src->element, conv->element, cam_src->caps);
   if(!ret)
   {
@@ -218,7 +237,7 @@ bool OPELGstElementTx1::OPELGstPipelineMake(void)
      __OPEL_FUNCTION_EXIT__;  
      return false;
   }
-  
+
   ret = gst_element_link_filtered(conv->element, tee->element, conv->caps);
   if(!ret)
   {
@@ -227,6 +246,7 @@ bool OPELGstElementTx1::OPELGstPipelineMake(void)
      return false;
   }
 
+  
   __OPEL_FUNCTION_EXIT__;
   return true;
 }
@@ -249,7 +269,6 @@ bool OPELGstElementTx1::OPELGstElementFactory(void)
     g_print("Element Factory : %s\n", stringToGchar(iter->name)); 
 #endif
   }
-
   __OPEL_FUNCTION_EXIT__;
   return true;
 }
@@ -261,13 +280,20 @@ bool OPELGstElementTx1::OPELGstElementRecordingCapFactory(void)
   
   typeElement *_enc = findByElementName(this->_type_element_vector, "omxh264enc"); 
 
+  if(!_enc)
+  {
+    OPEL_DBG_ERR("Get TypeElement Pointer is NULL");
+    __OPEL_FUNCTION_EXIT__;
+    return false;
+  }
+
   _enc->caps = gst_caps_new_simple("video/x-h264", 
       "stream-format", G_TYPE_STRING, "avc", NULL);
-  
 
   __OPEL_FUNCTION_EXIT__;
   return true;
 }
+
 bool OPELGstElementTx1::OPELGstElementRecordingPipelineMake(void)
 {
   assert(this->_type_element_vector != NULL);
