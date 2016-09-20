@@ -74,8 +74,8 @@
 	$cd dep/libuv-v1.7.5/
 	$./autogen.sh
 	$./configure
-	$./make
-	$./sudo make install
+	$make
+	$sudo make install
 	$sudo ldconfig
 
 #####7. opel.conf 복사
