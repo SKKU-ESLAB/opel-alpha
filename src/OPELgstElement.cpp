@@ -68,3 +68,13 @@ typeElement* findByElementNameNSubType(std::vector<typeElement*> *_v_element,
   OPEL_DBG_ERR("Cannot Find Element By Element Name and Sub Type");
   return NULL;
 }
+
+OPELRequest::OPELRequest()
+{
+  this->_v_fly_type_element = new std::vector<typeElement*>();
+}
+
+OPELRequest::~OPELRequest()
+{
+  delete this->_v_fly_type_element;
+}

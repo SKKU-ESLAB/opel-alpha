@@ -62,6 +62,26 @@ typedef struct {
   unsigned sub_type;
 }typeElement;
 
+class OPELRequest{
+  public:
+    OPELRequest();
+    ~OPELRequest();
+    virtual bool defaultRecordingElementFactory(std::string &file_path) = 0;
+    virtual bool defaultRecordingPipelineAdd(GstElement *pipeline) = 0;
+    virtual bool defaultRecordingCapFactory(void) = 0;
+    std::vector<typeElement*>* getTypeElementVector(void) const
+    { return this->_v_type_element; }
+  
+    void setTypeElementVector(std::vector<typeElement*>
+        *__v_type_element)
+    { this->_v_type_element = __v_type_element; }
+
+    std::vector<typeElement*>* getFlyTypeElementVector(void) const
+    { return this->_v_fly_type_element; } 
+  protected:
+    std::vector<typeElement*> *_v_type_element; 
+    std::vector<typeElement*> *_v_fly_type_element;
+};
 
 class OPELGstElement 
 {
@@ -76,7 +96,6 @@ class OPELGstElement
         *__v_element_property) = 0;
     std::vector<typeElement*>* getTypeElementVector(void) 
     { return this-> _type_element_vector; }
-
   protected: 
     std::vector<ElementProperty*> *_v_element_property;
     std::vector<typeElement*> *_type_element_vector;

@@ -174,21 +174,30 @@ int main(int argc, char** argv)
     goto exit;
   }
 
-  dbus_bus_add_match(dbus_conn, "type='signal',interface='org.opel.camera.daemon'", NULL);
-  dbus_connection_add_filter(dbus_conn, msg_dbus_filter, 
-      (void*)_type_element_vector, NULL);
-  dbus_connection_setup_with_g_main(dbus_conn, NULL);
   signal(SIGINT, signalHandler);
-  
+
   bus = gst_pipeline_get_bus(GST_PIPELINE(_pipeline));
   gst_bus_add_signal_watch(bus);
   g_signal_connect(G_OBJECT(bus), "message", G_CALLBACK(message_cb), NULL);
 
   gst_object_unref(GST_OBJECT(bus));
   
+  ret = gst_element_set_state(_pipeline, GST_STATE_READY);
+  OPEL_DBG_VERB("Set Gstreamer Pipeline Status GST_STATE_READY");
+
+  if(ret == GST_STATE_CHANGE_FAILURE)
+  {
+    OPEL_DBG_ERR("Unable to set the pipeline to the playing state. \n");
+    goto exit;
+  }
+
+  dbus_bus_add_match(dbus_conn, "type='signal',interface='org.opel.camera.daemon'", NULL);
+  dbus_connection_add_filter(dbus_conn, msg_dbus_filter, 
+      (void*)_type_element_vector, NULL);
+  dbus_connection_setup_with_g_main(dbus_conn, NULL);
+  
   g_main_loop_run(loop);
   
-
 exit:
   if(tx1_element_property != NULL)
     delete tx1_element_property;

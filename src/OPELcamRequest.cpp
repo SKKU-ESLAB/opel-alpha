@@ -17,23 +17,29 @@ static typeElement *recordingInit(std::vector<typeElement*> *_type_element_v)
    assert(_type_element_v != NULL);
    __OPEL_FUNCTION_ENTER__;
    GstPadTemplate *templ;
-   
+   std::string tmp_str;
+   std::vector<typeElement*> *_fly_type_element_v;
+   OPELRequestTx1 *request_handle = new OPELRequestTx1(); 
+
+   request_handle->setTypeElementVector(_type_element_v);
+
    OPELGstElementTx1 *tx1 = OPELGstElementTx1::getInstance();
 
    GstElement *pipeline = tx1->getPipeline();
-
-   typeElement *tee = findByElementName(_type_element_v, "tee");
-   typeElement *queue = findByElementName(_type_element_v, "queue");
-   typeElement *enc = findByElementName(_type_element_v, "omxh264enc");
-   typeElement *mux = findByElementName(_type_element_v, "mp4mux");
-   typeElement *sink = findByElementNameNSubType(_type_element_v, "filesink", kREC_SINK);
+  
+   request_handle->defaultRecordingElementFactory(tmp_str);
+   _fly_type_element_v = request_handle->getFlyTypeElementVector();
    
-   if(!tee || !queue || !enc || !mux || !sink)
+   typeElement *tee = findByElementName(_type_element_v, "tee");
+   typeElement *queue = findByElementName(_fly_type_element_v, "queue");
+   
+   if(!tee || !queue)
    {
       OPEL_DBG_ERR("Get TypeElement Pointer is NULL");
       __OPEL_FUNCTION_EXIT__;
       return NULL;
    }
+    
    templ = gst_element_class_get_pad_template(GST_ELEMENT_GET_CLASS(tee->element), "src_%u");
    tee->pad = gst_element_request_pad(tee->element, templ, NULL, NULL);
 
@@ -42,8 +48,8 @@ static typeElement *recordingInit(std::vector<typeElement*> *_type_element_v)
         tee->element->name->c_str());  
 #endif
     
-   tx1->OPELGstElementRecordingCapFactory();
-   tx1->OPELGstElementRecordingPipelineMake();
+     request_handle->defaultRecordingCapFactory();
+     request_handle->defaultRecordingPipelineAdd(pipeline);
    
    queue->pad = gst_element_get_static_pad(queue->element, "sink");
    gst_pad_link(tee->pad, queue->pad);
@@ -63,6 +69,7 @@ DBusHandlerResult msg_dbus_filter(DBusConnection *conn,
   OPELGstElementTx1 *tx1 = OPELGstElementTx1::getInstance();
   tee = recordingInit((std::vector<typeElement*>*) _type_element_vector);
 
+  
   ret = gst_element_set_state(tx1->getPipeline(), GST_STATE_PLAYING);
   if(ret == GST_STATE_CHANGE_FAILURE)
   {

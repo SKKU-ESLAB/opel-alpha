@@ -78,3 +78,25 @@ OPELcamRequest.h
 OPELgstElementTx1.h
 /home/ubuntu/opel-alpha/src/OPELgstElementTx1.h
 
+/home/ubuntu/opel-alpha/src/OPELgstElement.cpp
+OPELgstElement.h
+/home/ubuntu/opel-alpha/src/OPELgstElement.h
+
+/home/ubuntu/opel-alpha/src/OPELgstElementTx1.cpp
+OPELgstElementTx1.h
+/home/ubuntu/opel-alpha/src/OPELgstElementTx1.h
+
+/home/ubuntu/opel-alpha/src/main.cpp
+OPELgstElementTx1.h
+/home/ubuntu/opel-alpha/src/OPELgstElementTx1.h
+OPELcamRequest.h
+/home/ubuntu/opel-alpha/src/OPELcamRequest.h
+boost/archive/xml_iarchive.hpp
+-
+boost/archive/xml_oarchive.hpp
+-
+signal.h
+-
+unistd.h
+-
+
