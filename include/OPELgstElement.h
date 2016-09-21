@@ -69,18 +69,28 @@ class OPELRequest{
     virtual bool defaultRecordingElementFactory(std::string &file_path) = 0;
     virtual bool defaultRecordingPipelineAdd(GstElement *pipeline) = 0;
     virtual bool defaultRecordingCapFactory(void) = 0;
+  
     std::vector<typeElement*>* getTypeElementVector(void) const
     { return this->_v_type_element; }
-  
     void setTypeElementVector(std::vector<typeElement*>
         *__v_type_element)
     { this->_v_type_element = __v_type_element; }
-
     std::vector<typeElement*>* getFlyTypeElementVector(void) const
     { return this->_v_fly_type_element; } 
+    void setSrcPad(GstPad *_src_pad)
+    { this->src_pad = _src_pad; }
+    GstPad* getSrcPad(void) const
+    { return this->src_pad; }
+    void setAppPid(unsigned _app_pid)
+    { this->app_pid = _app_pid; }
+    unsigned getAppPid(void) const
+    { return this->app_pid; } 
   protected:
     std::vector<typeElement*> *_v_type_element; 
     std::vector<typeElement*> *_v_fly_type_element;
+    GstPad *src_pad;
+    GstPadTemplate *src_templ;
+    unsigned app_pid;
 };
 
 class OPELGstElement 
