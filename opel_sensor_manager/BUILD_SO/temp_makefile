@@ -1,6 +1,6 @@
 # Makefile to build sensor source file
 
-OBJS=sensor_manager.o request.o devices.o sensor1_acc.o sensor2_temp.o sensor3_sound.o sensor4_light.o sensor5_motion.o sensor6_vib.o sensor7_touch.o
+OBJS=sensor_manager.o request.o devices.o driver_common.o sensor1_acc.o sensor2_temp.o sensor3_sound.o sensor4_light.o sensor5_motion.o sensor6_vib.o sensor7_touch.o
 #SENSOR=
 
 FLAG1=`pkg-config --libs --cflags dbus-1 glib-2.0 dbus-glib-1`
@@ -18,6 +18,9 @@ request.o:request.c
 
 devices.o:devices.c
 	gcc $(FLAG1) -c devices.c $(FLAG2)
+
+driver_common.o:driver_common.c
+	gcc $(FLAG1) -c driver_common.c $(FLAG2)
 
 sensor1_acc.o:sensor1_acc.c
 	gcc $(FLAG1) -c sensor1_acc.c $(FLAG2) 

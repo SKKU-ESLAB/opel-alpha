@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include "devices.h"
+#include "driver_common.h"
 
 #define MOTION_PIN	1			//Digital, wiringPI
 

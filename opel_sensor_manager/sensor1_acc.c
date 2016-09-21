@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include "devices.h"
+#include "driver_common.h"
 
 #define ACC_X	0
 #define ACC_Y	1

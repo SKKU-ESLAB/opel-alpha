@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include "devices.h"
+#include "driver_common.h"
 
 #define TOUCH	25			//Digital, wiringPI
 static int touch_flag = 0;

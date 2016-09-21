@@ -67,7 +67,7 @@ typedef struct {
 }sensorHead;
 
 
-unsigned int ADC_Read(unsigned char channel);
+
 void addDevice(const struct device_ops *dev);
 
 #define DEVICE_OPS_REGISTER(dev)	\
@@ -81,8 +81,6 @@ static void module_exit(void)	\
 	remove_device(dev);	\
 	}
 */
-#endif
-
 sensorHead* initSensors(void);
 sensorHead* getSensorHead(void);
 sensorList* getSensorByName(sensorHead* sh, char* sensor_name);
@@ -126,8 +124,7 @@ static inline char* sensorGet(sensorList* sl, void *data)
 	return '\0';
 }
 
-int isWiringPiSetup();
-int setupWiringPi();
+#endif
 
 
 

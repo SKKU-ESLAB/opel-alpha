@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include "devices.h"
+#include "driver_common.h"
 
 #define VIBRATION	2		//Digital, wiringPI
 
