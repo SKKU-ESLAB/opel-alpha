@@ -2,28 +2,35 @@
 #include "sensor_manager.h"
 #include "devices.h"
 /*
-	Insert Request : 무조건 list의 맨 앞에 넣음, 첫번째로 실행되도록 함. 
+	(Insert Request : 무조건 list의 맨 앞에 넣음, 첫번째로 실행되도록 함.)
+	Insert Request : Insert to the front of list, and make it execute first.
 
-	getFirstRequest : 맨 앞의 request를 반환
-
-	reschduleRequest : 맨 앞의 request
-
+	(getFirstRequest : 맨 앞의 request를 반환)
+	getFirstRequest : Return the request in the front-end
 
 
+	(rescheduleRequest : 맨 앞의 request)
+	rescheduleRequest: the request in the front-end
+
+
+	// Korean
 	1. 외부에서 리퀘스트 insert
-
 	2. 리퀘스트 있으면, 맨 앞에걸 처리함.
-
 	3. 값 업데이트
-
 	4. 리스케줄링
-
 
 	// 리퀘스트 관련 함수 뜯어 고치기
 	// 리퀘스트 핸들링 함수 가지고 동작하는 센서 스레드 함수 만들기
 	// dbus에서 리퀘스트 핸들링 부분 추가
 	// string parsing
 	// nil 대응
+	
+	// English
+	1. Insert request
+	2. If there is any request, handle the front-end request
+	3. Update the value
+	4. Reschedule
+
 
 */
 
