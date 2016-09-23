@@ -1,4 +1,5 @@
 #include "OPELcamProperty.h"
+#include "OPELcommonUtil.h"
 
 const char *EncorderProp::n_quality_level = "quality-level";
 const char *EncorderProp::n_bitrate = "bitrate";

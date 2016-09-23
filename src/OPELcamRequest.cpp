@@ -1,5 +1,7 @@
-#include "OPELcamRequest.h"
+#include "OPELcommonUtil.h"
 #include "OPELgstElementTx1.h"
+#include "OPELglobalRequest.h"
+
 static GstPadProbeReturn event_probe_cb(GstPad *pad, GstPadProbeInfo *info,
     gpointer user_data)
 {
@@ -22,6 +24,15 @@ static GstPadProbeReturn event_probe_cb(GstPad *pad, GstPadProbeInfo *info,
   std::vector<typeElement*> *v_fly_type_elements = 
     request_elements->getFlyTypeElementVector();
 
+  typeElement *tee = findByElementName(request_elements->getTypeElementVector(), 
+      "tee");
+  if(!tee)
+  {
+    OPEL_DBG_ERR("Tee Element is NULL");
+    __OPEL_FUNCTION_EXIT__;
+    return GST_PAD_PROBE_DROP;
+  }
+
   for(int i=0; i<OPEL_NUM_DEFAULT_RECORDING_ELE; i++)
   {
 #if OPEL_LOG_VERBOSE
@@ -32,6 +43,8 @@ static GstPadProbeReturn event_probe_cb(GstPad *pad, GstPadProbeInfo *info,
       gst_bin_remove(GST_BIN(pipeline), (*v_fly_type_elements)[i]->element);
   }
   
+  gst_element_release_request_pad(tee->element, request_elements->getSrcPad());
+
   __OPEL_FUNCTION_EXIT__;
   return GST_PAD_PROBE_DROP;
 }
@@ -83,12 +96,14 @@ static gboolean timeOutCallback(gpointer _request_elements)
   gst_object_unref(queue_pad);
 
   __OPEL_FUNCTION_EXIT__;
-  return true;
+  //Call Only Once 
+  return false;
 }
 
-static OPELRequestTx1 *recordingInit(std::vector<typeElement*> *_type_element_v)
+static OPELRequestTx1 *recordingInit(std::vector<typeElement*> *_type_element_v, 
+    OPELRequestTx1 *request_handle)
 {
-  assert(_type_element_v != NULL);
+  assert(_type_element_v != NULL && request_handle != NULL);
   __OPEL_FUNCTION_ENTER__;
 
   GstPadTemplate *templ;
@@ -96,16 +111,13 @@ static OPELRequestTx1 *recordingInit(std::vector<typeElement*> *_type_element_v)
   std::vector<typeElement*> *_fly_type_element_v;
   GstPad *src_pad; 
 
-  //Request Handle
-  OPELRequestTx1 *request_handle = new OPELRequestTx1(); 
-
   request_handle->setTypeElementVector(_type_element_v);
 
   OPELGstElementTx1 *tx1 = OPELGstElementTx1::getInstance();
 
   GstElement *pipeline = tx1->getPipeline();
 
-  request_handle->defaultRecordingElementFactory(tmp_str);
+  request_handle->defaultRecordingElementFactory(request_handle->getMsgHandle()->file_path);
   _fly_type_element_v = request_handle->getFlyTypeElementVector();
 
   typeElement *tee = findByElementName(_type_element_v, "tee");
@@ -146,8 +158,9 @@ DBusHandlerResult msg_dbus_filter(DBusConnection *conn,
   OPELRequestTx1 *request_elements; 
   
   OPELGstElementTx1 *tx1 = OPELGstElementTx1::getInstance();
-  
-  request_elements = recordingInit((std::vector<typeElement*>*) _type_element_vector);
+/*
+  OPELRequestTx1 *_request_handle = new OPELRequestTx1();
+  request_elements = recordingInit(_type_element_vector, _request_handle);
 
   ret = gst_element_set_state(tx1->getPipeline(), GST_STATE_PLAYING);
   if(ret == GST_STATE_CHANGE_FAILURE)
@@ -158,36 +171,64 @@ DBusHandlerResult msg_dbus_filter(DBusConnection *conn,
   }
   
   g_timeout_add_seconds(10, timeOutCallback, (void*)request_elements);   
-  
-  if(dbus_message_is_signal(msg, dbus_interface, rec_init_request))
-  {
-    OPEL_DBG_VERB("Get Recording Initialization Request");
-    request_elements = recordingInit((std::vector<typeElement*>*) _type_element_vector);
-    //app_pid
-    //input request_elements into global vector
+*/
 
-    /*     dbus_message_get_args(msg, NULL, DBUS_TYPE_UINT64,
-       &(request->msg_type), DBUS_TYPE_UINT64, &(request->u.init_type), 
-       DBUS_TYPE_UINT64, &(request->fps), DBUS_TYPE_UINT64, &(request->width),
-       DBUS_TYPE_UINT64, &(request->height), DBUS_TYPE_UINT64, 
-       &(request->num_frames), DBUS_TYPE_INVALID); */
+  if(dbus_message_is_signal(msg, "org.opel.camera.daemon", "recInit"))
+  {
+    OPEL_DBG_WARN("Get Recording Initialization Request");
+    char file_path[256];
+ 
+    dbusRequest *msg_handle = (dbusRequest*)malloc(sizeof(dbusRequest));
+    OPELRequestTx1 *request_handle = new OPELRequestTx1();
+    OPELGlobalVectorRequest *v_global_request = OPELGlobalVectorRequest::getInstance();
+
+    dbus_message_get_args(msg, NULL, DBUS_TYPE_STRING, &file_path,  DBUS_TYPE_UINT64, &(msg_handle->pid), 
+        DBUS_TYPE_UINT64,  &(msg_handle->width), DBUS_TYPE_UINT64, &(msg_handle->height), DBUS_TYPE_UINT64,  
+        &(msg_handle->fps), DBUS_TYPE_UINT64, &(msg_handle->play_seconds), NULL);
+
+    msg_handle->file_path = charToString(file_path);
+
+#if OPEL_LOG_VERBOSE
+    std::cout << "File Path : " << msg_handle->file_path.c_str() << std::endl;
+    std::cout << "PID : " << msg_handle->pid << std::endl;
+    std::cout << "Width : " << msg_handle->width << std::endl;
+    std::cout << "Height : " << msg_handle->height << std::endl;
+    std::cout << "Playing Time : " << msg_handle->play_seconds << "sec" << std::endl;
+#endif
+
+    request_handle->setMsgHandle(msg_handle);
+
+    request_elements = 
+      recordingInit((std::vector<typeElement*>*)_type_element_vector, 
+          request_handle);
+
+    if(!request_elements)
+    {
+      OPEL_DBG_ERR("Recording Initialization Failed");
+      __OPEL_FUNCTION_EXIT__;
+      return DBUS_HANDLER_RESULT_HANDLED;
+    }
+    
+    //input request_elements into global vector
+    v_global_request->pushRequest(request_elements);
+
+    return DBUS_HANDLER_RESULT_HANDLED;
   }
 
   if(dbus_message_is_signal(msg, dbus_interface, rec_start_request))
   {
-    OPEL_DBG_VERB("Get Recording Start Request");
+    OPEL_DBG_WARN("Get Recording Start Request");
+
     ret = gst_element_set_state(tx1->getPipeline(), GST_STATE_PLAYING);
     if(ret == GST_STATE_CHANGE_FAILURE)
     {
       OPEL_DBG_ERR("Unable to set the pipeline to the playing state. \n");
       __OPEL_FUNCTION_EXIT__;
+    
       return DBUS_HANDLER_RESULT_HANDLED;
     }
-    /*     dbus_message_get_args(msg, NULL, DBUS_TYPE_UINT64,
-           &(request->msg_type), DBUS_TYPE_UINT64, &(request->u.dynamic_type), 
-           DBUS_TYPE_UINT64, &(request->fps), DBUS_TYPE_UINT64, &(request->width),
-           DBUS_TYPE_UINT64, &(request->height), DBUS_TYPE_UINT64, 
-           &(request->num_frames), DBUS_TYPE_INVALID); */
+      
+  
   }
   
   if(dbus_message_is_signal(msg, dbus_interface, rec_stop_request))

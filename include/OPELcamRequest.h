@@ -6,6 +6,8 @@
 #include <dbus/dbus-protocol.h>
 #include <dbus/dbus-glib.h>
 #include <string>
+#include <gst/gst.h>
+
 
 static const gchar *dbus_interface = "org.opel.camera.daemon";
 
@@ -22,12 +24,17 @@ extern DBusHandlerResult msg_dbus_filter(DBusConnection *conn,
 
 
 typedef struct _dbusReques{
-  std::string *file_path;
+  std::string file_path;
+  unsigned pid;
   unsigned fps;
   unsigned width;
   unsigned height;
-  unsigned num_frames;
+  unsigned play_seconds;
 }dbusRequest;
 
+
+static gboolean timeOutCallback(gpointer _request_elements);
+static GstPadProbeReturn event_probe_cb(GstPad *pad, GstPadProbeInfo *info,
+        gpointer user_data);
 
 #endif /* OPEL_CAM_REQUEST_H */

@@ -39,13 +39,13 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The program to use to edit the cache.
-CMAKE_EDIT_COMMAND = /usr/bin/ccmake
+CMAKE_EDIT_COMMAND = /usr/bin/cmake-gui
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/ubuntu/opel-alpha
+CMAKE_SOURCE_DIR = /home/pi/recovery/opel-alpha
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/ubuntu/opel-alpha/build
+CMAKE_BINARY_DIR = /home/pi/recovery/opel-alpha/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -53,7 +53,7 @@ CMAKE_BINARY_DIR = /home/ubuntu/opel-alpha/build
 # Special rule for the target edit_cache
 edit_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake cache editor..."
-	/usr/bin/ccmake -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+	/usr/bin/cmake-gui -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
 .PHONY : edit_cache
 
 # Special rule for the target edit_cache
@@ -72,9 +72,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/ubuntu/opel-alpha/build/CMakeFiles /home/ubuntu/opel-alpha/build/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/pi/recovery/opel-alpha/build/CMakeFiles /home/pi/recovery/opel-alpha/build/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/ubuntu/opel-alpha/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/pi/recovery/opel-alpha/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -145,6 +145,36 @@ src/OPELcamRequest.s:
 .PHONY : src/OPELcamRequest.s
 
 # target to build an object file
+src/OPELcommonUtil.o:
+	$(MAKE) -f CMakeFiles/cam_fw.dir/build.make CMakeFiles/cam_fw.dir/src/OPELcommonUtil.o
+.PHONY : src/OPELcommonUtil.o
+
+# target to preprocess a source file
+src/OPELcommonUtil.i:
+	$(MAKE) -f CMakeFiles/cam_fw.dir/build.make CMakeFiles/cam_fw.dir/src/OPELcommonUtil.i
+.PHONY : src/OPELcommonUtil.i
+
+# target to generate assembly for a file
+src/OPELcommonUtil.s:
+	$(MAKE) -f CMakeFiles/cam_fw.dir/build.make CMakeFiles/cam_fw.dir/src/OPELcommonUtil.s
+.PHONY : src/OPELcommonUtil.s
+
+# target to build an object file
+src/OPELglobalRequest.o:
+	$(MAKE) -f CMakeFiles/cam_fw.dir/build.make CMakeFiles/cam_fw.dir/src/OPELglobalRequest.o
+.PHONY : src/OPELglobalRequest.o
+
+# target to preprocess a source file
+src/OPELglobalRequest.i:
+	$(MAKE) -f CMakeFiles/cam_fw.dir/build.make CMakeFiles/cam_fw.dir/src/OPELglobalRequest.i
+.PHONY : src/OPELglobalRequest.i
+
+# target to generate assembly for a file
+src/OPELglobalRequest.s:
+	$(MAKE) -f CMakeFiles/cam_fw.dir/build.make CMakeFiles/cam_fw.dir/src/OPELglobalRequest.s
+.PHONY : src/OPELglobalRequest.s
+
+# target to build an object file
 src/OPELgstElement.o:
 	$(MAKE) -f CMakeFiles/cam_fw.dir/build.make CMakeFiles/cam_fw.dir/src/OPELgstElement.o
 .PHONY : src/OPELgstElement.o
@@ -204,6 +234,12 @@ help:
 	@echo "... src/OPELcamRequest.o"
 	@echo "... src/OPELcamRequest.i"
 	@echo "... src/OPELcamRequest.s"
+	@echo "... src/OPELcommonUtil.o"
+	@echo "... src/OPELcommonUtil.i"
+	@echo "... src/OPELcommonUtil.s"
+	@echo "... src/OPELglobalRequest.o"
+	@echo "... src/OPELglobalRequest.i"
+	@echo "... src/OPELglobalRequest.s"
 	@echo "... src/OPELgstElement.o"
 	@echo "... src/OPELgstElement.i"
 	@echo "... src/OPELgstElement.s"

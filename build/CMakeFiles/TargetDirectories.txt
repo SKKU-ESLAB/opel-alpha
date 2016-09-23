@@ -1,1 +1,1 @@
-/home/ubuntu/opel-alpha/build/CMakeFiles/cam_fw.dir
+/home/pi/recovery/opel-alpha/build/CMakeFiles/cam_fw.dir

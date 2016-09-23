@@ -2,10 +2,10 @@
 #define OPEL_GST_ELEMENT_H
 #include "OPELcamProperty.h"
 #include <gst/gst.h>
-#include <gst/app/gstappsrc.h>
 #include <stdlib.h>
 #include <string>
 #include "OPELconfig.h"
+#include "OPELcamRequest.h"
 
 //#define TARGET_SRC_IS_CAM 1
 
@@ -81,16 +81,18 @@ class OPELRequest{
     { this->src_pad = _src_pad; }
     GstPad* getSrcPad(void) const
     { return this->src_pad; }
-    void setAppPid(unsigned _app_pid)
-    { this->app_pid = _app_pid; }
-    unsigned getAppPid(void) const
-    { return this->app_pid; } 
+    
+    dbusRequest *getMsgHandle(void) const
+    { return this->msg_handle; }
+    void setMsgHandle(dbusRequest *_msg_handle)
+    { this->msg_handle = _msg_handle; }
   protected:
     std::vector<typeElement*> *_v_type_element; 
     std::vector<typeElement*> *_v_fly_type_element;
     GstPad *src_pad;
     GstPadTemplate *src_templ;
-    unsigned app_pid;
+
+    dbusRequest *msg_handle;
 };
 
 class OPELGstElement 
@@ -120,4 +122,6 @@ typeElement* findByElementName(std::vector<typeElement*> *_v_element,
     const char *_str);
 typeElement* findByElementNameNSubType(std::vector<typeElement*> *_v_element, 
     const char *_str, unsigned _sub_type);
+
+
 #endif /* OPEL_GST_ELEMENT_H */

@@ -1,6 +1,7 @@
 #include "OPELgstElementTx1.h"
-OPELGstElementTx1 *OPELGstElementTx1::opel_gst_element_tx1 = NULL; 
+#include "OPELcommonUtil.h"
 
+OPELGstElementTx1 *OPELGstElementTx1::opel_gst_element_tx1 = NULL; 
 
 void printTypeElement(std::vector<typeElement*> *_type_element_vector)
 {

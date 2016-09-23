@@ -1,4 +1,6 @@
+#include "OPELcommonUtil.h"
 #include "OPELgstElement.h"
+
 extern bool typeElementAllocator(const char *name, const char *element_name,
     GstElement **element, int eid, typeElement **type_element_array)
 {

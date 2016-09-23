@@ -80,7 +80,7 @@ ElementXMLSerialization* openXMLconfig(const char *_path_xml)
 
 ElementXMLSerialization* readXMLconfig(std::ifstream& _xml_file)
 {
-  assert(!_xml_file.fail());
+    assert(!_xml_file.fail());
   __OPEL_FUNCTION_ENTER__; 
   allocVectorElementProperty();
   ElementXMLSerialization *_element_property_serialization = 
@@ -120,6 +120,7 @@ void writeXMLconfig(const char *_path_xml)
 int main(int argc, char** argv)
 {
   __OPEL_FUNCTION_ENTER__; 
+
   bool ret;
   GstBus *bus;
   DBusError dbus_error;
@@ -141,15 +142,20 @@ int main(int argc, char** argv)
   loop = g_main_loop_new(NULL, false);
   dbus_error_init(&dbus_error);
   dbus_conn = dbus_bus_get(DBUS_BUS_SYSTEM, &dbus_error);
-
+  if(dbus_error_is_set(&dbus_error))
+  {
+    OPEL_DBG_ERR("Dbus Bus System Registration Failed");
+    dbus_error_free(&dbus_error);
+    __OPEL_FUNCTION_EXIT__;
+    return -1;
+  }
   OPELGstElementTx1 *tx1 = OPELGstElementTx1::getInstance();
-  
+ 
   tx1->setElementPropertyVector(v_element_property);
 
 #if OPEL_LOG_VERBOSE
   printTypeElement(tx1->getTypeElementVector());
 #endif
- 
 
   ret = tx1->OPELGstElementFactory();
   if(!ret)
@@ -181,7 +187,7 @@ int main(int argc, char** argv)
   g_signal_connect(G_OBJECT(bus), "message", G_CALLBACK(message_cb), NULL);
 
   gst_object_unref(GST_OBJECT(bus));
-  
+
   ret = gst_element_set_state(_pipeline, GST_STATE_READY);
   OPEL_DBG_VERB("Set Gstreamer Pipeline Status GST_STATE_READY");
 
@@ -190,14 +196,15 @@ int main(int argc, char** argv)
     OPEL_DBG_ERR("Unable to set the pipeline to the playing state. \n");
     goto exit;
   }
+  
 
-  dbus_bus_add_match(dbus_conn, "type='signal',interface='org.opel.camera.daemon'", NULL);
+  dbus_bus_add_match(dbus_conn, "type='signal', interface='org.opel.camera.daemon'", NULL);
   dbus_connection_add_filter(dbus_conn, msg_dbus_filter, 
       (void*)_type_element_vector, NULL);
   dbus_connection_setup_with_g_main(dbus_conn, NULL);
-  
+
   g_main_loop_run(loop);
-  
+
 exit:
   if(tx1_element_property != NULL)
     delete tx1_element_property;
@@ -212,6 +219,7 @@ exit:
     dbus_connection_unref(dbus_conn);
   if(bus != NULL)
     gst_object_unref(bus);
+  
   __OPEL_FUNCTION_EXIT__;
   return 0;
 }
