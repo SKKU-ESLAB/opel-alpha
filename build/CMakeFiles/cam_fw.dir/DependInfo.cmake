@@ -1,27 +1,27 @@
 # The set of languages for which implicit dependencies are needed:
-SET(CMAKE_DEPENDS_LANGUAGES
+set(CMAKE_DEPENDS_LANGUAGES
   "CXX"
   )
 # The set of files for implicit dependencies of each language:
-SET(CMAKE_DEPENDS_CHECK_CXX
-  "/home/pi/recovery/opel-alpha/src/OPELcamProperty.cpp" "/home/pi/recovery/opel-alpha/build/CMakeFiles/cam_fw.dir/src/OPELcamProperty.o"
-  "/home/pi/recovery/opel-alpha/src/OPELcamRequest.cpp" "/home/pi/recovery/opel-alpha/build/CMakeFiles/cam_fw.dir/src/OPELcamRequest.o"
-  "/home/pi/recovery/opel-alpha/src/OPELcommonUtil.cpp" "/home/pi/recovery/opel-alpha/build/CMakeFiles/cam_fw.dir/src/OPELcommonUtil.o"
-  "/home/pi/recovery/opel-alpha/src/OPELglobalRequest.cpp" "/home/pi/recovery/opel-alpha/build/CMakeFiles/cam_fw.dir/src/OPELglobalRequest.o"
-  "/home/pi/recovery/opel-alpha/src/OPELgstElement.cpp" "/home/pi/recovery/opel-alpha/build/CMakeFiles/cam_fw.dir/src/OPELgstElement.o"
-  "/home/pi/recovery/opel-alpha/src/OPELgstElementTx1.cpp" "/home/pi/recovery/opel-alpha/build/CMakeFiles/cam_fw.dir/src/OPELgstElementTx1.o"
-  "/home/pi/recovery/opel-alpha/src/main.cpp" "/home/pi/recovery/opel-alpha/build/CMakeFiles/cam_fw.dir/src/main.o"
+set(CMAKE_DEPENDS_CHECK_CXX
+  "/home/ubuntu/opel-alpha/src/OPELcamProperty.cpp" "/home/ubuntu/opel-alpha/build/CMakeFiles/cam_fw.dir/src/OPELcamProperty.o"
+  "/home/ubuntu/opel-alpha/src/OPELcamRequest.cpp" "/home/ubuntu/opel-alpha/build/CMakeFiles/cam_fw.dir/src/OPELcamRequest.o"
+  "/home/ubuntu/opel-alpha/src/OPELcommonUtil.cpp" "/home/ubuntu/opel-alpha/build/CMakeFiles/cam_fw.dir/src/OPELcommonUtil.o"
+  "/home/ubuntu/opel-alpha/src/OPELglobalRequest.cpp" "/home/ubuntu/opel-alpha/build/CMakeFiles/cam_fw.dir/src/OPELglobalRequest.o"
+  "/home/ubuntu/opel-alpha/src/OPELgstElement.cpp" "/home/ubuntu/opel-alpha/build/CMakeFiles/cam_fw.dir/src/OPELgstElement.o"
+  "/home/ubuntu/opel-alpha/src/OPELgstElementTx1.cpp" "/home/ubuntu/opel-alpha/build/CMakeFiles/cam_fw.dir/src/OPELgstElementTx1.o"
+  "/home/ubuntu/opel-alpha/src/main.cpp" "/home/ubuntu/opel-alpha/build/CMakeFiles/cam_fw.dir/src/main.o"
   )
-SET(CMAKE_CXX_COMPILER_ID "GNU")
-
-# Targets to which this target links.
-SET(CMAKE_TARGET_LINKED_INFO_FILES
-  )
+set(CMAKE_CXX_COMPILER_ID "GNU")
 
 # The include file search paths:
-SET(CMAKE_C_TARGET_INCLUDE_PATH
+set(CMAKE_CXX_TARGET_INCLUDE_PATH
   "../include"
   )
-SET(CMAKE_CXX_TARGET_INCLUDE_PATH ${CMAKE_C_TARGET_INCLUDE_PATH})
-SET(CMAKE_Fortran_TARGET_INCLUDE_PATH ${CMAKE_C_TARGET_INCLUDE_PATH})
-SET(CMAKE_ASM_TARGET_INCLUDE_PATH ${CMAKE_C_TARGET_INCLUDE_PATH})
+
+# Targets to which this target links.
+set(CMAKE_TARGET_LINKED_INFO_FILES
+  )
+
+# Fortran module output directory.
+set(CMAKE_Fortran_TARGET_MODULE_DIR "")

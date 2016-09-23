@@ -1,1 +1,3 @@
-/home/pi/recovery/opel-alpha/build/CMakeFiles/cam_fw.dir
+/home/ubuntu/opel-alpha/build/CMakeFiles/edit_cache.dir
+/home/ubuntu/opel-alpha/build/CMakeFiles/rebuild_cache.dir
+/home/ubuntu/opel-alpha/build/CMakeFiles/cam_fw.dir

@@ -10,12 +10,18 @@ static void send_rec_init(DBusConnection *conn)
   printf("init\n");
   DBusMessage *message;
   message = dbus_message_new_signal("/org/opel/camera/daemon", "org.opel.camera.daemon", "recInit");
+	
+  dbus_connection_send (conn, message, NULL);
+  dbus_message_unref(message);
 }
 static void send_rec_start(DBusConnection *conn)
 {
   printf("start\n");
   DBusMessage *message;
-  message = dbus_message_new_signal(dbus_path, dbus_interface, rec_init_request);
+  message = dbus_message_new_signal(dbus_path, dbus_interface, rec_start_request);
+
+  dbus_connection_send (conn, message, NULL);
+  dbus_message_unref(message);
 }
 
 static void send_rec_term(DBusConnection *conn)
@@ -23,6 +29,9 @@ static void send_rec_term(DBusConnection *conn)
   printf("termination\n");
   DBusMessage *message;
   message = dbus_message_new_signal(dbus_path, dbus_interface, rec_init_request);
+
+  dbus_connection_send (conn, message, NULL);
+  dbus_message_unref(message);
 }
 
 int main(int argc, char** argv)

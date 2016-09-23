@@ -196,7 +196,6 @@ int main(int argc, char** argv)
     OPEL_DBG_ERR("Unable to set the pipeline to the playing state. \n");
     goto exit;
   }
-  
 
   dbus_bus_add_match(dbus_conn, "type='signal', interface='org.opel.camera.daemon'", NULL);
   dbus_connection_add_filter(dbus_conn, msg_dbus_filter, 

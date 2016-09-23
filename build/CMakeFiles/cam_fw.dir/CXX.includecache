@@ -71,8 +71,6 @@ OPELcamProperty.h
 ../include/OPELcamProperty.h
 gst/gst.h
 -
-gst/app/gstappsrc.h
--
 stdlib.h
 -
 string
@@ -86,49 +84,49 @@ OPELcamRequest.h
 OPELgstElement.h
 ../include/OPELgstElement.h
 
-/home/pi/recovery/opel-alpha/src/OPELcamProperty.cpp
+/home/ubuntu/opel-alpha/src/OPELcamProperty.cpp
 OPELcamProperty.h
-/home/pi/recovery/opel-alpha/src/OPELcamProperty.h
+/home/ubuntu/opel-alpha/src/OPELcamProperty.h
 OPELcommonUtil.h
-/home/pi/recovery/opel-alpha/src/OPELcommonUtil.h
+/home/ubuntu/opel-alpha/src/OPELcommonUtil.h
 
-/home/pi/recovery/opel-alpha/src/OPELcamRequest.cpp
+/home/ubuntu/opel-alpha/src/OPELcamRequest.cpp
 OPELcommonUtil.h
-/home/pi/recovery/opel-alpha/src/OPELcommonUtil.h
+/home/ubuntu/opel-alpha/src/OPELcommonUtil.h
 OPELgstElementTx1.h
-/home/pi/recovery/opel-alpha/src/OPELgstElementTx1.h
+/home/ubuntu/opel-alpha/src/OPELgstElementTx1.h
 OPELglobalRequest.h
-/home/pi/recovery/opel-alpha/src/OPELglobalRequest.h
+/home/ubuntu/opel-alpha/src/OPELglobalRequest.h
 
-/home/pi/recovery/opel-alpha/src/OPELcommonUtil.cpp
+/home/ubuntu/opel-alpha/src/OPELcommonUtil.cpp
 OPELcommonUtil.h
-/home/pi/recovery/opel-alpha/src/OPELcommonUtil.h
+/home/ubuntu/opel-alpha/src/OPELcommonUtil.h
 stdlib.h
 -
 cstring
 -
 
-/home/pi/recovery/opel-alpha/src/OPELglobalRequest.cpp
+/home/ubuntu/opel-alpha/src/OPELglobalRequest.cpp
 OPELglobalRequest.h
-/home/pi/recovery/opel-alpha/src/OPELglobalRequest.h
+/home/ubuntu/opel-alpha/src/OPELglobalRequest.h
 
-/home/pi/recovery/opel-alpha/src/OPELgstElement.cpp
+/home/ubuntu/opel-alpha/src/OPELgstElement.cpp
 OPELcommonUtil.h
-/home/pi/recovery/opel-alpha/src/OPELcommonUtil.h
+/home/ubuntu/opel-alpha/src/OPELcommonUtil.h
 OPELgstElement.h
-/home/pi/recovery/opel-alpha/src/OPELgstElement.h
+/home/ubuntu/opel-alpha/src/OPELgstElement.h
 
-/home/pi/recovery/opel-alpha/src/OPELgstElementTx1.cpp
+/home/ubuntu/opel-alpha/src/OPELgstElementTx1.cpp
 OPELgstElementTx1.h
-/home/pi/recovery/opel-alpha/src/OPELgstElementTx1.h
+/home/ubuntu/opel-alpha/src/OPELgstElementTx1.h
 OPELcommonUtil.h
-/home/pi/recovery/opel-alpha/src/OPELcommonUtil.h
+/home/ubuntu/opel-alpha/src/OPELcommonUtil.h
 
-/home/pi/recovery/opel-alpha/src/main.cpp
+/home/ubuntu/opel-alpha/src/main.cpp
 OPELgstElementTx1.h
-/home/pi/recovery/opel-alpha/src/OPELgstElementTx1.h
+/home/ubuntu/opel-alpha/src/OPELgstElementTx1.h
 OPELcamRequest.h
-/home/pi/recovery/opel-alpha/src/OPELcamRequest.h
+/home/ubuntu/opel-alpha/src/OPELcamRequest.h
 boost/archive/xml_iarchive.hpp
 -
 boost/archive/xml_oarchive.hpp
