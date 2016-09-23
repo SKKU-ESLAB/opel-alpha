@@ -1,10 +1,10 @@
 #include "OPELgstElementTx1.h"
 #include "OPELcamRequest.h"
+#include "OPELglobalRequest.h"
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
 #include <signal.h>
 #include <unistd.h>
-
 const char *path_configuration_Tx1 = "/home/ubuntu/opel-alpha/OPELTx1Configuartion.xml";
 
 static GMainLoop *loop;
@@ -128,6 +128,7 @@ int main(int argc, char** argv)
   GstElement *_pipeline;
   std::vector<typeElement*> *_type_element_vector = NULL;
   ElementXMLSerialization *tx1_element_property = NULL; 
+	OPELGlobalVectorRequest *global_vector_request = NULL;
 
   tx1_element_property = openXMLconfig(path_configuration_Tx1);
   if(tx1_element_property == NULL)
@@ -218,7 +219,9 @@ exit:
     dbus_connection_unref(dbus_conn);
   if(bus != NULL)
     gst_object_unref(bus);
-  
-  __OPEL_FUNCTION_EXIT__;
+ 	if((global_vector_request = OPELGlobalVectorRequest::getInstance()) != NULL)
+		delete global_vector_request;
+
+	__OPEL_FUNCTION_EXIT__;
   return 0;
 }

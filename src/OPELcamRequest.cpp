@@ -116,8 +116,8 @@ static OPELRequestTx1 *recordingInit(std::vector<typeElement*> *_type_element_v,
   OPELGstElementTx1 *tx1 = OPELGstElementTx1::getInstance();
 
   GstElement *pipeline = tx1->getPipeline();
-
-  request_handle->defaultRecordingElementFactory(request_handle->getMsgHandle()->file_path);
+ 
+	request_handle->defaultRecordingElementFactory(request_handle->getMsgHandle()->file_path);
   _fly_type_element_v = request_handle->getFlyTypeElementVector();
 
   typeElement *tee = findByElementName(_type_element_v, "tee");
@@ -131,13 +131,13 @@ static OPELRequestTx1 *recordingInit(std::vector<typeElement*> *_type_element_v,
   }
 
   templ = gst_element_class_get_pad_template(GST_ELEMENT_GET_CLASS(tee->element), "src_%u");
-  src_pad = gst_element_request_pad(tee->element, templ, NULL, NULL);
+  src_pad = gst_element_request_pad(tee->element, templ, "src_%u", NULL);
 
   request_handle->setSrcPad(src_pad);
-#if OPEL_LOG_VERBOSE
+//#if OPEL_LOG_VERBOSE
   OPEL_DBG_VERB("Obtained request pad %s for %s", gst_pad_get_name(templ), 
-      tee->element->name->c_str());  
-#endif
+      tee->name->c_str());  
+////#endif
 
   request_handle->defaultRecordingCapFactory();
   request_handle->defaultRecordingPipelineAdd(pipeline);
@@ -157,44 +157,36 @@ DBusHandlerResult msg_dbus_filter(DBusConnection *conn,
   bool ret;
   OPELRequestTx1 *request_elements; 
   
-  OPELGstElementTx1 *tx1 = OPELGstElementTx1::getInstance();
-/*
-  OPELRequestTx1 *_request_handle = new OPELRequestTx1();
-  request_elements = recordingInit(_type_element_vector, _request_handle);
+	OPELGstElementTx1 *tx1 = OPELGstElementTx1::getInstance();
 
-  ret = gst_element_set_state(tx1->getPipeline(), GST_STATE_PLAYING);
-  if(ret == GST_STATE_CHANGE_FAILURE)
-  {
-      OPEL_DBG_ERR("Unable to set the pipeline to the playing state. \n");
-      __OPEL_FUNCTION_EXIT__;
-      return DBUS_HANDLER_RESULT_HANDLED;
-  }
-  
-  g_timeout_add_seconds(10, timeOutCallback, (void*)request_elements);   
-*/
-
-  if(dbus_message_is_signal(msg, "org.opel.camera.daemon", "recInit"))
+  if(dbus_message_is_signal(msg, dbus_interface, rec_init_request))
   {
     OPEL_DBG_WARN("Get Recording Initialization Request");
-    char file_path[256];
+    const char *file_path;
  
     dbusRequest *msg_handle = (dbusRequest*)malloc(sizeof(dbusRequest));
     OPELRequestTx1 *request_handle = new OPELRequestTx1();
     OPELGlobalVectorRequest *v_global_request = OPELGlobalVectorRequest::getInstance();
 
-    dbus_message_get_args(msg, NULL, DBUS_TYPE_STRING, &file_path,  DBUS_TYPE_UINT64, &(msg_handle->pid), 
-        DBUS_TYPE_UINT64,  &(msg_handle->width), DBUS_TYPE_UINT64, &(msg_handle->height), DBUS_TYPE_UINT64,  
-        &(msg_handle->fps), DBUS_TYPE_UINT64, &(msg_handle->play_seconds), NULL);
+    dbus_message_get_args(msg, NULL, 
+				DBUS_TYPE_STRING, &file_path,  
+				DBUS_TYPE_UINT64, &(msg_handle->pid), 
+				DBUS_TYPE_UINT64, &(msg_handle->fps),
+        DBUS_TYPE_UINT64, &(msg_handle->width), 
+				DBUS_TYPE_UINT64, &(msg_handle->height), 
+				DBUS_TYPE_UINT64, &(msg_handle->play_seconds), 
+				DBUS_TYPE_INVALID);
 
-    msg_handle->file_path = charToString(file_path);
+    msg_handle->file_path = file_path;
 
-#if OPEL_LOG_VERBOSE
-    std::cout << "File Path : " << msg_handle->file_path.c_str() << std::endl;
+//#if OPEL_LOG_VERBOSE
+    std::cout << "File Path : " << msg_handle->file_path << std::endl;
     std::cout << "PID : " << msg_handle->pid << std::endl;
+		std::cout << "FPS : " << msg_handle->fps << std::endl;
     std::cout << "Width : " << msg_handle->width << std::endl;
     std::cout << "Height : " << msg_handle->height << std::endl;
     std::cout << "Playing Time : " << msg_handle->play_seconds << "sec" << std::endl;
-#endif
+//#endif
 
     request_handle->setMsgHandle(msg_handle);
 
@@ -208,33 +200,68 @@ DBusHandlerResult msg_dbus_filter(DBusConnection *conn,
       __OPEL_FUNCTION_EXIT__;
       return DBUS_HANDLER_RESULT_HANDLED;
     }
-    
     //input request_elements into global vector
     v_global_request->pushRequest(request_elements);
 
     return DBUS_HANDLER_RESULT_HANDLED;
   }
 
-  if(dbus_message_is_signal(msg, dbus_interface, rec_start_request))
-  {
-    OPEL_DBG_WARN("Get Recording Start Request");
+	if(dbus_message_is_signal(msg, dbus_interface, rec_start_request))
+	{
+		OPEL_DBG_WARN("Get Recording Start Request");	
+		unsigned request_pid;
+		OPELGlobalVectorRequest *v_global_request = OPELGlobalVectorRequest::getInstance();
+		dbus_message_get_args(msg, NULL, DBUS_TYPE_UINT64, &request_pid);
 
-    ret = gst_element_set_state(tx1->getPipeline(), GST_STATE_PLAYING);
-    if(ret == GST_STATE_CHANGE_FAILURE)
-    {
-      OPEL_DBG_ERR("Unable to set the pipeline to the playing state. \n");
-      __OPEL_FUNCTION_EXIT__;
-    
-      return DBUS_HANDLER_RESULT_HANDLED;
-    }
-      
-  
-  }
+		OPELRequestTx1 *request_elements = v_global_request->getRequestByPid(request_pid);		
+   	
+		if(!request_elements)
+		{
+			OPEL_DBG_WARN("Request Is Not Init Yet (No PID Data)");
+			__OPEL_FUNCTION_EXIT__;
+			return DBUS_HANDLER_RESULT_HANDLED;
+		}
+		
+		dbusRequest *request = request_elements->getMsgHandle();	
+   	request->is_start = true;	
+		//dbusRequest set ture 
+		ret = gst_element_set_state(tx1->getPipeline(), GST_STATE_PLAYING);
+		if(ret == GST_STATE_CHANGE_FAILURE)
+		{
+			OPEL_DBG_ERR("Unable to set the pipeline to the playing state. \n");
+			__OPEL_FUNCTION_EXIT__;
+			return DBUS_HANDLER_RESULT_HANDLED;
+		}
+						
+		g_timeout_add_seconds(10, timeOutCallback, (void*)request_elements);   
+	}
   
   if(dbus_message_is_signal(msg, dbus_interface, rec_stop_request))
   {
     OPEL_DBG_VERB("Get Recording Stop Request");
-    //get App pid
+		unsigned request_pid;
+		OPELGlobalVectorRequest *v_global_request = OPELGlobalVectorRequest::getInstance();
+		dbus_message_get_args(msg, NULL, DBUS_TYPE_UINT64, &request_pid);
+
+		OPELRequestTx1 *request_elements = v_global_request->getRequestByPid(request_pid);		
+		if(!request_elements)
+		{
+			OPEL_DBG_WARN("Request is not initialized yet (No PID Data)");
+			__OPEL_FUNCTION_EXIT__;
+			return DBUS_HANDLER_RESULT_HANDLED;
+		}
+		
+		dbusRequest *request = request_elements->getMsgHandle();	
+		if(!(request->is_start))
+		{
+			OPEL_DBG_WARN("Request is not started yet");
+			//Just delete request_elements from global vector list 
+		}
+		else
+		{
+			//Invoke Time out Callback 
+		}
+		//get App pid
     // find pid vector and call the timeout callback
     // then delete the vector data
   }

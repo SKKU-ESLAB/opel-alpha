@@ -127,6 +127,8 @@ OPELgstElementTx1.h
 /home/ubuntu/opel-alpha/src/OPELgstElementTx1.h
 OPELcamRequest.h
 /home/ubuntu/opel-alpha/src/OPELcamRequest.h
+OPELglobalRequest.h
+/home/ubuntu/opel-alpha/src/OPELglobalRequest.h
 boost/archive/xml_iarchive.hpp
 -
 boost/archive/xml_oarchive.hpp

@@ -159,11 +159,6 @@ bool OPELGstElementTx1::OPELGstElementCapFactory(void)
    prop_element->getHeight() << std::endl;
 #endif
 
-#if OPEL_LOG_VERBOSE
-   OPEL_DBG_ERR("Obtained request pad %s for %s", gst_pad_get_name(src_element->pad), 
-       src_element->name->c_str());
-#endif
-
    sprintf(caps_buffer, "video/x-raw(memory:NVMM), format=(string){I420}, \
        width=(int){%d}, height=(int){%d}",
        prop_element->getWidth(), prop_element->getHeight());
@@ -311,7 +306,7 @@ bool OPELRequestTx1::defaultRecordingPipelineAdd(GstElement *pipeline)
   gst_bin_add_many(GST_BIN(pipeline), _queue->element, _enc->element,
       _mux->element, _sink->element, NULL);
 
-  ret = gst_element_link_many(_tee->element, _queue->element, _enc->element, NULL);
+  ret = gst_element_link_many(_queue->element, _enc->element, NULL);
   if(!ret)
   {
     OPEL_DBG_ERR("Gst Element Link Many Failed");
@@ -350,7 +345,8 @@ static void gstElementPropFactory(std::vector<typeElement*> *_type_element_vecto
     iter = (*_type_element_vector)[i]; 
     if(iter->prop != NULL)
       iter->prop->setGstObjectProperty(iter->element);
-  }
+	}
+
 }
 
 static bool gstElementFactory(std::vector<typeElement*> 
@@ -372,31 +368,39 @@ static bool gstElementFactory(std::vector<typeElement*>
   
   return true;
 }
-bool OPELRequestTx1::defaultRecordingElementFactory(std::string &file_path)
+bool OPELRequestTx1::defaultRecordingElementFactory(const char *file_path)
 { 
    assert(this->_v_type_element != NULL && this->_v_fly_type_element != NULL);
   __OPEL_FUNCTION_ENTER__;
-  
-  std::vector<typeElement*> _v_original_element(OPEL_NUM_DEFAULT_RECORDING_ELE);
+
+#if OPEL_LOG_VERBOSE
+	std::cout << "File Path : " << file_path << std::endl;
+#endif
+
+	std::vector<typeElement*> _v_original_element(OPEL_NUM_DEFAULT_RECORDING_ELE);
   typeElement *_queue = findByElementName(this->_v_type_element, "queue"); 
   typeElement *_enc = findByElementName(this->_v_type_element, "omxh264enc"); 
   typeElement *_mux = findByElementName(this->_v_type_element, "mp4mux"); 
   typeElement *_sink = findByElementNameNSubType(this->_v_type_element, 
       "filesink", kREC_SINK); 
-
+   
   if(!_queue || !_enc || !_mux || !_sink)
   {
     OPEL_DBG_ERR("Get TypeElement Pointer is NULL");
     __OPEL_FUNCTION_EXIT__;
     return false;
   }
-  
+
+	//if configuration changed
+	g_object_set(G_OBJECT(_sink->element), "location", file_path, NULL);
+
   _v_original_element[0] = _queue;
   _v_original_element[1] = _enc;
   _v_original_element[2] = _mux;
   _v_original_element[3] = _sink;
   //On The Fly Element
-  for(int i=0; i<OPEL_NUM_DEFAULT_RECORDING_ELE; i++)
+  
+	for(int i=0; i<OPEL_NUM_DEFAULT_RECORDING_ELE; i++)
   {
     typeElement *tmp = (typeElement*)malloc(sizeof(typeElement));
     tmp->element_prop = _v_original_element[i]->element_prop;
@@ -404,7 +408,8 @@ bool OPELRequestTx1::defaultRecordingElementFactory(std::string &file_path)
     this->_v_fly_type_element->push_back(tmp);      
     tmp = NULL;
   }
-  gstElementFactory(this->_v_fly_type_element);
+  
+	gstElementFactory(this->_v_fly_type_element);
   
   gstElementPropFactory(this->_v_fly_type_element);
 

@@ -66,7 +66,7 @@ class OPELRequest{
   public:
     OPELRequest();
     ~OPELRequest();
-    virtual bool defaultRecordingElementFactory(std::string &file_path) = 0;
+    virtual bool defaultRecordingElementFactory(const char *file_path) = 0;
     virtual bool defaultRecordingPipelineAdd(GstElement *pipeline) = 0;
     virtual bool defaultRecordingCapFactory(void) = 0;
   
@@ -91,7 +91,6 @@ class OPELRequest{
     std::vector<typeElement*> *_v_fly_type_element;
     GstPad *src_pad;
     GstPadTemplate *src_templ;
-
     dbusRequest *msg_handle;
 };
 

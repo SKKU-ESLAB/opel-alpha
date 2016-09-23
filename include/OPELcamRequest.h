@@ -24,12 +24,13 @@ extern DBusHandlerResult msg_dbus_filter(DBusConnection *conn,
 
 
 typedef struct _dbusReques{
-  std::string file_path;
+  const char* file_path;
   unsigned pid;
   unsigned fps;
   unsigned width;
   unsigned height;
   unsigned play_seconds;
+	bool is_start;
 }dbusRequest;
 
 

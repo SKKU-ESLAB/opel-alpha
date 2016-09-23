@@ -6,7 +6,7 @@
 class OPELRequestTx1 : public OPELRequest
 { 
   public:
-    virtual bool defaultRecordingElementFactory(std::string &file_path);
+    virtual bool defaultRecordingElementFactory(const char* file_path);
     virtual bool defaultRecordingPipelineAdd(GstElement *pipeline);
     virtual bool defaultRecordingCapFactory(void);
 };

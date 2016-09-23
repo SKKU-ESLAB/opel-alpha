@@ -20,7 +20,7 @@ gchar* stringToGchar(std::string* _str)
   return (gchar*)_char_str;
 }
 
-gchar* strToGcharNonPtr(std::string _str)
+gchar* strToGcharNonPtr(std::string &_str)
 {
   unsigned int _str_size = _str.size();
   unsigned char *_char_str = (unsigned char*)malloc(_str_size+1);

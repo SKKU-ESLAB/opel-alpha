@@ -11,7 +11,8 @@ class OPELGlobalVectorRequest{
     void deleteRequest(dbusRequest*);
     OPELRequestTx1* getRequestByPid(unsigned);
     ~OPELGlobalVectorRequest(); 
-  private:
+
+	private:
     static OPELGlobalVectorRequest *global_vector_request;
     OPELGlobalVectorRequest(); 
     std::vector<OPELRequestTx1*>* v_request; 

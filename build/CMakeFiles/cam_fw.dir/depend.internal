@@ -50,6 +50,7 @@ CMakeFiles/cam_fw.dir/src/main.o
  ../include/OPELcamRequest.h
  ../include/OPELconfig.h
  ../include/OPELdbugLog.h
+ ../include/OPELglobalRequest.h
  ../include/OPELgstElement.h
  ../include/OPELgstElementTx1.h
  /home/ubuntu/opel-alpha/src/main.cpp
