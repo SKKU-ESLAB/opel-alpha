@@ -188,9 +188,10 @@ int main(int argc, char** argv)
   g_signal_connect(G_OBJECT(bus), "message", G_CALLBACK(message_cb), NULL);
 
   gst_object_unref(GST_OBJECT(bus));
-
-  ret = gst_element_set_state(_pipeline, GST_STATE_READY);
-  OPEL_DBG_VERB("Set Gstreamer Pipeline Status GST_STATE_READY");
+	
+	tx1->setIsPlaying(false);
+//  ret = gst_element_set_state(_pipeline, GST_STATE_READY);
+//  OPEL_DBG_VERB("Set Gstreamer Pipeline Status GST_STATE_READY");
 
   if(ret == GST_STATE_CHANGE_FAILURE)
   {

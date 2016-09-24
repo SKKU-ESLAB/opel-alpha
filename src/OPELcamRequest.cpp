@@ -1,7 +1,6 @@
 #include "OPELcommonUtil.h"
 #include "OPELgstElementTx1.h"
 #include "OPELglobalRequest.h"
-
 static GstPadProbeReturn event_probe_cb(GstPad *pad, GstPadProbeInfo *info,
     gpointer user_data)
 {
@@ -44,8 +43,10 @@ static GstPadProbeReturn event_probe_cb(GstPad *pad, GstPadProbeInfo *info,
   }
   
   gst_element_release_request_pad(tee->element, request_elements->getSrcPad());
+	
+	delete request_elements;
 
-  __OPEL_FUNCTION_EXIT__;
+	__OPEL_FUNCTION_EXIT__;
   return GST_PAD_PROBE_DROP;
 }
 
@@ -56,10 +57,12 @@ static gboolean timeOutCallback(gpointer _request_elements)
 #if OPEL_LOG_VERBOSE
   OPEL_DBG_VERB("Time Out Callback Invoked");
 #endif
-  OPELRequestTx1 *request_elements = (OPELRequestTx1*)_request_elements; 
+  OPELGlobalVectorRequest *v_global_request = OPELGlobalVectorRequest::getInstance();
+	OPELRequestTx1 *request_elements = (OPELRequestTx1*)_request_elements; 
   typeElement *queue = findByElementName(request_elements->getFlyTypeElementVector(), 
       "queue");
-  if(!queue)
+ 
+	if(!queue)
   {
     OPEL_DBG_ERR("Not queue element in fly element vector");
     __OPEL_FUNCTION_EXIT__;
@@ -67,7 +70,8 @@ static gboolean timeOutCallback(gpointer _request_elements)
   }
 
   GstPad *srcpad = request_elements->getSrcPad();
-  if(!srcpad)
+
+	if(!srcpad)
   {
     OPEL_DBG_ERR("src pad is NULL");
     __OPEL_FUNCTION_EXIT__;
@@ -95,7 +99,9 @@ static gboolean timeOutCallback(gpointer _request_elements)
   gst_pad_send_event(queue_pad, gst_event_new_eos());
   gst_object_unref(queue_pad);
 
-  __OPEL_FUNCTION_EXIT__;
+	v_global_request->deleteRequest(request_elements);
+  
+	__OPEL_FUNCTION_EXIT__;
   //Call Only Once 
   return false;
 }
@@ -131,9 +137,10 @@ static OPELRequestTx1 *recordingInit(std::vector<typeElement*> *_type_element_v,
   }
 
   templ = gst_element_class_get_pad_template(GST_ELEMENT_GET_CLASS(tee->element), "src_%u");
-  src_pad = gst_element_request_pad(tee->element, templ, "src_%u", NULL);
+  src_pad = gst_element_request_pad(tee->element, templ, NULL, NULL);
 
   request_handle->setSrcPad(src_pad);
+
 //#if OPEL_LOG_VERBOSE
   OPEL_DBG_VERB("Obtained request pad %s for %s", gst_pad_get_name(templ), 
       tee->name->c_str());  
@@ -141,7 +148,7 @@ static OPELRequestTx1 *recordingInit(std::vector<typeElement*> *_type_element_v,
 
   request_handle->defaultRecordingCapFactory();
   request_handle->defaultRecordingPipelineAdd(pipeline);
-  
+
   queue->pad = gst_element_get_static_pad(queue->element, "sink");
   gst_pad_link(request_handle->getSrcPad(), queue->pad);
 
@@ -179,14 +186,14 @@ DBusHandlerResult msg_dbus_filter(DBusConnection *conn,
 
     msg_handle->file_path = file_path;
 
-//#if OPEL_LOG_VERBOSE
+#if OPEL_LOG_VERBOSE
     std::cout << "File Path : " << msg_handle->file_path << std::endl;
     std::cout << "PID : " << msg_handle->pid << std::endl;
 		std::cout << "FPS : " << msg_handle->fps << std::endl;
     std::cout << "Width : " << msg_handle->width << std::endl;
     std::cout << "Height : " << msg_handle->height << std::endl;
     std::cout << "Playing Time : " << msg_handle->play_seconds << "sec" << std::endl;
-//#endif
+#endif
 
     request_handle->setMsgHandle(msg_handle);
 
@@ -225,15 +232,26 @@ DBusHandlerResult msg_dbus_filter(DBusConnection *conn,
 		dbusRequest *request = request_elements->getMsgHandle();	
    	request->is_start = true;	
 		//dbusRequest set ture 
-		ret = gst_element_set_state(tx1->getPipeline(), GST_STATE_PLAYING);
-		if(ret == GST_STATE_CHANGE_FAILURE)
-		{
-			OPEL_DBG_ERR("Unable to set the pipeline to the playing state. \n");
-			__OPEL_FUNCTION_EXIT__;
-			return DBUS_HANDLER_RESULT_HANDLED;
+		if(!tx1->getIsPlaying()){
+			ret = gst_element_set_state(tx1->getPipeline(), GST_STATE_PLAYING);
+			if(ret == GST_STATE_CHANGE_FAILURE)
+			{
+				OPEL_DBG_ERR("Unable to set the pipeline to the playing state. \n");
+				__OPEL_FUNCTION_EXIT__;
+				return DBUS_HANDLER_RESULT_HANDLED;
+			}
+			tx1->setIsPlaying(true);
 		}
-						
-		g_timeout_add_seconds(10, timeOutCallback, (void*)request_elements);   
+		else
+		{
+			request_elements->defaultRecordingGstSyncStateWithParent();
+			
+		//	ret = gst_element_set_state(tx1->getPipeline(), GST_STATE_PAUSED);
+			ret = gst_element_set_state(tx1->getPipeline(), GST_STATE_PLAYING);
+		}
+		
+		g_timeout_add_seconds(request->play_seconds, timeOutCallback, (void*)request_elements);   
+
 	}
   
   if(dbus_message_is_signal(msg, dbus_interface, rec_stop_request))

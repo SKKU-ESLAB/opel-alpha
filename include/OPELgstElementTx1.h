@@ -9,6 +9,7 @@ class OPELRequestTx1 : public OPELRequest
     virtual bool defaultRecordingElementFactory(const char* file_path);
     virtual bool defaultRecordingPipelineAdd(GstElement *pipeline);
     virtual bool defaultRecordingCapFactory(void);
+		void defaultRecordingGstSyncStateWithParent(void);
 };
 
 class OPELGstElementTx1 : public OPELGstElement
@@ -26,10 +27,14 @@ class OPELGstElementTx1 : public OPELGstElement
     GstElement* getPipeline(void){ return this->pipeline; }
     void setPipeline(GstElement* _pipeline){ this->pipeline = _pipeline; }
 
-   
+  	bool getIsPlaying(void) const
+		{ return this->is_playing; }
+		void setIsPlaying(bool _is_playing) 
+		{ this->is_playing = _is_playing; }
   private:
     static OPELGstElementTx1 *opel_gst_element_tx1;
-    OPELGstElementTx1();
+    bool is_playing;
+		OPELGstElementTx1();
     GstElement *pipeline;
     GstCaps *src2conv;
 };

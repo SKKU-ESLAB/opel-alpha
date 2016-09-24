@@ -54,7 +54,6 @@ void OPELGlobalVectorRequest::deleteRequest(unsigned _pid)
     if(iter->getMsgHandle()->pid == _pid)
       v_request->erase(begin+i);
   }
-  OPEL_DBG_WARN("Delete Request : Do Not Reach Here");
 }
 
 void OPELGlobalVectorRequest::deleteRequest(OPELRequestTx1 *_request)
@@ -69,8 +68,7 @@ void OPELGlobalVectorRequest::deleteRequest(OPELRequestTx1 *_request)
     iter = (*this->v_request)[i];
     if(iter == _request)
       v_request->erase(begin+i);
-  }
-  OPEL_DBG_WARN("Delete Request : Do Not Reach Here");
+  } 
 }
 
 void OPELGlobalVectorRequest::deleteRequest(dbusRequest* _request)
@@ -86,6 +84,5 @@ void OPELGlobalVectorRequest::deleteRequest(dbusRequest* _request)
     if(iter->getMsgHandle() == _request)
       v_request->erase(begin+i);
   }
-  OPEL_DBG_WARN("Delete Request : Do Not Reach Here");
 }
 

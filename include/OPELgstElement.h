@@ -69,7 +69,7 @@ class OPELRequest{
     virtual bool defaultRecordingElementFactory(const char *file_path) = 0;
     virtual bool defaultRecordingPipelineAdd(GstElement *pipeline) = 0;
     virtual bool defaultRecordingCapFactory(void) = 0;
-  
+ 		 
     std::vector<typeElement*>* getTypeElementVector(void) const
     { return this->_v_type_element; }
     void setTypeElementVector(std::vector<typeElement*>
@@ -86,7 +86,8 @@ class OPELRequest{
     { return this->msg_handle; }
     void setMsgHandle(dbusRequest *_msg_handle)
     { this->msg_handle = _msg_handle; }
-  protected:
+ 
+	protected:
     std::vector<typeElement*> *_v_type_element; 
     std::vector<typeElement*> *_v_fly_type_element;
     GstPad *src_pad;

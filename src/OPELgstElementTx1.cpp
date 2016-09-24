@@ -424,3 +424,17 @@ bool OPELRequestTx1::defaultRecordingElementFactory(const char *file_path)
   return true; 
 }
 
+void OPELRequestTx1::defaultRecordingGstSyncStateWithParent(void)
+{
+	assert(this->_v_fly_type_element != NULL);
+	__OPEL_FUNCTION_ENTER__;
+	for(int i=0; i<OPEL_NUM_DEFAULT_RECORDING_ELE; i++)
+		if(!gst_element_sync_state_with_parent((*this->_v_fly_type_element)[i]->element))
+			OPEL_DBG_ERR("Cannot Sync State With Parent");
+
+/*
+	for(int i=0; i<OPEL_NUM_DEFAULT_RECORDING_ELE; i++)
+		gst_element_set_state((*this->_v_fly_type_element)[i]->element, GST_STATE_PLAYING);
+	*/
+	__OPEL_FUNCTION_EXIT__;
+}
