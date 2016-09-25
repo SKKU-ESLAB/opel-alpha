@@ -186,14 +186,14 @@ DBusHandlerResult msg_dbus_filter(DBusConnection *conn,
 
     msg_handle->file_path = file_path;
 
-#if OPEL_LOG_VERBOSE
+//#if OPEL_LOG_VERBOSE
     std::cout << "File Path : " << msg_handle->file_path << std::endl;
     std::cout << "PID : " << msg_handle->pid << std::endl;
 		std::cout << "FPS : " << msg_handle->fps << std::endl;
     std::cout << "Width : " << msg_handle->width << std::endl;
     std::cout << "Height : " << msg_handle->height << std::endl;
     std::cout << "Playing Time : " << msg_handle->play_seconds << "sec" << std::endl;
-#endif
+//#endif
 
     request_handle->setMsgHandle(msg_handle);
 

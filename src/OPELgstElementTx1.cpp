@@ -376,6 +376,8 @@ bool OPELRequestTx1::defaultRecordingElementFactory(const char *file_path)
 #if OPEL_LOG_VERBOSE
 	std::cout << "File Path : " << file_path << std::endl;
 #endif
+	
+
 
 	std::vector<typeElement*> _v_original_element(OPEL_NUM_DEFAULT_RECORDING_ELE);
   typeElement *_queue = findByElementName(this->_v_type_element, "queue"); 
@@ -383,7 +385,7 @@ bool OPELRequestTx1::defaultRecordingElementFactory(const char *file_path)
   typeElement *_mux = findByElementName(this->_v_type_element, "mp4mux"); 
   typeElement *_sink = findByElementNameNSubType(this->_v_type_element, 
       "filesink", kREC_SINK); 
-   
+
   if(!_queue || !_enc || !_mux || !_sink)
   {
     OPEL_DBG_ERR("Get TypeElement Pointer is NULL");
@@ -391,8 +393,8 @@ bool OPELRequestTx1::defaultRecordingElementFactory(const char *file_path)
     return false;
   }
 
-	//if configuration changed
-	g_object_set(G_OBJECT(_sink->element), "location", file_path, NULL);
+
+	((FileSinkProp*)_sink->prop)->location = file_path;
 
   _v_original_element[0] = _queue;
   _v_original_element[1] = _enc;
@@ -408,11 +410,11 @@ bool OPELRequestTx1::defaultRecordingElementFactory(const char *file_path)
     this->_v_fly_type_element->push_back(tmp);      
     tmp = NULL;
   }
-  
+	
 	gstElementFactory(this->_v_fly_type_element);
   
   gstElementPropFactory(this->_v_fly_type_element);
-
+	
 #if OPEL_LOG_VERBOSE
   for(int i=0; i<OPEL_NUM_DEFAULT_RECORDING_ELE; i++)
   {

@@ -9,12 +9,14 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <iostream>
-static void send_rec_init(DBusConnection *conn)
+static void send_rec_init(DBusConnection *conn, char* file_name)
 {
   printf("init\n");
   DBusMessage *message;
   message = dbus_message_new_signal("/org/opel/camera/daemon", "org.opel.camera.daemon", "recInit");
-	const char *file_path = "/home/ubuntu/hihihi.mp4";
+	char str[256] = "/home/ubuntu/";
+	strcat(str, file_name);
+	const char *file_path = str;
 	unsigned pid = getpid();
 	std::cout << "pid : " << pid << std::endl;
 	unsigned fps = 30;
@@ -71,11 +73,16 @@ int main(int argc, char** argv)
    dbus_error_free(&error);
    return 1;
  }
+ if(argc <= 1)
+	 return 0;
+
+ printf("argv[1] = %s\n", argv[1]);
+
  for(;;)
  {
 	 scanf("%d", &num); 
    if(num == 0)
-	 	send_rec_init(conn); 
+	 	send_rec_init(conn, argv[1]); 
 	 else if(num == 1) 
 		 send_rec_start(conn);
 	 else
