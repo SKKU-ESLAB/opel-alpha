@@ -247,7 +247,7 @@ DBusHandlerResult msg_dbus_filter(DBusConnection *conn,
 			request_elements->defaultRecordingGstSyncStateWithParent();
 			
 		//	ret = gst_element_set_state(tx1->getPipeline(), GST_STATE_PAUSED);
-			ret = gst_element_set_state(tx1->getPipeline(), GST_STATE_PLAYING);
+//			ret = gst_element_set_state(tx1->getPipeline(), GST_STATE_PLAYING);
 		}
 		
 		g_timeout_add_seconds(request->play_seconds, timeOutCallback, (void*)request_elements);   

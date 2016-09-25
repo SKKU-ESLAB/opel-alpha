@@ -360,7 +360,7 @@ static bool gstElementFactory(std::vector<typeElement*>
   {
     iter = (*_type_element_vector)[i];
     OPEL_GST_ELEMENT_FACTORY_MAKE(iter->element, 
-        stringToGchar(iter->name), stringToGchar(iter->nickname));
+        stringToGchar(iter->name), NULL);
 #if OPEL_LOG_VERBOSE
     g_print("Element Factory : %s\n", stringToGchar(iter->name)); 
 #endif
