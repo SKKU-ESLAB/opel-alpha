@@ -27,12 +27,12 @@ message_cb(GstBus *bus, GstMessage *message, gpointer user_data)
   switch(GST_MESSAGE_TYPE(message))
   {
       case GST_MESSAGE_ERROR:
-         gst_message_parse_error(message, &err, &debug_info);
-        OPEL_DBG_ERR("Error Received From Element %s: %s\n",
-            GST_OBJECT_NAME (message->src), err->message);
-        OPEL_DBG_ERR("Debugging information: %s\n", debug_info ? debug_info : "none");
-        g_clear_error(&err);
-        g_free(debug_info);
+//         gst_message_parse_error(message, &err, &debug_info);
+//        OPEL_DBG_ERR("Error Received From Element %s: %s\n",
+//            GST_OBJECT_NAME (message->src), err->message);
+//        OPEL_DBG_ERR("Debugging information: %s\n", debug_info ? debug_info : "none"); 
+//       g_clear_error(&err);
+//      g_free(debug_info);
         break;
       case GST_MESSAGE_WARNING:
         break;
@@ -46,7 +46,8 @@ message_cb(GstBus *bus, GstMessage *message, gpointer user_data)
 void signalHandler(int signo)
 {
   bool ret;
-  OPELGstElementTx1 *tx1 = OPELGstElementTx1::getInstance();
+	OPEL_DBG_WARN("Signal handler Invoked");
+	OPELGstElementTx1 *tx1 = OPELGstElementTx1::getInstance();
   GstElement *pipeline = tx1->getPipeline();
   ret = gst_element_set_state(pipeline, GST_STATE_NULL);
   if(ret == GST_STATE_CHANGE_FAILURE)
@@ -55,6 +56,7 @@ void signalHandler(int signo)
   }
   if(loop && g_main_loop_is_running(loop))
     g_main_loop_quit(loop);
+
 }
 
 ElementXMLSerialization* openXMLconfig(const char *_path_xml)
@@ -210,15 +212,17 @@ exit:
   deleteVectorElement(v_element_property);
   if(v_element_property != NULL)
     delete v_element_property;
-  if(tx1 != NULL)
-    delete tx1;
-  if(loop != NULL)
+	//buggy
+	/*	if(tx1 != NULL)
+    delete tx1;*/
+	if(loop != NULL)
     g_main_loop_unref(loop);
   if(dbus_conn != NULL)
     dbus_connection_unref(dbus_conn);
   if(bus != NULL)
     gst_object_unref(bus);
- 	if((global_vector_request = OPELGlobalVectorRequest::getInstance()) != NULL)
+	
+		if((global_vector_request = OPELGlobalVectorRequest::getInstance()) != NULL)
 		delete global_vector_request;
 
 	__OPEL_FUNCTION_EXIT__;

@@ -104,13 +104,13 @@ OPELGstElementTx1::OPELGstElementTx1()
 }
 OPELGstElementTx1::~OPELGstElementTx1()
 {
-  for(int i=0; i < this->_type_element_vector->size(); i++)
-  {
-    freeTypeElementMember((*this->_type_element_vector)[i]);     
-    delete (*this->_type_element_vector)[i];  
-  }
-  if(this->pipeline != NULL)
-    gst_object_unref(pipeline);
+	for(int i=0; i < this->_type_element_vector->size(); i++)
+	{
+		freeTypeElementMember((*this->_type_element_vector)[i]);     
+		delete (*this->_type_element_vector)[i];  
+	}
+	if(this->pipeline != NULL)
+		gst_object_unref(pipeline);
 }
 
 OPELGstElementTx1 *OPELGstElementTx1::getInstance(void)
@@ -190,7 +190,7 @@ bool OPELGstElementTx1::OPELGstElementPropFactory(void)
   __OPEL_FUNCTION_ENTER__;
   
   gstElementPropFactory(this->_type_element_vector);
- 
+	g_object_set(this->pipeline, "message-forward", TRUE, NULL); 
   __OPEL_FUNCTION_EXIT__;
   return true;
 }

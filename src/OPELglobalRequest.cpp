@@ -86,3 +86,11 @@ void OPELGlobalVectorRequest::deleteRequest(dbusRequest* _request)
   }
 }
 
+bool OPELGlobalVectorRequest::isVectorEntryEmpty(void)
+{
+	assert(this->v_request != NULL);
+	if(this->v_request->size() > 0)
+		return false;
+	else
+		return true;
+}

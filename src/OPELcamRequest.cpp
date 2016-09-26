@@ -1,22 +1,38 @@
 #include "OPELcommonUtil.h"
 #include "OPELgstElementTx1.h"
 #include "OPELglobalRequest.h"
+static void checkRemainRequest(void)
+{
+	__OPEL_FUNCTION_ENTER__;
+	bool ret;
+	OPELGlobalVectorRequest *v_global_request = OPELGlobalVectorRequest::getInstance();
+	OPELGstElementTx1 *tx1 = OPELGstElementTx1::getInstance();
+	if(v_global_request->isVectorEntryEmpty()){
+		OPEL_DBG_VERB("Request is Empty Set is Playing false");
+		tx1->setIsPlaying(false);
+	}
+	else{		
+		OPEL_DBG_VERB("Request is not Empty Set playing true"); 
+		tx1->setIsPlaying(true);	
+	}
+	__OPEL_FUNCTION_EXIT__;
+}
+
 static GstPadProbeReturn event_probe_cb(GstPad *pad, GstPadProbeInfo *info,
     gpointer user_data)
 {
   assert(user_data != NULL);
-  __OPEL_FUNCTION_ENTER__;
+//  __OPEL_FUNCTION_ENTER__;
   OPELRequestTx1 *request_elements = NULL;
   GstElement *pipeline = NULL;
-
-  if(GST_EVENT_TYPE(GST_PAD_PROBE_INFO_DATA(info)) != GST_EVENT_EOS)
+	if(GST_EVENT_TYPE(GST_PAD_PROBE_INFO_DATA(info)) != GST_EVENT_EOS)
   { 
-    __OPEL_FUNCTION_EXIT__;
+//    __OPEL_FUNCTION_EXIT__;
     return GST_PAD_PROBE_PASS;
   }
   
-  gst_pad_remove_probe(pad, GST_PAD_PROBE_INFO_ID(info));
-  
+	gst_pad_remove_probe(pad, GST_PAD_PROBE_INFO_ID(info));
+		
   pipeline = (OPELGstElementTx1::getInstance())->getPipeline();
   request_elements = (OPELRequestTx1*)user_data;
 
@@ -25,29 +41,38 @@ static GstPadProbeReturn event_probe_cb(GstPad *pad, GstPadProbeInfo *info,
 
   typeElement *tee = findByElementName(request_elements->getTypeElementVector(), 
       "tee");
-  if(!tee)
+  typeElement *queue = findByElementName(request_elements->getFlyTypeElementVector(), 
+      "queue");
+  
+	if(!tee || !queue)
   {
-    OPEL_DBG_ERR("Tee Element is NULL");
-    __OPEL_FUNCTION_EXIT__;
+    OPEL_DBG_ERR("Tee & Queue Element is NULL");
+//    __OPEL_FUNCTION_EXIT__;
     return GST_PAD_PROBE_DROP;
-  }
+  };
 
-  for(int i=0; i<OPEL_NUM_DEFAULT_RECORDING_ELE; i++)
+#if OPEL_LOG_VERBOSE
+	OPEL_DBG_ERR("queue : %d", queue);
+#endif 
+
+	for(int i=0; i<OPEL_NUM_DEFAULT_RECORDING_ELE; i++)
   {
 #if OPEL_LOG_VERBOSE
       std::cout << "Removed Element : " << (*v_fly_type_elements)[i]->name->c_str() 
         << std::endl;
 #endif
-      gst_element_set_state((*v_fly_type_elements)[i]->element, GST_STATE_NULL);
+    	gst_element_set_state((*v_fly_type_elements)[i]->element, GST_STATE_NULL);
       gst_bin_remove(GST_BIN(pipeline), (*v_fly_type_elements)[i]->element);
-  }
-  
+	}
   gst_element_release_request_pad(tee->element, request_elements->getSrcPad());
+	GstElement *fakesink;
 	
 	delete request_elements;
+//playing end
+	checkRemainRequest();	
 
-	__OPEL_FUNCTION_EXIT__;
-  return GST_PAD_PROBE_DROP;
+//	__OPEL_FUNCTION_EXIT__;
+  return GST_PAD_PROBE_OK;
 }
 
 static gboolean timeOutCallback(gpointer _request_elements)
@@ -61,7 +86,11 @@ static gboolean timeOutCallback(gpointer _request_elements)
 	OPELRequestTx1 *request_elements = (OPELRequestTx1*)_request_elements; 
   typeElement *queue = findByElementName(request_elements->getFlyTypeElementVector(), 
       "queue");
- 
+
+#if OPEL_LOG_VERBOSE
+	OPEL_DBG_ERR("queue : %d", queue);
+#endif 
+
 	if(!queue)
   {
     OPEL_DBG_ERR("Not queue element in fly element vector");
@@ -70,7 +99,6 @@ static gboolean timeOutCallback(gpointer _request_elements)
   }
 
   GstPad *srcpad = request_elements->getSrcPad();
-
 	if(!srcpad)
   {
     OPEL_DBG_ERR("src pad is NULL");
@@ -78,12 +106,12 @@ static gboolean timeOutCallback(gpointer _request_elements)
     return false;
   }
 
-  //GstPad block Impl
-  GstPadProbeType mask = GST_PAD_PROBE_TYPE_BLOCK;
-  gst_pad_add_probe(srcpad, mask, 
-      event_probe_cb, (gpointer)_request_elements, NULL); 
-  gst_object_unref(srcpad); 
+#if OPEL_LOG_VERBOSE
+	OPEL_DBG_ERR("srcpad : %d", srcpad);
+#endif
 
+	gst_pad_add_probe(srcpad, GST_PAD_PROBE_TYPE_BLOCK_DOWNSTREAM, 
+      event_probe_cb, (gpointer)_request_elements, NULL); 
 
 #if OPEL_LOG_VERBOSE 
   OPEL_DBG_VERB("%s : Get Pad Element", queue->name->c_str());
@@ -95,14 +123,17 @@ static gboolean timeOutCallback(gpointer _request_elements)
     OPEL_DBG_ERR("Queue Pad is NULL");
     __OPEL_FUNCTION_EXIT__;
     return false;
-  }
-  gst_pad_send_event(queue_pad, gst_event_new_eos());
-  gst_object_unref(queue_pad);
-
-	v_global_request->deleteRequest(request_elements);
+ 	}
+//unlink First
+	GstPad *sinkpad = gst_element_get_static_pad(queue->element, "sink");
+	gst_pad_unlink(request_elements->getSrcPad(), sinkpad);	
   
+	gst_pad_send_event(queue_pad, gst_event_new_eos());
+  gst_object_unref(queue_pad);
+	
+	v_global_request->deleteRequest(request_elements);
+ 
 	__OPEL_FUNCTION_EXIT__;
-  //Call Only Once 
   return false;
 }
 
@@ -207,16 +238,45 @@ DBusHandlerResult msg_dbus_filter(DBusConnection *conn,
       __OPEL_FUNCTION_EXIT__;
       return DBUS_HANDLER_RESULT_HANDLED;
     }
-    //input request_elements into global vector
+    
+		//input request_elements into global vector
     v_global_request->pushRequest(request_elements);
 
+		msg_handle->is_start = true;	
+		if(!(tx1->getIsPlaying()))
+		{
+			OPEL_DBG_WARN("Get Recording not started");	
+			ret = gst_element_set_state(tx1->getPipeline(), GST_STATE_READY);
+			if( ret == GST_STATE_CHANGE_FAILURE)
+			{
+				OPEL_DBG_ERR("Unable to set the pipeline to the Ready state. \n");
+				__OPEL_FUNCTION_EXIT__;
+				return DBUS_HANDLER_RESULT_HANDLED;
+			}
+
+			ret = gst_element_set_state(tx1->getPipeline(), GST_STATE_PLAYING);
+			if( ret == GST_STATE_CHANGE_FAILURE)
+			{
+				OPEL_DBG_ERR("Unable to set the pipeline to the playing state. \n");
+				__OPEL_FUNCTION_EXIT__;
+				return DBUS_HANDLER_RESULT_HANDLED;
+			}
+		  tx1->setIsPlaying(true);	
+		}
+		else{
+			OPEL_DBG_WARN("Get Recording already Started");	
+			request_elements->defaultRecordingGstSyncStateWithParent();
+		}
+		
+		g_timeout_add_seconds(msg_handle->play_seconds, timeOutCallback, (void*)request_elements);   
+		
     return DBUS_HANDLER_RESULT_HANDLED;
   }
 
 	if(dbus_message_is_signal(msg, dbus_interface, rec_start_request))
 	{
 		OPEL_DBG_WARN("Get Recording Start Request");	
-		unsigned request_pid;
+/*		unsigned request_pid;
 		OPELGlobalVectorRequest *v_global_request = OPELGlobalVectorRequest::getInstance();
 		dbus_message_get_args(msg, NULL, DBUS_TYPE_UINT64, &request_pid);
 
@@ -233,6 +293,14 @@ DBusHandlerResult msg_dbus_filter(DBusConnection *conn,
    	request->is_start = true;	
 		//dbusRequest set ture 
 		if(!tx1->getIsPlaying()){
+			OPEL_DBG_WARN("Get Recording not started");	
+			ret = gst_element_set_state(tx1->getPipeline(), GST_STATE_READY);
+			if(ret == GST_STATE_CHANGE_FAILURE)
+			{
+				OPEL_DBG_ERR("Unable to set the pipeline to the ready state. \n");
+				__OPEL_FUNCTION_EXIT__;
+				return DBUS_HANDLER_RESULT_HANDLED;
+			}
 			ret = gst_element_set_state(tx1->getPipeline(), GST_STATE_PLAYING);
 			if(ret == GST_STATE_CHANGE_FAILURE)
 			{
@@ -242,16 +310,15 @@ DBusHandlerResult msg_dbus_filter(DBusConnection *conn,
 			}
 			tx1->setIsPlaying(true);
 		}
-		else
-		{
-			request_elements->defaultRecordingGstSyncStateWithParent();
-			
-		//	ret = gst_element_set_state(tx1->getPipeline(), GST_STATE_PAUSED);
-//			ret = gst_element_set_state(tx1->getPipeline(), GST_STATE_PLAYING);
-		}
+		else{
 		
+			OPEL_DBG_WARN("Get Recording Already started");	
+			request_elements->defaultRecordingGstSyncStateWithParent();
+		}
 		g_timeout_add_seconds(request->play_seconds, timeOutCallback, (void*)request_elements);   
-
+*/
+	
+		return DBUS_HANDLER_RESULT_HANDLED;
 	}
   
   if(dbus_message_is_signal(msg, dbus_interface, rec_stop_request))

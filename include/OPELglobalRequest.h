@@ -9,7 +9,8 @@ class OPELGlobalVectorRequest{
     void deleteRequest(unsigned);
     void deleteRequest(OPELRequestTx1*);
     void deleteRequest(dbusRequest*);
-    OPELRequestTx1* getRequestByPid(unsigned);
+		bool isVectorEntryEmpty(void);
+		OPELRequestTx1* getRequestByPid(unsigned);
     ~OPELGlobalVectorRequest(); 
 
 	private:
