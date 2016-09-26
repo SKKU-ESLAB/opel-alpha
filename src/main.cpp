@@ -21,26 +21,26 @@ void writeXMLconfig(const char *_path_xml);
 static gboolean
 message_cb(GstBus *bus, GstMessage *message, gpointer user_data)
 {
-  GError *err;
-  gchar *debug_info;
+	GError *err;
+	gchar *debug_info;
 
-  switch(GST_MESSAGE_TYPE(message))
-  {
-      case GST_MESSAGE_ERROR:
-//         gst_message_parse_error(message, &err, &debug_info);
-//        OPEL_DBG_ERR("Error Received From Element %s: %s\n",
-//            GST_OBJECT_NAME (message->src), err->message);
-//        OPEL_DBG_ERR("Debugging information: %s\n", debug_info ? debug_info : "none"); 
-//       g_clear_error(&err);
-//      g_free(debug_info);
-        break;
-      case GST_MESSAGE_WARNING:
-        break;
-      case GST_MESSAGE_EOS:
-        OPEL_DBG_VERB("End-Of-Stream reached. \n");
-        break;
-  }
-  return true;
+	switch(GST_MESSAGE_TYPE(message))
+	{
+		case GST_MESSAGE_ERROR:
+			/*         gst_message_parse_error(message, &err, &debug_info);
+								 OPEL_DBG_ERR("Error Received From Element %s: %s\n",
+								 GST_OBJECT_NAME (message->src), err->message);
+								 OPEL_DBG_ERR("Debugging information: %s\n", debug_info ? debug_info : "none"); 
+								 g_clear_error(&err);
+								 g_free(debug_info);*/
+			break;
+		case GST_MESSAGE_WARNING:
+			break;
+		case GST_MESSAGE_EOS:
+			OPEL_DBG_VERB("End-Of-Stream reached. \n");
+			break;
+	}
+	return true;
 }
 
 void signalHandler(int signo)

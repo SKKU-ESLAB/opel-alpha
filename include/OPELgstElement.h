@@ -69,7 +69,10 @@ class OPELRequest{
     virtual bool defaultRecordingElementFactory(const char *file_path) = 0;
     virtual bool defaultRecordingPipelineAdd(GstElement *pipeline) = 0;
     virtual bool defaultRecordingCapFactory(void) = 0;
- 		 
+ 		
+		virtual bool defaultJpegElementFactory(const char* file_path) = 0;
+		virtual bool defaultJpegElementPipelineAdd(GstElement *pipeline) = 0;
+
     std::vector<typeElement*>* getTypeElementVector(void) const
     { return this->_v_type_element; }
     void setTypeElementVector(std::vector<typeElement*>

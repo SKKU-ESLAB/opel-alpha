@@ -22,15 +22,12 @@ static GstPadProbeReturn event_probe_cb(GstPad *pad, GstPadProbeInfo *info,
     gpointer user_data)
 {
   assert(user_data != NULL);
-//  __OPEL_FUNCTION_ENTER__;
+  __OPEL_FUNCTION_ENTER__;
   OPELRequestTx1 *request_elements = NULL;
   GstElement *pipeline = NULL;
 	if(GST_EVENT_TYPE(GST_PAD_PROBE_INFO_DATA(info)) != GST_EVENT_EOS)
-  { 
-//    __OPEL_FUNCTION_EXIT__;
     return GST_PAD_PROBE_PASS;
-  }
-  
+
 	gst_pad_remove_probe(pad, GST_PAD_PROBE_INFO_ID(info));
 		
   pipeline = (OPELGstElementTx1::getInstance())->getPipeline();
@@ -47,7 +44,6 @@ static GstPadProbeReturn event_probe_cb(GstPad *pad, GstPadProbeInfo *info,
 	if(!tee || !queue)
   {
     OPEL_DBG_ERR("Tee & Queue Element is NULL");
-//    __OPEL_FUNCTION_EXIT__;
     return GST_PAD_PROBE_DROP;
   };
 
@@ -71,7 +67,6 @@ static GstPadProbeReturn event_probe_cb(GstPad *pad, GstPadProbeInfo *info,
 //playing end
 	checkRemainRequest();	
 
-//	__OPEL_FUNCTION_EXIT__;
   return GST_PAD_PROBE_OK;
 }
 
@@ -276,51 +271,9 @@ DBusHandlerResult msg_dbus_filter(DBusConnection *conn,
 	if(dbus_message_is_signal(msg, dbus_interface, rec_start_request))
 	{
 		OPEL_DBG_WARN("Get Recording Start Request");	
-/*		unsigned request_pid;
-		OPELGlobalVectorRequest *v_global_request = OPELGlobalVectorRequest::getInstance();
-		dbus_message_get_args(msg, NULL, DBUS_TYPE_UINT64, &request_pid);
-
-		OPELRequestTx1 *request_elements = v_global_request->getRequestByPid(request_pid);		
-   	
-		if(!request_elements)
-		{
-			OPEL_DBG_WARN("Request Is Not Init Yet (No PID Data)");
-			__OPEL_FUNCTION_EXIT__;
-			return DBUS_HANDLER_RESULT_HANDLED;
-		}
-		
-		dbusRequest *request = request_elements->getMsgHandle();	
-   	request->is_start = true;	
-		//dbusRequest set ture 
-		if(!tx1->getIsPlaying()){
-			OPEL_DBG_WARN("Get Recording not started");	
-			ret = gst_element_set_state(tx1->getPipeline(), GST_STATE_READY);
-			if(ret == GST_STATE_CHANGE_FAILURE)
-			{
-				OPEL_DBG_ERR("Unable to set the pipeline to the ready state. \n");
-				__OPEL_FUNCTION_EXIT__;
-				return DBUS_HANDLER_RESULT_HANDLED;
-			}
-			ret = gst_element_set_state(tx1->getPipeline(), GST_STATE_PLAYING);
-			if(ret == GST_STATE_CHANGE_FAILURE)
-			{
-				OPEL_DBG_ERR("Unable to set the pipeline to the playing state. \n");
-				__OPEL_FUNCTION_EXIT__;
-				return DBUS_HANDLER_RESULT_HANDLED;
-			}
-			tx1->setIsPlaying(true);
-		}
-		else{
-		
-			OPEL_DBG_WARN("Get Recording Already started");	
-			request_elements->defaultRecordingGstSyncStateWithParent();
-		}
-		g_timeout_add_seconds(request->play_seconds, timeOutCallback, (void*)request_elements);   
-*/
-	
 		return DBUS_HANDLER_RESULT_HANDLED;
 	}
-  
+ 
   if(dbus_message_is_signal(msg, dbus_interface, rec_stop_request))
   {
     OPEL_DBG_VERB("Get Recording Stop Request");
@@ -350,7 +303,25 @@ DBusHandlerResult msg_dbus_filter(DBusConnection *conn,
     // find pid vector and call the timeout callback
     // then delete the vector data
   }
-  
+
+	if(dbus_message_is_signal(msg, dbus_interface, snap_start_request))
+	{
+		OPEL_DBG_VERB("Get Snapshot Start Request");
+    const char *file_path;
+
+		dbusRequest *msg_handle = (dbusRequest*)malloc(sizeof(dbusRequest));
+    
+		dbus_message_get_args(msg, NULL, 
+				DBUS_TYPE_STRING, &file_path,  
+				DBUS_TYPE_UINT64, &(msg_handle->pid), 
+        DBUS_TYPE_UINT64, &(msg_handle->width), 
+				DBUS_TYPE_UINT64, &(msg_handle->height), 
+				DBUS_TYPE_INVALID);
+	
+	
+	}
+
+
   __OPEL_FUNCTION_EXIT__;
   return DBUS_HANDLER_RESULT_HANDLED;
 }

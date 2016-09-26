@@ -10,7 +10,13 @@ class OPELRequestTx1 : public OPELRequest
     virtual bool defaultRecordingPipelineAdd(GstElement *pipeline);
     virtual bool defaultRecordingCapFactory(void);
 		void defaultRecordingGstSyncStateWithParent(void);
+	
+		virtual bool defaultJpegElementFactory(const char* file_path);
+		virtual bool defaultJpegElementPipelineAdd(GstElement *pipeline);
+
 };
+
+
 
 class OPELGstElementTx1 : public OPELGstElement
 {

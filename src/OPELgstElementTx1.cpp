@@ -440,3 +440,84 @@ void OPELRequestTx1::defaultRecordingGstSyncStateWithParent(void)
 	*/
 	__OPEL_FUNCTION_EXIT__;
 }
+
+bool OPELRequestTx1::defaultJpegElementFactory(const char* file_path)
+{
+	assert(this->_v_type_element != NULL && this->_v_fly_type_element != NULL);
+	__OPEL_FUNCTION_ENTER__;
+	std::vector<typeElement*> _v_original_element(OPEL_NUM_DEFAULT_SNAPSHOT_ELE);
+	typeElement *_queue = findByElementName(this->_v_type_element, "queue");
+	typeElement *_enc = findByElementName(this->_v_type_element, "nvjpegenc");
+	typeElement *_sink = findByElementNameNSubType(this->_v_type_element, 
+			"filesink", kJPEG_SINK);
+	
+	if(!_queue || !_enc  || !_sink)
+	{
+		OPEL_DBG_ERR("Get TypeElement Pointer is NULL");
+		__OPEL_FUNCTION_EXIT__;
+		return false;
+	}
+	
+	((FileSinkProp*)_sink->prop)->location = file_path;
+
+	_v_original_element[0] = _queue;
+	_v_original_element[1] = _enc;
+	_v_original_element[2] = _sink;
+	for(int i=0; i<OPEL_NUM_DEFAULT_SNAPSHOT_ELE; i++)
+	{
+		typeElement *tmp = (typeElement*)malloc(sizeof(typeElement));
+		tmp->element_prop = _v_original_element[i]->element_prop;
+		initializeTypeElement(tmp, tmp->element_prop);
+		this->_v_fly_type_element->push_back(tmp);
+		tmp = NULL;
+	}
+	gstElementFactory(this->_v_fly_type_element);
+	gstElementPropFactory(this->_v_fly_type_element);
+
+//#if OPEL_LOG_VERBOSE
+	for(int i=0; i<OPEL_NUM_DEFAULT_RECORDING_ELE; i++)
+	{
+		std::cout << "name : " <<
+			(*this->_v_fly_type_element)[i]->name->c_str() << std::endl;
+	}
+//#endif
+	
+	
+	__OPEL_FUNCTION_EXIT__;
+	return true;
+}
+
+bool OPELRequestTx1::defaultJpegElementPipelineAdd(GstElement *pipeline)
+{
+	assert(this->_v_type_element != NULL && this->_v_fly_type_element != NULL);
+	__OPEL_FUNCTION_ENTER__;
+	
+	bool ret = true;
+	typeElement *_queue = findByElementName(this->_v_fly_type_element,
+			"queue");
+	typeElement *_enc = findByElementName(this->_v_fly_type_element,
+			"nvjpegenc");
+	typeElement *_sink = findByElementNameNSubType(this->_v_fly_type_element,
+			"filesink", kJPEG_SINK);
+	
+	if(!_queue || !_enc  || !_sink)
+	{
+		OPEL_DBG_ERR("Get TypeElement Pointer is NULL");
+		__OPEL_FUNCTION_EXIT__;
+		return false;
+	}
+	
+	gst_bin_add_many(GST_BIN(pipeline), _queue->element, _enc->element, 
+			_sink->element, NULL);
+	
+	ret = gst_element_link_many(_queue->element, _enc->element, 
+			_sink->element, NULL);
+	if(!ret)
+	{
+		OPEL_DBG_ERR("Gst Element Link Failed");
+		__OPEL_FUNCTION_EXIT__;
+		return ret;
+	}
+	__OPEL_FUNCTION_EXIT__;	
+	return ret;
+}

@@ -15,6 +15,8 @@ static const gchar *rec_init_request = "recInit";
 static const gchar *rec_start_request = "recStart";
 static const gchar *rec_stop_request = "recStop";
 
+static const gchar *snap_start_request = "jpegStart";
+
 static const gchar *opencv_init_request = "openCVInit";
 static const gchar *opencv_start_request = "openCVStart";
 static const gchar *opencv_stop_request = "openCVStop";
