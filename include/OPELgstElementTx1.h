@@ -13,7 +13,8 @@ class OPELRequestTx1 : public OPELRequest
 	
 		virtual bool defaultJpegElementFactory(const char* file_path);
 		virtual bool defaultJpegElementPipelineAdd(GstElement *pipeline);
-
+		virtual bool defaultJpegCapFactory(void);
+		void defualtSnapshotGstSyncStateWithParent(void);
 };
 
 
@@ -53,5 +54,4 @@ static void freeTypeElementMember(typeElement *type_element);
 static void initializeTypeElement(typeElement *type_element,
         ElementProperty *element_property);
 void printTypeElement(std::vector<typeElement*> *_type_element_vector);
-
 #endif /* OPEL_GST_ELEMENT_TX1_H */

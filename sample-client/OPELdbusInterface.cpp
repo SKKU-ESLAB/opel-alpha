@@ -36,15 +36,26 @@ static void send_rec_init(DBusConnection *conn, char* file_name)
   dbus_message_unref(message);
 }
 
-static void send_rec_start(DBusConnection *conn)
+static void send_rec_start(DBusConnection *conn, char* file_name)
 {
   printf("start\n");
   DBusMessage *message;
-	message = dbus_message_new_signal(dbus_path, dbus_interface, rec_start_request);
-	
+		message = dbus_message_new_signal(dbus_path, dbus_interface, snap_start_request);
+	char str[512] = "/home/ubuntu/";
+	char prop[256] = ".jpeg";
+	strcat(str, file_name);	
+	strcat(str, prop);
+	const char *file_path = str;
+	printf("file_path : %s\n", str);	
+	unsigned width = 1920;
+	unsigned height = 1080;
 	unsigned pid = getpid();
+	printf("pid : %d\n", pid);
 	dbus_message_append_args(message, 
+			DBUS_TYPE_STRING, &file_path,
 			DBUS_TYPE_UINT64, &pid,
+			DBUS_TYPE_UINT64, &width,
+			DBUS_TYPE_UINT64, &height,
 			DBUS_TYPE_INVALID);
 	dbus_connection_send (conn, message, NULL);
   dbus_message_unref(message);
@@ -54,7 +65,7 @@ static void send_rec_term(DBusConnection *conn)
 {
   printf("termination\n");
   DBusMessage *message;
-  message = dbus_message_new_signal(dbus_path, dbus_interface, rec_init_request);
+  message = dbus_message_new_signal(dbus_path, dbus_interface, snap_start_request);
 
   dbus_connection_send (conn, message, NULL);
   dbus_message_unref(message);
@@ -84,7 +95,7 @@ int main(int argc, char** argv)
    if(num == 0)
 	 	send_rec_init(conn, argv[1]); 
 	 else if(num == 1) 
-		 send_rec_start(conn);
+		send_rec_start(conn, argv[1]);	 
 	 else
 		 break;
  }

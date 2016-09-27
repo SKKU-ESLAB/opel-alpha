@@ -6,6 +6,7 @@
 static const gchar *dbus_path = "/org/opel/camera/daemon";
 static const gchar *dbus_interface = "org.opel.camera.daemon";
 
+static const gchar *snap_start_request = "jpegStart";
 static const gchar *rec_init_request = "recInit";
 static const gchar *rec_start_request = "recStart";
 static const gchar *rec_stop_request = "recStop";

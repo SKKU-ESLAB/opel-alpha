@@ -278,6 +278,34 @@ bool OPELRequestTx1::defaultRecordingCapFactory(void)
   return true;
 
 }
+
+bool OPELRequestTx1::defaultJpegCapFactory(void)
+{
+  assert(this->_v_type_element != NULL && this->_v_fly_type_element != NULL);
+  __OPEL_FUNCTION_ENTER__;
+	char caps_buffer[256];
+	typeElement *_enc = findByElementName(this->_v_fly_type_element, 
+      "nvjpegenc");
+  if(_enc == NULL)
+  {
+    OPEL_DBG_ERR("Get TypeElement Pointer is NULL");
+    __OPEL_FUNCTION_EXIT__;
+    return false;
+  }
+  
+	sprintf(caps_buffer, "video/x-raw(memory:NVMM), framerate=(fraction){1/1}");
+	_enc->caps = gst_caps_from_string(caps_buffer);
+	if(!_enc->caps)
+	{
+		OPEL_DBG_ERR("Default JPEG caps is NULL");
+		__OPEL_FUNCTION_EXIT__;
+		return false;
+	}
+  __OPEL_FUNCTION_EXIT__;
+  return true;
+}
+
+
 bool OPELRequestTx1::defaultRecordingPipelineAdd(GstElement *pipeline)
 {
   assert(this->_v_type_element != NULL && 
@@ -372,12 +400,10 @@ bool OPELRequestTx1::defaultRecordingElementFactory(const char *file_path)
 { 
    assert(this->_v_type_element != NULL && this->_v_fly_type_element != NULL);
   __OPEL_FUNCTION_ENTER__;
-
+	this->num_iter = OPEL_NUM_DEFAULT_RECORDING_ELE;
 #if OPEL_LOG_VERBOSE
 	std::cout << "File Path : " << file_path << std::endl;
 #endif
-	
-
 
 	std::vector<typeElement*> _v_original_element(OPEL_NUM_DEFAULT_RECORDING_ELE);
   typeElement *_queue = findByElementName(this->_v_type_element, "queue"); 
@@ -425,6 +451,21 @@ bool OPELRequestTx1::defaultRecordingElementFactory(const char *file_path)
   __OPEL_FUNCTION_EXIT__;
   return true; 
 }
+static void OPELgstSyncStateWithParent(std::vector<typeElement*> *_v_ele_property)
+{
+	assert(_v_ele_property != NULL);
+	for(int i=0; i<_v_ele_property->size(); i++)
+		if(!gst_element_sync_state_with_parent((*_v_ele_property)[i]->element))
+			OPEL_DBG_ERR("Cannot Sync State With Parent");
+}
+
+void OPELRequestTx1::defualtSnapshotGstSyncStateWithParent(void)
+{
+	assert(this->_v_fly_type_element != NULL);
+	__OPEL_FUNCTION_ENTER__;
+	OPELgstSyncStateWithParent(this->_v_fly_type_element);	
+	__OPEL_FUNCTION_EXIT__;
+}
 
 void OPELRequestTx1::defaultRecordingGstSyncStateWithParent(void)
 {
@@ -445,6 +486,7 @@ bool OPELRequestTx1::defaultJpegElementFactory(const char* file_path)
 {
 	assert(this->_v_type_element != NULL && this->_v_fly_type_element != NULL);
 	__OPEL_FUNCTION_ENTER__;
+	this->num_iter = OPEL_NUM_DEFAULT_SNAPSHOT_ELE;
 	std::vector<typeElement*> _v_original_element(OPEL_NUM_DEFAULT_SNAPSHOT_ELE);
 	typeElement *_queue = findByElementName(this->_v_type_element, "queue");
 	typeElement *_enc = findByElementName(this->_v_type_element, "nvjpegenc");
@@ -475,7 +517,7 @@ bool OPELRequestTx1::defaultJpegElementFactory(const char* file_path)
 	gstElementPropFactory(this->_v_fly_type_element);
 
 //#if OPEL_LOG_VERBOSE
-	for(int i=0; i<OPEL_NUM_DEFAULT_RECORDING_ELE; i++)
+	for(int i=0; i<OPEL_NUM_DEFAULT_SNAPSHOT_ELE; i++)
 	{
 		std::cout << "name : " <<
 			(*this->_v_fly_type_element)[i]->name->c_str() << std::endl;
@@ -491,8 +533,10 @@ bool OPELRequestTx1::defaultJpegElementPipelineAdd(GstElement *pipeline)
 {
 	assert(this->_v_type_element != NULL && this->_v_fly_type_element != NULL);
 	__OPEL_FUNCTION_ENTER__;
-	
+
 	bool ret = true;
+	typeElement *_tee = findByElementName(this->_v_type_element, 
+			"tee");
 	typeElement *_queue = findByElementName(this->_v_fly_type_element,
 			"queue");
 	typeElement *_enc = findByElementName(this->_v_fly_type_element,
@@ -500,18 +544,26 @@ bool OPELRequestTx1::defaultJpegElementPipelineAdd(GstElement *pipeline)
 	typeElement *_sink = findByElementNameNSubType(this->_v_fly_type_element,
 			"filesink", kJPEG_SINK);
 	
-	if(!_queue || !_enc  || !_sink)
+	if(!_tee || !_queue || !_enc  || !_sink)
 	{
 		OPEL_DBG_ERR("Get TypeElement Pointer is NULL");
 		__OPEL_FUNCTION_EXIT__;
 		return false;
 	}
-	
+
 	gst_bin_add_many(GST_BIN(pipeline), _queue->element, _enc->element, 
 			_sink->element, NULL);
 	
-	ret = gst_element_link_many(_queue->element, _enc->element, 
-			_sink->element, NULL);
+
+	ret = gst_element_link_filtered(_queue->element, _enc->element, _enc->caps);	
+	if(!ret)
+	{
+		OPEL_DBG_ERR("Gst Element Link Failed");
+		__OPEL_FUNCTION_EXIT__;
+		return ret;
+	}
+	
+	ret = gst_element_link_many(_enc->element, _sink->element, NULL);
 	if(!ret)
 	{
 		OPEL_DBG_ERR("Gst Element Link Failed");

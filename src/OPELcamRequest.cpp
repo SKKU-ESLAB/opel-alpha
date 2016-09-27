@@ -22,7 +22,6 @@ static GstPadProbeReturn event_probe_cb(GstPad *pad, GstPadProbeInfo *info,
     gpointer user_data)
 {
   assert(user_data != NULL);
-  __OPEL_FUNCTION_ENTER__;
   OPELRequestTx1 *request_elements = NULL;
   GstElement *pipeline = NULL;
 	if(GST_EVENT_TYPE(GST_PAD_PROBE_INFO_DATA(info)) != GST_EVENT_EOS)
@@ -50,21 +49,20 @@ static GstPadProbeReturn event_probe_cb(GstPad *pad, GstPadProbeInfo *info,
 #if OPEL_LOG_VERBOSE
 	OPEL_DBG_ERR("queue : %d", queue);
 #endif 
-
-	for(int i=0; i<OPEL_NUM_DEFAULT_RECORDING_ELE; i++)
-  {
+	for(int i=0; i<request_elements->getNumIter(); i++)
+	{
 #if OPEL_LOG_VERBOSE
-      std::cout << "Removed Element : " << (*v_fly_type_elements)[i]->name->c_str() 
-        << std::endl;
+		std::cout << "Removed Element : " << (*v_fly_type_elements)[i]->name->c_str() 
+			<< std::endl;
 #endif
-    	gst_element_set_state((*v_fly_type_elements)[i]->element, GST_STATE_NULL);
-      gst_bin_remove(GST_BIN(pipeline), (*v_fly_type_elements)[i]->element);
+		gst_element_set_state((*v_fly_type_elements)[i]->element, GST_STATE_NULL);
+		gst_bin_remove(GST_BIN(pipeline), (*v_fly_type_elements)[i]->element);
 	}
-  gst_element_release_request_pad(tee->element, request_elements->getSrcPad());
-	GstElement *fakesink;
+  
+	gst_element_release_request_pad(tee->element, request_elements->getSrcPad());
 	
 	delete request_elements;
-//playing end
+	
 	checkRemainRequest();	
 
   return GST_PAD_PROBE_OK;
@@ -130,6 +128,56 @@ static gboolean timeOutCallback(gpointer _request_elements)
  
 	__OPEL_FUNCTION_EXIT__;
   return false;
+}
+
+static OPELRequestTx1 *snapshotInit(std::vector<typeElement*> *_type_element_v, 
+    OPELRequestTx1 *request_handle)
+{
+  assert(_type_element_v != NULL && request_handle != NULL);
+  __OPEL_FUNCTION_ENTER__;
+
+  GstPadTemplate *templ;
+  std::string tmp_str;
+  std::vector<typeElement*> *_fly_type_element_v;
+  GstPad *src_pad; 
+
+  request_handle->setTypeElementVector(_type_element_v);
+
+  OPELGstElementTx1 *tx1 = OPELGstElementTx1::getInstance();
+
+  GstElement *pipeline = tx1->getPipeline();
+	 
+	request_handle->defaultJpegElementFactory(request_handle->getMsgHandle()->file_path);
+  _fly_type_element_v = request_handle->getFlyTypeElementVector();
+
+  typeElement *tee = findByElementName(_type_element_v, "tee");
+  typeElement *queue = findByElementName(_fly_type_element_v, "queue");
+
+  if(!tee || !queue)
+  {
+    OPEL_DBG_ERR("Get TypeElement Pointer is NULL"); 
+    __OPEL_FUNCTION_EXIT__;
+    return NULL;
+  }
+
+  templ = gst_element_class_get_pad_template(GST_ELEMENT_GET_CLASS(tee->element), "src_%u");
+  src_pad = gst_element_request_pad(tee->element, templ, NULL, NULL);
+
+  request_handle->setSrcPad(src_pad);
+
+//#if OPEL_LOG_VERBOSE
+  OPEL_DBG_VERB("Obtained request pad %s for %s", gst_pad_get_name(templ), 
+      tee->name->c_str());  
+////#endif
+
+	request_handle->defaultJpegCapFactory();
+  request_handle->defaultJpegElementPipelineAdd(pipeline);
+
+  queue->pad = gst_element_get_static_pad(queue->element, "sink");
+  gst_pad_link(request_handle->getSrcPad(), queue->pad);
+
+  __OPEL_FUNCTION_EXIT__;
+  return request_handle;
 }
 
 static OPELRequestTx1 *recordingInit(std::vector<typeElement*> *_type_element_v, 
@@ -307,22 +355,53 @@ DBusHandlerResult msg_dbus_filter(DBusConnection *conn,
 	if(dbus_message_is_signal(msg, dbus_interface, snap_start_request))
 	{
 		OPEL_DBG_VERB("Get Snapshot Start Request");
-    const char *file_path;
+		const char *file_path;
 
 		dbusRequest *msg_handle = (dbusRequest*)malloc(sizeof(dbusRequest));
-    
+		OPELRequestTx1 *request_handle = new OPELRequestTx1(); 
+		OPELGlobalVectorRequest *v_global_request = OPELGlobalVectorRequest::getInstance();
+
 		dbus_message_get_args(msg, NULL, 
 				DBUS_TYPE_STRING, &file_path,  
 				DBUS_TYPE_UINT64, &(msg_handle->pid), 
-        DBUS_TYPE_UINT64, &(msg_handle->width), 
+				DBUS_TYPE_UINT64, &(msg_handle->width), 
 				DBUS_TYPE_UINT64, &(msg_handle->height), 
 				DBUS_TYPE_INVALID);
-	
-	
+
+		msg_handle->file_path = file_path;
+
+		//#if OPEL_LOG_VERBOSE
+		std::cout << "File Path : " << msg_handle->file_path << std::endl;
+		std::cout << "PID : " << msg_handle->pid << std::endl;
+		std::cout << "Width : " << msg_handle->width << std::endl;
+		std::cout << "Height : " << msg_handle->height << std::endl;
+		//#endif
+
+		request_handle->setMsgHandle(msg_handle);
+		request_elements = snapshotInit((std::vector<typeElement*>*)_type_element_vector, 
+				request_handle);
+		if(!request_elements)
+		{
+			OPEL_DBG_ERR("Recording Intialization Failed");
+			__OPEL_FUNCTION_EXIT__;
+			return DBUS_HANDLER_RESULT_HANDLED;
+		}
+		
+		v_global_request->pushRequest(request_elements);
+
+		if(!(tx1->getIsPlaying()))
+		{
+				ret = gst_element_set_state(tx1->getPipeline(), GST_STATE_READY);
+				ret = gst_element_set_state(tx1->getPipeline(), GST_STATE_PLAYING);
+				tx1->setIsPlaying(true);
+		}
+		else
+			 request_handle->defualtSnapshotGstSyncStateWithParent();		
+		
+		g_timeout_add_seconds(1, timeOutCallback, (void*)request_elements);   
 	}
-
-
-  __OPEL_FUNCTION_EXIT__;
+ 	 
+	__OPEL_FUNCTION_EXIT__;
   return DBUS_HANDLER_RESULT_HANDLED;
 }
 

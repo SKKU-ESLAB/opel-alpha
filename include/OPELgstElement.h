@@ -72,7 +72,7 @@ class OPELRequest{
  		
 		virtual bool defaultJpegElementFactory(const char* file_path) = 0;
 		virtual bool defaultJpegElementPipelineAdd(GstElement *pipeline) = 0;
-
+		virtual bool defaultJpegCapFactory(void) = 0;
     std::vector<typeElement*>* getTypeElementVector(void) const
     { return this->_v_type_element; }
     void setTypeElementVector(std::vector<typeElement*>
@@ -89,14 +89,21 @@ class OPELRequest{
     { return this->msg_handle; }
     void setMsgHandle(dbusRequest *_msg_handle)
     { this->msg_handle = _msg_handle; }
- 
+	
+		unsigned getNumIter()
+		{ return this->num_iter; }
+		void setNumIter(unsigned _num_iter)
+		{ this->num_iter = _num_iter; }
 	protected:
     std::vector<typeElement*> *_v_type_element; 
     std::vector<typeElement*> *_v_fly_type_element;
     GstPad *src_pad;
     GstPadTemplate *src_templ;
     dbusRequest *msg_handle;
+		unsigned num_iter;
 };
+
+
 
 class OPELGstElement 
 {
