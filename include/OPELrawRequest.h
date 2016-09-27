@@ -50,7 +50,7 @@ class OPELRawRequest : public OPELRequest
 		bool is_run;
 };
 
-GstFlowReturn bufferFromSinkCB (GstElement *elt, gpointer data);
+//GstFlowReturn bufferFromSinkCB (GstElement *elt, gpointer data);
 gboolean onSinkMessage (GstBus *bus, GstMessage *message, gpointer data);
 bool openCVStaticPipelineMake(OPELGstElementTx1 *tx1,
 		    std::vector<typeElement*>*_type_element_vector);

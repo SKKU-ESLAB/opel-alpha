@@ -105,6 +105,8 @@ OPELglobalRequest.h
 /home/ubuntu/opel-alpha/src/OPELglobalRequest.h
 OPELrawRequest.h
 /home/ubuntu/opel-alpha/src/OPELrawRequest.h
+gst/app/gstappsink.h
+-
 
 /home/ubuntu/opel-alpha/src/OPELcommonUtil.cpp
 OPELcommonUtil.h

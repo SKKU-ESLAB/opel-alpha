@@ -2,6 +2,20 @@
 #include "OPELgstElementTx1.h"
 #include "OPELglobalRequest.h"
 #include "OPELrawRequest.h"
+#include <gst/app/gstappsink.h>
+
+void bufferFromSinkCB(GstElement *sink, GstBuffer *buffer,
+		GstPad *pad, gpointer data)
+{
+	__OPEL_FUNCTION_ENTER__;
+	gsize cpy_buffer_size = 0;
+	OPEL_DBG_VERB("Buffer Size : %d", gst_buffer_get_size(buffer));
+	//  gst_app_sink_set_emit_signals(GST_APP_SINK(elt), FALSE);
+	//gst_buffer_extract (gstBuffer
+	fflush(stdout);
+	__OPEL_FUNCTION_EXIT__;
+}
+
 static void checkRemainRequest(void)
 {
 	__OPEL_FUNCTION_ENTER__;
@@ -18,7 +32,7 @@ static void checkRemainRequest(void)
 	}
 	__OPEL_FUNCTION_EXIT__;
 }
-/*
+
 bool openCVStart(DBusMessage *msg, OPELGstElementTx1 *tx1, 
 		std::vector<typeElement*>*_type_element_vector)
 {
@@ -40,35 +54,29 @@ bool openCVStart(DBusMessage *msg, OPELGstElementTx1 *tx1,
 			DBUS_TYPE_UINT64, &(msg_handle->pid),
 			DBUS_TYPE_INVALID);
 
-	//#if OPEL_LOG_VERBOSE
+#if OPEL_LOG_VERBOSE
 	std::cout << "PID : " << msg_handle->pid << std::endl;
-	//#endif
+#endif
 
-  typeElement *tee = findByElementName(request_handle->getTypeElementVector(), 
-		"tee");
-	
 	request_handle->setMsgHandle(msg_handle);
 	request_handle->defaultOpenCVElementFactory();
 	request_handle->defaultOpenCVCapFactory();
 	request_handle->defaultOpenCVElementPipelineAdd(tx1->getPipeline());
 
 	tee_src_pad_templ = gst_element_class_get_pad_template(
-			GST_ELEMENT_GET_CLASS(tee->element), "src_%u");
+			GST_ELEMENT_GET_CLASS(tx1->getMainTee()->element), "src_%u");
 	tee_src_pad = gst_element_request_pad(tx1->getMainTee()->element, 
 			tee_src_pad_templ, NULL, NULL);
 
 	request_handle->defaultOpenCVPadLink(tee_src_pad);		
-	GstBus *bus = gst_element_get_bus (request_handle->getAppSink()->element);
 
-	gst_bus_add_watch (bus, (GstBusFunc)onSinkMessage, NULL);
-	
-	g_signal_connect (request_handle->getAppSink()->element, "new-sample", 
+	g_signal_connect (request_handle->getAppSink()->element, "handoff", 
 			G_CALLBACK(bufferFromSinkCB), NULL);
-
+	
 	if(!(tx1->getIsPlaying()))
 	{
 		OPEL_DBG_ERR("Is Not Playing");
-		ret = gst_element_set_state(tx1->getPipeline(), GST_STATE_READY);
+		ret = gst_element_set_state(tx1->getPipeline(), GST_STATE_READY);	
 		ret = gst_element_set_state(tx1->getPipeline(), GST_STATE_PLAYING); 
 		tx1->setIsPlaying(true);
 	}
@@ -78,7 +86,7 @@ bool openCVStart(DBusMessage *msg, OPELGstElementTx1 *tx1,
 	}
 	__OPEL_FUNCTION_EXIT__;
 	return ret;
-}*/
+}
 
 static GstPadProbeReturn event_probe_cb(GstPad *pad, GstPadProbeInfo *info,
     gpointer user_data)
@@ -464,7 +472,7 @@ DBusHandlerResult msg_dbus_filter(DBusConnection *conn,
 		}
 		else
 		{
-	//		ret = openCVStart(msg, tx1, (std::vector<typeElement*>*)_type_element_vector);
+   		ret = openCVStart(msg, tx1, (std::vector<typeElement*>*)_type_element_vector);
 			request_handle->increaseNumUsers();	
 		}
 		return DBUS_HANDLER_RESULT_HANDLED;

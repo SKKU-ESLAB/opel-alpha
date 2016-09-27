@@ -30,7 +30,7 @@ OPELRawRequest::~OPELRawRequest()
 static void initAppSinkElement(typeElement* app_sink)
 {
 	assert(app_sink != NULL);
-	const char* n_app_sink = "appsink";
+	const char* n_app_sink = "fakesink";
 	std::string *str = new std::string(n_app_sink);
 	app_sink->name = str;
 	app_sink->type = kAPP_SINK;
@@ -39,7 +39,9 @@ static void initAppSinkElement(typeElement* app_sink)
 static void initAppSinkElementProp(typeElement* app_sink)
 {
 	assert(app_sink != NULL);
-	g_object_set(G_OBJECT(app_sink->element), "emit-signals", TRUE, NULL);
+	g_object_set(G_OBJECT(app_sink->element), 
+			"signal-handoffs", TRUE, 
+			NULL);
 }
 
 bool OPELRawRequest::defaultOpenCVElementFactory()
@@ -102,7 +104,7 @@ bool OPELRawRequest::defaultOpenCVCapFactory()
 		return false;
 	}
 	sprintf(caps_buffer, "video/x-raw(memory:NVMM), format=(string){BGRx},\
-			width=(int){%d}, height=(int){%d}", width, height);
+			width=(int){%d}, height=(int){%d}, framerate=(fraction){1/1}", width, height);
 	
 	_conv->caps = gst_caps_from_string(caps_buffer);	
 
@@ -128,7 +130,7 @@ bool OPELRawRequest::defaultOpenCVElementPipelineAdd(GstElement *pipeline)
 	typeElement *_conv = findByElementNameNSubType(this->_v_fly_type_element,
 			      "nvvidconv", kBGR);
 	typeElement *_app_sink = findByElementName(this->_v_fly_type_element,
-			      "appsink");
+			      "fakesink");
 
 	if(!_conv || !_app_sink || !_queue)
 	{
@@ -140,7 +142,7 @@ bool OPELRawRequest::defaultOpenCVElementPipelineAdd(GstElement *pipeline)
 	gst_bin_add_many(GST_BIN(pipeline), _queue->element, _conv->element, 
 			_app_sink->element, NULL);
 	
-	ret = gst_element_link(_queue->element, _conv->element);
+	ret = gst_element_link(_queue->element, _app_sink->element);
 	if(!ret)
 	{
 		OPEL_DBG_ERR("Gst element link failed");
@@ -185,7 +187,7 @@ void OPELRawRequest::defaultOpenCVGstSyncStateWithParent(void)
 	OPELgstSyncStateWithParent(this->_v_fly_type_element);
 	__OPEL_FUNCTION_EXIT__;
 }
-
+/*
 GstFlowReturn bufferFromSinkCB(GstElement *elt, gpointer data)
 {
 	__OPEL_FUNCTION_ENTER__;
@@ -202,7 +204,8 @@ GstFlowReturn bufferFromSinkCB(GstElement *elt, gpointer data)
 	__OPEL_FUNCTION_EXIT__;
 	return GST_FLOW_OK;
 }
-
+*/
+/*
 bool openCVStaticPipelineMake(OPELGstElementTx1 *tx1,
 		std::vector<typeElement*>*_type_element_vector)
 {
@@ -238,7 +241,7 @@ bool openCVStaticPipelineMake(OPELGstElementTx1 *tx1,
 	g_signal_connect (request_handle->getAppSink()->element, "new-sample",
 			G_CALLBACK(bufferFromSinkCB), NULL);
 
-/*	if(!(tx1->getIsPlaying()))
+	if(!(tx1->getIsPlaying()))
 	{
 		OPEL_DBG_ERR("Is Not Playing");
 		ret = gst_element_set_state(tx1->getPipeline(), GST_STATE_READY);
@@ -248,8 +251,8 @@ bool openCVStaticPipelineMake(OPELGstElementTx1 *tx1,
 	else{
 		OPEL_DBG_ERR("Is Already Playing");
 		request_handle->defaultOpenCVGstSyncStateWithParent();
-	}*/
+	}
 	__OPEL_FUNCTION_EXIT__;
 	return ret;
-}
+}*/
 
