@@ -214,6 +214,21 @@ src/OPELgstElementTx1.s:
 .PHONY : src/OPELgstElementTx1.s
 
 # target to build an object file
+src/OPELrawRequest.o:
+	$(MAKE) -f CMakeFiles/cam_fw.dir/build.make CMakeFiles/cam_fw.dir/src/OPELrawRequest.o
+.PHONY : src/OPELrawRequest.o
+
+# target to preprocess a source file
+src/OPELrawRequest.i:
+	$(MAKE) -f CMakeFiles/cam_fw.dir/build.make CMakeFiles/cam_fw.dir/src/OPELrawRequest.i
+.PHONY : src/OPELrawRequest.i
+
+# target to generate assembly for a file
+src/OPELrawRequest.s:
+	$(MAKE) -f CMakeFiles/cam_fw.dir/build.make CMakeFiles/cam_fw.dir/src/OPELrawRequest.s
+.PHONY : src/OPELrawRequest.s
+
+# target to build an object file
 src/main.o:
 	$(MAKE) -f CMakeFiles/cam_fw.dir/build.make CMakeFiles/cam_fw.dir/src/main.o
 .PHONY : src/main.o
@@ -255,6 +270,9 @@ help:
 	@echo "... src/OPELgstElementTx1.o"
 	@echo "... src/OPELgstElementTx1.i"
 	@echo "... src/OPELgstElementTx1.s"
+	@echo "... src/OPELrawRequest.o"
+	@echo "... src/OPELrawRequest.i"
+	@echo "... src/OPELrawRequest.s"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"

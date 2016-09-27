@@ -13,7 +13,7 @@ void printTypeElement(std::vector<typeElement*> *_type_element_vector)
      std::cout << *((*_type_element_vector)[i]->nickname) << std::endl;
    }
 }
-static void inline setTypeProperty(unsigned _sub_type, 
+void inline setTypeProperty(unsigned _sub_type, 
     typeElement *_type_element, ElementProperty *element_property)
 {
   assert(_type_element != NULL && element_property != NULL);
@@ -58,7 +58,7 @@ static void inline setTypeProperty(unsigned _sub_type,
 
   }
 }
-static void initializeTypeElement(typeElement *type_element, 
+void initializeTypeElement(typeElement *type_element, 
     ElementProperty *element_property)
 {
   assert(type_element != NULL && element_property != NULL);
@@ -404,7 +404,7 @@ bool OPELRequestTx1::defaultRecordingPipelineAdd(GstElement *pipeline)
   return ret;
 }
 
-static void gstElementPropFactory(std::vector<typeElement*> *_type_element_vector)
+void gstElementPropFactory(std::vector<typeElement*> *_type_element_vector)
 {
   assert(_type_element_vector != NULL);
 
@@ -419,13 +419,11 @@ static void gstElementPropFactory(std::vector<typeElement*> *_type_element_vecto
 
 }
 
-static bool gstElementFactory(std::vector<typeElement*> 
+bool gstElementFactory(std::vector<typeElement*> 
     *_type_element_vector)
 {
   assert(_type_element_vector != NULL);
-  
   typeElement *iter = NULL;
-  
   for(int i=0; i<_type_element_vector->size(); i++)
   {
     iter = (*_type_element_vector)[i];
@@ -493,7 +491,7 @@ bool OPELRequestTx1::defaultRecordingElementFactory(const char *file_path)
   __OPEL_FUNCTION_EXIT__;
   return true; 
 }
-static void OPELgstSyncStateWithParent(std::vector<typeElement*> *_v_ele_property)
+void OPELgstSyncStateWithParent(std::vector<typeElement*> *_v_ele_property)
 {
 	assert(_v_ele_property != NULL);
 	for(int i=0; i<_v_ele_property->size(); i++)
@@ -558,14 +556,13 @@ bool OPELRequestTx1::defaultJpegElementFactory(const char* file_path)
 	gstElementFactory(this->_v_fly_type_element);
 	gstElementPropFactory(this->_v_fly_type_element);
 
-//#if OPEL_LOG_VERBOSE
+#if OPEL_LOG_VERBOSE
 	for(int i=0; i<OPEL_NUM_DEFAULT_SNAPSHOT_ELE; i++)
 	{
 		std::cout << "name : " <<
 			(*this->_v_fly_type_element)[i]->name->c_str() << std::endl;
 	}
-//#endif
-	
+#endif
 	
 	__OPEL_FUNCTION_EXIT__;
 	return true;

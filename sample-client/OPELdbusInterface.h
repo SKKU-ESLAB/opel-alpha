@@ -11,6 +11,9 @@ static const gchar *rec_init_request = "recInit";
 static const gchar *rec_start_request = "recStart";
 static const gchar *rec_stop_request = "recStop";
 
+static const gchar *opencv_start_request = "openCVStart";
+static const gchar *opencv_stop_request = "openCVStop";
+
 typedef struct _dbusReques{
   std::string file_path;
   unsigned pid;

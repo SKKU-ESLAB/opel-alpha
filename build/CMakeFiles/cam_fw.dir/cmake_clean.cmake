@@ -6,6 +6,7 @@ file(REMOVE_RECURSE
   "CMakeFiles/cam_fw.dir/src/OPELcamRequest.o"
   "CMakeFiles/cam_fw.dir/src/OPELcommonUtil.o"
   "CMakeFiles/cam_fw.dir/src/OPELglobalRequest.o"
+  "CMakeFiles/cam_fw.dir/src/OPELrawRequest.o"
   "cam_fw.pdb"
   "cam_fw"
 )

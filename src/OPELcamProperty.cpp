@@ -42,8 +42,9 @@ void setTx1DefaultProperty(void)
        "filesink", "filesink"); 
    ElementProperty *udp_sink = new ElementProperty(kSINK, kUDP_SINK, 
        "udpsink", "udpsink");
- 
-   nv_src->setWidth(1920);
+	
+
+	 nv_src->setWidth(1920);
    nv_src->setHeight(1080);
    nv_src->setFps(30);
 
@@ -57,7 +58,7 @@ void setTx1DefaultProperty(void)
    i420_conv->conProp->flip_method = 2;
    sink->fileProp->location = charToString("/home/ubuntu/hihihi.mp4");
    jpeg_sink->fileProp->location = charToString("/home/ubuntu/hihihi.jpeg");
-    
+
    element_vector->push_back(nv_src);
    element_vector->push_back(rtsp_src);
    element_vector->push_back(tee);

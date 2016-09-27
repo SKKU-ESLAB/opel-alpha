@@ -35,6 +35,7 @@ typedef enum _subElementType{
   kJPEG_SINK,
   kUDP_SINK,
   kNO_PROP,
+	kAPP_SINK,
 }subElementType;
 
 

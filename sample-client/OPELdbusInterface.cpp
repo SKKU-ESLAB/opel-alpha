@@ -65,8 +65,11 @@ static void send_rec_term(DBusConnection *conn)
 {
   printf("termination\n");
   DBusMessage *message;
-  message = dbus_message_new_signal(dbus_path, dbus_interface, snap_start_request);
-
+  message = dbus_message_new_signal(dbus_path, dbus_interface, opencv_start_request);
+	unsigned pid = getpid();
+	dbus_message_append_args(message,
+			DBUS_TYPE_UINT64, &pid,
+			DBUS_TYPE_INVALID);
   dbus_connection_send (conn, message, NULL);
   dbus_message_unref(message);
 }
@@ -96,6 +99,8 @@ int main(int argc, char** argv)
 	 	send_rec_init(conn, argv[1]); 
 	 else if(num == 1) 
 		send_rec_start(conn, argv[1]);	 
+	 else if(num == 2)
+		send_rec_term(conn);
 	 else
 		 break;
  }

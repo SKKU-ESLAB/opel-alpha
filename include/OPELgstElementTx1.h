@@ -36,7 +36,13 @@ class OPELGstElementTx1 : public OPELGstElement
 		{ return this->is_playing; }
 		void setIsPlaying(bool _is_playing) 
 		{ this->is_playing = _is_playing; }
-  private:
+
+		typeElement* getMainTee(void) const
+		{  return this->main_tee; }
+		void setMainTee(typeElement* _main_tee)
+		{ this->main_tee = _main_tee; } 
+
+	private:
     static OPELGstElementTx1 *opel_gst_element_tx1;
     bool is_playing;
 		typeElement *main_tee;
@@ -45,12 +51,14 @@ class OPELGstElementTx1 : public OPELGstElement
     GstCaps *src2conv;
 };
 
-static bool gstElementFactory(std::vector<typeElement*> 
+bool gstElementFactory(std::vector<typeElement*> 
     *_type_element_vector);
-static void gstElementPropFactory(std::vector<typeElement*>
+void gstElementPropFactory(std::vector<typeElement*>
     *_type_element_vector);
-static void freeTypeElementMember(typeElement *type_element);
-static void initializeTypeElement(typeElement *type_element,
+void freeTypeElementMember(typeElement *type_element);
+void initializeTypeElement(typeElement *type_element,
         ElementProperty *element_property);
 void printTypeElement(std::vector<typeElement*> *_type_element_vector);
+void OPELgstSyncStateWithParent(std::vector<typeElement*> *_v_ele_property);
 #endif /* OPEL_GST_ELEMENT_TX1_H */
+
