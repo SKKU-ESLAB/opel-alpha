@@ -18,6 +18,67 @@ static void checkRemainRequest(void)
 	}
 	__OPEL_FUNCTION_EXIT__;
 }
+/*
+bool openCVStart(DBusMessage *msg, OPELGstElementTx1 *tx1, 
+		std::vector<typeElement*>*_type_element_vector)
+{
+	assert(tx1 != NULL && _type_element_vector != NULL);
+	__OPEL_FUNCTION_ENTER__;
+	bool ret;
+	GstPad *tee_src_pad = NULL;
+	GstPadTemplate *tee_src_pad_templ = NULL;
+
+	
+	ret = true;
+	dbusRequest *msg_handle = (dbusRequest*)malloc(sizeof(dbusRequest));
+	OPELRawRequest *request_handle = OPELRawRequest::getInstance();
+	OPELGlobalVectorRequest *v_global_request = 
+		OPELGlobalVectorRequest::getInstance();
+	request_handle->setTypeElementVector(_type_element_vector);
+
+	dbus_message_get_args(msg, NULL,
+			DBUS_TYPE_UINT64, &(msg_handle->pid),
+			DBUS_TYPE_INVALID);
+
+	//#if OPEL_LOG_VERBOSE
+	std::cout << "PID : " << msg_handle->pid << std::endl;
+	//#endif
+
+  typeElement *tee = findByElementName(request_handle->getTypeElementVector(), 
+		"tee");
+	
+	request_handle->setMsgHandle(msg_handle);
+	request_handle->defaultOpenCVElementFactory();
+	request_handle->defaultOpenCVCapFactory();
+	request_handle->defaultOpenCVElementPipelineAdd(tx1->getPipeline());
+
+	tee_src_pad_templ = gst_element_class_get_pad_template(
+			GST_ELEMENT_GET_CLASS(tee->element), "src_%u");
+	tee_src_pad = gst_element_request_pad(tx1->getMainTee()->element, 
+			tee_src_pad_templ, NULL, NULL);
+
+	request_handle->defaultOpenCVPadLink(tee_src_pad);		
+	GstBus *bus = gst_element_get_bus (request_handle->getAppSink()->element);
+
+	gst_bus_add_watch (bus, (GstBusFunc)onSinkMessage, NULL);
+	
+	g_signal_connect (request_handle->getAppSink()->element, "new-sample", 
+			G_CALLBACK(bufferFromSinkCB), NULL);
+
+	if(!(tx1->getIsPlaying()))
+	{
+		OPEL_DBG_ERR("Is Not Playing");
+		ret = gst_element_set_state(tx1->getPipeline(), GST_STATE_READY);
+		ret = gst_element_set_state(tx1->getPipeline(), GST_STATE_PLAYING); 
+		tx1->setIsPlaying(true);
+	}
+	else{
+		OPEL_DBG_ERR("Is Already Playing");
+		request_handle->defaultOpenCVGstSyncStateWithParent();
+	}
+	__OPEL_FUNCTION_EXIT__;
+	return ret;
+}*/
 
 static GstPadProbeReturn event_probe_cb(GstPad *pad, GstPadProbeInfo *info,
     gpointer user_data)
@@ -173,7 +234,7 @@ static OPELRequestTx1 *snapshotInit(std::vector<typeElement*> *_type_element_v,
 //#if OPEL_LOG_VERBOSE
   OPEL_DBG_VERB("Obtained request pad %s for %s", gst_pad_get_name(templ), 
       tee->name->c_str());  
-////#endif
+//#endif
 
 	request_handle->defaultJpegCapFactory();
   request_handle->defaultJpegElementPipelineAdd(pipeline);
@@ -220,10 +281,10 @@ static OPELRequestTx1 *recordingInit(std::vector<typeElement*> *_type_element_v,
 
   request_handle->setSrcPad(src_pad);
 
-//#if OPEL_LOG_VERBOSE
+#if OPEL_LOG_VERBOSE
   OPEL_DBG_VERB("Obtained request pad %s for %s", gst_pad_get_name(templ), 
       tee->name->c_str());  
-////#endif
+#endif
 
   request_handle->defaultRecordingCapFactory();
   request_handle->defaultRecordingPipelineAdd(pipeline);
@@ -295,20 +356,7 @@ DBusHandlerResult msg_dbus_filter(DBusConnection *conn,
 		{
 			OPEL_DBG_WARN("Get Recording not started");	
 			ret = gst_element_set_state(tx1->getPipeline(), GST_STATE_READY);
-			if( ret == GST_STATE_CHANGE_FAILURE)
-			{
-				OPEL_DBG_ERR("Unable to set the pipeline to the Ready state. \n");
-				__OPEL_FUNCTION_EXIT__;
-				return DBUS_HANDLER_RESULT_HANDLED;
-			}
-
 			ret = gst_element_set_state(tx1->getPipeline(), GST_STATE_PLAYING);
-			if( ret == GST_STATE_CHANGE_FAILURE)
-			{
-				OPEL_DBG_ERR("Unable to set the pipeline to the playing state. \n");
-				__OPEL_FUNCTION_EXIT__;
-				return DBUS_HANDLER_RESULT_HANDLED;
-			}
 		  tx1->setIsPlaying(true);	
 		}
 		else{
@@ -321,12 +369,6 @@ DBusHandlerResult msg_dbus_filter(DBusConnection *conn,
     return DBUS_HANDLER_RESULT_HANDLED;
   }
 
-	if(dbus_message_is_signal(msg, dbus_interface, rec_start_request))
-	{
-		OPEL_DBG_WARN("Get Recording Start Request");	
-		return DBUS_HANDLER_RESULT_HANDLED;
-	}
- 
   if(dbus_message_is_signal(msg, dbus_interface, rec_stop_request))
   {
     OPEL_DBG_VERB("Get Recording Stop Request");
@@ -412,51 +454,28 @@ DBusHandlerResult msg_dbus_filter(DBusConnection *conn,
 		OPEL_DBG_WARN("Get OpenCV Start Request");
 
 		bool ret;
-		GstPad *tee_src_pad = NULL;
-		GstPadTemplate *tee_src_pad_templ = NULL;
-
-		dbusRequest *msg_handle = (dbusRequest*)malloc(sizeof(dbusRequest));
+		unsigned num;
 		OPELRawRequest *request_handle = OPELRawRequest::getInstance();
-		OPELGlobalVectorRequest *v_global_request = 
-			OPELGlobalVectorRequest::getInstance();
-		request_handle->setTypeElementVector((std::vector<typeElement*>*)
-				_type_element_vector);
-		
-		dbus_message_get_args(msg, NULL,
-				DBUS_TYPE_UINT64, &(msg_handle->pid),
-				DBUS_TYPE_INVALID);
 
-//#if OPEL_LOG_VERBOSE
-		std::cout << "PID : " << msg_handle->pid << std::endl;
-//#endif
-
-		request_handle->setMsgHandle(msg_handle);
-		request_handle->defaultOpenCVElementFactory();
-		request_handle->defaultOpenCVCapFactory();
-		request_handle->defaultOpenCVElementPipelineAdd(tx1->getPipeline());
-
-		tee_src_pad_templ = gst_element_class_get_pad_template(
-				GST_ELEMENT_GET_CLASS(tx1->getMainTee()->element), "src_%u");
-		tee_src_pad = gst_element_request_pad(tx1->getMainTee()->element, 
-				tee_src_pad_templ, NULL, NULL);
-
-		request_handle->defaultOpenCVPadLink(tee_src_pad);		
-		if(!(tx1->getIsPlaying()))
+		if((request_handle->getNumUsers()) != 0)
 		{
-			ret = gst_element_set_state(tx1->getPipeline(), GST_STATE_READY);
-			ret = gst_element_set_state(tx1->getPipeline(), GST_STATE_PLAYING); 
+			request_handle->increaseNumUsers();	
+			return DBUS_HANDLER_RESULT_HANDLED;
 		}
-	  else
-			request_handle->defaultOpenCVGstSyncStateWithParent();
-		
-		request_handle->increaseNumUsers();
-
+		else
+		{
+	//		ret = openCVStart(msg, tx1, (std::vector<typeElement*>*)_type_element_vector);
+			request_handle->increaseNumUsers();	
+		}
 		return DBUS_HANDLER_RESULT_HANDLED;
 	}
+	
+	
 	if(dbus_message_is_signal(msg, dbus_interface, opencv_stop_request))
 	{
 		OPEL_DBG_WARN("Get OpenCV Stop Request");
 		OPELRawRequest *request_handle = OPELRawRequest::getInstance();
+	
 	}
 	
 	

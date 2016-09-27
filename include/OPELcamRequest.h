@@ -34,7 +34,6 @@ typedef struct _dbusReques{
 	bool is_start;
 }dbusRequest;
 
-
 static gboolean timeOutCallback(gpointer _request_elements);
 static GstPadProbeReturn event_probe_cb(GstPad *pad, GstPadProbeInfo *info,
         gpointer user_data);

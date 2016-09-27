@@ -1,10 +1,12 @@
 #include "OPELgstElementTx1.h"
 #include "OPELcamRequest.h"
 #include "OPELglobalRequest.h"
+#include "OPELrawRequest.h"
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
 #include <signal.h>
 #include <unistd.h>
+
 const char *path_configuration_Tx1 = "/home/ubuntu/opel-alpha/OPELTx1Configuartion.xml";
 
 static GMainLoop *loop;
@@ -27,12 +29,12 @@ message_cb(GstBus *bus, GstMessage *message, gpointer user_data)
 	switch(GST_MESSAGE_TYPE(message))
 	{
 		case GST_MESSAGE_ERROR:
-			/*         gst_message_parse_error(message, &err, &debug_info);
+			         gst_message_parse_error(message, &err, &debug_info);
 								 OPEL_DBG_ERR("Error Received From Element %s: %s\n",
 								 GST_OBJECT_NAME (message->src), err->message);
 								 OPEL_DBG_ERR("Debugging information: %s\n", debug_info ? debug_info : "none"); 
 								 g_clear_error(&err);
-								 g_free(debug_info);*/
+								 g_free(debug_info);
 			break;
 		case GST_MESSAGE_WARNING:
 			break;
@@ -175,7 +177,8 @@ int main(int argc, char** argv)
  
   _type_element_vector = tx1->getTypeElementVector();
   _pipeline = tx1->getPipeline();
-  
+
+	openCVStaticPipelineMake(tx1, _type_element_vector);					 	
   if(dbus_error_is_set(&dbus_error))
   {
     OPEL_DBG_ERR("Error Connecting to the D-bus Daemon");
@@ -191,7 +194,6 @@ int main(int argc, char** argv)
 
   gst_object_unref(GST_OBJECT(bus));
 	
-	tx1->setIsPlaying(false);
 
   if(ret == GST_STATE_CHANGE_FAILURE)
   {
@@ -204,7 +206,9 @@ int main(int argc, char** argv)
       (void*)_type_element_vector, NULL);
   dbus_connection_setup_with_g_main(dbus_conn, NULL);
 
-  g_main_loop_run(loop);
+	gst_element_set_state(_pipeline, GST_STATE_PLAYING);
+ 	tx1->setIsPlaying(true);
+	g_main_loop_run(loop);
 
 exit:
   if(tx1_element_property != NULL)

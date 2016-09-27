@@ -612,3 +612,18 @@ bool OPELRequestTx1::defaultJpegElementPipelineAdd(GstElement *pipeline)
 	__OPEL_FUNCTION_EXIT__;	
 	return ret;
 }
+gboolean onSinkMessage(GstBus *bus, GstMessage *message, gpointer data)
+{
+	switch(GST_MESSAGE_TYPE (message)){
+		case GST_MESSAGE_EOS:
+			OPEL_DBG_ERR("Finished Playback\n");
+			break;
+		case GST_MESSAGE_ERROR:
+			OPEL_DBG_ERR("Received Error\n");
+			break;
+		default:
+			break;
+
+	}
+	return TRUE;
+}

@@ -87,6 +87,8 @@ OPELgstElement.h
 ../include/OPELrawRequest.h
 OPELgstElement.h
 ../include/OPELgstElement.h
+OPELgstElementTx1.h
+../include/OPELgstElementTx1.h
 
 /home/ubuntu/opel-alpha/src/OPELcamProperty.cpp
 OPELcamProperty.h
@@ -133,6 +135,8 @@ OPELrawRequest.h
 /home/ubuntu/opel-alpha/src/OPELrawRequest.h
 OPELgstElementTx1.h
 /home/ubuntu/opel-alpha/src/OPELgstElementTx1.h
+gst/app/gstappsink.h
+-
 
 /home/ubuntu/opel-alpha/src/main.cpp
 OPELgstElementTx1.h
@@ -141,6 +145,8 @@ OPELcamRequest.h
 /home/ubuntu/opel-alpha/src/OPELcamRequest.h
 OPELglobalRequest.h
 /home/ubuntu/opel-alpha/src/OPELglobalRequest.h
+OPELrawRequest.h
+/home/ubuntu/opel-alpha/src/OPELrawRequest.h
 boost/archive/xml_iarchive.hpp
 -
 boost/archive/xml_oarchive.hpp
