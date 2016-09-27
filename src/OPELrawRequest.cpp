@@ -78,6 +78,10 @@ bool OPELRawRequest::defaultOpenCVElementFactory()
   
 	gstElementFactory(this->_v_fly_type_element);
 
+/*	g_object_set(G_OBJECT(_conv->element), 
+			"output-buffers", (guint)1, 
+			NULL);
+	*/
 	_new_conv->prop->setGstObjectProperty(_new_conv->element);
 	initAppSinkElementProp(this->app_sink);
 	
@@ -187,72 +191,3 @@ void OPELRawRequest::defaultOpenCVGstSyncStateWithParent(void)
 	OPELgstSyncStateWithParent(this->_v_fly_type_element);
 	__OPEL_FUNCTION_EXIT__;
 }
-/*
-GstFlowReturn bufferFromSinkCB(GstElement *elt, gpointer data)
-{
-	__OPEL_FUNCTION_ENTER__;
-	GstSample *sample; 
-	GstBuffer *buffer;
-	gsize cpy_buffer_size = 0;
-
-	sample = gst_app_sink_pull_sample(GST_APP_SINK(elt));
-	buffer = gst_sample_get_buffer(sample);
-	OPEL_DBG_VERB("Buffer Size : %d", gst_buffer_get_size(buffer));	
-//	gst_app_sink_set_emit_signals(GST_APP_SINK(elt), FALSE);
-	//gst_buffer_extract (gstBuffer
-	fflush(stdout);	
-	__OPEL_FUNCTION_EXIT__;
-	return GST_FLOW_OK;
-}
-*/
-/*
-bool openCVStaticPipelineMake(OPELGstElementTx1 *tx1,
-		std::vector<typeElement*>*_type_element_vector)
-{
-	assert(tx1 != NULL && _type_element_vector != NULL);
-	__OPEL_FUNCTION_ENTER__;
-	bool ret;
-	GstPad *tee_src_pad = NULL;
-	GstPadTemplate *tee_src_pad_templ = NULL;
-
-
-	ret = true;
-	dbusRequest *msg_handle = (dbusRequest*)malloc(sizeof(dbusRequest));
-	OPELRawRequest *request_handle = OPELRawRequest::getInstance();
-	request_handle->setTypeElementVector(_type_element_vector);
-
-
-	typeElement *tee = findByElementName(request_handle->getTypeElementVector(),
-			"tee");
-
-	request_handle->setMsgHandle(msg_handle);
-	request_handle->defaultOpenCVElementFactory();
-	request_handle->defaultOpenCVCapFactory();
-	request_handle->defaultOpenCVElementPipelineAdd(tx1->getPipeline());
-
-	tee_src_pad_templ = gst_element_class_get_pad_template(
-			GST_ELEMENT_GET_CLASS(tee), "src_%u");
-	
-	tee_src_pad = gst_element_request_pad(tee->element,
-			tee_src_pad_templ, NULL, NULL);
-
-	request_handle->defaultOpenCVPadLink(tee_src_pad);
-	 
-	g_signal_connect (request_handle->getAppSink()->element, "new-sample",
-			G_CALLBACK(bufferFromSinkCB), NULL);
-
-	if(!(tx1->getIsPlaying()))
-	{
-		OPEL_DBG_ERR("Is Not Playing");
-		ret = gst_element_set_state(tx1->getPipeline(), GST_STATE_READY);
-		ret = gst_element_set_state(tx1->getPipeline(), GST_STATE_PLAYING);
-		tx1->setIsPlaying(true);
-	}
-	else{
-		OPEL_DBG_ERR("Is Already Playing");
-		request_handle->defaultOpenCVGstSyncStateWithParent();
-	}
-	__OPEL_FUNCTION_EXIT__;
-	return ret;
-}*/
-

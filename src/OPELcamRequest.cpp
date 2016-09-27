@@ -7,13 +7,12 @@
 void bufferFromSinkCB(GstElement *sink, GstBuffer *buffer,
 		GstPad *pad, gpointer data)
 {
-	__OPEL_FUNCTION_ENTER__;
-	gsize cpy_buffer_size = 0;
+	GstSample *sample;
+//#if OPEL_LOG_VERBOSE
 	OPEL_DBG_VERB("Buffer Size : %d", gst_buffer_get_size(buffer));
+//#endif
 	//  gst_app_sink_set_emit_signals(GST_APP_SINK(elt), FALSE);
 	//gst_buffer_extract (gstBuffer
-	fflush(stdout);
-	__OPEL_FUNCTION_EXIT__;
 }
 
 static void checkRemainRequest(void)
