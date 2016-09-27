@@ -25,11 +25,11 @@ static GstPadProbeReturn event_probe_cb(GstPad *pad, GstPadProbeInfo *info,
 	__OPEL_FUNCTION_ENTER__;
 	OPELRequestTx1 *request_elements = NULL;
   GstElement *pipeline = NULL;
-	if(GST_EVENT_TYPE(GST_PAD_PROBE_INFO_DATA(info)) != GST_EVENT_EOS)
+/*	if(GST_EVENT_TYPE(GST_PAD_PROBE_INFO_DATA(info)) != GST_EVENT_EOS)
 	{
 		__OPEL_FUNCTION_EXIT__;
 		return GST_PAD_PROBE_PASS;
-	}
+	}*/
 	gst_pad_remove_probe(pad, GST_PAD_PROBE_INFO_ID(info));
 		
   pipeline = (OPELGstElementTx1::getInstance())->getPipeline();
