@@ -178,7 +178,7 @@ int main(int argc, char** argv)
   _type_element_vector = tx1->getTypeElementVector();
   _pipeline = tx1->getPipeline();
 
-	openCVStaticPipelineMake(tx1, _type_element_vector);					 	
+//	openCVStaticPipelineMake(tx1, _type_element_vector);					 	
   if(dbus_error_is_set(&dbus_error))
   {
     OPEL_DBG_ERR("Error Connecting to the D-bus Daemon");
@@ -187,6 +187,8 @@ int main(int argc, char** argv)
   }
 
   signal(SIGINT, signalHandler);
+
+ 	tx1->setIsPlaying(false);
 
   bus = gst_pipeline_get_bus(GST_PIPELINE(_pipeline));
   gst_bus_add_signal_watch(bus);
@@ -206,8 +208,8 @@ int main(int argc, char** argv)
       (void*)_type_element_vector, NULL);
   dbus_connection_setup_with_g_main(dbus_conn, NULL);
 
-	gst_element_set_state(_pipeline, GST_STATE_PLAYING);
- 	tx1->setIsPlaying(true);
+	//gst_element_set_state(_pipeline, GST_STATE_PLAYING);
+ //	tx1->setIsPlaying(true);
 	g_main_loop_run(loop);
 
 exit:

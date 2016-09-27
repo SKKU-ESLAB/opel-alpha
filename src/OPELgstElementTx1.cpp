@@ -335,7 +335,8 @@ bool OPELRequestTx1::defaultJpegCapFactory(void)
     return false;
   }
   
-	sprintf(caps_buffer, "video/x-raw(memory:NVMM), framerate=(fraction){1/1}");
+	sprintf(caps_buffer, "video/x-raw, format=(string){I420}, \
+			width=(int){1920}, height=(int){1080}, framerate=(fraction){1/1}");
 	_enc->caps = gst_caps_from_string(caps_buffer);
 	if(!_enc->caps)
 	{
