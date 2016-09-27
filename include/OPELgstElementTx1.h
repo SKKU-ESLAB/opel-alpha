@@ -17,8 +17,6 @@ class OPELRequestTx1 : public OPELRequest
 		void defualtSnapshotGstSyncStateWithParent(void);
 };
 
-
-
 class OPELGstElementTx1 : public OPELGstElement
 {
   public: 
@@ -41,8 +39,9 @@ class OPELGstElementTx1 : public OPELGstElement
   private:
     static OPELGstElementTx1 *opel_gst_element_tx1;
     bool is_playing;
+		typeElement *main_tee;
 		OPELGstElementTx1();
-    GstElement *pipeline;
+		GstElement *pipeline;
     GstCaps *src2conv;
 };
 

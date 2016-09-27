@@ -100,7 +100,7 @@ void freeTypeElementMember(typeElement *type_element)
 
 OPELGstElementTx1::OPELGstElementTx1()  
 {
-
+	this->main_tee = (typeElement*)malloc(sizeof(typeElement)); 
 }
 OPELGstElementTx1::~OPELGstElementTx1()
 {
@@ -111,6 +111,9 @@ OPELGstElementTx1::~OPELGstElementTx1()
 	}
 	if(this->pipeline != NULL)
 		gst_object_unref(pipeline);
+
+	if(this->main_tee != NULL)
+		free(this->main_tee);
 }
 
 OPELGstElementTx1 *OPELGstElementTx1::getInstance(void)
@@ -188,10 +191,11 @@ bool OPELGstElementTx1::OPELGstElementPropFactory(void)
 {
   assert(this->_type_element_vector != NULL);
   __OPEL_FUNCTION_ENTER__;
-  
   gstElementPropFactory(this->_type_element_vector);
 	g_object_set(this->pipeline, "message-forward", TRUE, NULL); 
-  __OPEL_FUNCTION_EXIT__;
+	
+
+	__OPEL_FUNCTION_EXIT__;
   return true;
 }
 
@@ -199,8 +203,12 @@ bool OPELGstElementTx1::OPELGstPipelineMake(void)
 {
   assert(this->_type_element_vector != NULL);
   __OPEL_FUNCTION_ENTER__;
-  gboolean ret = false;
-  typeElement* tee = 
+  GstPadTemplate *tee_src_pad_templ = NULL;
+	GstPad *tee_src_pad = NULL;
+	GstPad *queue_sink_pad = NULL;
+	gboolean ret = false;
+
+	typeElement* tee = 
     findByElementName(this->_type_element_vector, "tee");
   typeElement* cam_src = 
     findByElementName(this->_type_element_vector, "nvcamerasrc");
@@ -209,6 +217,12 @@ bool OPELGstElementTx1::OPELGstPipelineMake(void)
   typeElement* queue = 
      findByElementName(this->_type_element_vector, "queue");
 
+	if(!tee || !cam_src || !conv || !queue || !this->main_tee)
+	{
+		OPEL_DBG_ERR("Elements are NULL Erorr");
+		__OPEL_FUNCTION_EXIT__;
+		return false;
+	}
 
 #if OPEL_LOG_VERBOSE
   std::cout <<"find name : " <<  *(tee->name) << " sub_type : " << tee->sub_type << std::endl;
@@ -216,17 +230,27 @@ bool OPELGstElementTx1::OPELGstPipelineMake(void)
   std::cout <<"find name : " <<  *(conv->name) << " sub_type : " << conv->sub_type << std::endl;
 #endif
 
-  gst_bin_add_many(GST_BIN(this->pipeline), cam_src->element, 
-      conv->element, tee->element, NULL);
+  gst_bin_add_many(GST_BIN(this->pipeline), cam_src->element, this->main_tee->element,
+			queue->element, conv->element, tee->element, NULL);
 
-  ret = gst_element_link_filtered(cam_src->element, conv->element, cam_src->caps);
+				
+  ret = gst_element_link_filtered(cam_src->element, this->main_tee->element, cam_src->caps);
   if(!ret)
   {
      OPEL_DBG_ERR("Gst Element Link filtered Failed");
      __OPEL_FUNCTION_EXIT__;  
      return false;
   }
-  ret = gst_element_link_filtered(conv->element, tee->element, conv->caps);
+	
+	ret = gst_element_link_many(this->main_tee->element, queue->element, conv->element, NULL);
+	if(!ret)
+	{
+     OPEL_DBG_ERR("Gst Element Link filtered Failed");
+     __OPEL_FUNCTION_EXIT__;  
+     return false;
+	}
+	
+	ret = gst_element_link_filtered(conv->element, tee->element, conv->caps);
   if(!ret)
   {
      OPEL_DBG_ERR("Gst Element Link filtered Failed");
@@ -234,6 +258,21 @@ bool OPELGstElementTx1::OPELGstPipelineMake(void)
      return false;
   }
   
+	tee_src_pad_templ = gst_element_class_get_pad_template(
+			GST_ELEMENT_GET_CLASS (this->main_tee->element), "src_%u");
+	tee_src_pad = gst_element_request_pad(this->main_tee->element, tee_src_pad_templ,
+			NULL, NULL);
+	this->main_tee->pad = tee_src_pad;
+	queue_sink_pad = gst_element_get_static_pad(queue->element, "sink");
+
+	ret = gst_pad_link (tee_src_pad, queue_sink_pad);
+	if(!ret)
+	{
+     OPEL_DBG_ERR("Tee queue link failed");
+     __OPEL_FUNCTION_EXIT__;  
+     return false;
+	}
+
   __OPEL_FUNCTION_EXIT__;
   return true;
 }
@@ -253,7 +292,10 @@ bool OPELGstElementTx1::OPELGstElementFactory(void)
     __OPEL_FUNCTION_EXIT__;
     return ret; 
   }
-  __OPEL_FUNCTION_EXIT__;
+	//Main Branch	
+	OPEL_GST_ELEMENT_FACTORY_MAKE(this->main_tee->element, "tee", NULL);	
+	
+	__OPEL_FUNCTION_EXIT__;
   return true;
 }
 
