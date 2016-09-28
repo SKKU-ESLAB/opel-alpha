@@ -89,6 +89,18 @@ OPELgstElement.h
 ../include/OPELgstElement.h
 OPELgstElementTx1.h
 ../include/OPELgstElementTx1.h
+sys/ipc.h
+-
+sys/types.h
+-
+sys/stat.h
+-
+fcntl.h
+-
+sys/shm.h
+-
+semaphore.h
+-
 
 /home/ubuntu/opel-alpha/src/OPELcamProperty.cpp
 OPELcamProperty.h

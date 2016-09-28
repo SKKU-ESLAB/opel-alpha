@@ -10,5 +10,5 @@ add_executable(cam_fw ${CAMFW_SRC_DIR}/main.cpp ${CAMFW_SRC_DIR}/OPELgstElement.
 	
 
 
-target_link_libraries(cam_fw dbus-1 glib-2.0 dbus-glib-1 gstreamer-1.0 gstapp-1.0 gobject-2.0 gmodule-2.0 boost_serialization)
+target_link_libraries(cam_fw dbus-1 glib-2.0 dbus-glib-1 gstreamer-1.0 gstapp-1.0 gobject-2.0 gmodule-2.0 boost_serialization pthread)
 

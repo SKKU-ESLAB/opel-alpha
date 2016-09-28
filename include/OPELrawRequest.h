@@ -2,6 +2,12 @@
 #define OPEL_RAW_REQUEST_H
 #include "OPELgstElement.h"
 #include "OPELgstElementTx1.h"
+#include <sys/ipc.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <sys/shm.h>
+#include <semaphore.h>
 class OPELRawRequest : public OPELRequest
 {
 	public:
@@ -42,16 +48,29 @@ class OPELRawRequest : public OPELRequest
 
 		typeElement* getAppSink(void)
 		{  return this->app_sink; }
+
+
 	private:
 		static OPELRawRequest *opel_raw_request;
 		OPELRawRequest();
 		typeElement *app_sink;
+
+		int shm_id;
+		void* shm_ptr;
+		sem_t* sem;
+
 		unsigned num_users;	
 		bool is_run;
+
 };
 
 //GstFlowReturn bufferFromSinkCB (GstElement *elt, gpointer data);
 gboolean onSinkMessage (GstBus *bus, GstMessage *message, gpointer data);
 bool openCVStaticPipelineMake(OPELGstElementTx1 *tx1,
 		    std::vector<typeElement*>*_type_element_vector);
+
+static int uinitSharedMemorySpace(int _shm_id);
+static int initSharedMemorySpace(int _req_count, int _buffer_size, 
+		void** _shm_ptr, key_t _shmkey);
+static bool initSemaphore(const char *path, sem_t **_sem);
 #endif /*OPEL_RAW_REQUEST_H*/

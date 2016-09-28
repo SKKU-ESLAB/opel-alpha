@@ -1,6 +1,7 @@
 #include "OPELrawRequest.h"
 #include "OPELgstElementTx1.h"
 #include <gst/app/gstappsink.h>
+
 OPELRawRequest *OPELRawRequest::opel_raw_request = NULL;
 
 OPELRawRequest *OPELRawRequest::getInstance(void)
@@ -161,7 +162,8 @@ bool OPELRawRequest::defaultOpenCVElementPipelineAdd(GstElement *pipeline)
 		__OPEL_FUNCTION_EXIT__; 
 		return ret;
 	}
-	
+
+
 	__OPEL_FUNCTION_EXIT__;
 	return ret;
 }
@@ -191,3 +193,70 @@ void OPELRawRequest::defaultOpenCVGstSyncStateWithParent(void)
 	OPELgstSyncStateWithParent(this->_v_fly_type_element);
 	__OPEL_FUNCTION_EXIT__;
 }
+
+static int uinitSharedMemorySpace(int _shm_id)
+{
+	if(-1 == shmctl(_shm_id, IPC_RMID, 0))
+	{
+		OPEL_DBG_ERR("Failed to remove shared memory space");
+		return 0;
+	}
+	return 1;
+}
+
+static int initSharedMemorySpace(int _req_count, int _buffer_size, 
+		void** _shm_ptr, key_t _shmkey)
+{
+	int shmid;
+	shmid = shmget((key_t)_shmkey, 
+			(_buffer_size*_req_count)+(sizeof(int)*_req_count), 0666|IPC_CREAT);
+
+	OPEL_DBG_VERB("shmkey : %d", _shmkey);
+
+	if(shmid == -1)
+	{
+		OPEL_DBG_ERR("shmget failed : ");
+		return -1;
+	}
+	*_shm_ptr = shmat(shmid, NULL, 0);
+
+	if(*_shm_ptr == (void*)-1)
+	{
+		OPEL_DBG_ERR("shmget failed : ");
+		return -1;
+	}
+	return shmid;
+}
+
+static bool initSemaphore(const char *path, sem_t **_sem)
+{
+	assert(path != NULL);
+	*_sem = sem_open(path, O_CREAT, 0666, 1);
+	if((*_sem) == SEM_FAILED)
+	{
+		OPEL_DBG_ERR("Semaphore Open Failed");
+		sem_unlink(path);
+		return false;
+	}
+	return true;		
+}
+
+static void uinitSemaphore(const char *path, sem_t *sem)
+{
+	sem_close(sem);
+	sem_unlink(path);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
