@@ -60,14 +60,14 @@ bool openCVStart(DBusMessage *msg, OPELGstElementTx1 *tx1,
 		OPELGlobalVectorRequest::getInstance();
 	request_handle->setTypeElementVector(_type_element_vector);
 
-/*	dbus_message_get_args(msg, NULL,
+	dbus_message_get_args(msg, NULL,
 			DBUS_TYPE_UINT64, &(msg_handle->pid),
 			DBUS_TYPE_INVALID);
 
 #if OPEL_LOG_VERBOSE
 	std::cout << "PID : " << msg_handle->pid << std::endl;
 #endif
-*/
+
 	request_handle->setMsgHandle(msg_handle);
 	request_handle->defaultOpenCVElementFactory();
 	request_handle->defaultOpenCVCapFactory();

@@ -137,7 +137,7 @@ bool OPELRawRequest::defaultOpenCVCapFactory()
 		__OPEL_FUNCTION_EXIT__;
 		return false;
 	}
-	sprintf(caps_buffer, "video/x-raw, format=(string){BGRx},\
+	sprintf(caps_buffer, "video/x-raw, format=(string){BGRx}, \
 			width=(int){%d}, height=(int){%d}", width, height);
 	
 	_conv->caps = gst_caps_from_string(caps_buffer);	
