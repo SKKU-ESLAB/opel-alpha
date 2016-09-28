@@ -2,7 +2,31 @@
 #include "OPELgstElementTx1.h"
 #include <gst/app/gstappsink.h>
 
+const char *sem_path = "ORG.OPEL.CAMERA";
+
 OPELRawRequest *OPELRawRequest::opel_raw_request = NULL;
+
+bool OPELRawRequest::initializeSemAndSharedMemory(void)
+{
+	__OPEL_FUNCTION_ENTER__;
+	int ret = initSharedMemorySpace(1, RAW_DEFAULT_BUF_SIZE, 
+			&(this->shm_ptr), SHM_KEY_FOR_BUFFER);
+	if(ret == -1){
+		OPEL_DBG_ERR("Shared memory space initialization failed");
+		__OPEL_FUNCTION_EXIT__;
+		return false;
+	}
+	this->shm_id = ret;
+
+	if(initSemaphore(sem_path, &(this->sem)) == false)
+	{
+		OPEL_DBG_ERR("Semaphore initailization failed");
+		__OPEL_FUNCTION_EXIT__;
+		return false;
+	}
+	__OPEL_FUNCTION_EXIT__;
+	return true;
+}
 
 OPELRawRequest *OPELRawRequest::getInstance(void)
 {
@@ -24,8 +48,11 @@ OPELRawRequest::~OPELRawRequest()
 	if(this->app_sink != NULL)
 	  free(this->app_sink);
 	
-	if(this->_v_fly_type_element != NULL)
-		delete this->_v_fly_type_element;
+//	if(this->_v_fly_type_element != NULL)
+//		delete this->_v_fly_type_element;
+  
+	uinitSharedMemorySpace(this->shm_id);
+	uinitSemaphore(sem_path, this->sem);
 }
 
 static void initAppSinkElement(typeElement* app_sink)

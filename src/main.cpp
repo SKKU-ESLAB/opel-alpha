@@ -227,10 +227,11 @@ exit:
     dbus_connection_unref(dbus_conn);
   if(bus != NULL)
     gst_object_unref(bus);
-	
-		if((global_vector_request = OPELGlobalVectorRequest::getInstance()) != NULL)
+	if((global_vector_request = OPELGlobalVectorRequest::getInstance()) != NULL)
 		delete global_vector_request;
-
+	OPELRawRequest *raw_request = OPELRawRequest::getInstance();
+	if(raw_request != NULL)
+		delete raw_request;
 	__OPEL_FUNCTION_EXIT__;
   return 0;
 }

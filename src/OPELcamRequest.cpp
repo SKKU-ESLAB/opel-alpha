@@ -8,11 +8,17 @@ void bufferFromSinkCB(GstElement *sink, GstBuffer *buffer,
 		GstPad *pad, gpointer data)
 {
 	GstSample *sample;
-//#if OPEL_LOG_VERBOSE
-	OPEL_DBG_VERB("Buffer Size : %d", gst_buffer_get_size(buffer));
-//#endif
-	//  gst_app_sink_set_emit_signals(GST_APP_SINK(elt), FALSE);
-	//gst_buffer_extract (gstBuffer
+	gsize cpy_size;
+	OPELRawRequest *for_shared = OPELRawRequest::getInstance();
+	sem_t* sem = for_shared->getSemaphore();
+	char* buffer_ptr = for_shared->getBufferPtr();
+	int* buffer_size_ptr = (int*)for_shared->getBufferSizePtr();
+   	
+	sem_wait(sem);
+		cpy_size = gst_buffer_extract(buffer, 0, buffer_ptr, gst_buffer_get_size(buffer)); 	
+		buffer_size_ptr = cpy_size;
+		OPEL_DBG_VERB("Buffer Size : %d", cpy_size);
+	sem_post(sem);
 }
 
 static void checkRemainRequest(void)
@@ -61,6 +67,7 @@ bool openCVStart(DBusMessage *msg, OPELGstElementTx1 *tx1,
 	request_handle->defaultOpenCVElementFactory();
 	request_handle->defaultOpenCVCapFactory();
 	request_handle->defaultOpenCVElementPipelineAdd(tx1->getPipeline());
+	request_handle->initializeSemAndSharedMemory();
 
 	tee_src_pad_templ = gst_element_class_get_pad_template(
 			GST_ELEMENT_GET_CLASS(tx1->getMainTee()->element), "src_%u");
