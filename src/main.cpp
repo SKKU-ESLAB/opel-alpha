@@ -188,7 +188,6 @@ int main(int argc, char** argv)
 
   signal(SIGINT, signalHandler);
 
- 	tx1->setIsPlaying(false);
 
   bus = gst_pipeline_get_bus(GST_PIPELINE(_pipeline));
   gst_bus_add_signal_watch(bus);
@@ -196,8 +195,9 @@ int main(int argc, char** argv)
 
   gst_object_unref(GST_OBJECT(bus));
 	
-
-  if(ret == GST_STATE_CHANGE_FAILURE)
+ 	tx1->setIsPlaying(false);
+  
+	if(ret == GST_STATE_CHANGE_FAILURE)
   {
     OPEL_DBG_ERR("Unable to set the pipeline to the playing state. \n");
     goto exit;

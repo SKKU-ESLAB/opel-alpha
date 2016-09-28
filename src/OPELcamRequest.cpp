@@ -7,22 +7,24 @@
 GstFlowReturn bufferFromSinkCB(GstElement *elt, gpointer data)
 {
 	__OPEL_FUNCTION_ENTER__;
-/*	OPELRawRequest *for_shared = OPELRawRequest::getInstance();
+	OPELRawRequest *for_shared = OPELRawRequest::getInstance();
 	GstSample *sample;
 	GstBuffer *buffer;
-	gsize cpy_size = 0;
+	GstMapInfo map;
 	sem_t* sem = for_shared->getSemaphore();
 	sample = gst_app_sink_pull_sample(GST_APP_SINK(elt));
 	buffer = gst_sample_get_buffer(sample);
-	char* buffer_ptr = for_shared->getBufferPtr();
+	char* buffer_ptr = (char*)for_shared->getBufferPtr();
 	int* buffer_size_ptr = (int*)for_shared->getBufferSizePtr();
 	
-	sem_wait(sem);
-		cpy_size = gst_buffer_extract(buffer, 0, buffer_ptr, gst_buffer_get_size(buffer)); 	
-		*buffer_size_ptr = cpy_size;
-		OPEL_DBG_ERR("Copied Size : %d", cpy_size);
-	sem_post(sem);*/
-	__OPEL_FUNCTION_EXIT__;
+	if(gst_buffer_map(buffer, &map, GST_MAP_READ)){
+			sem_wait(sem);
+			memcpy((char*)buffer_ptr, (char*)map.data, RAW_DEFAULT_BUF_SIZE);
+			*buffer_size_ptr = map.size;
+			gst_buffer_unmap(buffer, &map);
+			sem_post(sem);
+	}
+	gst_buffer_unref(buffer);
 	return GST_FLOW_OK;
 }
 

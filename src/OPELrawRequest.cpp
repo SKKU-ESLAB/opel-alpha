@@ -11,6 +11,12 @@ bool OPELRawRequest::initializeSemAndSharedMemory(void)
 	__OPEL_FUNCTION_ENTER__;
 	int ret = initSharedMemorySpace(1, RAW_DEFAULT_BUF_SIZE, 
 			&(this->shm_ptr), SHM_KEY_FOR_BUFFER);
+	if(this->shm_ptr == NULL)
+	{
+		OPEL_DBG_ERR("Shared memory space has NULL address");
+		__OPEL_FUNCTION_EXIT__;
+		return false;
+	}
 	if(ret == -1){
 		OPEL_DBG_ERR("Shared memory space initialization failed");
 		__OPEL_FUNCTION_EXIT__;
@@ -66,12 +72,13 @@ static void initAppSinkElement(typeElement* app_sink)
 }
 static void initAppSinkElementProp(typeElement* app_sink)
 {
+	__OPEL_FUNCTION_ENTER__;
 	assert(app_sink != NULL);
-			g_object_set(G_OBJECT(app_sink->element), "emit-signals", TRUE,
-				"drop", TRUE, 
-				"max-buffers", 2,
-				"wait-on-eos", 
-				NULL);
+	g_object_set(G_OBJECT(app_sink->element), "emit-signals", TRUE, 
+			"drop", TRUE, "max-buffers", (guint)1, "wait-on-eos", TRUE, NULL);
+
+	//	g_object_set(G_OBJECT(app_sink->element));
+	__OPEL_FUNCTION_EXIT__;
 }
 
 bool OPELRawRequest::defaultOpenCVElementFactory()
@@ -107,11 +114,7 @@ bool OPELRawRequest::defaultOpenCVElementFactory()
 	(*this->_v_fly_type_element)[2] = this->app_sink;
   
 	gstElementFactory(this->_v_fly_type_element);
-
-/*	g_object_set(G_OBJECT(_conv->element), 
-			"output-buffers", (guint)1, 
-			NULL);
-	*/
+	
 	_new_conv->prop->setGstObjectProperty(_new_conv->element);
 	initAppSinkElementProp(this->app_sink);
 	
@@ -176,7 +179,7 @@ bool OPELRawRequest::defaultOpenCVElementPipelineAdd(GstElement *pipeline)
 	gst_bin_add_many(GST_BIN(pipeline), _queue->element, _conv->element, 
 			_app_sink->element, NULL);
 	
-	ret = gst_element_link(_queue->element, _app_sink->element);
+	ret = gst_element_link(_queue->element, _conv->element);
 	if(!ret)
 	{
 		OPEL_DBG_ERR("Gst element link failed");
@@ -239,9 +242,9 @@ static int initSharedMemorySpace(int _req_count, int _buffer_size,
 	int shmid;
 	shmid = shmget((key_t)_shmkey, 
 			(_buffer_size*_req_count)+(sizeof(int)*_req_count), 0666|IPC_CREAT);
-
+/*
 	OPEL_DBG_VERB("shmkey : %d", _shmkey);
-
+*/
 	if(shmid == -1)
 	{
 		OPEL_DBG_ERR("shmget failed : ");

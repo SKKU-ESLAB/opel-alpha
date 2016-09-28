@@ -21,8 +21,6 @@ int main(int argc, char** argv){
     {
         Mat frame;
         bool bSuccess = cap.read(frame);
-    		if(!bSuccess) 
-						break;
 				imshow("result", frame);
 		}
     

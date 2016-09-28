@@ -265,7 +265,7 @@ bool CvCaptureCAM_OPEL_CPP::open(int index)
 
 				init_DBus();
 				sendDbusMsg(this->connection, "openCVStart");
-			  sleep(3);		
+			  usleep(1000);		
 
 				cvInitImageHeader(&frame, cvSize(this->width, this->height), IPL_DEPTH_8U, channels_for_mode(mode), IPL_ORIGIN_TL, 4);
 				frame.imageData = (char *)cvAlloc(frame.imageSize); 
@@ -317,10 +317,9 @@ IplImage* CvCaptureCAM_OPEL_CPP::retrieveFrame(int)
 				sem_wait(sem);
 				if(shmPtr)
 				{
-
 				fprintf(stderr, "[CvCaptureCAM_OPEL_CPP::retrieveFrame] : Memory Cpy\n");
 				printf("%d\n", *buffer_size_ptr);
-												memcpy((char*)frame.imageData, (char*)shmPtr, buffer_size);
+				memcpy((char*)frame.imageData, (char*)shmPtr, buffer_size);
 				}
 				sem_post(sem);
 				return &frame;
