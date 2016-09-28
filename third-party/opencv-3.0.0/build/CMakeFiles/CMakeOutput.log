@@ -1,0 +1,949 @@
+The system is: Linux - 3.10.96-tegra - aarch64
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+Compiler: /usr/bin/c++ 
+Build flags: 
+Id flags: 
+
+The output was:
+0
+
+
+Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "a.out"
+
+The CXX compiler identification is GNU, found in "/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/3.5.1/CompilerIdCXX/a.out"
+
+Compiling the C compiler identification source file "CMakeCCompilerId.c" succeeded.
+Compiler: /usr/bin/cc 
+Build flags: 
+Id flags: 
+
+The output was:
+0
+
+
+Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "a.out"
+
+The C compiler identification is GNU, found in "/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/3.5.1/CompilerIdC/a.out"
+
+Determining if the CXX compiler works passed with the following output:
+Change Dir: /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_befa7/fast"
+/usr/bin/make -f CMakeFiles/cmTC_befa7.dir/build.make CMakeFiles/cmTC_befa7.dir/build
+make[1]: Entering directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_befa7.dir/testCXXCompiler.cxx.o
+/usr/bin/c++      -o CMakeFiles/cmTC_befa7.dir/testCXXCompiler.cxx.o -c /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp/testCXXCompiler.cxx
+Linking CXX executable cmTC_befa7
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_befa7.dir/link.txt --verbose=1
+/usr/bin/c++        CMakeFiles/cmTC_befa7.dir/testCXXCompiler.cxx.o  -o cmTC_befa7 -rdynamic 
+make[1]: Leaving directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+
+
+Detecting CXX compiler ABI info compiled with the following output:
+Change Dir: /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_f22aa/fast"
+/usr/bin/make -f CMakeFiles/cmTC_f22aa.dir/build.make CMakeFiles/cmTC_f22aa.dir/build
+make[1]: Entering directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_f22aa.dir/CMakeCXXCompilerABI.cpp.o
+/usr/bin/c++      -o CMakeFiles/cmTC_f22aa.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake-3.5/Modules/CMakeCXXCompilerABI.cpp
+Linking CXX executable cmTC_f22aa
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_f22aa.dir/link.txt --verbose=1
+/usr/bin/c++       -v CMakeFiles/cmTC_f22aa.dir/CMakeCXXCompilerABI.cpp.o  -o cmTC_f22aa -rdynamic  
+Using built-in specs.
+COLLECT_GCC=/usr/bin/c++
+COLLECT_LTO_WRAPPER=/usr/lib/gcc/aarch64-linux-gnu/5/lto-wrapper
+Target: aarch64-linux-gnu
+Configured with: ../src/configure -v --with-pkgversion='Ubuntu/Linaro 5.4.0-6ubuntu1~16.04.2' --with-bugurl=file:///usr/share/doc/gcc-5/README.Bugs --enable-languages=c,ada,c++,java,go,d,fortran,objc,obj-c++ --prefix=/usr --program-suffix=-5 --enable-shared --enable-linker-build-id --libexecdir=/usr/lib --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --with-sysroot=/ --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-gnu-unique-object --disable-libquadmath --enable-plugin --with-system-zlib --disable-browser-plugin --enable-java-awt=gtk --enable-gtk-cairo --with-java-home=/usr/lib/jvm/java-1.5.0-gcj-5-arm64/jre --enable-java-home --with-jvm-root-dir=/usr/lib/jvm/java-1.5.0-gcj-5-arm64 --with-jvm-jar-dir=/usr/lib/jvm-exports/java-1.5.0-gcj-5-arm64 --with-arch-directory=aarch64 --with-ecj-jar=/usr/share/java/eclipse-ecj.jar --enable-multiarch --enable-fix-cortex-a53-843419 --disable-werror --enable-checking=release --build=aarch64-linux-gnu --host=aarch64-linux-gnu --target=aarch64-linux-gnu
+Thread model: posix
+gcc version 5.4.0 20160609 (Ubuntu/Linaro 5.4.0-6ubuntu1~16.04.2) 
+COMPILER_PATH=/usr/lib/gcc/aarch64-linux-gnu/5/:/usr/lib/gcc/aarch64-linux-gnu/5/:/usr/lib/gcc/aarch64-linux-gnu/:/usr/lib/gcc/aarch64-linux-gnu/5/:/usr/lib/gcc/aarch64-linux-gnu/
+LIBRARY_PATH=/usr/lib/gcc/aarch64-linux-gnu/5/:/usr/lib/gcc/aarch64-linux-gnu/5/../../../aarch64-linux-gnu/:/usr/lib/gcc/aarch64-linux-gnu/5/../../../../lib/:/lib/aarch64-linux-gnu/:/lib/../lib/:/usr/lib/aarch64-linux-gnu/:/usr/lib/../lib/:/usr/lib/gcc/aarch64-linux-gnu/5/../../../:/lib/:/usr/lib/
+COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_f22aa' '-rdynamic' '-shared-libgcc' '-mlittle-endian' '-mabi=lp64'
+ /usr/lib/gcc/aarch64-linux-gnu/5/collect2 -plugin /usr/lib/gcc/aarch64-linux-gnu/5/liblto_plugin.so -plugin-opt=/usr/lib/gcc/aarch64-linux-gnu/5/lto-wrapper -plugin-opt=-fresolution=/tmp/ccp9TAuf.res -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc --sysroot=/ --build-id --eh-frame-hdr --hash-style=gnu --as-needed -export-dynamic -dynamic-linker /lib/ld-linux-aarch64.so.1 -X -EL -maarch64linux --fix-cortex-a53-843419 -z relro -o cmTC_f22aa /usr/lib/gcc/aarch64-linux-gnu/5/../../../aarch64-linux-gnu/crt1.o /usr/lib/gcc/aarch64-linux-gnu/5/../../../aarch64-linux-gnu/crti.o /usr/lib/gcc/aarch64-linux-gnu/5/crtbegin.o -L/usr/lib/gcc/aarch64-linux-gnu/5 -L/usr/lib/gcc/aarch64-linux-gnu/5/../../../aarch64-linux-gnu -L/usr/lib/gcc/aarch64-linux-gnu/5/../../../../lib -L/lib/aarch64-linux-gnu -L/lib/../lib -L/usr/lib/aarch64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/aarch64-linux-gnu/5/../../.. CMakeFiles/cmTC_f22aa.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /usr/lib/gcc/aarch64-linux-gnu/5/crtend.o /usr/lib/gcc/aarch64-linux-gnu/5/../../../aarch64-linux-gnu/crtn.o
+make[1]: Leaving directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+
+
+Parsed CXX implicit link information from above output:
+  link line regex: [^( *|.*[/\])(ld|([^/\]+-)?ld|collect2)[^/\]*( |$)]
+  ignore line: [Change Dir: /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp]
+  ignore line: []
+  ignore line: [Run Build Command:"/usr/bin/make" "cmTC_f22aa/fast"]
+  ignore line: [/usr/bin/make -f CMakeFiles/cmTC_f22aa.dir/build.make CMakeFiles/cmTC_f22aa.dir/build]
+  ignore line: [make[1]: Entering directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp']
+  ignore line: [Building CXX object CMakeFiles/cmTC_f22aa.dir/CMakeCXXCompilerABI.cpp.o]
+  ignore line: [/usr/bin/c++      -o CMakeFiles/cmTC_f22aa.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake-3.5/Modules/CMakeCXXCompilerABI.cpp]
+  ignore line: [Linking CXX executable cmTC_f22aa]
+  ignore line: [/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_f22aa.dir/link.txt --verbose=1]
+  ignore line: [/usr/bin/c++       -v CMakeFiles/cmTC_f22aa.dir/CMakeCXXCompilerABI.cpp.o  -o cmTC_f22aa -rdynamic  ]
+  ignore line: [Using built-in specs.]
+  ignore line: [COLLECT_GCC=/usr/bin/c++]
+  ignore line: [COLLECT_LTO_WRAPPER=/usr/lib/gcc/aarch64-linux-gnu/5/lto-wrapper]
+  ignore line: [Target: aarch64-linux-gnu]
+  ignore line: [Configured with: ../src/configure -v --with-pkgversion='Ubuntu/Linaro 5.4.0-6ubuntu1~16.04.2' --with-bugurl=file:///usr/share/doc/gcc-5/README.Bugs --enable-languages=c,ada,c++,java,go,d,fortran,objc,obj-c++ --prefix=/usr --program-suffix=-5 --enable-shared --enable-linker-build-id --libexecdir=/usr/lib --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --with-sysroot=/ --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-gnu-unique-object --disable-libquadmath --enable-plugin --with-system-zlib --disable-browser-plugin --enable-java-awt=gtk --enable-gtk-cairo --with-java-home=/usr/lib/jvm/java-1.5.0-gcj-5-arm64/jre --enable-java-home --with-jvm-root-dir=/usr/lib/jvm/java-1.5.0-gcj-5-arm64 --with-jvm-jar-dir=/usr/lib/jvm-exports/java-1.5.0-gcj-5-arm64 --with-arch-directory=aarch64 --with-ecj-jar=/usr/share/java/eclipse-ecj.jar --enable-multiarch --enable-fix-cortex-a53-843419 --disable-werror --enable-checking=release --build=aarch64-linux-gnu --host=aarch64-linux-gnu --target=aarch64-linux-gnu]
+  ignore line: [Thread model: posix]
+  ignore line: [gcc version 5.4.0 20160609 (Ubuntu/Linaro 5.4.0-6ubuntu1~16.04.2) ]
+  ignore line: [COMPILER_PATH=/usr/lib/gcc/aarch64-linux-gnu/5/:/usr/lib/gcc/aarch64-linux-gnu/5/:/usr/lib/gcc/aarch64-linux-gnu/:/usr/lib/gcc/aarch64-linux-gnu/5/:/usr/lib/gcc/aarch64-linux-gnu/]
+  ignore line: [LIBRARY_PATH=/usr/lib/gcc/aarch64-linux-gnu/5/:/usr/lib/gcc/aarch64-linux-gnu/5/../../../aarch64-linux-gnu/:/usr/lib/gcc/aarch64-linux-gnu/5/../../../../lib/:/lib/aarch64-linux-gnu/:/lib/../lib/:/usr/lib/aarch64-linux-gnu/:/usr/lib/../lib/:/usr/lib/gcc/aarch64-linux-gnu/5/../../../:/lib/:/usr/lib/]
+  ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_f22aa' '-rdynamic' '-shared-libgcc' '-mlittle-endian' '-mabi=lp64']
+  link line: [ /usr/lib/gcc/aarch64-linux-gnu/5/collect2 -plugin /usr/lib/gcc/aarch64-linux-gnu/5/liblto_plugin.so -plugin-opt=/usr/lib/gcc/aarch64-linux-gnu/5/lto-wrapper -plugin-opt=-fresolution=/tmp/ccp9TAuf.res -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc --sysroot=/ --build-id --eh-frame-hdr --hash-style=gnu --as-needed -export-dynamic -dynamic-linker /lib/ld-linux-aarch64.so.1 -X -EL -maarch64linux --fix-cortex-a53-843419 -z relro -o cmTC_f22aa /usr/lib/gcc/aarch64-linux-gnu/5/../../../aarch64-linux-gnu/crt1.o /usr/lib/gcc/aarch64-linux-gnu/5/../../../aarch64-linux-gnu/crti.o /usr/lib/gcc/aarch64-linux-gnu/5/crtbegin.o -L/usr/lib/gcc/aarch64-linux-gnu/5 -L/usr/lib/gcc/aarch64-linux-gnu/5/../../../aarch64-linux-gnu -L/usr/lib/gcc/aarch64-linux-gnu/5/../../../../lib -L/lib/aarch64-linux-gnu -L/lib/../lib -L/usr/lib/aarch64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/aarch64-linux-gnu/5/../../.. CMakeFiles/cmTC_f22aa.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /usr/lib/gcc/aarch64-linux-gnu/5/crtend.o /usr/lib/gcc/aarch64-linux-gnu/5/../../../aarch64-linux-gnu/crtn.o]
+    arg [/usr/lib/gcc/aarch64-linux-gnu/5/collect2] ==> ignore
+    arg [-plugin] ==> ignore
+    arg [/usr/lib/gcc/aarch64-linux-gnu/5/liblto_plugin.so] ==> ignore
+    arg [-plugin-opt=/usr/lib/gcc/aarch64-linux-gnu/5/lto-wrapper] ==> ignore
+    arg [-plugin-opt=-fresolution=/tmp/ccp9TAuf.res] ==> ignore
+    arg [-plugin-opt=-pass-through=-lgcc_s] ==> ignore
+    arg [-plugin-opt=-pass-through=-lgcc] ==> ignore
+    arg [-plugin-opt=-pass-through=-lc] ==> ignore
+    arg [-plugin-opt=-pass-through=-lgcc_s] ==> ignore
+    arg [-plugin-opt=-pass-through=-lgcc] ==> ignore
+    arg [--sysroot=/] ==> ignore
+    arg [--build-id] ==> ignore
+    arg [--eh-frame-hdr] ==> ignore
+    arg [--hash-style=gnu] ==> ignore
+    arg [--as-needed] ==> ignore
+    arg [-export-dynamic] ==> ignore
+    arg [-dynamic-linker] ==> ignore
+    arg [/lib/ld-linux-aarch64.so.1] ==> ignore
+    arg [-X] ==> ignore
+    arg [-EL] ==> ignore
+    arg [-maarch64linux] ==> ignore
+    arg [--fix-cortex-a53-843419] ==> ignore
+    arg [-zrelro] ==> ignore
+    arg [-o] ==> ignore
+    arg [cmTC_f22aa] ==> ignore
+    arg [/usr/lib/gcc/aarch64-linux-gnu/5/../../../aarch64-linux-gnu/crt1.o] ==> ignore
+    arg [/usr/lib/gcc/aarch64-linux-gnu/5/../../../aarch64-linux-gnu/crti.o] ==> ignore
+    arg [/usr/lib/gcc/aarch64-linux-gnu/5/crtbegin.o] ==> ignore
+    arg [-L/usr/lib/gcc/aarch64-linux-gnu/5] ==> dir [/usr/lib/gcc/aarch64-linux-gnu/5]
+    arg [-L/usr/lib/gcc/aarch64-linux-gnu/5/../../../aarch64-linux-gnu] ==> dir [/usr/lib/gcc/aarch64-linux-gnu/5/../../../aarch64-linux-gnu]
+    arg [-L/usr/lib/gcc/aarch64-linux-gnu/5/../../../../lib] ==> dir [/usr/lib/gcc/aarch64-linux-gnu/5/../../../../lib]
+    arg [-L/lib/aarch64-linux-gnu] ==> dir [/lib/aarch64-linux-gnu]
+    arg [-L/lib/../lib] ==> dir [/lib/../lib]
+    arg [-L/usr/lib/aarch64-linux-gnu] ==> dir [/usr/lib/aarch64-linux-gnu]
+    arg [-L/usr/lib/../lib] ==> dir [/usr/lib/../lib]
+    arg [-L/usr/lib/gcc/aarch64-linux-gnu/5/../../..] ==> dir [/usr/lib/gcc/aarch64-linux-gnu/5/../../..]
+    arg [CMakeFiles/cmTC_f22aa.dir/CMakeCXXCompilerABI.cpp.o] ==> ignore
+    arg [-lstdc++] ==> lib [stdc++]
+    arg [-lm] ==> lib [m]
+    arg [-lgcc_s] ==> lib [gcc_s]
+    arg [-lgcc] ==> lib [gcc]
+    arg [-lc] ==> lib [c]
+    arg [-lgcc_s] ==> lib [gcc_s]
+    arg [-lgcc] ==> lib [gcc]
+    arg [/usr/lib/gcc/aarch64-linux-gnu/5/crtend.o] ==> ignore
+    arg [/usr/lib/gcc/aarch64-linux-gnu/5/../../../aarch64-linux-gnu/crtn.o] ==> ignore
+  remove lib [gcc_s]
+  remove lib [gcc]
+  remove lib [gcc_s]
+  remove lib [gcc]
+  collapse library dir [/usr/lib/gcc/aarch64-linux-gnu/5] ==> [/usr/lib/gcc/aarch64-linux-gnu/5]
+  collapse library dir [/usr/lib/gcc/aarch64-linux-gnu/5/../../../aarch64-linux-gnu] ==> [/usr/lib/aarch64-linux-gnu]
+  collapse library dir [/usr/lib/gcc/aarch64-linux-gnu/5/../../../../lib] ==> [/usr/lib]
+  collapse library dir [/lib/aarch64-linux-gnu] ==> [/lib/aarch64-linux-gnu]
+  collapse library dir [/lib/../lib] ==> [/lib]
+  collapse library dir [/usr/lib/aarch64-linux-gnu] ==> [/usr/lib/aarch64-linux-gnu]
+  collapse library dir [/usr/lib/../lib] ==> [/usr/lib]
+  collapse library dir [/usr/lib/gcc/aarch64-linux-gnu/5/../../..] ==> [/usr/lib]
+  implicit libs: [stdc++;m;c]
+  implicit dirs: [/usr/lib/gcc/aarch64-linux-gnu/5;/usr/lib/aarch64-linux-gnu;/usr/lib;/lib/aarch64-linux-gnu;/lib]
+  implicit fwks: []
+
+
+
+
+Detecting CXX [-std=c++14] compiler features compiled with the following output:
+Change Dir: /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_89425/fast"
+/usr/bin/make -f CMakeFiles/cmTC_89425.dir/build.make CMakeFiles/cmTC_89425.dir/build
+make[1]: Entering directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_89425.dir/feature_tests.cxx.o
+/usr/bin/c++     -std=c++14 -o CMakeFiles/cmTC_89425.dir/feature_tests.cxx.o -c /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/feature_tests.cxx
+Linking CXX executable cmTC_89425
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_89425.dir/link.txt --verbose=1
+/usr/bin/c++        CMakeFiles/cmTC_89425.dir/feature_tests.cxx.o  -o cmTC_89425 -rdynamic 
+make[1]: Leaving directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+
+
+    Feature record: CXX_FEATURE:1cxx_aggregate_default_initializers
+    Feature record: CXX_FEATURE:1cxx_alias_templates
+    Feature record: CXX_FEATURE:1cxx_alignas
+    Feature record: CXX_FEATURE:1cxx_alignof
+    Feature record: CXX_FEATURE:1cxx_attributes
+    Feature record: CXX_FEATURE:1cxx_attribute_deprecated
+    Feature record: CXX_FEATURE:1cxx_auto_type
+    Feature record: CXX_FEATURE:1cxx_binary_literals
+    Feature record: CXX_FEATURE:1cxx_constexpr
+    Feature record: CXX_FEATURE:1cxx_contextual_conversions
+    Feature record: CXX_FEATURE:1cxx_decltype
+    Feature record: CXX_FEATURE:1cxx_decltype_auto
+    Feature record: CXX_FEATURE:1cxx_decltype_incomplete_return_types
+    Feature record: CXX_FEATURE:1cxx_default_function_template_args
+    Feature record: CXX_FEATURE:1cxx_defaulted_functions
+    Feature record: CXX_FEATURE:1cxx_defaulted_move_initializers
+    Feature record: CXX_FEATURE:1cxx_delegating_constructors
+    Feature record: CXX_FEATURE:1cxx_deleted_functions
+    Feature record: CXX_FEATURE:1cxx_digit_separators
+    Feature record: CXX_FEATURE:1cxx_enum_forward_declarations
+    Feature record: CXX_FEATURE:1cxx_explicit_conversions
+    Feature record: CXX_FEATURE:1cxx_extended_friend_declarations
+    Feature record: CXX_FEATURE:1cxx_extern_templates
+    Feature record: CXX_FEATURE:1cxx_final
+    Feature record: CXX_FEATURE:1cxx_func_identifier
+    Feature record: CXX_FEATURE:1cxx_generalized_initializers
+    Feature record: CXX_FEATURE:1cxx_generic_lambdas
+    Feature record: CXX_FEATURE:1cxx_inheriting_constructors
+    Feature record: CXX_FEATURE:1cxx_inline_namespaces
+    Feature record: CXX_FEATURE:1cxx_lambdas
+    Feature record: CXX_FEATURE:1cxx_lambda_init_captures
+    Feature record: CXX_FEATURE:1cxx_local_type_template_args
+    Feature record: CXX_FEATURE:1cxx_long_long_type
+    Feature record: CXX_FEATURE:1cxx_noexcept
+    Feature record: CXX_FEATURE:1cxx_nonstatic_member_init
+    Feature record: CXX_FEATURE:1cxx_nullptr
+    Feature record: CXX_FEATURE:1cxx_override
+    Feature record: CXX_FEATURE:1cxx_range_for
+    Feature record: CXX_FEATURE:1cxx_raw_string_literals
+    Feature record: CXX_FEATURE:1cxx_reference_qualified_functions
+    Feature record: CXX_FEATURE:1cxx_relaxed_constexpr
+    Feature record: CXX_FEATURE:1cxx_return_type_deduction
+    Feature record: CXX_FEATURE:1cxx_right_angle_brackets
+    Feature record: CXX_FEATURE:1cxx_rvalue_references
+    Feature record: CXX_FEATURE:1cxx_sizeof_member
+    Feature record: CXX_FEATURE:1cxx_static_assert
+    Feature record: CXX_FEATURE:1cxx_strong_enums
+    Feature record: CXX_FEATURE:1cxx_template_template_parameters
+    Feature record: CXX_FEATURE:1cxx_thread_local
+    Feature record: CXX_FEATURE:1cxx_trailing_return_types
+    Feature record: CXX_FEATURE:1cxx_unicode_literals
+    Feature record: CXX_FEATURE:1cxx_uniform_initialization
+    Feature record: CXX_FEATURE:1cxx_unrestricted_unions
+    Feature record: CXX_FEATURE:1cxx_user_literals
+    Feature record: CXX_FEATURE:1cxx_variable_templates
+    Feature record: CXX_FEATURE:1cxx_variadic_macros
+    Feature record: CXX_FEATURE:1cxx_variadic_templates
+
+
+Detecting CXX [-std=c++11] compiler features compiled with the following output:
+Change Dir: /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_8e5b0/fast"
+/usr/bin/make -f CMakeFiles/cmTC_8e5b0.dir/build.make CMakeFiles/cmTC_8e5b0.dir/build
+make[1]: Entering directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_8e5b0.dir/feature_tests.cxx.o
+/usr/bin/c++     -std=c++11 -o CMakeFiles/cmTC_8e5b0.dir/feature_tests.cxx.o -c /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/feature_tests.cxx
+Linking CXX executable cmTC_8e5b0
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_8e5b0.dir/link.txt --verbose=1
+/usr/bin/c++        CMakeFiles/cmTC_8e5b0.dir/feature_tests.cxx.o  -o cmTC_8e5b0 -rdynamic 
+make[1]: Leaving directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+
+
+    Feature record: CXX_FEATURE:0cxx_aggregate_default_initializers
+    Feature record: CXX_FEATURE:1cxx_alias_templates
+    Feature record: CXX_FEATURE:1cxx_alignas
+    Feature record: CXX_FEATURE:1cxx_alignof
+    Feature record: CXX_FEATURE:1cxx_attributes
+    Feature record: CXX_FEATURE:0cxx_attribute_deprecated
+    Feature record: CXX_FEATURE:1cxx_auto_type
+    Feature record: CXX_FEATURE:0cxx_binary_literals
+    Feature record: CXX_FEATURE:1cxx_constexpr
+    Feature record: CXX_FEATURE:0cxx_contextual_conversions
+    Feature record: CXX_FEATURE:1cxx_decltype
+    Feature record: CXX_FEATURE:0cxx_decltype_auto
+    Feature record: CXX_FEATURE:1cxx_decltype_incomplete_return_types
+    Feature record: CXX_FEATURE:1cxx_default_function_template_args
+    Feature record: CXX_FEATURE:1cxx_defaulted_functions
+    Feature record: CXX_FEATURE:1cxx_defaulted_move_initializers
+    Feature record: CXX_FEATURE:1cxx_delegating_constructors
+    Feature record: CXX_FEATURE:1cxx_deleted_functions
+    Feature record: CXX_FEATURE:0cxx_digit_separators
+    Feature record: CXX_FEATURE:1cxx_enum_forward_declarations
+    Feature record: CXX_FEATURE:1cxx_explicit_conversions
+    Feature record: CXX_FEATURE:1cxx_extended_friend_declarations
+    Feature record: CXX_FEATURE:1cxx_extern_templates
+    Feature record: CXX_FEATURE:1cxx_final
+    Feature record: CXX_FEATURE:1cxx_func_identifier
+    Feature record: CXX_FEATURE:1cxx_generalized_initializers
+    Feature record: CXX_FEATURE:0cxx_generic_lambdas
+    Feature record: CXX_FEATURE:1cxx_inheriting_constructors
+    Feature record: CXX_FEATURE:1cxx_inline_namespaces
+    Feature record: CXX_FEATURE:1cxx_lambdas
+    Feature record: CXX_FEATURE:0cxx_lambda_init_captures
+    Feature record: CXX_FEATURE:1cxx_local_type_template_args
+    Feature record: CXX_FEATURE:1cxx_long_long_type
+    Feature record: CXX_FEATURE:1cxx_noexcept
+    Feature record: CXX_FEATURE:1cxx_nonstatic_member_init
+    Feature record: CXX_FEATURE:1cxx_nullptr
+    Feature record: CXX_FEATURE:1cxx_override
+    Feature record: CXX_FEATURE:1cxx_range_for
+    Feature record: CXX_FEATURE:1cxx_raw_string_literals
+    Feature record: CXX_FEATURE:1cxx_reference_qualified_functions
+    Feature record: CXX_FEATURE:0cxx_relaxed_constexpr
+    Feature record: CXX_FEATURE:0cxx_return_type_deduction
+    Feature record: CXX_FEATURE:1cxx_right_angle_brackets
+    Feature record: CXX_FEATURE:1cxx_rvalue_references
+    Feature record: CXX_FEATURE:1cxx_sizeof_member
+    Feature record: CXX_FEATURE:1cxx_static_assert
+    Feature record: CXX_FEATURE:1cxx_strong_enums
+    Feature record: CXX_FEATURE:1cxx_template_template_parameters
+    Feature record: CXX_FEATURE:1cxx_thread_local
+    Feature record: CXX_FEATURE:1cxx_trailing_return_types
+    Feature record: CXX_FEATURE:1cxx_unicode_literals
+    Feature record: CXX_FEATURE:1cxx_uniform_initialization
+    Feature record: CXX_FEATURE:1cxx_unrestricted_unions
+    Feature record: CXX_FEATURE:1cxx_user_literals
+    Feature record: CXX_FEATURE:0cxx_variable_templates
+    Feature record: CXX_FEATURE:1cxx_variadic_macros
+    Feature record: CXX_FEATURE:1cxx_variadic_templates
+
+
+Detecting CXX [-std=c++98] compiler features compiled with the following output:
+Change Dir: /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_b1cbd/fast"
+/usr/bin/make -f CMakeFiles/cmTC_b1cbd.dir/build.make CMakeFiles/cmTC_b1cbd.dir/build
+make[1]: Entering directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_b1cbd.dir/feature_tests.cxx.o
+/usr/bin/c++     -std=c++98 -o CMakeFiles/cmTC_b1cbd.dir/feature_tests.cxx.o -c /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/feature_tests.cxx
+Linking CXX executable cmTC_b1cbd
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_b1cbd.dir/link.txt --verbose=1
+/usr/bin/c++        CMakeFiles/cmTC_b1cbd.dir/feature_tests.cxx.o  -o cmTC_b1cbd -rdynamic 
+make[1]: Leaving directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+
+
+    Feature record: CXX_FEATURE:0cxx_aggregate_default_initializers
+    Feature record: CXX_FEATURE:0cxx_alias_templates
+    Feature record: CXX_FEATURE:0cxx_alignas
+    Feature record: CXX_FEATURE:0cxx_alignof
+    Feature record: CXX_FEATURE:0cxx_attributes
+    Feature record: CXX_FEATURE:0cxx_attribute_deprecated
+    Feature record: CXX_FEATURE:0cxx_auto_type
+    Feature record: CXX_FEATURE:0cxx_binary_literals
+    Feature record: CXX_FEATURE:0cxx_constexpr
+    Feature record: CXX_FEATURE:0cxx_contextual_conversions
+    Feature record: CXX_FEATURE:0cxx_decltype
+    Feature record: CXX_FEATURE:0cxx_decltype_auto
+    Feature record: CXX_FEATURE:0cxx_decltype_incomplete_return_types
+    Feature record: CXX_FEATURE:0cxx_default_function_template_args
+    Feature record: CXX_FEATURE:0cxx_defaulted_functions
+    Feature record: CXX_FEATURE:0cxx_defaulted_move_initializers
+    Feature record: CXX_FEATURE:0cxx_delegating_constructors
+    Feature record: CXX_FEATURE:0cxx_deleted_functions
+    Feature record: CXX_FEATURE:0cxx_digit_separators
+    Feature record: CXX_FEATURE:0cxx_enum_forward_declarations
+    Feature record: CXX_FEATURE:0cxx_explicit_conversions
+    Feature record: CXX_FEATURE:0cxx_extended_friend_declarations
+    Feature record: CXX_FEATURE:0cxx_extern_templates
+    Feature record: CXX_FEATURE:0cxx_final
+    Feature record: CXX_FEATURE:0cxx_func_identifier
+    Feature record: CXX_FEATURE:0cxx_generalized_initializers
+    Feature record: CXX_FEATURE:0cxx_generic_lambdas
+    Feature record: CXX_FEATURE:0cxx_inheriting_constructors
+    Feature record: CXX_FEATURE:0cxx_inline_namespaces
+    Feature record: CXX_FEATURE:0cxx_lambdas
+    Feature record: CXX_FEATURE:0cxx_lambda_init_captures
+    Feature record: CXX_FEATURE:0cxx_local_type_template_args
+    Feature record: CXX_FEATURE:0cxx_long_long_type
+    Feature record: CXX_FEATURE:0cxx_noexcept
+    Feature record: CXX_FEATURE:0cxx_nonstatic_member_init
+    Feature record: CXX_FEATURE:0cxx_nullptr
+    Feature record: CXX_FEATURE:0cxx_override
+    Feature record: CXX_FEATURE:0cxx_range_for
+    Feature record: CXX_FEATURE:0cxx_raw_string_literals
+    Feature record: CXX_FEATURE:0cxx_reference_qualified_functions
+    Feature record: CXX_FEATURE:0cxx_relaxed_constexpr
+    Feature record: CXX_FEATURE:0cxx_return_type_deduction
+    Feature record: CXX_FEATURE:0cxx_right_angle_brackets
+    Feature record: CXX_FEATURE:0cxx_rvalue_references
+    Feature record: CXX_FEATURE:0cxx_sizeof_member
+    Feature record: CXX_FEATURE:0cxx_static_assert
+    Feature record: CXX_FEATURE:0cxx_strong_enums
+    Feature record: CXX_FEATURE:1cxx_template_template_parameters
+    Feature record: CXX_FEATURE:0cxx_thread_local
+    Feature record: CXX_FEATURE:0cxx_trailing_return_types
+    Feature record: CXX_FEATURE:0cxx_unicode_literals
+    Feature record: CXX_FEATURE:0cxx_uniform_initialization
+    Feature record: CXX_FEATURE:0cxx_unrestricted_unions
+    Feature record: CXX_FEATURE:0cxx_user_literals
+    Feature record: CXX_FEATURE:0cxx_variable_templates
+    Feature record: CXX_FEATURE:0cxx_variadic_macros
+    Feature record: CXX_FEATURE:0cxx_variadic_templates
+Determining if the C compiler works passed with the following output:
+Change Dir: /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_6296f/fast"
+/usr/bin/make -f CMakeFiles/cmTC_6296f.dir/build.make CMakeFiles/cmTC_6296f.dir/build
+make[1]: Entering directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_6296f.dir/testCCompiler.c.o
+/usr/bin/cc     -o CMakeFiles/cmTC_6296f.dir/testCCompiler.c.o   -c /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp/testCCompiler.c
+Linking C executable cmTC_6296f
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_6296f.dir/link.txt --verbose=1
+/usr/bin/cc       CMakeFiles/cmTC_6296f.dir/testCCompiler.c.o  -o cmTC_6296f -rdynamic 
+make[1]: Leaving directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+
+
+Detecting C compiler ABI info compiled with the following output:
+Change Dir: /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_d33fa/fast"
+/usr/bin/make -f CMakeFiles/cmTC_d33fa.dir/build.make CMakeFiles/cmTC_d33fa.dir/build
+make[1]: Entering directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_d33fa.dir/CMakeCCompilerABI.c.o
+/usr/bin/cc     -o CMakeFiles/cmTC_d33fa.dir/CMakeCCompilerABI.c.o   -c /usr/share/cmake-3.5/Modules/CMakeCCompilerABI.c
+Linking C executable cmTC_d33fa
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_d33fa.dir/link.txt --verbose=1
+/usr/bin/cc      -v CMakeFiles/cmTC_d33fa.dir/CMakeCCompilerABI.c.o  -o cmTC_d33fa -rdynamic  
+Using built-in specs.
+COLLECT_GCC=/usr/bin/cc
+COLLECT_LTO_WRAPPER=/usr/lib/gcc/aarch64-linux-gnu/5/lto-wrapper
+Target: aarch64-linux-gnu
+Configured with: ../src/configure -v --with-pkgversion='Ubuntu/Linaro 5.4.0-6ubuntu1~16.04.2' --with-bugurl=file:///usr/share/doc/gcc-5/README.Bugs --enable-languages=c,ada,c++,java,go,d,fortran,objc,obj-c++ --prefix=/usr --program-suffix=-5 --enable-shared --enable-linker-build-id --libexecdir=/usr/lib --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --with-sysroot=/ --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-gnu-unique-object --disable-libquadmath --enable-plugin --with-system-zlib --disable-browser-plugin --enable-java-awt=gtk --enable-gtk-cairo --with-java-home=/usr/lib/jvm/java-1.5.0-gcj-5-arm64/jre --enable-java-home --with-jvm-root-dir=/usr/lib/jvm/java-1.5.0-gcj-5-arm64 --with-jvm-jar-dir=/usr/lib/jvm-exports/java-1.5.0-gcj-5-arm64 --with-arch-directory=aarch64 --with-ecj-jar=/usr/share/java/eclipse-ecj.jar --enable-multiarch --enable-fix-cortex-a53-843419 --disable-werror --enable-checking=release --build=aarch64-linux-gnu --host=aarch64-linux-gnu --target=aarch64-linux-gnu
+Thread model: posix
+gcc version 5.4.0 20160609 (Ubuntu/Linaro 5.4.0-6ubuntu1~16.04.2) 
+COMPILER_PATH=/usr/lib/gcc/aarch64-linux-gnu/5/:/usr/lib/gcc/aarch64-linux-gnu/5/:/usr/lib/gcc/aarch64-linux-gnu/:/usr/lib/gcc/aarch64-linux-gnu/5/:/usr/lib/gcc/aarch64-linux-gnu/
+LIBRARY_PATH=/usr/lib/gcc/aarch64-linux-gnu/5/:/usr/lib/gcc/aarch64-linux-gnu/5/../../../aarch64-linux-gnu/:/usr/lib/gcc/aarch64-linux-gnu/5/../../../../lib/:/lib/aarch64-linux-gnu/:/lib/../lib/:/usr/lib/aarch64-linux-gnu/:/usr/lib/../lib/:/usr/lib/gcc/aarch64-linux-gnu/5/../../../:/lib/:/usr/lib/
+COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_d33fa' '-rdynamic' '-mlittle-endian' '-mabi=lp64'
+ /usr/lib/gcc/aarch64-linux-gnu/5/collect2 -plugin /usr/lib/gcc/aarch64-linux-gnu/5/liblto_plugin.so -plugin-opt=/usr/lib/gcc/aarch64-linux-gnu/5/lto-wrapper -plugin-opt=-fresolution=/tmp/cctLcK3p.res -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s --sysroot=/ --build-id --eh-frame-hdr --hash-style=gnu --as-needed -export-dynamic -dynamic-linker /lib/ld-linux-aarch64.so.1 -X -EL -maarch64linux --fix-cortex-a53-843419 -z relro -o cmTC_d33fa /usr/lib/gcc/aarch64-linux-gnu/5/../../../aarch64-linux-gnu/crt1.o /usr/lib/gcc/aarch64-linux-gnu/5/../../../aarch64-linux-gnu/crti.o /usr/lib/gcc/aarch64-linux-gnu/5/crtbegin.o -L/usr/lib/gcc/aarch64-linux-gnu/5 -L/usr/lib/gcc/aarch64-linux-gnu/5/../../../aarch64-linux-gnu -L/usr/lib/gcc/aarch64-linux-gnu/5/../../../../lib -L/lib/aarch64-linux-gnu -L/lib/../lib -L/usr/lib/aarch64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/aarch64-linux-gnu/5/../../.. CMakeFiles/cmTC_d33fa.dir/CMakeCCompilerABI.c.o -lgcc --as-needed -lgcc_s --no-as-needed -lc -lgcc --as-needed -lgcc_s --no-as-needed /usr/lib/gcc/aarch64-linux-gnu/5/crtend.o /usr/lib/gcc/aarch64-linux-gnu/5/../../../aarch64-linux-gnu/crtn.o
+make[1]: Leaving directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+
+
+Parsed C implicit link information from above output:
+  link line regex: [^( *|.*[/\])(ld|([^/\]+-)?ld|collect2)[^/\]*( |$)]
+  ignore line: [Change Dir: /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp]
+  ignore line: []
+  ignore line: [Run Build Command:"/usr/bin/make" "cmTC_d33fa/fast"]
+  ignore line: [/usr/bin/make -f CMakeFiles/cmTC_d33fa.dir/build.make CMakeFiles/cmTC_d33fa.dir/build]
+  ignore line: [make[1]: Entering directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp']
+  ignore line: [Building C object CMakeFiles/cmTC_d33fa.dir/CMakeCCompilerABI.c.o]
+  ignore line: [/usr/bin/cc     -o CMakeFiles/cmTC_d33fa.dir/CMakeCCompilerABI.c.o   -c /usr/share/cmake-3.5/Modules/CMakeCCompilerABI.c]
+  ignore line: [Linking C executable cmTC_d33fa]
+  ignore line: [/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_d33fa.dir/link.txt --verbose=1]
+  ignore line: [/usr/bin/cc      -v CMakeFiles/cmTC_d33fa.dir/CMakeCCompilerABI.c.o  -o cmTC_d33fa -rdynamic  ]
+  ignore line: [Using built-in specs.]
+  ignore line: [COLLECT_GCC=/usr/bin/cc]
+  ignore line: [COLLECT_LTO_WRAPPER=/usr/lib/gcc/aarch64-linux-gnu/5/lto-wrapper]
+  ignore line: [Target: aarch64-linux-gnu]
+  ignore line: [Configured with: ../src/configure -v --with-pkgversion='Ubuntu/Linaro 5.4.0-6ubuntu1~16.04.2' --with-bugurl=file:///usr/share/doc/gcc-5/README.Bugs --enable-languages=c,ada,c++,java,go,d,fortran,objc,obj-c++ --prefix=/usr --program-suffix=-5 --enable-shared --enable-linker-build-id --libexecdir=/usr/lib --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --with-sysroot=/ --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-gnu-unique-object --disable-libquadmath --enable-plugin --with-system-zlib --disable-browser-plugin --enable-java-awt=gtk --enable-gtk-cairo --with-java-home=/usr/lib/jvm/java-1.5.0-gcj-5-arm64/jre --enable-java-home --with-jvm-root-dir=/usr/lib/jvm/java-1.5.0-gcj-5-arm64 --with-jvm-jar-dir=/usr/lib/jvm-exports/java-1.5.0-gcj-5-arm64 --with-arch-directory=aarch64 --with-ecj-jar=/usr/share/java/eclipse-ecj.jar --enable-multiarch --enable-fix-cortex-a53-843419 --disable-werror --enable-checking=release --build=aarch64-linux-gnu --host=aarch64-linux-gnu --target=aarch64-linux-gnu]
+  ignore line: [Thread model: posix]
+  ignore line: [gcc version 5.4.0 20160609 (Ubuntu/Linaro 5.4.0-6ubuntu1~16.04.2) ]
+  ignore line: [COMPILER_PATH=/usr/lib/gcc/aarch64-linux-gnu/5/:/usr/lib/gcc/aarch64-linux-gnu/5/:/usr/lib/gcc/aarch64-linux-gnu/:/usr/lib/gcc/aarch64-linux-gnu/5/:/usr/lib/gcc/aarch64-linux-gnu/]
+  ignore line: [LIBRARY_PATH=/usr/lib/gcc/aarch64-linux-gnu/5/:/usr/lib/gcc/aarch64-linux-gnu/5/../../../aarch64-linux-gnu/:/usr/lib/gcc/aarch64-linux-gnu/5/../../../../lib/:/lib/aarch64-linux-gnu/:/lib/../lib/:/usr/lib/aarch64-linux-gnu/:/usr/lib/../lib/:/usr/lib/gcc/aarch64-linux-gnu/5/../../../:/lib/:/usr/lib/]
+  ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_d33fa' '-rdynamic' '-mlittle-endian' '-mabi=lp64']
+  link line: [ /usr/lib/gcc/aarch64-linux-gnu/5/collect2 -plugin /usr/lib/gcc/aarch64-linux-gnu/5/liblto_plugin.so -plugin-opt=/usr/lib/gcc/aarch64-linux-gnu/5/lto-wrapper -plugin-opt=-fresolution=/tmp/cctLcK3p.res -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s --sysroot=/ --build-id --eh-frame-hdr --hash-style=gnu --as-needed -export-dynamic -dynamic-linker /lib/ld-linux-aarch64.so.1 -X -EL -maarch64linux --fix-cortex-a53-843419 -z relro -o cmTC_d33fa /usr/lib/gcc/aarch64-linux-gnu/5/../../../aarch64-linux-gnu/crt1.o /usr/lib/gcc/aarch64-linux-gnu/5/../../../aarch64-linux-gnu/crti.o /usr/lib/gcc/aarch64-linux-gnu/5/crtbegin.o -L/usr/lib/gcc/aarch64-linux-gnu/5 -L/usr/lib/gcc/aarch64-linux-gnu/5/../../../aarch64-linux-gnu -L/usr/lib/gcc/aarch64-linux-gnu/5/../../../../lib -L/lib/aarch64-linux-gnu -L/lib/../lib -L/usr/lib/aarch64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/aarch64-linux-gnu/5/../../.. CMakeFiles/cmTC_d33fa.dir/CMakeCCompilerABI.c.o -lgcc --as-needed -lgcc_s --no-as-needed -lc -lgcc --as-needed -lgcc_s --no-as-needed /usr/lib/gcc/aarch64-linux-gnu/5/crtend.o /usr/lib/gcc/aarch64-linux-gnu/5/../../../aarch64-linux-gnu/crtn.o]
+    arg [/usr/lib/gcc/aarch64-linux-gnu/5/collect2] ==> ignore
+    arg [-plugin] ==> ignore
+    arg [/usr/lib/gcc/aarch64-linux-gnu/5/liblto_plugin.so] ==> ignore
+    arg [-plugin-opt=/usr/lib/gcc/aarch64-linux-gnu/5/lto-wrapper] ==> ignore
+    arg [-plugin-opt=-fresolution=/tmp/cctLcK3p.res] ==> ignore
+    arg [-plugin-opt=-pass-through=-lgcc] ==> ignore
+    arg [-plugin-opt=-pass-through=-lgcc_s] ==> ignore
+    arg [-plugin-opt=-pass-through=-lc] ==> ignore
+    arg [-plugin-opt=-pass-through=-lgcc] ==> ignore
+    arg [-plugin-opt=-pass-through=-lgcc_s] ==> ignore
+    arg [--sysroot=/] ==> ignore
+    arg [--build-id] ==> ignore
+    arg [--eh-frame-hdr] ==> ignore
+    arg [--hash-style=gnu] ==> ignore
+    arg [--as-needed] ==> ignore
+    arg [-export-dynamic] ==> ignore
+    arg [-dynamic-linker] ==> ignore
+    arg [/lib/ld-linux-aarch64.so.1] ==> ignore
+    arg [-X] ==> ignore
+    arg [-EL] ==> ignore
+    arg [-maarch64linux] ==> ignore
+    arg [--fix-cortex-a53-843419] ==> ignore
+    arg [-zrelro] ==> ignore
+    arg [-o] ==> ignore
+    arg [cmTC_d33fa] ==> ignore
+    arg [/usr/lib/gcc/aarch64-linux-gnu/5/../../../aarch64-linux-gnu/crt1.o] ==> ignore
+    arg [/usr/lib/gcc/aarch64-linux-gnu/5/../../../aarch64-linux-gnu/crti.o] ==> ignore
+    arg [/usr/lib/gcc/aarch64-linux-gnu/5/crtbegin.o] ==> ignore
+    arg [-L/usr/lib/gcc/aarch64-linux-gnu/5] ==> dir [/usr/lib/gcc/aarch64-linux-gnu/5]
+    arg [-L/usr/lib/gcc/aarch64-linux-gnu/5/../../../aarch64-linux-gnu] ==> dir [/usr/lib/gcc/aarch64-linux-gnu/5/../../../aarch64-linux-gnu]
+    arg [-L/usr/lib/gcc/aarch64-linux-gnu/5/../../../../lib] ==> dir [/usr/lib/gcc/aarch64-linux-gnu/5/../../../../lib]
+    arg [-L/lib/aarch64-linux-gnu] ==> dir [/lib/aarch64-linux-gnu]
+    arg [-L/lib/../lib] ==> dir [/lib/../lib]
+    arg [-L/usr/lib/aarch64-linux-gnu] ==> dir [/usr/lib/aarch64-linux-gnu]
+    arg [-L/usr/lib/../lib] ==> dir [/usr/lib/../lib]
+    arg [-L/usr/lib/gcc/aarch64-linux-gnu/5/../../..] ==> dir [/usr/lib/gcc/aarch64-linux-gnu/5/../../..]
+    arg [CMakeFiles/cmTC_d33fa.dir/CMakeCCompilerABI.c.o] ==> ignore
+    arg [-lgcc] ==> lib [gcc]
+    arg [--as-needed] ==> ignore
+    arg [-lgcc_s] ==> lib [gcc_s]
+    arg [--no-as-needed] ==> ignore
+    arg [-lc] ==> lib [c]
+    arg [-lgcc] ==> lib [gcc]
+    arg [--as-needed] ==> ignore
+    arg [-lgcc_s] ==> lib [gcc_s]
+    arg [--no-as-needed] ==> ignore
+    arg [/usr/lib/gcc/aarch64-linux-gnu/5/crtend.o] ==> ignore
+    arg [/usr/lib/gcc/aarch64-linux-gnu/5/../../../aarch64-linux-gnu/crtn.o] ==> ignore
+  remove lib [gcc]
+  remove lib [gcc_s]
+  remove lib [gcc]
+  remove lib [gcc_s]
+  collapse library dir [/usr/lib/gcc/aarch64-linux-gnu/5] ==> [/usr/lib/gcc/aarch64-linux-gnu/5]
+  collapse library dir [/usr/lib/gcc/aarch64-linux-gnu/5/../../../aarch64-linux-gnu] ==> [/usr/lib/aarch64-linux-gnu]
+  collapse library dir [/usr/lib/gcc/aarch64-linux-gnu/5/../../../../lib] ==> [/usr/lib]
+  collapse library dir [/lib/aarch64-linux-gnu] ==> [/lib/aarch64-linux-gnu]
+  collapse library dir [/lib/../lib] ==> [/lib]
+  collapse library dir [/usr/lib/aarch64-linux-gnu] ==> [/usr/lib/aarch64-linux-gnu]
+  collapse library dir [/usr/lib/../lib] ==> [/usr/lib]
+  collapse library dir [/usr/lib/gcc/aarch64-linux-gnu/5/../../..] ==> [/usr/lib]
+  implicit libs: [c]
+  implicit dirs: [/usr/lib/gcc/aarch64-linux-gnu/5;/usr/lib/aarch64-linux-gnu;/usr/lib;/lib/aarch64-linux-gnu;/lib]
+  implicit fwks: []
+
+
+
+
+Detecting C [-std=c11] compiler features compiled with the following output:
+Change Dir: /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_0d221/fast"
+/usr/bin/make -f CMakeFiles/cmTC_0d221.dir/build.make CMakeFiles/cmTC_0d221.dir/build
+make[1]: Entering directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_0d221.dir/feature_tests.c.o
+/usr/bin/cc    -std=c11 -o CMakeFiles/cmTC_0d221.dir/feature_tests.c.o   -c /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/feature_tests.c
+Linking C executable cmTC_0d221
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_0d221.dir/link.txt --verbose=1
+/usr/bin/cc       CMakeFiles/cmTC_0d221.dir/feature_tests.c.o  -o cmTC_0d221 -rdynamic 
+make[1]: Leaving directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+
+
+    Feature record: C_FEATURE:1c_function_prototypes
+    Feature record: C_FEATURE:1c_restrict
+    Feature record: C_FEATURE:1c_static_assert
+    Feature record: C_FEATURE:1c_variadic_macros
+
+
+Detecting C [-std=c99] compiler features compiled with the following output:
+Change Dir: /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_9bf81/fast"
+/usr/bin/make -f CMakeFiles/cmTC_9bf81.dir/build.make CMakeFiles/cmTC_9bf81.dir/build
+make[1]: Entering directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_9bf81.dir/feature_tests.c.o
+/usr/bin/cc    -std=c99 -o CMakeFiles/cmTC_9bf81.dir/feature_tests.c.o   -c /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/feature_tests.c
+Linking C executable cmTC_9bf81
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_9bf81.dir/link.txt --verbose=1
+/usr/bin/cc       CMakeFiles/cmTC_9bf81.dir/feature_tests.c.o  -o cmTC_9bf81 -rdynamic 
+make[1]: Leaving directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+
+
+    Feature record: C_FEATURE:1c_function_prototypes
+    Feature record: C_FEATURE:1c_restrict
+    Feature record: C_FEATURE:0c_static_assert
+    Feature record: C_FEATURE:1c_variadic_macros
+
+
+Detecting C [-std=c90] compiler features compiled with the following output:
+Change Dir: /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_f3f70/fast"
+/usr/bin/make -f CMakeFiles/cmTC_f3f70.dir/build.make CMakeFiles/cmTC_f3f70.dir/build
+make[1]: Entering directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_f3f70.dir/feature_tests.c.o
+/usr/bin/cc    -std=c90 -o CMakeFiles/cmTC_f3f70.dir/feature_tests.c.o   -c /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/feature_tests.c
+Linking C executable cmTC_f3f70
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_f3f70.dir/link.txt --verbose=1
+/usr/bin/cc       CMakeFiles/cmTC_f3f70.dir/feature_tests.c.o  -o cmTC_f3f70 -rdynamic 
+make[1]: Leaving directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+
+
+    Feature record: C_FEATURE:1c_function_prototypes
+    Feature record: C_FEATURE:0c_restrict
+    Feature record: C_FEATURE:0c_static_assert
+    Feature record: C_FEATURE:0c_variadic_macros
+Determining if the include file pthread.h exists passed with the following output:
+Change Dir: /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_34564/fast"
+/usr/bin/make -f CMakeFiles/cmTC_34564.dir/build.make CMakeFiles/cmTC_34564.dir/build
+make[1]: Entering directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_34564.dir/CheckIncludeFile.c.o
+/usr/bin/cc    -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wno-narrowing -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fvisibility=hidden  -O3 -DNDEBUG   -o CMakeFiles/cmTC_34564.dir/CheckIncludeFile.c.o   -c /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+Linking C executable cmTC_34564
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_34564.dir/link.txt --verbose=1
+/usr/bin/cc     -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wno-narrowing -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fvisibility=hidden  -O3 -DNDEBUG    CMakeFiles/cmTC_34564.dir/CheckIncludeFile.c.o  -o cmTC_34564 -rdynamic 
+make[1]: Leaving directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+
+
+Determining if the include file sys/types.h exists passed with the following output:
+Change Dir: /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_d58f4/fast"
+/usr/bin/make -f CMakeFiles/cmTC_d58f4.dir/build.make CMakeFiles/cmTC_d58f4.dir/build
+make[1]: Entering directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_d58f4.dir/CheckIncludeFile.c.o
+/usr/bin/cc    -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wno-narrowing -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fvisibility=hidden  -O3 -DNDEBUG   -o CMakeFiles/cmTC_d58f4.dir/CheckIncludeFile.c.o   -c /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+Linking C executable cmTC_d58f4
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_d58f4.dir/link.txt --verbose=1
+/usr/bin/cc     -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wno-narrowing -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fvisibility=hidden  -O3 -DNDEBUG    CMakeFiles/cmTC_d58f4.dir/CheckIncludeFile.c.o  -o cmTC_d58f4 -rdynamic 
+make[1]: Leaving directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+
+
+Determining if the include file stdint.h exists passed with the following output:
+Change Dir: /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_b354c/fast"
+/usr/bin/make -f CMakeFiles/cmTC_b354c.dir/build.make CMakeFiles/cmTC_b354c.dir/build
+make[1]: Entering directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_b354c.dir/CheckIncludeFile.c.o
+/usr/bin/cc    -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wno-narrowing -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fvisibility=hidden  -O3 -DNDEBUG   -o CMakeFiles/cmTC_b354c.dir/CheckIncludeFile.c.o   -c /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+Linking C executable cmTC_b354c
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_b354c.dir/link.txt --verbose=1
+/usr/bin/cc     -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wno-narrowing -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fvisibility=hidden  -O3 -DNDEBUG    CMakeFiles/cmTC_b354c.dir/CheckIncludeFile.c.o  -o cmTC_b354c -rdynamic 
+make[1]: Leaving directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+
+
+Determining if the include file stddef.h exists passed with the following output:
+Change Dir: /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_c8ca7/fast"
+/usr/bin/make -f CMakeFiles/cmTC_c8ca7.dir/build.make CMakeFiles/cmTC_c8ca7.dir/build
+make[1]: Entering directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_c8ca7.dir/CheckIncludeFile.c.o
+/usr/bin/cc    -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wno-narrowing -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fvisibility=hidden  -O3 -DNDEBUG   -o CMakeFiles/cmTC_c8ca7.dir/CheckIncludeFile.c.o   -c /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+Linking C executable cmTC_c8ca7
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_c8ca7.dir/link.txt --verbose=1
+/usr/bin/cc     -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wno-narrowing -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fvisibility=hidden  -O3 -DNDEBUG    CMakeFiles/cmTC_c8ca7.dir/CheckIncludeFile.c.o  -o cmTC_c8ca7 -rdynamic 
+make[1]: Leaving directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+
+
+Determining size of unsigned short passed with the following output:
+Change Dir: /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_56687/fast"
+/usr/bin/make -f CMakeFiles/cmTC_56687.dir/build.make CMakeFiles/cmTC_56687.dir/build
+make[1]: Entering directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_56687.dir/CMAKE_SIZEOF_UNSIGNED_SHORT.c.o
+/usr/bin/cc    -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wno-narrowing -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fvisibility=hidden  -O3 -DNDEBUG   -o CMakeFiles/cmTC_56687.dir/CMAKE_SIZEOF_UNSIGNED_SHORT.c.o   -c /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CheckTypeSize/CMAKE_SIZEOF_UNSIGNED_SHORT.c
+Linking C executable cmTC_56687
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_56687.dir/link.txt --verbose=1
+/usr/bin/cc     -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wno-narrowing -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fvisibility=hidden  -O3 -DNDEBUG    CMakeFiles/cmTC_56687.dir/CMAKE_SIZEOF_UNSIGNED_SHORT.c.o  -o cmTC_56687 -rdynamic 
+make[1]: Leaving directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+
+
+Determining if the include file assert.h exists passed with the following output:
+Change Dir: /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_45ed5/fast"
+/usr/bin/make -f CMakeFiles/cmTC_45ed5.dir/build.make CMakeFiles/cmTC_45ed5.dir/build
+make[1]: Entering directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_45ed5.dir/CheckIncludeFile.c.o
+/usr/bin/cc    -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wno-narrowing -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fvisibility=hidden  -O3 -DNDEBUG   -o CMakeFiles/cmTC_45ed5.dir/CheckIncludeFile.c.o   -c /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+Linking C executable cmTC_45ed5
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_45ed5.dir/link.txt --verbose=1
+/usr/bin/cc     -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wno-narrowing -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fvisibility=hidden  -O3 -DNDEBUG    CMakeFiles/cmTC_45ed5.dir/CheckIncludeFile.c.o  -o cmTC_45ed5 -rdynamic 
+make[1]: Leaving directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+
+
+Determining if the include file fcntl.h exists passed with the following output:
+Change Dir: /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_1caad/fast"
+/usr/bin/make -f CMakeFiles/cmTC_1caad.dir/build.make CMakeFiles/cmTC_1caad.dir/build
+make[1]: Entering directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_1caad.dir/CheckIncludeFile.c.o
+/usr/bin/cc    -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wno-narrowing -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fvisibility=hidden  -O3 -DNDEBUG   -o CMakeFiles/cmTC_1caad.dir/CheckIncludeFile.c.o   -c /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+Linking C executable cmTC_1caad
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_1caad.dir/link.txt --verbose=1
+/usr/bin/cc     -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wno-narrowing -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fvisibility=hidden  -O3 -DNDEBUG    CMakeFiles/cmTC_1caad.dir/CheckIncludeFile.c.o  -o cmTC_1caad -rdynamic 
+make[1]: Leaving directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+
+
+Determining if the function mmap exists passed with the following output:
+Change Dir: /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_d03f0/fast"
+/usr/bin/make -f CMakeFiles/cmTC_d03f0.dir/build.make CMakeFiles/cmTC_d03f0.dir/build
+make[1]: Entering directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_d03f0.dir/CheckFunctionExists.c.o
+/usr/bin/cc    -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wno-narrowing -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fvisibility=hidden -DCHECK_FUNCTION_EXISTS=mmap -O3 -DNDEBUG   -o CMakeFiles/cmTC_d03f0.dir/CheckFunctionExists.c.o   -c /usr/share/cmake-3.5/Modules/CheckFunctionExists.c
+/usr/share/cmake-3.5/Modules/CheckFunctionExists.c:6:1: warning: function declaration isn’t a prototype [-Wstrict-prototypes]
+ char CHECK_FUNCTION_EXISTS();
+ ^
+Linking C executable cmTC_d03f0
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_d03f0.dir/link.txt --verbose=1
+/usr/bin/cc     -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wno-narrowing -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fvisibility=hidden -DCHECK_FUNCTION_EXISTS=mmap -O3 -DNDEBUG    CMakeFiles/cmTC_d03f0.dir/CheckFunctionExists.c.o  -o cmTC_d03f0 -rdynamic 
+make[1]: Leaving directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+
+
+Determining if the include file search.h exists passed with the following output:
+Change Dir: /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_09173/fast"
+/usr/bin/make -f CMakeFiles/cmTC_09173.dir/build.make CMakeFiles/cmTC_09173.dir/build
+make[1]: Entering directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_09173.dir/CheckIncludeFile.c.o
+/usr/bin/cc    -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wno-narrowing -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fvisibility=hidden  -O3 -DNDEBUG   -o CMakeFiles/cmTC_09173.dir/CheckIncludeFile.c.o   -c /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+Linking C executable cmTC_09173
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_09173.dir/link.txt --verbose=1
+/usr/bin/cc     -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wno-narrowing -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fvisibility=hidden  -O3 -DNDEBUG    CMakeFiles/cmTC_09173.dir/CheckIncludeFile.c.o  -o cmTC_09173 -rdynamic 
+make[1]: Leaving directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+
+
+Determining if the include file string.h exists passed with the following output:
+Change Dir: /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_522f0/fast"
+/usr/bin/make -f CMakeFiles/cmTC_522f0.dir/build.make CMakeFiles/cmTC_522f0.dir/build
+make[1]: Entering directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_522f0.dir/CheckIncludeFile.c.o
+/usr/bin/cc    -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wno-narrowing -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fvisibility=hidden  -O3 -DNDEBUG   -o CMakeFiles/cmTC_522f0.dir/CheckIncludeFile.c.o   -c /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+Linking C executable cmTC_522f0
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_522f0.dir/link.txt --verbose=1
+/usr/bin/cc     -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wno-narrowing -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fvisibility=hidden  -O3 -DNDEBUG    CMakeFiles/cmTC_522f0.dir/CheckIncludeFile.c.o  -o cmTC_522f0 -rdynamic 
+make[1]: Leaving directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+
+
+Determining if the include file unistd.h exists passed with the following output:
+Change Dir: /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_ae995/fast"
+/usr/bin/make -f CMakeFiles/cmTC_ae995.dir/build.make CMakeFiles/cmTC_ae995.dir/build
+make[1]: Entering directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_ae995.dir/CheckIncludeFile.c.o
+/usr/bin/cc    -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wno-narrowing -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fvisibility=hidden  -O3 -DNDEBUG   -o CMakeFiles/cmTC_ae995.dir/CheckIncludeFile.c.o   -c /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+Linking C executable cmTC_ae995
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_ae995.dir/link.txt --verbose=1
+/usr/bin/cc     -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wno-narrowing -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fvisibility=hidden  -O3 -DNDEBUG    CMakeFiles/cmTC_ae995.dir/CheckIncludeFile.c.o  -o cmTC_ae995 -rdynamic 
+make[1]: Leaving directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+
+
+Determining if the include file semaphore.h exists passed with the following output:
+Change Dir: /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_31100/fast"
+/usr/bin/make -f CMakeFiles/cmTC_31100.dir/build.make CMakeFiles/cmTC_31100.dir/build
+make[1]: Entering directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_31100.dir/CheckIncludeFile.c.o
+/usr/bin/cc    -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wno-narrowing -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fvisibility=hidden  -O3 -DNDEBUG   -o CMakeFiles/cmTC_31100.dir/CheckIncludeFile.c.o   -c /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+Linking C executable cmTC_31100
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_31100.dir/link.txt --verbose=1
+/usr/bin/cc     -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wno-narrowing -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fvisibility=hidden  -O3 -DNDEBUG    CMakeFiles/cmTC_31100.dir/CheckIncludeFile.c.o  -o cmTC_31100 -rdynamic 
+make[1]: Leaving directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+
+
+Determining if the include file linux/videodev.h exists passed with the following output:
+Change Dir: /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_0d2e6/fast"
+/usr/bin/make -f CMakeFiles/cmTC_0d2e6.dir/build.make CMakeFiles/cmTC_0d2e6.dir/build
+make[1]: Entering directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_0d2e6.dir/CheckIncludeFile.c.o
+/usr/bin/cc    -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wno-narrowing -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fvisibility=hidden  -O3 -DNDEBUG   -o CMakeFiles/cmTC_0d2e6.dir/CheckIncludeFile.c.o   -c /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+Linking C executable cmTC_0d2e6
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_0d2e6.dir/link.txt --verbose=1
+/usr/bin/cc     -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wno-narrowing -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fvisibility=hidden  -O3 -DNDEBUG    CMakeFiles/cmTC_0d2e6.dir/CheckIncludeFile.c.o  -o cmTC_0d2e6 -rdynamic 
+make[1]: Leaving directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+
+
+Determining if the include file linux/videodev2.h exists passed with the following output:
+Change Dir: /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_3b7c0/fast"
+/usr/bin/make -f CMakeFiles/cmTC_3b7c0.dir/build.make CMakeFiles/cmTC_3b7c0.dir/build
+make[1]: Entering directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_3b7c0.dir/CheckIncludeFile.c.o
+/usr/bin/cc    -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wno-narrowing -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fvisibility=hidden  -O3 -DNDEBUG   -o CMakeFiles/cmTC_3b7c0.dir/CheckIncludeFile.c.o   -c /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+Linking C executable cmTC_3b7c0
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_3b7c0.dir/link.txt --verbose=1
+/usr/bin/cc     -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wno-narrowing -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fvisibility=hidden  -O3 -DNDEBUG    CMakeFiles/cmTC_3b7c0.dir/CheckIncludeFile.c.o  -o cmTC_3b7c0 -rdynamic 
+make[1]: Leaving directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+
+
+Determining if the include file linux/videodev.h exists passed with the following output:
+Change Dir: /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_78b71/fast"
+make[1]: Entering directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+/usr/bin/make -f CMakeFiles/cmTC_78b71.dir/build.make CMakeFiles/cmTC_78b71.dir/build
+make[2]: Entering directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_78b71.dir/CheckIncludeFile.c.o
+/usr/bin/cc    -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wno-narrowing -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fvisibility=hidden  -O3 -DNDEBUG   -o CMakeFiles/cmTC_78b71.dir/CheckIncludeFile.c.o   -c /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+Linking C executable cmTC_78b71
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_78b71.dir/link.txt --verbose=1
+/usr/bin/cc     -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wno-narrowing -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fvisibility=hidden  -O3 -DNDEBUG    CMakeFiles/cmTC_78b71.dir/CheckIncludeFile.c.o  -o cmTC_78b71 -rdynamic 
+make[2]: Leaving directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+make[1]: Leaving directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+
+
+Determining if the include file linux/videodev2.h exists passed with the following output:
+Change Dir: /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_3fde7/fast"
+make[1]: Entering directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+/usr/bin/make -f CMakeFiles/cmTC_3fde7.dir/build.make CMakeFiles/cmTC_3fde7.dir/build
+make[2]: Entering directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_3fde7.dir/CheckIncludeFile.c.o
+/usr/bin/cc    -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wno-narrowing -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fvisibility=hidden  -O3 -DNDEBUG   -o CMakeFiles/cmTC_3fde7.dir/CheckIncludeFile.c.o   -c /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+Linking C executable cmTC_3fde7
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_3fde7.dir/link.txt --verbose=1
+/usr/bin/cc     -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wno-narrowing -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fvisibility=hidden  -O3 -DNDEBUG    CMakeFiles/cmTC_3fde7.dir/CheckIncludeFile.c.o  -o cmTC_3fde7 -rdynamic 
+make[2]: Leaving directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+make[1]: Leaving directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+
+
+Determining if the include file linux/videodev.h exists passed with the following output:
+Change Dir: /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_84f29/fast"
+make[1]: Entering directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+/usr/bin/make -f CMakeFiles/cmTC_84f29.dir/build.make CMakeFiles/cmTC_84f29.dir/build
+make[2]: Entering directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_84f29.dir/CheckIncludeFile.c.o
+/usr/bin/cc    -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wno-narrowing -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fvisibility=hidden  -O3 -DNDEBUG   -o CMakeFiles/cmTC_84f29.dir/CheckIncludeFile.c.o   -c /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+Linking C executable cmTC_84f29
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_84f29.dir/link.txt --verbose=1
+/usr/bin/cc     -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wno-narrowing -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fvisibility=hidden  -O3 -DNDEBUG    CMakeFiles/cmTC_84f29.dir/CheckIncludeFile.c.o  -o cmTC_84f29 -rdynamic 
+make[2]: Leaving directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+make[1]: Leaving directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+
+
+Determining if the include file linux/videodev2.h exists passed with the following output:
+Change Dir: /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_7e16b/fast"
+make[1]: Entering directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+/usr/bin/make -f CMakeFiles/cmTC_7e16b.dir/build.make CMakeFiles/cmTC_7e16b.dir/build
+make[2]: Entering directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_7e16b.dir/CheckIncludeFile.c.o
+/usr/bin/cc    -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wno-narrowing -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fvisibility=hidden  -O3 -DNDEBUG   -o CMakeFiles/cmTC_7e16b.dir/CheckIncludeFile.c.o   -c /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+Linking C executable cmTC_7e16b
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_7e16b.dir/link.txt --verbose=1
+/usr/bin/cc     -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wno-narrowing -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fvisibility=hidden  -O3 -DNDEBUG    CMakeFiles/cmTC_7e16b.dir/CheckIncludeFile.c.o  -o cmTC_7e16b -rdynamic 
+make[2]: Leaving directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+make[1]: Leaving directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+
+
+Determining if the include file linux/videodev.h exists passed with the following output:
+Change Dir: /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_4ac02/fast"
+make[1]: Entering directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+/usr/bin/make -f CMakeFiles/cmTC_4ac02.dir/build.make CMakeFiles/cmTC_4ac02.dir/build
+make[2]: Entering directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_4ac02.dir/CheckIncludeFile.c.o
+/usr/bin/cc    -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wno-narrowing -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fvisibility=hidden  -O3 -DNDEBUG   -o CMakeFiles/cmTC_4ac02.dir/CheckIncludeFile.c.o   -c /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+Linking C executable cmTC_4ac02
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_4ac02.dir/link.txt --verbose=1
+/usr/bin/cc     -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wno-narrowing -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fvisibility=hidden  -O3 -DNDEBUG    CMakeFiles/cmTC_4ac02.dir/CheckIncludeFile.c.o  -o cmTC_4ac02 -rdynamic 
+make[2]: Leaving directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+make[1]: Leaving directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+
+
+Determining if the include file linux/videodev2.h exists passed with the following output:
+Change Dir: /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_f4fe7/fast"
+make[1]: Entering directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+/usr/bin/make -f CMakeFiles/cmTC_f4fe7.dir/build.make CMakeFiles/cmTC_f4fe7.dir/build
+make[2]: Entering directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_f4fe7.dir/CheckIncludeFile.c.o
+/usr/bin/cc    -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wno-narrowing -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fvisibility=hidden  -O3 -DNDEBUG   -o CMakeFiles/cmTC_f4fe7.dir/CheckIncludeFile.c.o   -c /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+Linking C executable cmTC_f4fe7
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_f4fe7.dir/link.txt --verbose=1
+/usr/bin/cc     -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wno-narrowing -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fvisibility=hidden  -O3 -DNDEBUG    CMakeFiles/cmTC_f4fe7.dir/CheckIncludeFile.c.o  -o cmTC_f4fe7 -rdynamic 
+make[2]: Leaving directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+make[1]: Leaving directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+
+
+Determining if the include file linux/videodev.h exists passed with the following output:
+Change Dir: /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_5b04f/fast"
+make[1]: Entering directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+/usr/bin/make -f CMakeFiles/cmTC_5b04f.dir/build.make CMakeFiles/cmTC_5b04f.dir/build
+make[2]: Entering directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_5b04f.dir/CheckIncludeFile.c.o
+/usr/bin/cc    -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wno-narrowing -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fvisibility=hidden  -O3 -DNDEBUG   -o CMakeFiles/cmTC_5b04f.dir/CheckIncludeFile.c.o   -c /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+Linking C executable cmTC_5b04f
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_5b04f.dir/link.txt --verbose=1
+/usr/bin/cc     -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wno-narrowing -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fvisibility=hidden  -O3 -DNDEBUG    CMakeFiles/cmTC_5b04f.dir/CheckIncludeFile.c.o  -o cmTC_5b04f -rdynamic 
+make[2]: Leaving directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+make[1]: Leaving directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+
+
+Determining if the include file linux/videodev2.h exists passed with the following output:
+Change Dir: /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_87bdb/fast"
+make[1]: Entering directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+/usr/bin/make -f CMakeFiles/cmTC_87bdb.dir/build.make CMakeFiles/cmTC_87bdb.dir/build
+make[2]: Entering directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_87bdb.dir/CheckIncludeFile.c.o
+/usr/bin/cc    -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wno-narrowing -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fvisibility=hidden  -O3 -DNDEBUG   -o CMakeFiles/cmTC_87bdb.dir/CheckIncludeFile.c.o   -c /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+Linking C executable cmTC_87bdb
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_87bdb.dir/link.txt --verbose=1
+/usr/bin/cc     -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wno-narrowing -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fvisibility=hidden  -O3 -DNDEBUG    CMakeFiles/cmTC_87bdb.dir/CheckIncludeFile.c.o  -o cmTC_87bdb -rdynamic 
+make[2]: Leaving directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+make[1]: Leaving directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+
+
+Determining if the include file linux/videodev.h exists passed with the following output:
+Change Dir: /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_a8c23/fast"
+make[1]: Entering directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+/usr/bin/make -f CMakeFiles/cmTC_a8c23.dir/build.make CMakeFiles/cmTC_a8c23.dir/build
+make[2]: Entering directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_a8c23.dir/CheckIncludeFile.c.o
+/usr/bin/cc    -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wno-narrowing -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fvisibility=hidden  -O3 -DNDEBUG   -o CMakeFiles/cmTC_a8c23.dir/CheckIncludeFile.c.o   -c /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+Linking C executable cmTC_a8c23
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_a8c23.dir/link.txt --verbose=1
+/usr/bin/cc     -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wno-narrowing -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fvisibility=hidden  -O3 -DNDEBUG    CMakeFiles/cmTC_a8c23.dir/CheckIncludeFile.c.o  -o cmTC_a8c23 -rdynamic 
+make[2]: Leaving directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+make[1]: Leaving directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+
+
+Determining if the include file linux/videodev2.h exists passed with the following output:
+Change Dir: /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_4dbb9/fast"
+make[1]: Entering directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+/usr/bin/make -f CMakeFiles/cmTC_4dbb9.dir/build.make CMakeFiles/cmTC_4dbb9.dir/build
+make[2]: Entering directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_4dbb9.dir/CheckIncludeFile.c.o
+/usr/bin/cc    -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wno-narrowing -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fvisibility=hidden  -O3 -DNDEBUG   -o CMakeFiles/cmTC_4dbb9.dir/CheckIncludeFile.c.o   -c /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+Linking C executable cmTC_4dbb9
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_4dbb9.dir/link.txt --verbose=1
+/usr/bin/cc     -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wno-narrowing -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fvisibility=hidden  -O3 -DNDEBUG    CMakeFiles/cmTC_4dbb9.dir/CheckIncludeFile.c.o  -o cmTC_4dbb9 -rdynamic 
+make[2]: Leaving directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+make[1]: Leaving directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+
+
+Determining if the include file linux/videodev.h exists passed with the following output:
+Change Dir: /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_b2cc2/fast"
+make[1]: Entering directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+/usr/bin/make -f CMakeFiles/cmTC_b2cc2.dir/build.make CMakeFiles/cmTC_b2cc2.dir/build
+make[2]: Entering directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_b2cc2.dir/CheckIncludeFile.c.o
+/usr/bin/cc    -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wno-narrowing -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fvisibility=hidden  -O3 -DNDEBUG   -o CMakeFiles/cmTC_b2cc2.dir/CheckIncludeFile.c.o   -c /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+Linking C executable cmTC_b2cc2
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_b2cc2.dir/link.txt --verbose=1
+/usr/bin/cc     -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wno-narrowing -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fvisibility=hidden  -O3 -DNDEBUG    CMakeFiles/cmTC_b2cc2.dir/CheckIncludeFile.c.o  -o cmTC_b2cc2 -rdynamic 
+make[2]: Leaving directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+make[1]: Leaving directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+
+
+Determining if the include file linux/videodev2.h exists passed with the following output:
+Change Dir: /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_76ffa/fast"
+make[1]: Entering directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+/usr/bin/make -f CMakeFiles/cmTC_76ffa.dir/build.make CMakeFiles/cmTC_76ffa.dir/build
+make[2]: Entering directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_76ffa.dir/CheckIncludeFile.c.o
+/usr/bin/cc    -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wno-narrowing -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fvisibility=hidden  -O3 -DNDEBUG   -o CMakeFiles/cmTC_76ffa.dir/CheckIncludeFile.c.o   -c /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+Linking C executable cmTC_76ffa
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_76ffa.dir/link.txt --verbose=1
+/usr/bin/cc     -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wno-narrowing -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fvisibility=hidden  -O3 -DNDEBUG    CMakeFiles/cmTC_76ffa.dir/CheckIncludeFile.c.o  -o cmTC_76ffa -rdynamic 
+make[2]: Leaving directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+make[1]: Leaving directory '/home/ubuntu/opel-alpha/third-party/opencv-3.0.0/build/CMakeFiles/CMakeTmp'
+
+

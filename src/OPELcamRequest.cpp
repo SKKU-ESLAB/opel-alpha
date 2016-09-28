@@ -16,7 +16,7 @@ void bufferFromSinkCB(GstElement *sink, GstBuffer *buffer,
    	
 	sem_wait(sem);
 		cpy_size = gst_buffer_extract(buffer, 0, buffer_ptr, gst_buffer_get_size(buffer)); 	
-		buffer_size_ptr = cpy_size;
+		*buffer_size_ptr = cpy_size;
 		OPEL_DBG_VERB("Buffer Size : %d", cpy_size);
 	sem_post(sem);
 }
