@@ -68,7 +68,8 @@ static void initAppSinkElementProp(typeElement* app_sink)
 {
 	assert(app_sink != NULL);
 	g_object_set(G_OBJECT(app_sink->element), 
-			"signal-handoffs", TRUE, 
+			"signal-handoffs", TRUE,
+			"can-activate-pull", TRUE,
 			NULL);
 }
 
@@ -135,8 +136,8 @@ bool OPELRawRequest::defaultOpenCVCapFactory()
 		__OPEL_FUNCTION_EXIT__;
 		return false;
 	}
-	sprintf(caps_buffer, "video/x-raw(memory:NVMM), format=(string){BGRx},\
-			width=(int){%d}, height=(int){%d}, framerate=(fraction){1/1}", width, height);
+	sprintf(caps_buffer, "video/x-raw, format=(string){BGR26},\
+			width=(int){640}, height=(int){480}, framerate=(fraction){30/1}");
 	
 	_conv->caps = gst_caps_from_string(caps_buffer);	
 
@@ -210,7 +211,7 @@ void OPELRawRequest::defaultOpenCVPadLink(GstPad *main_tee_src_pad)
 	}
 	_queue->pad = gst_element_get_static_pad(_queue->element, "sink");
 	gst_pad_link(main_tee_src_pad, _queue->pad);
-	__OPEL_FUNCTION_EXIT__;
+__OPEL_FUNCTION_EXIT__;
 }
 
 void OPELRawRequest::defaultOpenCVGstSyncStateWithParent(void)

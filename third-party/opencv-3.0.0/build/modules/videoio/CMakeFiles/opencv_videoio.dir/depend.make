@@ -72,6 +72,7 @@ modules/videoio/CMakeFiles/opencv_videoio.dir/src/cap_OPEL.cpp.o: ../modules/vid
 modules/videoio/CMakeFiles/opencv_videoio.dir/src/cap_OPEL.cpp.o: ../modules/videoio/src/cap_OPEL.cpp
 modules/videoio/CMakeFiles/opencv_videoio.dir/src/cap_OPEL.cpp.o: ../modules/videoio/src/precomp.hpp
 modules/videoio/CMakeFiles/opencv_videoio.dir/src/cap_OPEL.cpp.o: /usr/include/dbus-1.0/dbus/dbus-address.h
+modules/videoio/CMakeFiles/opencv_videoio.dir/src/cap_OPEL.cpp.o: /usr/include/dbus-1.0/dbus/dbus-arch-deps.h
 modules/videoio/CMakeFiles/opencv_videoio.dir/src/cap_OPEL.cpp.o: /usr/include/dbus-1.0/dbus/dbus-bus.h
 modules/videoio/CMakeFiles/opencv_videoio.dir/src/cap_OPEL.cpp.o: /usr/include/dbus-1.0/dbus/dbus-connection.h
 modules/videoio/CMakeFiles/opencv_videoio.dir/src/cap_OPEL.cpp.o: /usr/include/dbus-1.0/dbus/dbus-errors.h

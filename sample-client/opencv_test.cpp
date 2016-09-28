@@ -19,33 +19,12 @@ int main(int argc, char** argv){
     }
     while (1)
     {
-				if(counter == 0)
-				{
-								time(&start);
-				}
         Mat frame;
         bool bSuccess = cap.read(frame);
-				if(!bSuccess)
-				{
-								cout << "Cannot read a frame from camera" <<endl;
-								break;
-				}
-				time(&end);
-				counter++;
-				sec = difftime(end, start);
-				fps = counter/sec;
-				if(counter > 30)
-								printf("%.2f \n", fps);
-				if(counter == (INT_MAX - 1000))
-								counter = 0;
- 				
-				//      imshow("Output", frame);
-
-        if (waitKey(30) == 27)
-        {
-        cout << "Exit" << endl;
-        break;
-        }
-    }
+    		if(!bSuccess) 
+						break;
+				imshow("result", frame);
+		}
+    
     return 0;
 }

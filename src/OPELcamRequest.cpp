@@ -7,18 +7,27 @@
 void bufferFromSinkCB(GstElement *sink, GstBuffer *buffer,
 		GstPad *pad, gpointer data)
 {
-	GstSample *sample;
 	gsize cpy_size;
 	OPELRawRequest *for_shared = OPELRawRequest::getInstance();
+	GstMapInfo map;
 	sem_t* sem = for_shared->getSemaphore();
 	char* buffer_ptr = for_shared->getBufferPtr();
 	int* buffer_size_ptr = (int*)for_shared->getBufferSizePtr();
-   	
-	sem_wait(sem);
-		cpy_size = gst_buffer_extract(buffer, 0, buffer_ptr, gst_buffer_get_size(buffer)); 	
-		*buffer_size_ptr = cpy_size;
-		OPEL_DBG_VERB("Buffer Size : %d", cpy_size);
-	sem_post(sem);
+		if(gst_buffer_map(buffer, &map, GST_MAP_READ))
+		{
+			sem_wait(sem);
+			OPEL_DBG_VERB("Buffer Size : %d", map.size);
+			memcpy(buffer_ptr, map.data, map.size);
+			*buffer_size_ptr = map.size;
+			gst_buffer_unmap (buffer, &map); 
+			sem_post(sem);
+		}
+//		cpy_size = gst_buffer_extract(buffer, 0, buffer_ptr, gst_buffer_get_size(buffer)); 	
+//		printf("%s", GST_BUFFER_DATA(buffer));   	
+//		fflush(stdout);
+//		*buffer_size_ptr = cpy_size;
+//		OPEL_DBG_VERB("Buffer Size : %d", cpy_size);
+
 }
 
 static void checkRemainRequest(void)
@@ -55,14 +64,14 @@ bool openCVStart(DBusMessage *msg, OPELGstElementTx1 *tx1,
 		OPELGlobalVectorRequest::getInstance();
 	request_handle->setTypeElementVector(_type_element_vector);
 
-	dbus_message_get_args(msg, NULL,
+/*	dbus_message_get_args(msg, NULL,
 			DBUS_TYPE_UINT64, &(msg_handle->pid),
 			DBUS_TYPE_INVALID);
 
 #if OPEL_LOG_VERBOSE
 	std::cout << "PID : " << msg_handle->pid << std::endl;
 #endif
-
+*/
 	request_handle->setMsgHandle(msg_handle);
 	request_handle->defaultOpenCVElementFactory();
 	request_handle->defaultOpenCVCapFactory();

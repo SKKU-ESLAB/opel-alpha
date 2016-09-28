@@ -73,6 +73,7 @@ modules/videoio/CMakeFiles/opencv_videoio.dir/src/cap_OPEL.cpp.o
  /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/modules/videoio/src/cap_OPEL.cpp
  /home/ubuntu/opel-alpha/third-party/opencv-3.0.0/modules/videoio/src/precomp.hpp
  /usr/include/dbus-1.0/dbus/dbus-address.h
+ /usr/include/dbus-1.0/dbus/dbus-arch-deps.h
  /usr/include/dbus-1.0/dbus/dbus-bus.h
  /usr/include/dbus-1.0/dbus/dbus-connection.h
  /usr/include/dbus-1.0/dbus/dbus-errors.h

@@ -472,6 +472,10 @@ dbus/dbus-types.h
 dbus/dbus-errors.h
 -
 
+/usr/include/dbus-1.0/dbus/dbus-arch-deps.h
+dbus/dbus-macros.h
+-
+
 /usr/include/dbus-1.0/dbus/dbus-bus.h
 dbus/dbus-connection.h
 -
