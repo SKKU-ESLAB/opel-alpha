@@ -7,26 +7,21 @@
 GstFlowReturn bufferFromSinkCB(GstElement *elt, gpointer data)
 {
 	__OPEL_FUNCTION_ENTER__;
-/*	gsize cpy_size;
-	OPELRawRequest *for_shared = OPELRawRequest::getInstance();
-	GstMapInfo map;
+/*	OPELRawRequest *for_shared = OPELRawRequest::getInstance();
+	GstSample *sample;
+	GstBuffer *buffer;
+	gsize cpy_size = 0;
 	sem_t* sem = for_shared->getSemaphore();
+	sample = gst_app_sink_pull_sample(GST_APP_SINK(elt));
+	buffer = gst_sample_get_buffer(sample);
 	char* buffer_ptr = for_shared->getBufferPtr();
 	int* buffer_size_ptr = (int*)for_shared->getBufferSizePtr();
-		if(gst_buffer_map(buffer, &map, GST_MAP_READ))
-		{
-			sem_wait(sem);
-			OPEL_DBG_VERB("Buffer Size : %d", map.size);
-			memcpy(buffer_ptr, map.data, map.size);
-			*buffer_size_ptr = map.size;
-			gst_buffer_unmap (buffer, &map); 
-			sem_post(sem);
-		}*/
-//		cpy_size = gst_buffer_extract(buffer, 0, buffer_ptr, gst_buffer_get_size(buffer)); 	
-//		printf("%s", GST_BUFFER_DATA(buffer));   	
-//		fflush(stdout);
-//		*buffer_size_ptr = cpy_size;
-//		OPEL_DBG_VERB("Buffer Size : %d", cpy_size);
+	
+	sem_wait(sem);
+		cpy_size = gst_buffer_extract(buffer, 0, buffer_ptr, gst_buffer_get_size(buffer)); 	
+		*buffer_size_ptr = cpy_size;
+		OPEL_DBG_ERR("Copied Size : %d", cpy_size);
+	sem_post(sem);*/
 	__OPEL_FUNCTION_EXIT__;
 	return GST_FLOW_OK;
 }

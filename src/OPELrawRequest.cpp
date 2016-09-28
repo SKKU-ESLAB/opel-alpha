@@ -68,7 +68,10 @@ static void initAppSinkElementProp(typeElement* app_sink)
 {
 	assert(app_sink != NULL);
 			g_object_set(G_OBJECT(app_sink->element), "emit-signals", TRUE,
-				"drop", TRUE, "max-buffers", 2, NULL);
+				"drop", TRUE, 
+				"max-buffers", 2,
+				"wait-on-eos", 
+				NULL);
 }
 
 bool OPELRawRequest::defaultOpenCVElementFactory()
