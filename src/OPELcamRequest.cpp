@@ -4,10 +4,10 @@
 #include "OPELrawRequest.h"
 #include <gst/app/gstappsink.h>
 
-void bufferFromSinkCB(GstElement *sink, GstBuffer *buffer,
-		GstPad *pad, gpointer data)
+GstFlowReturn bufferFromSinkCB(GstElement *elt, gpointer data)
 {
-	gsize cpy_size;
+	__OPEL_FUNCTION_ENTER__;
+/*	gsize cpy_size;
 	OPELRawRequest *for_shared = OPELRawRequest::getInstance();
 	GstMapInfo map;
 	sem_t* sem = for_shared->getSemaphore();
@@ -21,13 +21,14 @@ void bufferFromSinkCB(GstElement *sink, GstBuffer *buffer,
 			*buffer_size_ptr = map.size;
 			gst_buffer_unmap (buffer, &map); 
 			sem_post(sem);
-		}
+		}*/
 //		cpy_size = gst_buffer_extract(buffer, 0, buffer_ptr, gst_buffer_get_size(buffer)); 	
 //		printf("%s", GST_BUFFER_DATA(buffer));   	
 //		fflush(stdout);
 //		*buffer_size_ptr = cpy_size;
 //		OPEL_DBG_VERB("Buffer Size : %d", cpy_size);
-
+	__OPEL_FUNCTION_EXIT__;
+	return GST_FLOW_OK;
 }
 
 static void checkRemainRequest(void)
@@ -85,7 +86,7 @@ bool openCVStart(DBusMessage *msg, OPELGstElementTx1 *tx1,
 
 	request_handle->defaultOpenCVPadLink(tee_src_pad);		
 
-	g_signal_connect (request_handle->getAppSink()->element, "handoff", 
+	g_signal_connect (request_handle->getAppSink()->element, "new-sample", 
 			G_CALLBACK(bufferFromSinkCB), NULL);
 	
 	if(!(tx1->getIsPlaying()))

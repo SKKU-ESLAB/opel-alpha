@@ -58,7 +58,7 @@ OPELRawRequest::~OPELRawRequest()
 static void initAppSinkElement(typeElement* app_sink)
 {
 	assert(app_sink != NULL);
-	const char* n_app_sink = "fakesink";
+	const char* n_app_sink = "appsink";
 	std::string *str = new std::string(n_app_sink);
 	app_sink->name = str;
 	app_sink->type = kAPP_SINK;
@@ -67,10 +67,8 @@ static void initAppSinkElement(typeElement* app_sink)
 static void initAppSinkElementProp(typeElement* app_sink)
 {
 	assert(app_sink != NULL);
-	g_object_set(G_OBJECT(app_sink->element), 
-			"signal-handoffs", TRUE,
-			"can-activate-pull", TRUE,
-			NULL);
+			g_object_set(G_OBJECT(app_sink->element), "emit-signals", TRUE,
+				"drop", TRUE, "max-buffers", 2, NULL);
 }
 
 bool OPELRawRequest::defaultOpenCVElementFactory()
@@ -124,8 +122,8 @@ bool OPELRawRequest::defaultOpenCVCapFactory()
  	__OPEL_FUNCTION_ENTER__;
 	char caps_buffer[256];
 
-	gint width = RAW_FORMAT_WIDTH;
-	gint height = RAW_FORMAT_HEIGHT;
+	gint width = 640;
+	gint height = 480;
 
 	typeElement *_conv = findByElementNameNSubType(this->_v_fly_type_element,
 			      "nvvidconv", kBGR);
@@ -136,8 +134,8 @@ bool OPELRawRequest::defaultOpenCVCapFactory()
 		__OPEL_FUNCTION_EXIT__;
 		return false;
 	}
-	sprintf(caps_buffer, "video/x-raw, format=(string){BGR26},\
-			width=(int){640}, height=(int){480}, framerate=(fraction){30/1}");
+	sprintf(caps_buffer, "video/x-raw, format=(string){BGRx},\
+			width=(int){%d}, height=(int){%d}", width, height);
 	
 	_conv->caps = gst_caps_from_string(caps_buffer);	
 
@@ -163,7 +161,7 @@ bool OPELRawRequest::defaultOpenCVElementPipelineAdd(GstElement *pipeline)
 	typeElement *_conv = findByElementNameNSubType(this->_v_fly_type_element,
 			      "nvvidconv", kBGR);
 	typeElement *_app_sink = findByElementName(this->_v_fly_type_element,
-			      "fakesink");
+			      "appsink");
 
 	if(!_conv || !_app_sink || !_queue)
 	{
