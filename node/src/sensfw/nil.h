@@ -1,4 +1,6 @@
 #include <node.h>
+#include <v8.h>
+
 #include <stdlib.h>
 #include <glib.h>
 #include <dbus/dbus.h>

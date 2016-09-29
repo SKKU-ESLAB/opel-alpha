@@ -4,6 +4,9 @@ TOOLSET := target
 TARGET := nil
 DEFS_Debug := \
 	'-DNODE_GYP_MODULE_NAME=nil' \
+	'-DUSING_UV_SHARED=1' \
+	'-DUSING_V8_SHARED=1' \
+	'-DV8_DEPRECATION_WARNINGS=1' \
 	'-D_LARGEFILE_SOURCE' \
 	'-D_FILE_OFFSET_BITS=64' \
 	'-DBUILDING_NODE_EXTENSION' \
@@ -13,10 +16,10 @@ DEFS_Debug := \
 # Flags passed to all source files.
 CFLAGS_Debug := \
 	-fPIC \
+	-pthread \
 	-Wall \
 	-Wextra \
 	-Wno-unused-parameter \
-	-pthread \
 	-g \
 	-O0
 
@@ -26,13 +29,14 @@ CFLAGS_C_Debug :=
 # Flags passed to only C++ files.
 CFLAGS_CC_Debug := \
 	-fno-rtti \
-	-fno-exceptions
+	-fno-exceptions \
+	-std=gnu++0x
 
 INCS_Debug := \
-	-I/home/pi/.node-gyp/0.10.29/include/node \
-	-I/home/pi/.node-gyp/0.10.29/src \
-	-I/home/pi/.node-gyp/0.10.29/deps/uv/include \
-	-I/home/pi/.node-gyp/0.10.29/deps/v8/include \
+	-I/home/pi/.node-gyp/4.0.0/include/node \
+	-I/home/pi/.node-gyp/4.0.0/src \
+	-I/home/pi/.node-gyp/4.0.0/deps/uv/include \
+	-I/home/pi/.node-gyp/4.0.0/deps/v8/include \
 	-I/usr/include/glib-2.0 \
 	-I/usr/lib/arm-linux-gnueabihf/glib-2.0/include \
 	-I/usr/include/dbus-1.0 \
@@ -40,6 +44,9 @@ INCS_Debug := \
 
 DEFS_Release := \
 	'-DNODE_GYP_MODULE_NAME=nil' \
+	'-DUSING_UV_SHARED=1' \
+	'-DUSING_V8_SHARED=1' \
+	'-DV8_DEPRECATION_WARNINGS=1' \
 	'-D_LARGEFILE_SOURCE' \
 	'-D_FILE_OFFSET_BITS=64' \
 	'-DBUILDING_NODE_EXTENSION'
@@ -47,13 +54,13 @@ DEFS_Release := \
 # Flags passed to all source files.
 CFLAGS_Release := \
 	-fPIC \
+	-pthread \
 	-Wall \
 	-Wextra \
 	-Wno-unused-parameter \
-	-pthread \
-	-O2 \
-	-fno-strict-aliasing \
-	-fno-tree-vrp \
+	-O3 \
+	-ffunction-sections \
+	-fdata-sections \
 	-fno-omit-frame-pointer
 
 # Flags passed to only C files.
@@ -62,13 +69,14 @@ CFLAGS_C_Release :=
 # Flags passed to only C++ files.
 CFLAGS_CC_Release := \
 	-fno-rtti \
-	-fno-exceptions
+	-fno-exceptions \
+	-std=gnu++0x
 
 INCS_Release := \
-	-I/home/pi/.node-gyp/0.10.29/include/node \
-	-I/home/pi/.node-gyp/0.10.29/src \
-	-I/home/pi/.node-gyp/0.10.29/deps/uv/include \
-	-I/home/pi/.node-gyp/0.10.29/deps/v8/include \
+	-I/home/pi/.node-gyp/4.0.0/include/node \
+	-I/home/pi/.node-gyp/4.0.0/src \
+	-I/home/pi/.node-gyp/4.0.0/deps/uv/include \
+	-I/home/pi/.node-gyp/4.0.0/deps/v8/include \
 	-I/usr/include/glib-2.0 \
 	-I/usr/lib/arm-linux-gnueabihf/glib-2.0/include \
 	-I/usr/include/dbus-1.0 \
