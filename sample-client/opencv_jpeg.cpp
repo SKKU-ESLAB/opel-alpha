@@ -12,22 +12,17 @@ int main(int argc, char** argv){
 		int counter = 0;
 		double sec;
 		double fps;
-		namedWindow("result", cvSize(640, 480));
 				VideoCapture cap(-1);
 		if (!cap.isOpened())
     {
         cout << "Cannot Open Camera" << endl;
         return -1;
     }
-    while (1)
-    {
+   // while (1)
+   // {
         Mat frame;
 				bool bSuccess = cap.read(frame);
-				imshow("result", frame);
-				if(waitKey(30) == 27){
-					break;
-				}
-		}
-   //		waitKey(0); 
+				imwrite("frame.jpg", frame);
+		//}
     return 0;
 }

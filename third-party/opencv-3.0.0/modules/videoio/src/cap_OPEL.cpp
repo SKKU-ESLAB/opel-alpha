@@ -31,10 +31,10 @@
 #define SHM_KEY_FOR_STATUS 4944
 #define SHM_KEY_FOR_PROPERTY 4941
 #define SHM_KEY_FOR_BUFFER 5315
-#define OPENCV_DEFAULT_WIDTH 1920
-#define OPENCV_DEFAULT_HEIGHT 1080
+#define OPENCV_DEFAULT_WIDTH 640
+#define OPENCV_DEFAULT_HEIGHT 480
 
-#define OPENCV_DEFAULT_BUF_SIZE 921600
+#define OPENCV_DEFAULT_BUF_SIZE 4194304
 #define OPENCV_DEFAULT_BUF_INDEX 4
 
 const char* dev_name = "/dev/video0";
@@ -265,9 +265,10 @@ bool CvCaptureCAM_OPEL_CPP::open(int index)
 
 				init_DBus();
 				sendDbusMsg(this->connection, "openCVStart");
-			  usleep(1000);		
+			  sleep(2);		
 
-				cvInitImageHeader(&frame, cvSize(this->width, this->height), IPL_DEPTH_8U, channels_for_mode(mode), IPL_ORIGIN_TL, 4);
+				cvInitImageHeader(&frame, cvSize(this->width, this->height), IPL_DEPTH_8U, 4, IPL_ORIGIN_BL, 4);
+			//	frame = cvCreateImageHeader(cvSize(this->width, this->height), IPL_DEPTH_8U, 3);
 				frame.imageData = (char *)cvAlloc(frame.imageSize); 
 				if(!frame.imageData)
 				{
@@ -313,15 +314,14 @@ IplImage* CvCaptureCAM_OPEL_CPP::retrieveFrame(int)
 				offset = buffer_size;
 			//	printf("buffer_size : %d\n", buffer_size);
 		  //	printf("frame_image_size : %d\n", frame.imageSize);
-				int* buffer_size_ptr = (int*)(shmPtr+offset);
-				sem_wait(sem);
+				unsigned int* buffer_size_ptr = (unsigned int*)(shmPtr+offset);
 				if(shmPtr)
 				{
-				fprintf(stderr, "[CvCaptureCAM_OPEL_CPP::retrieveFrame] : Memory Cpy\n");
-				printf("%d\n", *buffer_size_ptr);
-				memcpy((char*)frame.imageData, (char*)shmPtr, buffer_size);
+					sem_wait(sem);
+//					printf("%d\n", *buffer_size_ptr);
+					memcpy((char*)frame.imageData, (char*)shmPtr, *buffer_size_ptr);
+					sem_post(sem);
 				}
-				sem_post(sem);
 				return &frame;
 }
 CvCapture* cvCreateCameraCapture_V4L(int index)
