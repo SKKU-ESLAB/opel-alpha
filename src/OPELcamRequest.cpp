@@ -82,7 +82,8 @@ bool openCVStart(DBusMessage *msg, OPELGstElementTx1 *tx1,
 			GST_ELEMENT_GET_CLASS(tx1->getMainTee()->element), "src_%u");
 	tee_src_pad = gst_element_request_pad(tx1->getMainTee()->element, 
 			tee_src_pad_templ, NULL, NULL);
-
+	
+	request_handle->setGstMainTeePad(tee_src_pad);
 	request_handle->defaultOpenCVPadLink(tee_src_pad);		
 
 	g_signal_connect (request_handle->getAppSink()->element, "new-sample", 
@@ -207,8 +208,8 @@ static gboolean timeOutCallback(gpointer _request_elements)
     return false;
  	}
 //unlink First
-	GstPad *sinkpad = gst_element_get_static_pad(queue->element, "sink");
-	gst_pad_unlink(request_elements->getSrcPad(), sinkpad);	
+//	GstPad *sinkpad = gst_element_get_static_pad(queue->element, "sink");
+	gst_pad_unlink(request_elements->getSrcPad(), queue_pad);	
   
 	gst_pad_send_event(queue_pad, gst_event_new_eos());
   gst_object_unref(queue_pad);
@@ -481,10 +482,7 @@ DBusHandlerResult msg_dbus_filter(DBusConnection *conn,
 		OPELRawRequest *request_handle = OPELRawRequest::getInstance();
 
 		if((request_handle->getNumUsers()) != 0)
-		{
 			request_handle->increaseNumUsers();	
-			return DBUS_HANDLER_RESULT_HANDLED;
-		}
 		else
 		{
    		ret = openCVStart(msg, tx1, (std::vector<typeElement*>*)_type_element_vector);
@@ -493,16 +491,23 @@ DBusHandlerResult msg_dbus_filter(DBusConnection *conn,
 		return DBUS_HANDLER_RESULT_HANDLED;
 	}
 	
-	
 	if(dbus_message_is_signal(msg, dbus_interface, opencv_stop_request))
 	{
 		OPEL_DBG_WARN("Get OpenCV Stop Request");
+		unsigned cur_attached_user;
 		OPELRawRequest *request_handle = OPELRawRequest::getInstance();
-	
+		request_handle->decreaseNumUsers();
+		if((cur_attached_user=request_handle->getNumUsers()) == 0)
+		{
+			OPEL_DBG_VERB("No Attached Users starting to termination OpenCV Service");
+			//Termination Logic	
+		 	if(!(request_handle->detachedOpenCVPipeline())) 
+				return DBUS_HANDLER_RESULT_HANDLED;
+		}
+		else
+			OPEL_DBG_VERB("Num Users : %d", cur_attached_user);
 	}
-	
 	
 	__OPEL_FUNCTION_EXIT__;
   return DBUS_HANDLER_RESULT_HANDLED;
 }
-

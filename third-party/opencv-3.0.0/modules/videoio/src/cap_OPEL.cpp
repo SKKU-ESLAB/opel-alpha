@@ -34,8 +34,10 @@
 #define OPENCV_DEFAULT_WIDTH 640
 #define OPENCV_DEFAULT_HEIGHT 480
 
-#define OPENCV_DEFAULT_BUF_SIZE 4194304
+#define OPENCV_DEFAULT_BUF_SIZE OPENCV_480P_BUF_SIZE * 2
+#define OPENCV_480P_BUF_SIZE 1228800
 #define OPENCV_DEFAULT_BUF_INDEX 4
+
 
 const char* dev_name = "/dev/video0";
 char SEM_NAME[] = "ORG.OPEL.CAMERA";
@@ -205,8 +207,10 @@ CvCaptureCAM_OPEL_CPP::CvCaptureCAM_OPEL_CPP()
 
 CvCaptureCAM_OPEL_CPP::~CvCaptureCAM_OPEL_CPP()
 {
+	
+	sendDbusMsg(this->connection, "openCVStop");			
 	/* MINI */
-//	uinit_Semaphore();
+ 	uinit_Semaphore();
 }
 
 bool CvCaptureCAM_OPEL_CPP::init_SharedMemorySpaceForProperty()
@@ -275,7 +279,6 @@ bool CvCaptureCAM_OPEL_CPP::open(int index)
 					fprintf(stderr, "[CvCaptureCAM_OPEL_CPP::open] : cvAlloc Error\n");
 					return false;
 				}
-				
 				for(;;){
 				 if(init_SharedMemorySpace())
 							break;

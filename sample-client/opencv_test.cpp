@@ -12,8 +12,7 @@ int main(int argc, char** argv){
 		int counter = 0;
 		double sec;
 		double fps;
-		namedWindow("result", cvSize(640, 480));
-				VideoCapture cap(-1);
+		VideoCapture cap(-1);
 		if (!cap.isOpened())
     {
         cout << "Cannot Open Camera" << endl;
@@ -28,6 +27,9 @@ int main(int argc, char** argv){
 					break;
 				}
 		}
-   //		waitKey(0); 
+  	cout << "exit" << endl;
+		cap.release();
+  
+		//		waitKey(0); 
     return 0;
 }

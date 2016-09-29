@@ -128,8 +128,8 @@ bool OPELRawRequest::defaultOpenCVCapFactory()
  	__OPEL_FUNCTION_ENTER__;
 	char caps_buffer[256];
 
-	gint width = 640;
-	gint height = 480;
+	gint width = (guint)RAW_480P_WIDTH;
+	gint height = (guint)RAW_480P_HEIGHT;
 
 	typeElement *_conv = findByElementNameNSubType(this->_v_fly_type_element,
 			      "nvvidconv", kBGR);
@@ -258,6 +258,63 @@ static int initSharedMemorySpace(int _req_count, int _buffer_size,
 		return -1;
 	}
 	return shmid;
+}
+
+static GstPadProbeReturn detachCB(GstPad *pad, GstPadProbeInfo *info,
+		gpointer user_data)
+{
+	assert(user_data != NULL);
+	__OPEL_FUNCTION_ENTER__;
+
+	OPELRawRequest *request_handle = NULL;
+	OPELGstElementTx1 *tx1 = OPELGstElementTx1::getInstance();
+
+	gst_pad_remove_probe(pad, GST_PAD_PROBE_INFO_ID(info));
+	request_handle = (OPELRawRequest*)user_data;	
+
+	std::vector<typeElement*> *v_fly_type_elements = 
+		request_handle->getFlyTypeElementVector();
+	
+	for(int i=0; i< request_handle->getNumIter(); i++)
+	{
+		std::cout << "Removed Elements : " << (*v_fly_type_elements)[i]->name->c_str()
+			<< std::endl;
+		gst_element_set_state((*v_fly_type_elements)[i]->element, GST_STATE_NULL);
+		gst_bin_remove(GST_BIN(tx1->getPipeline()), (*v_fly_type_elements)[i]->element); 
+	}
+	gst_element_release_request_pad(tx1->getMainTee()->element, 
+			request_handle->getGstMainTeePad());
+
+	__OPEL_FUNCTION_EXIT__;
+	return GST_PAD_PROBE_OK;
+}
+
+bool OPELRawRequest::detachedOpenCVPipeline(void)
+{
+	assert(this->_v_type_element != NULL && this->_v_fly_type_element != NULL);
+	__OPEL_FUNCTION_ENTER__;
+	GstPad *sink_pad;
+	typeElement *_queue = findByElementName(this->_v_fly_type_element,
+			      "queue");
+	
+	if(!_queue || !this->main_tee_pad)
+	{
+		OPEL_DBG_ERR("queue and main_tee_pad is NULL");
+		__OPEL_FUNCTION_EXIT__; 
+		return false;
+	}
+	
+	gst_pad_add_probe(this->main_tee_pad, GST_PAD_PROBE_TYPE_BLOCK_DOWNSTREAM,
+			detachCB, (gpointer)this, NULL);
+
+	sink_pad = gst_element_get_static_pad(_queue->element, "sink");
+	gst_pad_unlink(this->main_tee_pad, sink_pad);
+	
+	gst_pad_send_event(sink_pad, gst_event_new_eos());
+	gst_object_unref(sink_pad);
+
+	__OPEL_FUNCTION_EXIT__;
+	return true;
 }
 
 static bool initSemaphore(const char *path, sem_t **_sem)

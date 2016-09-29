@@ -45,6 +45,9 @@ class OPELRawRequest : public OPELRequest
 
 		void increaseNumUsers(void)
 		{ this->num_users++; }
+		void decreaseNumUsers(void)
+		{	this->num_users--; }
+
 		bool getIsRun(void) const
 		{ return this->is_run; }
 		void setIsRun(bool _is_run) 
@@ -68,10 +71,20 @@ class OPELRawRequest : public OPELRequest
 			char *tmp = (char*)this->shm_ptr;
 			return tmp + RAW_DEFAULT_BUF_SIZE;
 		}
+		void setGstMainTeePad(GstPad *_main_tee_pad)
+		{
+			this->main_tee_pad = _main_tee_pad;
+		}
+		GstPad* getGstMainTeePad(void)
+		{ return this->main_tee_pad; }
+		bool detachedOpenCVPipeline(void);
 	private:
 		static OPELRawRequest *opel_raw_request;
 		OPELRawRequest();
 		typeElement *app_sink;
+		
+		GstPad *main_tee_pad;
+		
 
 		int shm_id;
 		void *shm_ptr;
