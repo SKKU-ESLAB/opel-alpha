@@ -1,5 +1,6 @@
 /*OPEL Camera Library */
 #include "precomp.hpp"
+#include <errno.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -117,7 +118,7 @@ class CvCaptureCAM_OPEL_CPP : CvCapture
 bool CvCaptureCAM_OPEL_CPP::uinit_Semaphore(void)
 {
 	sem_close(this->sem);
-	sem_unlink(SEM_NAME);
+//	sem_unlink(SEM_NAME);
 	return true;
 }
 bool CvCaptureCAM_OPEL_CPP::init_Semaphore(void)
@@ -126,6 +127,7 @@ bool CvCaptureCAM_OPEL_CPP::init_Semaphore(void)
 	if(this->sem == SEM_FAILED)
 	{
 		fprintf(stderr, "[CvCaptureCAM_OPEL_CPP::init_Semaphore] : Semaphore Initialization Error\n");
+		fprintf(stderr, "Error : %s\n", strerror(errno));
 		sem_unlink(SEM_NAME);
 		return false;
 	}
@@ -286,6 +288,7 @@ bool CvCaptureCAM_OPEL_CPP::open(int index)
 				if(!init_Semaphore())
 				{
 					fprintf(stderr, "[CvCaptureCAM_OPEL_CPP::open] : Cannot Init Semaphore\n");
+					return false;
 				}
 			  return true;
 }

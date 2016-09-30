@@ -6,7 +6,7 @@
 
 GstFlowReturn bufferFromSinkCB(GstElement *elt, gpointer data)
 {
-//	__OPEL_FUNCTION_ENTER__;
+	//__OPEL_FUNCTION_ENTER__;
 	OPELRawRequest *for_shared = OPELRawRequest::getInstance();
 	GstSample *sample;
 	GstBuffer *buffer;
@@ -100,6 +100,7 @@ bool openCVStart(DBusMessage *msg, OPELGstElementTx1 *tx1,
 		OPEL_DBG_ERR("Is Already Playing");
 		request_handle->defaultOpenCVGstSyncStateWithParent();
 	}
+
 	__OPEL_FUNCTION_EXIT__;
 	return ret;
 }
@@ -482,7 +483,10 @@ DBusHandlerResult msg_dbus_filter(DBusConnection *conn,
 		OPELRawRequest *request_handle = OPELRawRequest::getInstance();
 
 		if((request_handle->getNumUsers()) != 0)
+		{
 			request_handle->increaseNumUsers();	
+			OPEL_DBG_VERB("Num Users : %d", request_handle->getNumUsers());
+		}
 		else
 		{
    		ret = openCVStart(msg, tx1, (std::vector<typeElement*>*)_type_element_vector);

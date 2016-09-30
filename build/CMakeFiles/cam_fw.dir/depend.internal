@@ -51,6 +51,7 @@ CMakeFiles/cam_fw.dir/src/OPELrawRequest.o
  ../include/OPELcamRequest.h
  ../include/OPELconfig.h
  ../include/OPELdbugLog.h
+ ../include/OPELglobalRequest.h
  ../include/OPELgstElement.h
  ../include/OPELgstElementTx1.h
  ../include/OPELrawRequest.h

@@ -1,5 +1,6 @@
 #include "OPELrawRequest.h"
 #include "OPELgstElementTx1.h"
+#include "OPELglobalRequest.h"
 #include <gst/app/gstappsink.h>
 
 const char *sem_path = "ORG.OPEL.CAMERA";
@@ -267,6 +268,7 @@ static GstPadProbeReturn detachCB(GstPad *pad, GstPadProbeInfo *info,
 	__OPEL_FUNCTION_ENTER__;
 
 	OPELRawRequest *request_handle = NULL;
+	OPELGlobalVectorRequest *v_global_request = OPELGlobalVectorRequest::getInstance();
 	OPELGstElementTx1 *tx1 = OPELGstElementTx1::getInstance();
 
 	gst_pad_remove_probe(pad, GST_PAD_PROBE_INFO_ID(info));
@@ -284,6 +286,11 @@ static GstPadProbeReturn detachCB(GstPad *pad, GstPadProbeInfo *info,
 	}
 	gst_element_release_request_pad(tx1->getMainTee()->element, 
 			request_handle->getGstMainTeePad());
+
+	uinitSharedMemorySpace(request_handle->getShmId());
+	uinitSemaphore(sem_path, request_handle->getSemaphore());
+	if(v_global_request->isVectorEntryEmpty())
+		tx1->setIsPlaying(false);
 
 	__OPEL_FUNCTION_EXIT__;
 	return GST_PAD_PROBE_OK;
@@ -312,7 +319,7 @@ bool OPELRawRequest::detachedOpenCVPipeline(void)
 	
 	gst_pad_send_event(sink_pad, gst_event_new_eos());
 	gst_object_unref(sink_pad);
-
+	
 	__OPEL_FUNCTION_EXIT__;
 	return true;
 }
@@ -334,6 +341,7 @@ static void uinitSemaphore(const char *path, sem_t *sem)
 {
 	sem_close(sem);
 	sem_unlink(path);
+	sem_destroy(sem);
 }
 
 

@@ -58,6 +58,9 @@ class OPELRawRequest : public OPELRequest
 
 		sem_t* getSemaphore(void)
 		{ return this->sem; }
+	
+		int getShmId(void) 
+		{ return this->shm_id; }
 
 		char* getShmPtr(void)
 		{ return (char*)this->shm_ptr; }

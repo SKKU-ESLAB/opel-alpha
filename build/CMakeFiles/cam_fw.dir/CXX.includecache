@@ -149,6 +149,8 @@ OPELrawRequest.h
 /home/ubuntu/opel-alpha/src/OPELrawRequest.h
 OPELgstElementTx1.h
 /home/ubuntu/opel-alpha/src/OPELgstElementTx1.h
+OPELglobalRequest.h
+/home/ubuntu/opel-alpha/src/OPELglobalRequest.h
 gst/app/gstappsink.h
 -
 
