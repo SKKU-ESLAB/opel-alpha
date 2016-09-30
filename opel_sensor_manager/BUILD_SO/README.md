@@ -1,7 +1,7 @@
 
 # This directory is to make shared object file of sensor manager
 
-<<<<<<< HEAD
+
 ***Notice: Please leave 'libsensors.so' file in the directory
 (cmake file refers to that file when compile \
  and also does binary file)
@@ -14,10 +14,5 @@
 5. cp libsensors.so ../
 
 Shared object file will be shown.
-
-
-
-
-
 
 

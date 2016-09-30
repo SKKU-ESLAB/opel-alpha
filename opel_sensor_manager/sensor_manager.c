@@ -121,8 +121,13 @@ void sendSensorData(sensorList* sl){
 	int rq_num = sl->rh->start->rq_num;
 	char* sensor_value = sl->sensor_data_ori;
 	DBusMessage *message;
-	
+
+	printf("make new signal\n");
 	message = dbus_message_new_signal(getPath(sl), getInterface(sl), SEND_SENSOR_DATA);
+  if(message == NULL){
+			printf("making new signal failed\n");
+	}
+	printf("Append arguments\n");
 
 	dbus_message_append_args(message,
 		DBUS_TYPE_INT32, &(rq_num),
@@ -131,10 +136,12 @@ void sendSensorData(sensorList* sl){
 		DBUS_TYPE_STRING, &(sl->dev->valueName),
 		DBUS_TYPE_INVALID);
 
+	printf("Send the signal\n");
 	/* Send the signal */
 	dbus_connection_send(connection, message, NULL);   
 	dbus_message_unref(message);
 
+	printf("Function end\n");
 	//printf("[SM] Send Sensor data to %s, rq_num[%d]\n", getInterface(sl), rq_num);
 }
 void sendSensorNotify(sensorList* sl){
@@ -185,7 +192,7 @@ void* sensorThread(void* args){
 
 		//------------------ 1. Request Ã³¸® ------------------// 
 		// 
-		//sl->sensor_data_ori = sensorGet(sl, NULL);
+		sl->sensor_data_ori = sensorGet(sl, NULL);
 		sensor_value = sensorGet(sl, NULL);
 		strcpy(rd->sensor_data, sensor_value);
 		//rd->sensor_data = sensorGet(sl, NULL);
@@ -196,9 +203,11 @@ void* sensorThread(void* args){
 		//Sensor Data  È¹µæ
 		//printf("[SM] Handle Rq[%d] from PID[%d] ", sl->rh->start->rq_num, sl->rh->start->pid);
 		if (rd->handle_type == SENSING_INTERVAL){
+		  printf("[SM] Handle Type is SENSING_INTERVAL\n");
 			sendSensorData(sl);
 		}
 		else if (rd->handle_type == SENSING_EVENT_DRIVEN){
+		  printf("[SM] Handle Type is SENSING_EVENT_DRIVEN\n");
 			event_status = sensorDataParsing(sl, rd->sensor_data, sl->dev->valueType);
 
 			if (event_status == VALUE_CHANGED){
