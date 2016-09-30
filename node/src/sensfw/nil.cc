@@ -129,9 +129,10 @@ int parsingToArgv(requestList* rl, char* in_value, char* in_value_type, char* in
 			obj
 	};
   //Local<Function> fn = Local<Function>::New(isolate, rl->callback);
+	printf("before call callbak\n");
   Local<Function> cb = Local<Function>::New(isolate, rl->callback);
 	cb->Call(isolate->GetCurrentContext()->Global(), 1, argv);
- 
+
 	
 	//rl->callback.Call(isolate->GetCurrentContext()->Global(), 1, argv);
 	if (try_catch.HasCaught()) {
@@ -192,7 +193,7 @@ void parsingToReturn(const FunctionCallbackInfo<Value>& args, char* in_value, ch
 // Handler function for dbus message
 // 1. On (Periodic)
 // 2. On (Notify)
-DBusHandlerResult sensorEventDriven(DBusConnection *connection, DBusMessage *message, void *iface_user_data){
+DBusHandlerResult sensorGetRepeatedly(DBusConnection *connection, DBusMessage *message, void *iface_user_data){
 	Isolate *isolate = Isolate::GetCurrent();
   int rq_num;
 	char* sensorValue;
@@ -214,7 +215,7 @@ DBusHandlerResult sensorEventDriven(DBusConnection *connection, DBusMessage *mes
 
 	if (dbus_error_is_set(&err))
 	{
-		printf("Error get data: %s \n", err.message);
+		printf("Get Repeatedly - Error get data: %s \n", err.message);
 		dbus_error_free(&err);
 	}
 	//printf("[NIL] Receive rq_num : %d / value :%d\n", rq_num, sensorValue);
@@ -243,7 +244,7 @@ DBusHandlerResult sensorEventNotify(DBusConnection *connection, DBusMessage *mes
 
 	if (dbus_error_is_set(&err))
 	{
-		printf("Error get data: %s", err.message);
+		printf("Notify Error get data: %s", err.message);
 		dbus_error_free(&err);
 	}
 
@@ -394,11 +395,11 @@ void On(const FunctionCallbackInfo<Value>& args) {
 	//rl->callback = callback(isolate, Persistent<Function>::New(Local<Function>::Cast(args[3])));
 	  //rl->callback = Persistent<Function> cb(isolate, arg0);
 	//rl->callback = Persistent<Function>(isolate, arg0);
-	
+
 	Local<Function> cb = Local<Function>::Cast(args[3]);
 
 	printf("right before make callback\n");
-  rl->callback.Reset(isolate, cb);
+  rl->callback.Reset(isolate, cb);	
 	//rl->callback.Reset(isolate,args[3].As<Function>());
 	
 	//rl->callback.Reset(isolate, Local<Function>::New(isolate,arg0));
@@ -762,7 +763,8 @@ void sigint_handler(int signo)
 
 void nativeInterfaceLayerInit(){
 	pid = getpid();
-	rList = (requestList*)malloc(sizeof(requestList));
+	//rList = (requestList*)malloc(sizeof(requestList));
+	rList = new requestList();
 	initRequestList(rList);
 	gettimeofday(&time_to_delay, NULL);
 }

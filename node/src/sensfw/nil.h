@@ -92,5 +92,5 @@ int countRequest(requestList *rList);
 int deleteRequest(requestList *rList, int rq_num);
 requestList * newRequest(requestList *rList);
 requestList * getRequest(requestList *rList, int rq_num);
-DBusHandlerResult sensorEventDriven(DBusConnection *connection, DBusMessage *message, void *iface_user_data);
+DBusHandlerResult sensorGetRepeatedly(DBusConnection *connection, DBusMessage *message, void *iface_user_data);
 DBusHandlerResult sensorEventNotify(DBusConnection *connection, DBusMessage *message, void *iface_user_data);
