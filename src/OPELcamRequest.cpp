@@ -3,6 +3,55 @@
 #include "OPELglobalRequest.h"
 #include "OPELrawRequest.h"
 #include <gst/app/gstappsink.h>
+#include <errno.h>
+
+void closeFile(FILE *_fout)
+{
+	if(_fout)
+		fclose(_fout);
+}
+unsigned fileWrite(const char *file_path, char *buffer, unsigned size)
+{
+	FILE *fout;
+	int ret=0;
+	fout = fopen(file_path, "w+");
+	if(!fout){
+		OPEL_DBG_ERR("File Open Failed");
+		return ret;
+	}
+  ret = fwrite((char*)buffer, sizeof(char), size, fout);	
+	if(ret != size)
+	{
+		OPEL_DBG_ERR("File Write Failed ");	
+		closeFile(fout);
+		return 0;
+	}
+	closeFile(fout);
+	return ret;
+}
+
+GstFlowReturn jpegBufferFromSinkCB(GstElement *elt, gpointer data)
+{
+	__OPEL_FUNCTION_ENTER__;
+	GstSample *sample; 
+	GstBuffer *buffer;
+	GstMapInfo map;
+	OPELRequestTx1 *request_handle = (OPELRequestTx1*)data;
+	sample = gst_app_sink_pull_sample(GST_APP_SINK(elt));
+	buffer = gst_sample_get_buffer(sample);	
+	if(gst_buffer_map(buffer, &map, GST_MAP_READ)){
+		if(map.size != fileWrite(request_handle->getMsgHandle()->file_path, 
+					(char*)map.data, (unsigned)map.size))
+		{
+			 OPEL_DBG_ERR("Fail to Write");
+			 return GST_FLOW_OK;	//give it a shot
+		}
+	}
+	timeOutCallback(request_handle);	
+	__OPEL_FUNCTION_EXIT__;
+	return GST_FLOW_EOS;
+}
+
 
 GstFlowReturn bufferFromSinkCB(GstElement *elt, gpointer data)
 {
@@ -458,7 +507,8 @@ DBusHandlerResult msg_dbus_filter(DBusConnection *conn,
 			__OPEL_FUNCTION_EXIT__;
 			return DBUS_HANDLER_RESULT_HANDLED;
 		}
-		
+		g_signal_connect(request_handle->getJpegAppSink()->element, "new-sample",
+				G_CALLBACK(jpegBufferFromSinkCB), (gpointer)request_handle);
 		v_global_request->pushRequest(request_elements);
 
 		if(!(tx1->getIsPlaying()))
@@ -469,8 +519,8 @@ DBusHandlerResult msg_dbus_filter(DBusConnection *conn,
 		}
 		else
 			 request_handle->defualtSnapshotGstSyncStateWithParent();		
-		
-		g_timeout_add_seconds(1, timeOutCallback, (void*)request_elements);   
+			
+//		g_timeout_add_seconds(1, timeOutCallback, (void*)request_elements);   
 	}
 	
 	if(dbus_message_is_signal(msg, dbus_interface, opencv_start_request))

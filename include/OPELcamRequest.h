@@ -34,8 +34,11 @@ typedef struct _dbusReques{
 	bool is_start;
 }dbusRequest;
 
+void closeFile(FILE *_fout);
+unsigned fileWrite(const char *file_path, char *buffer, unsigned size);
 static gboolean timeOutCallback(gpointer _request_elements);
 static GstPadProbeReturn event_probe_cb(GstPad *pad, GstPadProbeInfo *info,
         gpointer user_data);
-
+static void checkRemainRequest(void);
+static gboolean unLinkCallBack(gpointer _request_elements);
 #endif /* OPEL_CAM_REQUEST_H */

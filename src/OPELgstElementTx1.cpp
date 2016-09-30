@@ -595,6 +595,8 @@ bool OPELRequestTx1::defaultJpegElementPipelineAdd(GstElement *pipeline)
 		return false;
 	}
 
+	this->jpeg_app_sink = _sink;
+
 	gst_bin_add_many(GST_BIN(pipeline), _queue->element, _enc->element, 
 			_sink->element, NULL);
 	
