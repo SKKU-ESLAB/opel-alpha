@@ -128,11 +128,12 @@ int parsingToArgv(requestList* rl, char* in_value, char* in_value_type, char* in
   Local<Value> argv[] = {
 			obj
 	};
-  Local<Function> fn = Local<Function>::New(isolate, rl->callback);
-  fn->Call(isolate->GetCurrentContext()->Global(), 1, argv);
-
-  //cb->Call(isolate->GetCurrentContext()->Global(), 1, argv);
-//	rl->callback->Call(isolate->GetCurrentContext()->Global(), 1, argv);
+  //Local<Function> fn = Local<Function>::New(isolate, rl->callback);
+  Local<Function> cb = Local<Function>::New(isolate, rl->callback);
+	cb->Call(isolate->GetCurrentContext()->Global(), 1, argv);
+ 
+	
+	//rl->callback.Call(isolate->GetCurrentContext()->Global(), 1, argv);
 	if (try_catch.HasCaught()) {
 			//node::FatalException(try_catch);
     Local<Value> exception = try_catch.Exception();
@@ -293,7 +294,8 @@ int wait_delay(){
 // 2. Get
 void On(const FunctionCallbackInfo<Value>& args) {
   Isolate* isolate = Isolate::GetCurrent();
-	HandleScope scope(isolate);
+	//Isolate* isolate = args.GetIsolate();
+  HandleScope scope(isolate);
 
 	requestList* rl;
 	DBusMessage* msg;
@@ -309,6 +311,7 @@ void On(const FunctionCallbackInfo<Value>& args) {
 	
 	wait_delay(); //Perform wait.
 
+	printf("start On function\n");
 	/*
 	Receive Args
 	1. sensor name
@@ -385,15 +388,25 @@ void On(const FunctionCallbackInfo<Value>& args) {
 	//----------------------------------------------------------------//
 
 
-
 	//----------------------------------------------------------------//
 	//			2. Request Creation (For function callback)
 	rl = newRequest(rList);
 	//rl->callback = callback(isolate, Persistent<Function>::New(Local<Function>::Cast(args[3])));
-	Local<Function> arg0 = Local<Function>::Cast(args[3]);
-	//Persistent<Function> cb(isolate, arg0);
+	  //rl->callback = Persistent<Function> cb(isolate, arg0);
 	//rl->callback = Persistent<Function>(isolate, arg0);
-	rl->callback.Reset(isolate, arg0);
+	
+	Local<Function> cb = Local<Function>::Cast(args[3]);
+
+	printf("right before make callback\n");
+  rl->callback.Reset(isolate, cb);
+	//rl->callback.Reset(isolate,args[3].As<Function>());
+	
+	//rl->callback.Reset(isolate, Local<Function>::New(isolate,arg0));
+  //rl->callback.Reset(isolate, Persistent<Function>(isolate, arg0));
+	printf("right after make callback\n");
+	
+	
+	
 	rl->type = SENSOR_REQUEST;
 	
 	pid = (unsigned int)getpid();
@@ -402,6 +415,7 @@ void On(const FunctionCallbackInfo<Value>& args) {
 	//----------------------------------------------------------------//
 	
 
+	printf("after make callback. before send dbus\n");
 	//----------------------------------------------------------------//
 	//				3. Send Message (Request struct) 
 	//				Send message with reply or not
@@ -802,16 +816,16 @@ void init(Handle<Object> exports) {
 	if (atexit(exit_handler)) printf("Failed to register exit_handler1\n");
 	signal(SIGINT, sigint_handler);
 
-	Isolate* isolate = Isolate::GetCurrent();
+	//Isolate* isolate = Isolate::GetCurrent();
   
-	/* 4.0.0
+	// 4.0.0
 	NODE_SET_METHOD(exports, "Get", Get);
   NODE_SET_METHOD(exports, "On", On);
   NODE_SET_METHOD(exports, "EventRegister", On);
   NODE_SET_METHOD(exports, "EventUpdate", Update);
   NODE_SET_METHOD(exports, "EventUnregister", Unregister);
-  */
-	
+  
+/*	
 	exports->Set(String::NewFromUtf8(isolate, "Get"),
 			FunctionTemplate::New(isolate, Get)->GetFunction());
 	exports->Set(String::NewFromUtf8(isolate, "On"),
@@ -822,7 +836,7 @@ void init(Handle<Object> exports) {
 		FunctionTemplate::New(isolate, Update)->GetFunction());
 	exports->Set(String::NewFromUtf8(isolate, "EventUnregister"),
 		FunctionTemplate::New(isolate, Unregister)->GetFunction());
-  
+  */
 
 }
 
