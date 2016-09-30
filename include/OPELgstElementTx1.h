@@ -15,6 +15,10 @@ class OPELRequestTx1 : public OPELRequest
 		virtual bool defaultJpegElementPipelineAdd(GstElement *pipeline);
 		virtual bool defaultJpegCapFactory(void);
 		void defualtSnapshotGstSyncStateWithParent(void);
+		
+	private:
+		GstElement* jpeg_app_sink;
+
 };
 
 class OPELGstElementTx1 : public OPELGstElement

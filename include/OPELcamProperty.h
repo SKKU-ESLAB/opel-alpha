@@ -45,6 +45,36 @@ class Property
     virtual void setGstObjectProperty(GstElement *element) = 0;
 };
 
+class AppSrcProp : public Property
+{
+	public:
+   	 friend class boost::serialization::access;
+    template<class Archive> void serialize(Archive &ar, 
+        const unsigned int version)
+    {
+      using boost::serialization::make_nvp;
+      ar & make_nvp(n_emit_signals, this->emit_signals);
+      ar & make_nvp(n_drop, this->drop);
+			ar & make_nvp(n_max_buffers, this->max_buffers);
+			ar & make_nvp(n_wait_on_eos, this->wait_on_eos);
+    }
+		virtual void setGstObjectProperty(GstElement *element)
+		{
+			assert(element != NULL);
+			g_object_set(G_OBJECT(element), this->n_emit_signals, this->emit_signals,
+					this->n_drop, this->drop, this->n_max_buffers, this->max_buffers,
+					this->n_wait_on_eos, this->wait_on_eos, NULL);
+		}
+		static const char *n_emit_signals;
+		static const char *n_drop;
+		static const char *n_max_buffers;
+		static const char *n_wait_on_eos;
+		bool emit_signals;
+		bool drop;
+		unsigned max_buffers;
+		bool wait_on_eos;
+};
+
 class EncorderProp : public Property 
 {
   public:
@@ -241,6 +271,7 @@ class ElementProperty{
         case kSINK:
           ar & make_nvp("element_property", *fileProp);
           ar & make_nvp("element_property", *udpProp);
+					ar & make_nvp("element_property", *appSrcProp);
           break;
         default:
           break;
@@ -252,6 +283,7 @@ class ElementProperty{
     CameraSrcProp *camProp;
     FileSinkProp *fileProp;
     ConvProp *conProp;
+		AppSrcProp *appSrcProp;
   protected:
     std::string element_name;
     std::string element_nickname;

@@ -3,7 +3,7 @@
 <boost_serialization signature="serialization::archive" version="14">
 <OPEL_TX1_Element_Property class_id="0" tracking_level="0" version="0">
 	<element_vector class_id="1" tracking_level="0" version="0">
-		<count>12</count>
+		<count>13</count>
 		<item_version>0</item_version>
 		<item class_id="2" tracking_level="1" version="0" object_id="_0">
 			<element_name>nvcamerasrc</element_name>
@@ -75,7 +75,7 @@
 			<element_type>4</element_type>
 			<element_sub_type>4</element_sub_type>
 			<element_property class_id="6" tracking_level="0" version="0">
-				<quality_level>0</quality_level>
+				<quality_level>2</quality_level>
 				<bitrate>8000000</bitrate>
 			</element_property>
 		</item>
@@ -106,6 +106,12 @@
 			<element_property class_id="8" tracking_level="0" version="0">
 				<host_ip></host_ip>
 			</element_property>
+			<element_property class_id="9" tracking_level="0" version="0">
+				<emit-signals>0</emit-signals>
+				<drop>0</drop>
+				<max-buffers>0</max-buffers>
+				<wait-on-eos>0</wait-on-eos>
+			</element_property>
 		</item>
 		<item class_id_reference="2" object_id="_10">
 			<element_name>filesink</element_name>
@@ -118,6 +124,12 @@
 			<element_property>
 				<host_ip></host_ip>
 			</element_property>
+			<element_property>
+				<emit-signals>0</emit-signals>
+				<drop>0</drop>
+				<max-buffers>0</max-buffers>
+				<wait-on-eos>0</wait-on-eos>
+			</element_property>
 		</item>
 		<item class_id_reference="2" object_id="_11">
 			<element_name>udpsink</element_name>
@@ -129,6 +141,30 @@
 			</element_property>
 			<element_property>
 				<host_ip></host_ip>
+			</element_property>
+			<element_property>
+				<emit-signals>0</emit-signals>
+				<drop>0</drop>
+				<max-buffers>0</max-buffers>
+				<wait-on-eos>0</wait-on-eos>
+			</element_property>
+		</item>
+		<item class_id_reference="2" object_id="_12">
+			<element_name>appsink</element_name>
+			<element_nickname>appsink</element_nickname>
+			<element_type>6</element_type>
+			<element_sub_type>11</element_sub_type>
+			<element_property>
+				<location></location>
+			</element_property>
+			<element_property>
+				<host_ip></host_ip>
+			</element_property>
+			<element_property>
+				<emit-signals>1</emit-signals>
+				<drop>1</drop>
+				<max-buffers>1</max-buffers>
+				<wait-on-eos>1</wait-on-eos>
 			</element_property>
 		</item>
 	</element_vector>

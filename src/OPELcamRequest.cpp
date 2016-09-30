@@ -472,7 +472,6 @@ DBusHandlerResult msg_dbus_filter(DBusConnection *conn,
 		
 		g_timeout_add_seconds(1, timeOutCallback, (void*)request_elements);   
 	}
-
 	
 	if(dbus_message_is_signal(msg, dbus_interface, opencv_start_request))
 	{

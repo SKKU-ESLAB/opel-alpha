@@ -27,3 +27,16 @@ gchar* strToGcharNonPtr(std::string &_str)
   strcpy((char*)_char_str, _str.c_str());
   return (gchar*)_char_str;
 }
+
+void pid_to_char(unsigned int input, char* output){
+	unsigned int value = input;
+	unsigned int temp;
+	int i;
+	output[5] = '\0'; 
+
+	for (i = 4; i >= 0; i--){
+		temp = value % 10; 
+		output[i] = ((char)(temp)) + 65;
+		value = value / 10;
+	}
+}

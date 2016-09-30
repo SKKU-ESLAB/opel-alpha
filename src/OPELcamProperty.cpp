@@ -11,7 +11,10 @@ const char *FileSinkProp::n_location = "location";
 const char *ConvProp::n_flip_method = "flip-method";
 const char *UDPSinkProp::n_host = "host";
 const char *UDPSinkProp::n_port = "port";
-
+const char *AppSrcProp::n_emit_signals = "emit-signals";
+const char *AppSrcProp::n_drop = "drop";
+const char *AppSrcProp::n_max_buffers = "max-buffers";
+const char *AppSrcProp::n_wait_on_eos = "wait-on-eos";
 
 void setTx1DefaultProperty(void)
 {
@@ -42,7 +45,8 @@ void setTx1DefaultProperty(void)
        "filesink", "filesink"); 
    ElementProperty *udp_sink = new ElementProperty(kSINK, kUDP_SINK, 
        "udpsink", "udpsink");
-	
+	 ElementProperty *app_sink = new ElementProperty(kSINK, kAPP_SINK,
+			 "appsink", "appsink");
 
 	 nv_src->setWidth(1920);
    nv_src->setHeight(1080);
@@ -59,6 +63,11 @@ void setTx1DefaultProperty(void)
    sink->fileProp->location = charToString("/home/ubuntu/hihihi.mp4");
    jpeg_sink->fileProp->location = charToString("/home/ubuntu/hihihi.jpeg");
 
+	 app_sink->appSrcProp->emit_signals = true;
+	 app_sink->appSrcProp->drop = true;
+	 app_sink->appSrcProp->max_buffers = 1;
+	 app_sink->appSrcProp->wait_on_eos = true;
+
    element_vector->push_back(nv_src);
    element_vector->push_back(rtsp_src);
    element_vector->push_back(tee);
@@ -71,8 +80,9 @@ void setTx1DefaultProperty(void)
    element_vector->push_back(sink);
    element_vector->push_back(jpeg_sink);
    element_vector->push_back(udp_sink);
-  
-   v_element_property = element_vector;
+ 	 element_vector->push_back(app_sink); 
+
+	 v_element_property = element_vector;
 
    __OPEL_FUNCTION_EXIT__;
 }
@@ -206,7 +216,7 @@ ElementProperty::ElementProperty(elementType _type, unsigned _sub_type,
   this->camProp = new CameraSrcProp();
   this->fileProp = new FileSinkProp();
   this->conProp = new ConvProp();
-
+	this->appSrcProp = new AppSrcProp();
 }
 ElementProperty::ElementProperty(elementType _type)
 { 
@@ -216,6 +226,7 @@ ElementProperty::ElementProperty(elementType _type)
   this->camProp = new CameraSrcProp();
   this->fileProp = new FileSinkProp();
   this->conProp = new ConvProp();
+	this->appSrcProp = new AppSrcProp();
   this->type = _type;
 }
 
@@ -227,6 +238,7 @@ ElementProperty::ElementProperty()
   this->camProp = new CameraSrcProp();
   this->fileProp = new FileSinkProp();
   this->conProp = new ConvProp();
+	this->appSrcProp = new AppSrcProp();
 }
 
 ElementProperty::~ElementProperty()
@@ -243,6 +255,8 @@ ElementProperty::~ElementProperty()
     delete this->fileProp;
   if(this->conProp != NULL)
     delete this->conProp;
+	if(this->appSrcProp != NULL)
+		delete this->appSrcProp;
 }
 
 void ElementProperty::setElementName(std::string _element_name)

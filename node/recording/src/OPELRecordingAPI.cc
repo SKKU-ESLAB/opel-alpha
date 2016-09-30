@@ -94,7 +94,7 @@ NAN_METHOD(OPELRecording::jpegStart)
 	std::string path = std::string(*param1);
 	file_path = path.c_str();	
 	
-	dbus_request = (dbusRequest*)malloc(sizeof(dbusRequest));
+	dbus_request = new dbusRequest();
 	dbus_request->file_path = path;
 	dbus_request->pid = getPid();
 	dbus_request->fps = 1;

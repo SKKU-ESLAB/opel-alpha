@@ -52,6 +52,9 @@ void inline setTypeProperty(unsigned _sub_type,
     case kNO_PROP:
       _type_element->prop = NULL;
       break;
+		case kAPP_SINK:
+			_type_element->prop = element_property->appSrcProp;
+			break;
     default:
         OPEL_DBG_ERR("Invalid Sub-Type");
       break;
@@ -531,8 +534,8 @@ bool OPELRequestTx1::defaultJpegElementFactory(const char* file_path)
 	std::vector<typeElement*> _v_original_element(OPEL_NUM_DEFAULT_SNAPSHOT_ELE);
 	typeElement *_queue = findByElementName(this->_v_type_element, "queue");
 	typeElement *_enc = findByElementName(this->_v_type_element, "nvjpegenc");
-	typeElement *_sink = findByElementNameNSubType(this->_v_type_element, 
-			"filesink", kJPEG_SINK);
+	typeElement *_sink = findByElementName(this->_v_type_element, 
+			"appsink");
 	
 	if(!_queue || !_enc  || !_sink)
 	{
@@ -541,7 +544,8 @@ bool OPELRequestTx1::defaultJpegElementFactory(const char* file_path)
 		return false;
 	}
 	
-	((FileSinkProp*)_sink->prop)->location = file_path;
+
+//	((FileSinkProp*)_sink->prop)->location = file_path;
 
 	_v_original_element[0] = _queue;
 	_v_original_element[1] = _enc;
@@ -557,13 +561,13 @@ bool OPELRequestTx1::defaultJpegElementFactory(const char* file_path)
 	gstElementFactory(this->_v_fly_type_element);
 	gstElementPropFactory(this->_v_fly_type_element);
 
-#if OPEL_LOG_VERBOSE
+//#if OPEL_LOG_VERBOSE
 	for(int i=0; i<OPEL_NUM_DEFAULT_SNAPSHOT_ELE; i++)
 	{
 		std::cout << "name : " <<
 			(*this->_v_fly_type_element)[i]->name->c_str() << std::endl;
 	}
-#endif
+//#endif
 	
 	__OPEL_FUNCTION_EXIT__;
 	return true;
@@ -581,8 +585,8 @@ bool OPELRequestTx1::defaultJpegElementPipelineAdd(GstElement *pipeline)
 			"queue");
 	typeElement *_enc = findByElementName(this->_v_fly_type_element,
 			"nvjpegenc");
-	typeElement *_sink = findByElementNameNSubType(this->_v_fly_type_element,
-			"filesink", kJPEG_SINK);
+	typeElement *_sink = findByElementName(this->_v_fly_type_element,
+			"appsink");
 	
 	if(!_tee || !_queue || !_enc  || !_sink)
 	{
