@@ -52,7 +52,6 @@ GstFlowReturn jpegBufferFromSinkCB(GstElement *elt, gpointer data)
 	return GST_FLOW_EOS;
 }
 
-
 GstFlowReturn bufferFromSinkCB(GstElement *elt, gpointer data)
 {
 	//__OPEL_FUNCTION_ENTER__;

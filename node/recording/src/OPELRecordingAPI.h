@@ -30,11 +30,30 @@ extern "C"{
 #include <nan.h>
 #include "OPELdbusInterface.h"
 
+
+class OPELrecordingAsync : public Nan::AsyncWorker
+{
+	public:
+		OPELrecordingAsync(Nan::Callback *cb, DBusConnection *_conn, 
+				DBusMessage *_msg, int _seconds) : Nan::AsyncWorker(cb), 
+		conn(_conn), msg(_msg), seconds(_seconds) {}
+	  ~OPELrecordingAsync() {}
+		void Execute();
+		void HandleOKCallback();
+
+	private:
+		bool is_success;
+		DBusMessage *reply;
+		DBusConnection *conn;
+		DBusMessage *msg;
+		int seconds;
+};
+
 class OPELRecording : public Nan::ObjectWrap{
 
 	public:
 		static NAN_MODULE_INIT(Init);
-		void sendDbusMsg(const char* msg, dbusRequest *dbus_request);
+		DBusMessage * sendDbusMsg(const char* msg, dbusRequest *dbus_request);
 		bool initDbus();
 
 		DBusConnection* conn;

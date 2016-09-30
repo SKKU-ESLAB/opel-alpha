@@ -4,7 +4,7 @@ static unsigned getPid()
 {
 	return getpid();
 }
-void OPELRecording::sendDbusMsg(const char* msg, 
+DBusMessage* OPELRecording::sendDbusMsg(const char* msg, 
 		dbusRequest *dbus_request)
 {
  	assert(msg != NULL && dbus_request != NULL);
@@ -19,7 +19,43 @@ void OPELRecording::sendDbusMsg(const char* msg,
 			DBUS_TYPE_UINT64, &(dbus_request->play_seconds),
 			DBUS_TYPE_INVALID);
 	dbus_connection_send (conn, message, NULL);
-	dbus_message_unref(message);
+	return message;
+}
+
+void OPELrecordingAsync::Execute()
+{
+	assert(this->conn != NULL && this->msg != NULL);
+	unsigned success;
+	DBusError err;
+	this->reply = dbus_connection_send_with_reply_and_block(this->conn,
+			this->msg, this->seconds*1000 + 2000, &err);
+
+	if(reply == NULL)
+	{
+		this->is_success = false;
+		dbus_error_free(&err);
+		dbus_message_unref(msg);
+		return;
+	}
+	else
+		dbus_error_free(&err);
+		dbus_message_unref(msg);
+		dbus_message_get_args(reply, NULL,
+			DBUS_TYPE_UINT64, &success,
+			DBUS_TYPE_INVALID);
+		if(success == 0)
+		{
+			this->is_success = false;
+			return;
+		}
+		this->is_success = true;
+}
+
+void OPELrecordingAsync::HandleOKCallback()
+{
+	Nan::HandleScope scope;
+	v8::Local<v8::Value> argv[] = { Nan::Null() };
+	callback->Call(1, argv);
 }
 
 NAN_METHOD(OPELRecording::recStart)
@@ -27,23 +63,29 @@ NAN_METHOD(OPELRecording::recStart)
 	OPELRecording *recObj = Nan::ObjectWrap::Unwrap<OPELRecording>(info.This());
 	
 	int seconds;
-	const char* file_path;
-	dbusRequest *dbus_request = NULL;	
+	dbusRequest *dbus_request = NULL;
+	
+	DBusMessage* message;
+	OPELrecordingAsync *recordingAsync;
 	
 	if(!info[0]->IsString())
 	{
-		Nan::ThrowTypeError("First parameter should be callback function");
+		Nan::ThrowTypeError("First parameter should be File Path");
 		return;
 	}
 	if(!info[1]->IsNumber())
 	{
-		Nan::ThrowTypeError("Second parameter should be callback function");
+		Nan::ThrowTypeError("Second Parameter Should be Number for Seconds");
 		return;
 	}
-	
+	if(!info[2]->IsFunction())
+	{
+		Nan::ThrowTypeError("Third Parameter Should be a Callback Function");
+		return;
+	}
+	Nan::Callback *callback = new Nan::Callback(info[2].As<v8::Function>());
 	v8::String::Utf8Value param1(info[0]->ToString());
 	std::string path = std::string(*param1);
-	file_path = path.c_str();	
 
 	seconds = Nan::To<int>(info[1]).FromJust();
 
@@ -68,16 +110,17 @@ NAN_METHOD(OPELRecording::recStart)
 	dbus_request->height = 1080;
 	dbus_request->play_seconds = seconds;
 
-	recObj->sendDbusMsg(rec_init_request, dbus_request);
-		
+	message = recObj->sendDbusMsg(rec_init_request, dbus_request);
+	recordingAsync = new OPELrecordingAsync(callback, recObj->conn, 
+			message, seconds);
+	Nan::AsyncQueueWorker(recordingAsync);
 }
 
 NAN_METHOD(OPELRecording::jpegStart)
 {
 	OPELRecording *recObj = Nan::ObjectWrap::Unwrap<OPELRecording>(info.This());
 	dbusRequest *dbus_request = NULL;	
-	const char* file_path;
-	
+	DBusMessage *message;	
 	if(!info[0]->IsString())
 	{
 		Nan::ThrowTypeError("First parameter should be callback function");
@@ -92,7 +135,6 @@ NAN_METHOD(OPELRecording::jpegStart)
 	}
 	v8::String::Utf8Value param1(info[0]->ToString());
 	std::string path = std::string(*param1);
-	file_path = path.c_str();	
 	
 	dbus_request = new dbusRequest();
 	dbus_request->file_path = path;
@@ -101,8 +143,8 @@ NAN_METHOD(OPELRecording::jpegStart)
 	dbus_request->width = 1920;
 	dbus_request->height = 1080;
 
-	recObj->sendDbusMsg(snap_start_request, dbus_request);
-
+	message = recObj->sendDbusMsg(snap_start_request, dbus_request);
+	dbus_message_unref(message);
 }
 
 NAN_METHOD(OPELRecording::recStop)
@@ -149,6 +191,5 @@ NAN_MODULE_INIT(OPELRecording::Init)
 	constructor().Reset(Nan::GetFunction(tpl).ToLocalChecked());
 	Nan::Set(target, Nan::New("OPELRecording").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
 }
-
 
 NODE_MODULE(OPELRecording, OPELRecording::Init)
