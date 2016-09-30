@@ -1,0 +1,1 @@
+cmd_Release/obj.target/OPELRecording.node := g++ -shared -pthread -rdynamic  -Wl,-soname=OPELRecording.node -o Release/obj.target/OPELRecording.node -Wl,--start-group Release/obj.target/OPELRecording/src/OPELRecordingAPI.o -Wl,--end-group -ldbus-1 -lglib-2.0
