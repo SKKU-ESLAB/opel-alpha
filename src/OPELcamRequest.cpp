@@ -327,7 +327,7 @@ DBusHandlerResult msg_dbus_filter(DBusConnection *conn,
   __OPEL_FUNCTION_ENTER__; 
 
   bool ret;
-  OPELRequestTx1 *request_elements; 
+  OPELRequestTx1 *request_elements = NULL; 
   
 	OPELGstElementTx1 *tx1 = OPELGstElementTx1::getInstance();
 
@@ -426,7 +426,7 @@ DBusHandlerResult msg_dbus_filter(DBusConnection *conn,
 
 	if(dbus_message_is_signal(msg, dbus_interface, snap_start_request))
 	{
-		OPEL_DBG_VERB("Get Snapshot Start Request");
+		OPEL_DBG_WARN("Get Snapshot Start Request");
 		const char *file_path;
 
 		dbusRequest *msg_handle = (dbusRequest*)malloc(sizeof(dbusRequest));

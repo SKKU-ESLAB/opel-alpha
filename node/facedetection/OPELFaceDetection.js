@@ -1,6 +1,6 @@
 var addon = require('./build/Release/OPELFaceDetection');
 
-var count = 10;
+var count = 50;
 
 
 addon.faceDetection(count, function(err, numberOfFace){
@@ -8,7 +8,6 @@ addon.faceDetection(count, function(err, numberOfFace){
 			console.log('Face Detection !!! ');
 			console.log('Number of Face : ' + numberOfFace +'\n');
 			//이부분에 noti 관련 api로 noti 알려
-				
 		}	
 		else
 		{

@@ -335,7 +335,7 @@ bool OPELRequestTx1::defaultJpegCapFactory(void)
     return false;
   }
   
-	sprintf(caps_buffer, "video/x-raw, format=(string){I420}, \
+	sprintf(caps_buffer, "image/jpeg, \
 			width=(int){1920}, height=(int){1080}, framerate=(fraction){1/1}");
 	_enc->caps = gst_caps_from_string(caps_buffer);
 	if(!_enc->caps)
@@ -595,7 +595,7 @@ bool OPELRequestTx1::defaultJpegElementPipelineAdd(GstElement *pipeline)
 			_sink->element, NULL);
 	
 
-	ret = gst_element_link_filtered(_queue->element, _enc->element, _enc->caps);	
+	ret = gst_element_link_many(_queue->element, _enc->element, NULL);	
 	if(!ret)
 	{
 		OPEL_DBG_ERR("Gst Element Link Failed");
