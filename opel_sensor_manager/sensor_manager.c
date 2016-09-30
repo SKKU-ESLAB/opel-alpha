@@ -192,7 +192,7 @@ void* sensorThread(void* args){
 
 		//------------------ 1. Request Ã³¸® ------------------// 
 		// 
-		//sl->sensor_data_ori = sensorGet(sl, NULL);
+		sl->sensor_data_ori = sensorGet(sl, NULL);
 		sensor_value = sensorGet(sl, NULL);
 		strcpy(rd->sensor_data, sensor_value);
 		//rd->sensor_data = sensorGet(sl, NULL);
