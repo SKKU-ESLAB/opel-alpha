@@ -26,100 +26,103 @@
 #define MAXNUMBEROFITEMS 20
 #define MSGBUFSIZE 1024
 
+// Utility Functions
+#define getV8String(isolate, cstr) (String::NewFromOneByte(isolate, (const uint8_t*)cstr))
 
 pid_t pid;
 static DBusConnection *opelCon = NULL; //Only 1 connection 
 requestList *rList;
 
 void nativeInterfaceLayerInit(){
-	pid = getpid();
-	rList = (requestList*)malloc(sizeof(requestList));
-	initRequestList(rList);
+  pid = getpid();
+  rList = (requestList*)malloc(sizeof(requestList));
+  initRequestList(rList);
 }
 
 DBusHandlerResult configEventDriven(DBusConnection *connection, DBusMessage *message, void *iface_user_data){
-	int rq_num;
-	char* jsonData;
-	
-	requestList* rl;
-	TryCatch try_catch;
-	DBusError err;
-	dbus_error_init(&err);
+  Isolate* isolate = Isolate::GetCurrent();
+  int rq_num;
+  char* rcvData;
+  const uint8_t* jsonData;
 
-	printf("[NIL] Response function\n");
+  requestList* rl;
+  TryCatch try_catch;
+  DBusError err;
+  dbus_error_init(&err);
 
-//	printRequset(rList);
+  printf("[NIL] Response function\n");
 
-	dbus_message_get_args(message, &err,
-		DBUS_TYPE_INT32, &rq_num,
-		DBUS_TYPE_STRING, &jsonData,
-		DBUS_TYPE_INVALID);
+  dbus_message_get_args(message, &err,
+      DBUS_TYPE_INT32, &rq_num,
+      DBUS_TYPE_STRING, &rcvData,
+      DBUS_TYPE_INVALID);
+  jsonData = (uint8_t*)rcvData;
 
-	if (dbus_error_is_set(&err))
-	{
-		printf("Error get data: %s", err.message);
-		dbus_error_free(&err);
-	}
+  if (dbus_error_is_set(&err))
+  {
+    printf("Error get data: %s", err.message);
+    dbus_error_free(&err);
+  }
 
-	printf("[NIL] Receive Config rq_num : %d / value :%s\n\n\n\n\n", rq_num, jsonData);
-	
-	rl = getRequest(rList, rq_num);
+  printf("[NIL] Receive Config rq_num : %d / value :%s\n\n\n\n\n", rq_num, jsonData);
 
-	Handle<Value> argv[] = {
-		String::New(jsonData)
-		//String::New(data)
-	};
+  rl = getRequest(rList, rq_num);
+
+  Handle<Value> argv[] = {
+    String::NewFromOneByte(isolate, jsonData)
+  };
+
+  Local<Function> localCallback = Local<Function>::New(isolate, rl->callback);
+  localCallback->Call(isolate->GetCurrentContext()->Global(), 1, argv);
 
 
-	rl->callback->Call(Context::GetCurrent()->Global(), 1, argv);
+  if (try_catch.HasCaught()) {
+    Local<Value> exception = try_catch.Exception();
+    String::Utf8Value exception_str(exception);
+    printf("Exception: %s\n", *exception_str);
+  }
 
-
-	if (try_catch.HasCaught()) {
-		node::FatalException(try_catch);
-	}
-
-	return DBUS_HANDLER_RESULT_HANDLED;
+  return DBUS_HANDLER_RESULT_HANDLED;
 }
 
 
 DBusHandlerResult terminationEventDriven(DBusConnection *connection, DBusMessage *message, void *iface_user_data){
-	int rq_num;
-
-	
-	requestList* rl;
-	TryCatch try_catch;
-	DBusError err;
-	dbus_error_init(&err);
-
-//	printRequset(rList);
-
-	dbus_message_get_args(message, &err,
-		DBUS_TYPE_INT32, &rq_num,
-		DBUS_TYPE_INVALID);
-
-	if (dbus_error_is_set(&err))
-	{
-		printf("Error get data: %s", err.message);
-		dbus_error_free(&err);
-	}
-	
-	rl = getRequest(rList, rq_num);
-
-	Handle<Value> argv[] = {
-//		String::New(jsonData)
-		//String::New(data)
-	};
-
-	printf("[NIL] termination Event >> pid : %d, Receive rq_num : %d \n", getpid(), rq_num);
-	rl->callback->Call(Context::GetCurrent()->Global(), 0, argv); // [CHECK]
+  Isolate* isolate = Isolate::GetCurrent();
+  int rq_num;
 
 
-	if (try_catch.HasCaught()) {
-		node::FatalException(try_catch);
-	}
+  requestList* rl;
+  TryCatch try_catch;
+  DBusError err;
+  dbus_error_init(&err);
 
-	exit(1);
-	return DBUS_HANDLER_RESULT_HANDLED;
+  dbus_message_get_args(message, &err,
+      DBUS_TYPE_INT32, &rq_num,
+      DBUS_TYPE_INVALID);
+
+  if (dbus_error_is_set(&err))
+  {
+    printf("Error get data: %s", err.message);
+    dbus_error_free(&err);
+  }
+
+  rl = getRequest(rList, rq_num);
+
+  Handle<Value> argv[] = {
+  };
+
+  printf("[NIL] termination Event >> pid : %d, Receive rq_num : %d \n", getpid(), rq_num);
+  Local<Function> localCallback = Local<Function>::New(isolate, rl->callback);
+  localCallback->Call(isolate->GetCurrentContext()->Global(), 0, argv);
+
+  if (try_catch.HasCaught()) {
+    Local<Value> exception = try_catch.Exception();
+    String::Utf8Value exception_str(exception);
+    printf("Exception: %s\n", *exception_str);
+  }
+
+  exit(1);
+  return DBUS_HANDLER_RESULT_HANDLED;
 }
 
 
@@ -131,373 +134,367 @@ DBusHandlerResult terminationEventDriven(DBusConnection *connection, DBusMessage
 // 3 = Config event driven page
 int check_page_name(const char* name){
 
-	char tempString[15];
-	
-	strncpy(tempString, name, 14);
-	tempString[14] = '\0';
-	
+  char tempString[15];
 
-	if(!strcmp(tempString, "{\"noti\":\"noti\"")){
-		return 1;
-	}
-	
-	if(!strcmp(tempString, "{\"conf\":\"conf\"")){
-		return 2;
-	}
+  strncpy(tempString, name, 14);
+  tempString[14] = '\0';
 
-	
-	if(!strcmp(tempString, "{\"conf_eventd\"")){
-			return 3;
-	}
-	
-	return 0;
+
+  if(!strcmp(tempString, "{\"noti\":\"noti\"")){
+    return 1;
+  }
+
+  if(!strcmp(tempString, "{\"conf\":\"conf\"")){
+    return 2;
+  }
+
+
+  if(!strcmp(tempString, "{\"conf_eventd\"")){
+    return 3;
+  }
+
+  return 0;
 }
 
 
 bool check_key_overlap(const char* json, const char* name){
-	int position = 0;
+  int position = 0;
 
-	char key[512];
-	memset(key, '\0', 512);
-	
-		
+  char key[512];
+  memset(key, '\0', 512);
 
-	for(unsigned int i=0; i< strlen(json); i++){
 
-		if ( json[i] == '{' )
-			continue;
 
-		else if ( json[i] == '}' ){
-			if(!strcmp(key, name)){
+  for(unsigned int i=0; i< strlen(json); i++){
 
-				return false;
-			}
-		}
-		
-		else if ( json[i] == ':' ){
-			if( json[i+1] == '"')
-				position++;
-		}
+    if ( json[i] == '{' )
+      continue;
 
-		else if ( json[i] == ',' ){
-			if( json[i+1] == '"'){
-				position++;
+    else if ( json[i] == '}' ){
+      if(!strcmp(key, name)){
 
-				if(!strcmp(key, name)){
+        return false;
+      }
+    }
 
-					return false;
-				}
-				else{
+    else if ( json[i] == ':' ){
+      if( json[i+1] == '"')
+        position++;
+    }
 
-					memset(key, '\0', 512);
+    else if ( json[i] == ',' ){
+      if( json[i+1] == '"'){
+        position++;
 
-				}
-			}
-		}
+        if(!strcmp(key, name)){
 
-		else if ( json[i] == '"' ){
-			continue;
-		}
+          return false;
+        }
+        else{
 
-		else{		
-			
-			char tmp[2];
-			tmp[1] = '\0';
-			tmp[0] = json[i];			
-			
-			if(! (position % 2)) // even num -> key
-				strcat(key, tmp);
-			else{}				// odd num -> value
-				
-		}
-	}
-	
-	return true;
+          memset(key, '\0', 512);
+
+        }
+      }
+    }
+
+    else if ( json[i] == '"' ){
+      continue;
+    }
+
+    else{		
+
+      char tmp[2];
+      tmp[1] = '\0';
+      tmp[0] = json[i];			
+
+      if(! (position % 2)) // even num -> key
+        strcat(key, tmp);
+      else{}				// odd num -> value
+
+    }
+  }
+
+  return true;
 }
 
-Handle<Value> makeEventPage(const Arguments& args) {
+void makeEventPage(const FunctionCallbackInfo<Value>& args) {
+  Isolate* isolate = Isolate::GetCurrent();
+  HandleScope scope(isolate);
+  const char* description;
 
-		HandleScope scope;
-		const char* description;
-				
-		v8::String::Utf8Value param1(args[0]->ToString());
-		std::string inputJsonData = std::string(*param1);
-		description = inputJsonData.c_str();
+  v8::String::Utf8Value param1(args[0]->ToString());
+  std::string inputJsonData = std::string(*param1);
+  description = inputJsonData.c_str();
 
-		if (args.Length() == 0) {
-				return scope.Close(String::New("{\"noti\":\"noti\",\"description\":\"\"}"));
-		}
-		
-		if (args.Length() == 1) {
+  if (args.Length() == 0) {
+    args.GetReturnValue().Set(getV8String(isolate, "{\"noti\":\"noti\",\"description\":\"\"}"));
+    return;
+    //				args.GetReturnValue().Set(getV8String(isolate, "{\"noti\":\"noti\",\"description\":\"\"}"));
+  }
 
-			char newJsonData[sizeof(char) * strlen(description) + 32];
-			sprintf(newJsonData, "{\"noti\":\"noti\",\"description\":\"%s\"}" , description);
-			return scope.Close(String::New(newJsonData));
-		}
+  if (args.Length() == 1) {
 
-		ThrowException(Exception::TypeError(String::New("Invalid Use : arguments expected [Null or Description(string)]")));
-		return scope.Close(Undefined());
-		
-		//Refer this : http://luismreis.github.io/node-bindings-guide/docs/returning.html
-		//About return value from Native to Java	
+    char newJsonData[sizeof(char) * strlen(description) + 32];
+    sprintf(newJsonData, "{\"noti\":\"noti\",\"description\":\"%s\"}" , description);
+    args.GetReturnValue().Set(getV8String(isolate, newJsonData));
+    return;
+    //			args.GetReturnValue().Set(getV8String(isolate, newJsonData));
+  }
+
+  isolate->ThrowException(Exception::TypeError(getV8String(isolate, "Invalid Use : arguments expected [Null or Description(string)]")));
 }
 
+void addEventText(const FunctionCallbackInfo<Value>& args) {
+  Isolate* isolate = Isolate::GetCurrent();
+  HandleScope scope(isolate);
+  int newJsonLength;
+  //	char* newJsonData;
 
-Handle<Value> addEventText(const Arguments& args) {
+  const char* oldJsonData;
+  const char* textView;
 
-		int newJsonLength;
-	//	char* newJsonData;
-		
-		const char* oldJsonData;
-		const char* textView;
-		
-		HandleScope scope;
+  if (args.Length() != 2) {
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "Invalid Use : 2 arguments expected [Page Name]")));
+    return;
+  }
 
-		if (args.Length() != 2) {
-				ThrowException(Exception::TypeError(String::New("Invalid Use : 2 arguments expected [Page Name]")));
-				return scope.Close(Undefined());
-		}
-		
-		if (!args[0]->IsString()) { //IsInteger, IsFunction, etc...
-				ThrowException(Exception::TypeError(String::New("Wrong arguments")));
-				return scope.Close(Undefined());
-		}
-				
-		if (!args[1]->IsString()) { //IsInteger, IsFunction, etc...
-				ThrowException(Exception::TypeError(String::New("Wrong arguments")));
-				return scope.Close(Undefined());
-		}
-		
-			//----------------------------------------------------------------//
-			
-			
-			//--------------------- Page Name Check -------------------------//
-			
-		v8::String::Utf8Value param1(args[0]->ToString());
-		std::string inputJsonData = std::string(*param1);
-		oldJsonData = inputJsonData.c_str();
+  if (!args[0]->IsString()) { //IsInteger, IsFunction, etc...
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "Wrong arguments")));
+    return;
+  }
 
-		v8::String::Utf8Value param2(args[1]->ToString());
-		std::string inputText = std::string(*param2);
-		textView = inputText.c_str();
-		
-		if ( check_page_name(oldJsonData) != 1){
-			ThrowException(Exception::TypeError(String::New("addEventItem argument error : first arg is not the object of event page")));
-			return scope.Close(Undefined());				
-		}
+  if (!args[1]->IsString()) { //IsInteger, IsFunction, etc...
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "Wrong arguments")));
+    return;
+  }
+
+  //----------------------------------------------------------------//
 
 
-		newJsonLength = strlen(oldJsonData) + strlen(textView) + 20;
-//		newJsonData = (char*)malloc(sizeof(char) * newJsonLength);
-		char newJsonData[sizeof(char) * newJsonLength];
-		memset(newJsonData, '\0', newJsonLength);
-		
+  //--------------------- Page Name Check -------------------------//
 
-		char tmpStr[strlen(oldJsonData)];
-		strncpy(tmpStr, oldJsonData, strlen(oldJsonData)-1 );
-		tmpStr[strlen(oldJsonData)-1] = '\0';
+  v8::String::Utf8Value param1(args[0]->ToString());
+  std::string inputJsonData = std::string(*param1);
+  oldJsonData = inputJsonData.c_str();
 
-	
-		sprintf(newJsonData, "%s,\"text\":\"%s\"}" , tmpStr, textView);
+  v8::String::Utf8Value param2(args[1]->ToString());
+  std::string inputText = std::string(*param2);
+  textView = inputText.c_str();
+
+  if ( check_page_name(oldJsonData) != 1){
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "addEventItem argument error : first arg is not the object of event page")));
+    return;				
+  }
 
 
-		return scope.Close(String::New(newJsonData));
-				//Refer this : http://luismreis.github.io/node-bindings-guide/docs/returning.html
-				//About return value from Native to Java	
+  newJsonLength = strlen(oldJsonData) + strlen(textView) + 20;
+  //		newJsonData = (char*)malloc(sizeof(char) * newJsonLength);
+  char newJsonData[sizeof(char) * newJsonLength];
+  memset(newJsonData, '\0', newJsonLength);
 
-		
+
+  char tmpStr[strlen(oldJsonData)];
+  strncpy(tmpStr, oldJsonData, strlen(oldJsonData)-1 );
+  tmpStr[strlen(oldJsonData)-1] = '\0';
+
+
+  sprintf(newJsonData, "%s,\"text\":\"%s\"}" , tmpStr, textView);
+
+
+  args.GetReturnValue().Set(getV8String(isolate, newJsonData));
 }
 
 // [MORE] addDescription
 
-Handle<Value> addEventImg(const Arguments& args) {
-		
-		int newJsonLength;
-//		char* newJsonData;
-		
-		const char* oldJsonData;
-		const char* imgPath;
-		
-		HandleScope scope;
+void addEventImg(const FunctionCallbackInfo<Value>& args) {
+  Isolate* isolate = Isolate::GetCurrent();
+  HandleScope scope(isolate);
+  
+  int newJsonLength;
+  //		char* newJsonData;
 
-		if (args.Length() != 2) {
-				ThrowException(Exception::TypeError(String::New("Invalid Use : 2 arguments expected [Page Name]")));
-				return scope.Close(Undefined());
-		}
+  const char* oldJsonData;
+  const char* imgPath;
 
-		if (!args[0]->IsString()) { //IsInteger, IsFunction, etc...
-				ThrowException(Exception::TypeError(String::New("Wrong arguments")));
-				return scope.Close(Undefined());
-		}
+  if (args.Length() != 2) {
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "Invalid Use : 2 arguments expected [Page Name]")));
+    return;
+  }
 
-		if (!args[1]->IsString()) { //IsInteger, IsFunction, etc...
-				ThrowException(Exception::TypeError(String::New("Wrong arguments")));
-				return scope.Close(Undefined());
-		}
+  if (!args[0]->IsString()) { //IsInteger, IsFunction, etc...
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "Wrong arguments")));
+    return;
+  }
 
-		//----------------------------------------------------------------//
+  if (!args[1]->IsString()) { //IsInteger, IsFunction, etc...
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "Wrong arguments")));
+    return;
+  }
 
-			
-		//--------------------- Page Name Check -------------------------//
-			
-	v8::String::Utf8Value param1(args[0]->ToString());
-	std::string inputJsonData = std::string(*param1);
-	oldJsonData = inputJsonData.c_str();
+  //----------------------------------------------------------------//
 
-	v8::String::Utf8Value param2(args[1]->ToString());
-	std::string inputText = std::string(*param2);
-	imgPath = inputText.c_str();
 
-	if ( check_page_name(oldJsonData) != 1){
-		ThrowException(Exception::TypeError(String::New("addEventItem argument error : first arg is not the object of event page")));
-		return scope.Close(Undefined());				
-	}
-	
-	newJsonLength = strlen(oldJsonData) + strlen(imgPath)+256 ;
-	//newJsonData = (char*)malloc(sizeof(char) * newJsonLength);
-	char newJsonData[sizeof(char) * newJsonLength];
-	memset(newJsonData, '\0', newJsonLength);
-	
-	char tmpStr[strlen(oldJsonData)];
-	strncpy(tmpStr, oldJsonData, strlen(oldJsonData)-1 );
-	tmpStr[strlen(oldJsonData)-1] = '\0';
+  //--------------------- Page Name Check -------------------------//
 
-	sprintf(newJsonData, "%s,\"img\":\"%s\"}" , tmpStr, imgPath);
-	
-	return scope.Close(String::New(newJsonData));
+  v8::String::Utf8Value param1(args[0]->ToString());
+  std::string inputJsonData = std::string(*param1);
+  oldJsonData = inputJsonData.c_str();
 
-		
+  v8::String::Utf8Value param2(args[1]->ToString());
+  std::string inputText = std::string(*param2);
+  imgPath = inputText.c_str();
+
+  if ( check_page_name(oldJsonData) != 1){
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "addEventItem argument error : first arg is not the object of event page")));
+    return;				
+  }
+
+  newJsonLength = strlen(oldJsonData) + strlen(imgPath)+256 ;
+  //newJsonData = (char*)malloc(sizeof(char) * newJsonLength);
+  char newJsonData[sizeof(char) * newJsonLength];
+  memset(newJsonData, '\0', newJsonLength);
+
+  char tmpStr[strlen(oldJsonData)];
+  strncpy(tmpStr, oldJsonData, strlen(oldJsonData)-1 );
+  tmpStr[strlen(oldJsonData)-1] = '\0';
+
+  sprintf(newJsonData, "%s,\"img\":\"%s\"}" , tmpStr, imgPath);
+
+  args.GetReturnValue().Set(getV8String(isolate, newJsonData));
+
+
 }
 
-Handle<Value> sendEventPage(const Arguments& args) {
+void sendEventPage(const FunctionCallbackInfo<Value>& args) {
+  Isolate* isolate = Isolate::GetCurrent();
+  HandleScope scope(isolate);
 
-	HandleScope scope;
+  const char* jsonData;
 
-	const char* jsonData;
-	
-	DBusMessage* msg;
-	DBusError err;
+  DBusMessage* msg;
+  DBusError err;
 
-	dbus_int32_t pid;
-	dbus_int32_t noti = 0;
-	//----------------------------------------------------------------//
-	//						1. Argument Check
-	if ((args.Length() != 1) ||	!args[0]->IsString() ) {
-		ThrowException(Exception::TypeError(String::New("Invalid Use : 1 arguments expected [Page obj]")));
-		return scope.Close(Undefined());
-	}
+  dbus_int32_t pid;
+  dbus_int32_t noti = 0;
+  //----------------------------------------------------------------//
+  //						1. Argument Check
+  if ((args.Length() != 1) ||	!args[0]->IsString() ) {
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "Invalid Use : 1 arguments expected [Page obj]")));
+    return;
+  }
 
-	v8::String::Utf8Value param1(args[0]->ToString());
-	std::string name_c = std::string(*param1);
-	jsonData = name_c.c_str();
+  v8::String::Utf8Value param1(args[0]->ToString());
+  std::string name_c = std::string(*param1);
+  jsonData = name_c.c_str();
 
-	if ( check_page_name(jsonData) != 1){
-		ThrowException(Exception::TypeError(String::New("sendEventItem argument error : first arg is not the object of event page")));
-		return scope.Close(Undefined());				
-	}
-
-	
-	//
-	//----------------------------------------------------------------//
+  if ( check_page_name(jsonData) != 1){
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "sendEventItem argument error : first arg is not the object of event page")));
+    return;				
+  }
 
 
-	//----------------------------------------------------------------//
-	//			2. Request Creation (For function callback)
+  //
+  //----------------------------------------------------------------//
 
 
-	pid = (unsigned int)getpid();
+  //----------------------------------------------------------------//
+  //			2. Request Creation (For function callback)
 
-	//
-	//----------------------------------------------------------------//
-	
 
-	//----------------------------------------------------------------//
-	//				3. Send Message (Request struct) 
-	//				Send message with reply or not
-	dbus_error_init(&err);
-	msg = dbus_message_new_signal(SAM_INTERFACE, SAM_PATH, "sendNotiPage");
+  pid = (unsigned int)getpid();
 
-	dbus_message_append_args(msg,
-		DBUS_TYPE_INT32, &pid,
-		DBUS_TYPE_STRING, &jsonData,
-		DBUS_TYPE_INT32, &noti,
-		DBUS_TYPE_INVALID);
+  //
+  //----------------------------------------------------------------//
 
-	/* Send the signal */
-	dbus_connection_send(opelCon, msg, NULL);
-	dbus_message_unref(msg);
 
-	printf("[NIL] SendEventPage to Manager>>  %s\n", jsonData);
-	//
-	//----------------------------------------------------------------//
+  //----------------------------------------------------------------//
+  //				3. Send Message (Request struct) 
+  //				Send message with reply or not
+  dbus_error_init(&err);
+  msg = dbus_message_new_signal(SAM_INTERFACE, SAM_PATH, "sendNotiPage");
 
-	return scope.Close(Undefined());
+  dbus_message_append_args(msg,
+      DBUS_TYPE_INT32, &pid,
+      DBUS_TYPE_STRING, &jsonData,
+      DBUS_TYPE_INT32, &noti,
+      DBUS_TYPE_INVALID);
+
+  /* Send the signal */
+  dbus_connection_send(opelCon, msg, NULL);
+  dbus_message_unref(msg);
+
+  printf("[NIL] SendEventPage to Manager>>  %s\n", jsonData);
+  //
+  //----------------------------------------------------------------//
+
+  return;
 }
 
 
-Handle<Value> sendEventPageWithNoti(const Arguments& args) {
+void sendEventPageWithNoti(const FunctionCallbackInfo<Value>& args) {
+  Isolate* isolate = Isolate::GetCurrent();
+  HandleScope scope(isolate);
 
-	HandleScope scope;
+  const char* jsonData;
 
-	const char* jsonData;
-	
-	DBusMessage* msg;
-	DBusError err;
+  DBusMessage* msg;
+  DBusError err;
 
-	dbus_int32_t pid;
-	dbus_int32_t noti = 1;
-	//----------------------------------------------------------------//
-	//						1. Argument Check
-	if ((args.Length() != 1) ||	!args[0]->IsString() ) {
-		ThrowException(Exception::TypeError(String::New("Invalid Use : 1 arguments expected [Page obj]")));
-		return scope.Close(Undefined());
-	}
+  dbus_int32_t pid;
+  dbus_int32_t noti = 1;
+  //----------------------------------------------------------------//
+  //						1. Argument Check
+  if ((args.Length() != 1) ||	!args[0]->IsString() ) {
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "Invalid Use : 1 arguments expected [Page obj]")));
+    return;
+  }
 
-	v8::String::Utf8Value param1(args[0]->ToString());
-	std::string name_c = std::string(*param1);
-	jsonData = name_c.c_str();
+  v8::String::Utf8Value param1(args[0]->ToString());
+  std::string name_c = std::string(*param1);
+  jsonData = name_c.c_str();
 
-	if ( check_page_name(jsonData) != 1){
-		ThrowException(Exception::TypeError(String::New("sendEventItem argument error : first arg is not the object of event page")));
-		return scope.Close(Undefined());				
-	}
-
-	
-	//
-	//----------------------------------------------------------------//
+  if ( check_page_name(jsonData) != 1){
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "sendEventItem argument error : first arg is not the object of event page")));
+    return;				
+  }
 
 
-	//----------------------------------------------------------------//
-	//			2. Request Creation (For function callback)
+  //
+  //----------------------------------------------------------------//
 
 
-	pid = (unsigned int)getpid();
+  //----------------------------------------------------------------//
+  //			2. Request Creation (For function callback)
 
-	//
-	//----------------------------------------------------------------//
-	
 
-	//----------------------------------------------------------------//
-	//				3. Send Message (Request struct) 
-	//				Send message with reply or not
-	dbus_error_init(&err);
-	msg = dbus_message_new_signal(SAM_INTERFACE, SAM_PATH, "sendNotiPage");
+  pid = (unsigned int)getpid();
 
-	dbus_message_append_args(msg,
-		DBUS_TYPE_INT32, &pid,
-		DBUS_TYPE_STRING, &jsonData,
-		DBUS_TYPE_INT32, &noti,
-		DBUS_TYPE_INVALID);
+  //
+  //----------------------------------------------------------------//
 
-	/* Send the signal */
-	dbus_connection_send(opelCon, msg, NULL);
-	dbus_message_unref(msg);
 
-	printf("[NIL] SendEventPage to Manager>>  %s\n", jsonData);
-	//
-	//----------------------------------------------------------------//
+  //----------------------------------------------------------------//
+  //				3. Send Message (Request struct) 
+  //				Send message with reply or not
+  dbus_error_init(&err);
+  msg = dbus_message_new_signal(SAM_INTERFACE, SAM_PATH, "sendNotiPage");
 
-	return scope.Close(Undefined());
+  dbus_message_append_args(msg,
+      DBUS_TYPE_INT32, &pid,
+      DBUS_TYPE_STRING, &jsonData,
+      DBUS_TYPE_INT32, &noti,
+      DBUS_TYPE_INVALID);
+
+  /* Send the signal */
+  dbus_connection_send(opelCon, msg, NULL);
+  dbus_message_unref(msg);
+
+  printf("[NIL] SendEventPage to Manager>>  %s\n", jsonData);
+  //
+  //----------------------------------------------------------------//
+
+  return;
 }
 
 
@@ -507,313 +504,308 @@ Handle<Value> sendEventPageWithNoti(const Arguments& args) {
 //JSON Warnning : any string shouln't has '"' char
 //OUTPUT Json format : 
 /*
-	{
-	"conf":"conf",
-	"strTB":"Name[descript/10]",
-	"numTB":"Name[descript/1/10]",
-	"sDialog":"Name[descript/a/b/c/d/e]",
-	"mDialog":"Name[descript/a[a]/b/c/d/e]",
-	"dateDialog":Name[descript/flag]",
-	"timeDialog":Name[descript/flag]"
-	}
-	
+   {
+   "conf":"conf",
+   "strTB":"Name[descript/10]",
+   "numTB":"Name[descript/1/10]",
+   "sDialog":"Name[descript/a/b/c/d/e]",
+   "mDialog":"Name[descript/a[a]/b/c/d/e]",
+   "dateDialog":Name[descript/flag]",
+   "timeDialog":Name[descript/flag]"
+   }
+
 
 */
 
 //----------------------   config page -------------------------//
-Handle<Value> makeConfigPage(const Arguments& args) {
+void makeConfigPage(const FunctionCallbackInfo<Value>& args) {
+  Isolate* isolate = Isolate::GetCurrent();
+  HandleScope scope(isolate);
 
-		HandleScope scope;
-		
-		return scope.Close(String::New("{\"conf\":\"conf\"}"));
-		//Refer this : http://luismreis.github.io/node-bindings-guide/docs/returning.html
-		//About return value from Native to Java	
+  args.GetReturnValue().Set(getV8String(isolate, "{\"conf\":\"conf\"}"));
 }
 
 
 
 // addStrTextbox(page, name, description, length);
 // Return new Json string
-Handle<Value> addStrTextbox(const Arguments& args) {
+void addStrTextbox(const FunctionCallbackInfo<Value>& args) {
+  Isolate* isolate = Isolate::GetCurrent();
+  HandleScope scope(isolate);
+
+  int newJsonLength;
+
+  const char* oldJsonData;
+
+  const char* description;
+
+  const char* name;
+  const char* length;
+
+  if (args.Length() != 4) {
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "Invalid Use : 1st arguments expected [Page, Name(str), Description(str), length(int)]")));
+    return;
+  }
+  if (!args[0]->IsString()||!args[1]->IsString() ||!args[2]->IsString()|| !args[3]->NumberValue() > 0  ) { //IsInteger, IsFunction, etc...
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "Wrong arguments")));
+    return;
+  }
+  //----------------------------------------------------------------//
 
 
-		int newJsonLength;
+  //--------------------- Page Name Check -------------------------//
 
-		const char* oldJsonData;
+  v8::String::Utf8Value param1(args[0]->ToString());
+  std::string json = std::string(*param1);
+  oldJsonData = json.c_str();
 
-		const char* description;
+  v8::String::Utf8Value param2(args[1]->ToString());
+  std::string name_c = std::string(*param2);
+  name = name_c.c_str();
 
-		const char* name;
-		const char* length;
-		HandleScope scope;
-		
-		
+  v8::String::Utf8Value param11(args[2]->ToString());
+  std::string des = std::string(*param11);
+  description= des.c_str();
 
-		if (args.Length() != 4) {
-				ThrowException(Exception::TypeError(String::New("Invalid Use : 1st arguments expected [Page, Name(str), Description(str), length(int)]")));
-				return scope.Close(Undefined());
-			}
-		if (!args[0]->IsString()||!args[1]->IsString() ||!args[2]->IsString()|| !args[3]->NumberValue() > 0  ) { //IsInteger, IsFunction, etc...
-				ThrowException(Exception::TypeError(String::New("Wrong arguments")));
-				return scope.Close(Undefined());
-			}
-		//----------------------------------------------------------------//
+  v8::String::Utf8Value param3(args[3]->ToString());
+  std::string length_c = std::string(*param3);
+  length = length_c.c_str();
 
-			
-		//--------------------- Page Name Check -------------------------//
-			
-		v8::String::Utf8Value param1(args[0]->ToString());
-		std::string json = std::string(*param1);
-		oldJsonData = json.c_str();
+  if ( check_page_name(oldJsonData) != 2){
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "addConfigItem argument error : first arg is not the object of config page")));
+    return;				
+  }
 
-		v8::String::Utf8Value param2(args[1]->ToString());
-		std::string name_c = std::string(*param2);
-		name = name_c.c_str();
-		
-		v8::String::Utf8Value param11(args[2]->ToString());
-		std::string des = std::string(*param11);
-		description= des.c_str();
+  if (check_key_overlap(oldJsonData, name) == false){
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "addConfigItem argument error : the name(key) is already used in this page")));
+    return;	
+  }
 
-		v8::String::Utf8Value param3(args[3]->ToString());
-		std::string length_c = std::string(*param3);
-		length = length_c.c_str();
+  newJsonLength = strlen(oldJsonData) + strlen(name) + strlen(length) + 32;
+  //		newJsonData = (char*)malloc(sizeof(char) * newJsonLength);
 
-		if ( check_page_name(oldJsonData) != 2){
-				ThrowException(Exception::TypeError(String::New("addConfigItem argument error : first arg is not the object of config page")));
-				return scope.Close(Undefined());				
-		}
-		
-		if (check_key_overlap(oldJsonData, name) == false){
-				ThrowException(Exception::TypeError(String::New("addConfigItem argument error : the name(key) is already used in this page")));
-				return scope.Close(Undefined());	
-		}
-
-		newJsonLength = strlen(oldJsonData) + strlen(name) + strlen(length) + 32;
-//		newJsonData = (char*)malloc(sizeof(char) * newJsonLength);
-
-		char newJsonData [sizeof(char) * newJsonLength];
-		memset(newJsonData, '\0', newJsonLength);
+  char newJsonData [sizeof(char) * newJsonLength];
+  memset(newJsonData, '\0', newJsonLength);
 
 
-		char tmpStr[strlen(oldJsonData)];
-		strncpy(tmpStr, oldJsonData, strlen(oldJsonData)-1 );
-		tmpStr[strlen(oldJsonData)-1] = '\0';
+  char tmpStr[strlen(oldJsonData)];
+  strncpy(tmpStr, oldJsonData, strlen(oldJsonData)-1 );
+  tmpStr[strlen(oldJsonData)-1] = '\0';
 
-	
-		sprintf(newJsonData, "%s,\"strTB\":\"%s[%s/%s]\"}" , tmpStr, name, description,length);
-				
-		return scope.Close(String::New(newJsonData));
+
+  sprintf(newJsonData, "%s,\"strTB\":\"%s[%s/%s]\"}" , tmpStr, name, description,length);
+
+  args.GetReturnValue().Set(getV8String(isolate, newJsonData));
 }
 
 
 
 // addNumberTextbox(page, name, description, range1, range2);
 // Return new Json string
-Handle<Value> addNumberTextbox(const Arguments& args) {
+void addNumberTextbox(const FunctionCallbackInfo<Value>& args) {
+  Isolate* isolate = Isolate::GetCurrent();
+  HandleScope scope(isolate);
 
-	const char* oldJsonData;
+  const char* oldJsonData;
 
-//	char* newJsonData;
-	int newJsonLength;
-			
-	const char* name;
-	const char* description;
-	const char* range1;
-	const char* range2;
+  //	char* newJsonData;
+  int newJsonLength;
 
-	HandleScope scope;
-	
+  const char* name;
+  const char* description;
+  const char* range1;
+  const char* range2;
 
-	if (args.Length() != 5) {
-			ThrowException(Exception::TypeError(String::New("addNumberTextbox::Invalid Use : 5 arguments expected [page,name,description,range1,range2]")));
-			return scope.Close(Undefined());
-		}
-	if (!args[0]->IsString()) { 
-			ThrowException(Exception::TypeError(String::New("addNumberTextbox::1st argument is wrong [page]")));
-			return scope.Close(Undefined());
-	}
-
-
-	if (!args[1]->IsString() ) { 
-			ThrowException(Exception::TypeError(String::New("addNumberTextbox::2nd argument is wrong [string:Name]")));
-			return scope.Close(Undefined());
-	}
-
-	if (!args[2]->IsString() ) { 
-			ThrowException(Exception::TypeError(String::New("addNumberTextbox::3rd argument is wrong [string:description]")));
-			return scope.Close(Undefined());
-	}
-	
-	if (!args[3]->IsNumber()|| !args[4]->IsNumber() ) { 
-			ThrowException(Exception::TypeError(String::New("addNumberTextbox::4,5th argument is wrong [int:range1, int:range2]")));
-			return scope.Close(Undefined());
-	}
-	//----------------------------------------------------------------//
+  if (args.Length() != 5) {
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "addNumberTextbox::Invalid Use : 5 arguments expected [page,name,description,range1,range2]")));
+    return;
+  }
+  if (!args[0]->IsString()) { 
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "addNumberTextbox::1st argument is wrong [page]")));
+    return;
+  }
 
 
-	
-			
-	//--------------------- Page Name Check -------------------------//
-			
-	v8::String::Utf8Value param1(args[0]->ToString());
-	std::string json = std::string(*param1);
-	oldJsonData = json.c_str();
+  if (!args[1]->IsString() ) { 
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "addNumberTextbox::2nd argument is wrong [string:Name]")));
+    return;
+  }
 
-	v8::String::Utf8Value param2(args[1]->ToString());
-	std::string name_c = std::string(*param2);
-	name = name_c.c_str();
+  if (!args[2]->IsString() ) { 
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "addNumberTextbox::3rd argument is wrong [string:description]")));
+    return;
+  }
 
-	v8::String::Utf8Value param11(args[2]->ToString());
-	std::string des = std::string(*param11);
-	description= des.c_str();
-	
-	v8::String::Utf8Value param3(args[3]->ToString());
-	std::string range_1 = std::string(*param3);
-	
-
-	v8::String::Utf8Value param4(args[4]->ToString());
-	std::string range_2 = std::string(*param4);
+  if (!args[3]->IsNumber()|| !args[4]->IsNumber() ) { 
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "addNumberTextbox::4,5th argument is wrong [int:range1, int:range2]")));
+    return;
+  }
+  //----------------------------------------------------------------//
 
 
-	if ( atof(range_1.c_str()) < atof(range_2.c_str())){
-		range1 = range_1.c_str();
-		range2 = range_2.c_str();
-	}
-
-	else{
-		range1 = range_2.c_str();
-		range2 = range_1.c_str();	
-	}
 
 
-	if ( check_page_name(oldJsonData) != 2){
-			ThrowException(Exception::TypeError(String::New("addConfigItem argument error : first arg is not the object of config page")));
-			return scope.Close(Undefined());				
-	}
+  //--------------------- Page Name Check -------------------------//
 
-	if ( check_key_overlap(oldJsonData, name) == false ){
-				ThrowException(Exception::TypeError(String::New("addConfigItem argument error : the name(key) is already used in this page")));
-				return scope.Close(Undefined());	
-	}
-	newJsonLength = strlen(oldJsonData) + strlen(name) + strlen(range1) + strlen(range2)+ 32;
-//	newJsonData = (char*)malloc(sizeof(char) * newJsonLength);
-	char newJsonData [sizeof(char) * newJsonLength];
-	memset(newJsonData, '\0', newJsonLength);
+  v8::String::Utf8Value param1(args[0]->ToString());
+  std::string json = std::string(*param1);
+  oldJsonData = json.c_str();
 
-	char tmpStr[strlen(oldJsonData)];
-	strncpy(tmpStr, oldJsonData, strlen(oldJsonData)-1 );
-	tmpStr[strlen(oldJsonData)-1] = '\0';
+  v8::String::Utf8Value param2(args[1]->ToString());
+  std::string name_c = std::string(*param2);
+  name = name_c.c_str();
 
-	sprintf(newJsonData, "%s,\"numTB\":\"%s[%s/%s/%s]\"}" , tmpStr, name, description,range1, range2);
-				
-	return scope.Close(String::New(newJsonData));
+  v8::String::Utf8Value param11(args[2]->ToString());
+  std::string des = std::string(*param11);
+  description= des.c_str();
+
+  v8::String::Utf8Value param3(args[3]->ToString());
+  std::string range_1 = std::string(*param3);
+
+
+  v8::String::Utf8Value param4(args[4]->ToString());
+  std::string range_2 = std::string(*param4);
+
+
+  if ( atof(range_1.c_str()) < atof(range_2.c_str())){
+    range1 = range_1.c_str();
+    range2 = range_2.c_str();
+  }
+
+  else{
+    range1 = range_2.c_str();
+    range2 = range_1.c_str();	
+  }
+
+
+  if ( check_page_name(oldJsonData) != 2){
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "addConfigItem argument error : first arg is not the object of config page")));
+    return;				
+  }
+
+  if ( check_key_overlap(oldJsonData, name) == false ){
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "addConfigItem argument error : the name(key) is already used in this page")));
+    return;	
+  }
+  newJsonLength = strlen(oldJsonData) + strlen(name) + strlen(range1) + strlen(range2)+ 32;
+  //	newJsonData = (char*)malloc(sizeof(char) * newJsonLength);
+  char newJsonData [sizeof(char) * newJsonLength];
+  memset(newJsonData, '\0', newJsonLength);
+
+  char tmpStr[strlen(oldJsonData)];
+  strncpy(tmpStr, oldJsonData, strlen(oldJsonData)-1 );
+  tmpStr[strlen(oldJsonData)-1] = '\0';
+
+  sprintf(newJsonData, "%s,\"numTB\":\"%s[%s/%s/%s]\"}" , tmpStr, name, description,range1, range2);
+
+  args.GetReturnValue().Set(getV8String(isolate, newJsonData));
 }
 
 
 // addSingleDialog(page, name, description, item1,2,3...);
 // Return new Json string (+"sDialog":"Name[description/a/b/c/d/e]"),
-Handle<Value> addSingleDialog(const Arguments& args) {
+void addSingleDialog(const FunctionCallbackInfo<Value>& args) {
+  Isolate* isolate = Isolate::GetCurrent();
+  HandleScope scope(isolate);
 
-	const char* oldJsonData;
+  const char* oldJsonData;
 
-//	char* newJsonData;
-	int newJsonLength;
-			
-	const char* name;
+  //	char* newJsonData;
+  int newJsonLength;
 
-	char** items;
+  const char* name;
 
-	HandleScope scope;
+  char** items;
 
-	int i;
-	
-	if (!args[0]->IsString()) { 
-			ThrowException(Exception::TypeError(String::New("addSingleDialog::1st argument is wrong [page]")));
-			return scope.Close(Undefined());
-	}
+  int i;
 
-
-	if (!args[1]->IsString() ) { 
-			ThrowException(Exception::TypeError(String::New("addSingleDialog::2nd argument is wrong [string:Name]")));
-			return scope.Close(Undefined());
-	}
-
-	v8::String::Utf8Value param1(args[0]->ToString());
-	std::string json = std::string(*param1);
-	oldJsonData = json.c_str();
-	
-	v8::String::Utf8Value param2(args[1]->ToString());
-	std::string name_c = std::string(*param2);
-	name = name_c.c_str();
-
-	if ( check_page_name(oldJsonData) != 2){
-		ThrowException(Exception::TypeError(String::New("addSingleDialog argument error : first arg is not the object of config page")));
-		return scope.Close(Undefined());				
-	}
-
-	if (check_key_overlap(oldJsonData, name) == false){
-				ThrowException(Exception::TypeError(String::New("addConfigItem argument error : the name(key) is already used in this page")));
-				return scope.Close(Undefined());	
-	}
-
-//------------------------------------- get Items -----------------------------------------------------//
-//-----------------------------------------------------------------------------------------------------
-	items = (char**) malloc(sizeof(char*) * MAXNUMBEROFITEMS);
-
-	int itemsTotalLength=0;
-	
-	for( i=2; args[i]->IsString(); i++){
-		v8::String::Utf8Value param3(args[i]->ToString());
-		std::string item = std::string(*param3);
-		items[i-2] = (char*) malloc(sizeof(char) * strlen(item.c_str()) );
-		strcpy(items[i-2], item.c_str());
-		itemsTotalLength += strlen(item.c_str());
+  if (!args[0]->IsString()) { 
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "addSingleDialog::1st argument is wrong [page]")));
+    return;
+  }
 
 
-		if( i > MAXNUMBEROFITEMS+1 ){
-			
-			ThrowException(Exception::TypeError(String::New("addSingleDialog argument error : over the maximum number of items")));
-			return scope.Close(Undefined());
-		}
-	}
+  if (!args[1]->IsString() ) { 
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "addSingleDialog::2nd argument is wrong [string:Name]")));
+    return;
+  }
 
-	char* itemsString = (char*) malloc( (sizeof(char) * itemsTotalLength) + 4*i );
-	memset(itemsString, '\0', (sizeof(char) * itemsTotalLength) + 4*i );
-	
-	for( int j = 0; j < i-2; j++){
-		if( strchr(items[j], '/') != NULL){ // some items contain '/' character -> cannot use that cuz it's token char
+  v8::String::Utf8Value param1(args[0]->ToString());
+  std::string json = std::string(*param1);
+  oldJsonData = json.c_str();
 
-			ThrowException(Exception::TypeError(String::New("addSingleDialog::item cannot contain '/' character")));
-			free(items);
-			free(itemsString);
-			return scope.Close(Undefined());
-		}
-		strcat(itemsString, items[j]);
-		if(j == i-3){
-			strcat(itemsString, "\0");
-		}
-		else{
-			strcat(itemsString, "/");
-		}
+  v8::String::Utf8Value param2(args[1]->ToString());
+  std::string name_c = std::string(*param2);
+  name = name_c.c_str();
+
+  if ( check_page_name(oldJsonData) != 2){
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "addSingleDialog argument error : first arg is not the object of config page")));
+    return;				
+  }
+
+  if (check_key_overlap(oldJsonData, name) == false){
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "addConfigItem argument error : the name(key) is already used in this page")));
+    return;	
+  }
+
+  //------------------------------------- get Items -----------------------------------------------------//
+  //-----------------------------------------------------------------------------------------------------
+  items = (char**) malloc(sizeof(char*) * MAXNUMBEROFITEMS);
+
+  int itemsTotalLength=0;
+
+  for( i=2; args[i]->IsString(); i++){
+    v8::String::Utf8Value param3(args[i]->ToString());
+    std::string item = std::string(*param3);
+    items[i-2] = (char*) malloc(sizeof(char) * strlen(item.c_str()) );
+    strcpy(items[i-2], item.c_str());
+    itemsTotalLength += strlen(item.c_str());
 
 
-	}
+    if( i > MAXNUMBEROFITEMS+1 ){
 
-	
-	newJsonLength = strlen(oldJsonData) + strlen(name) + strlen(itemsString)+ 32;
-//	newJsonData = (char*)malloc(sizeof(char) * newJsonLength);
-	char newJsonData [sizeof(char) * newJsonLength];
-	memset(newJsonData, '\0', newJsonLength);
+      isolate->ThrowException(Exception::TypeError(getV8String(isolate, "addSingleDialog argument error : over the maximum number of items")));
+      return;
+    }
+  }
+
+  char* itemsString = (char*) malloc( (sizeof(char) * itemsTotalLength) + 4*i );
+  memset(itemsString, '\0', (sizeof(char) * itemsTotalLength) + 4*i );
+
+  for( int j = 0; j < i-2; j++){
+    if( strchr(items[j], '/') != NULL){ // some items contain '/' character -> cannot use that cuz it's token char
+
+      isolate->ThrowException(Exception::TypeError(getV8String(isolate, "addSingleDialog::item cannot contain '/' character")));
+      free(items);
+      free(itemsString);
+      return;
+    }
+    strcat(itemsString, items[j]);
+    if(j == i-3){
+      strcat(itemsString, "\0");
+    }
+    else{
+      strcat(itemsString, "/");
+    }
 
 
-	char tmpStr[strlen(oldJsonData)];
-	strncpy(tmpStr, oldJsonData, strlen(oldJsonData)-1 );
-	tmpStr[strlen(oldJsonData)-1] = '\0';
+  }
 
-	sprintf(newJsonData, "%s,\"sDialog\":\"%s[%s]\"}" , tmpStr, name, itemsString);
-	free(items);
-	free(itemsString);
-	return scope.Close(String::New(newJsonData));
+
+  newJsonLength = strlen(oldJsonData) + strlen(name) + strlen(itemsString)+ 32;
+  //	newJsonData = (char*)malloc(sizeof(char) * newJsonLength);
+  char newJsonData [sizeof(char) * newJsonLength];
+  memset(newJsonData, '\0', newJsonLength);
+
+
+  char tmpStr[strlen(oldJsonData)];
+  strncpy(tmpStr, oldJsonData, strlen(oldJsonData)-1 );
+  tmpStr[strlen(oldJsonData)-1] = '\0';
+
+  sprintf(newJsonData, "%s,\"sDialog\":\"%s[%s]\"}" , tmpStr, name, itemsString);
+  free(items);
+  free(itemsString);
+  args.GetReturnValue().Set(getV8String(isolate, newJsonData));
 
 
 }
@@ -824,108 +816,107 @@ Handle<Value> addSingleDialog(const Arguments& args) {
 // addMultipleDialog(page, name, description, item1,2,3...);
 // Return new Json string (+"mDialog":"Name[description/a/b/c/d/e]")
 
-Handle<Value> addMultipleDialog(const Arguments& args) {
+void addMultipleDialog(const FunctionCallbackInfo<Value>& args) {
+  Isolate* isolate = Isolate::GetCurrent();
+  HandleScope scope(isolate);
+
+  const char* oldJsonData;
+
+  //		char* newJsonData;
+  int newJsonLength;
+
+  const char* name;
+
+  char** items;
+
+  int i;
+
+  if (!args[0]->IsString()) { 
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "addMultipleDialog::1st argument is wrong [page]")));
+    return;
+  }
 
 
-		const char* oldJsonData;
-	
-//		char* newJsonData;
-		int newJsonLength;
-				
-		const char* name;
-		
-		char** items;
-	
-		HandleScope scope;
-	
-		int i;
-		
-		if (!args[0]->IsString()) { 
-				ThrowException(Exception::TypeError(String::New("addMultipleDialog::1st argument is wrong [page]")));
-				return scope.Close(Undefined());
-		}
-	
-	
-		if (!args[1]->IsString() ) { 
-				ThrowException(Exception::TypeError(String::New("addMultipleDialog::2nd argument is wrong [string:Name]")));
-				return scope.Close(Undefined());
-		}
-	
-		v8::String::Utf8Value param1(args[0]->ToString());
-		std::string json = std::string(*param1);
-		oldJsonData = json.c_str();
-		
-		v8::String::Utf8Value param2(args[1]->ToString());
-		std::string name_c = std::string(*param2);
-		name = name_c.c_str();
-	
-		if ( check_page_name(oldJsonData) != 2){
-			ThrowException(Exception::TypeError(String::New("addMultipleDialog argument error : first arg is not the object of config page")));
-			return scope.Close(Undefined());				
-		}
-		if (check_key_overlap(oldJsonData, name) == false){
-				ThrowException(Exception::TypeError(String::New("addConfigItem argument error : the name(key) is already used in this page")));
-				return scope.Close(Undefined());	
-		}
-	
-	
-//------------------------------------- get Items -----------------------------------------------------//
-//-----------------------------------------------------------------------------------------------------
-	items = (char**) malloc(sizeof(char*) * MAXNUMBEROFITEMS);
+  if (!args[1]->IsString() ) { 
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "addMultipleDialog::2nd argument is wrong [string:Name]")));
+    return;
+  }
 
-	int itemsTotalLength=0;
-	
-	for( i=2; args[i]->IsString(); i++){
-		v8::String::Utf8Value param3(args[i]->ToString());
-		std::string item = std::string(*param3);
-		items[i-2] = (char*) malloc(sizeof(char) * strlen(item.c_str()) );
-		strcpy(items[i-2], item.c_str());
-		itemsTotalLength += strlen(item.c_str());
+  v8::String::Utf8Value param1(args[0]->ToString());
+  std::string json = std::string(*param1);
+  oldJsonData = json.c_str();
+
+  v8::String::Utf8Value param2(args[1]->ToString());
+  std::string name_c = std::string(*param2);
+  name = name_c.c_str();
+
+  if ( check_page_name(oldJsonData) != 2){
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "addMultipleDialog argument error : first arg is not the object of config page")));
+    return;				
+  }
+  if (check_key_overlap(oldJsonData, name) == false){
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "addConfigItem argument error : the name(key) is already used in this page")));
+    return;	
+  }
 
 
-		if( i > MAXNUMBEROFITEMS+1 ){
-			
-			ThrowException(Exception::TypeError(String::New("addSingleDialog argument error : over the maximum number of items")));
-			return scope.Close(Undefined());
+  //------------------------------------- get Items -----------------------------------------------------//
+  //-----------------------------------------------------------------------------------------------------
+  items = (char**) malloc(sizeof(char*) * MAXNUMBEROFITEMS);
 
-		}
-			
-	}
+  int itemsTotalLength=0;
 
-	char* itemsString = (char*) malloc( (sizeof(char) * itemsTotalLength) + 4*i );
-	memset(itemsString, '\0', (sizeof(char) * itemsTotalLength) + 4*i );
-	
-	for( int j = 0; j < i-2; j++){
-		if( strchr(items[j], '/') != NULL){ // some items contain '/' character -> cannot use that cuz it's token char
-			ThrowException(Exception::TypeError(String::New("addSingleDialog::item cannot contain '/' character")));
-			free(items);
-			free(itemsString);
-			return scope.Close(Undefined());
-		}
-		strcat(itemsString, items[j]);
-		if(j == i-3){
-			strcat(itemsString, "\0");
-		}
-		else{
-			strcat(itemsString, "/");
-		}
+  for( i=2; args[i]->IsString(); i++){
+    v8::String::Utf8Value param3(args[i]->ToString());
+    std::string item = std::string(*param3);
+    items[i-2] = (char*) malloc(sizeof(char) * strlen(item.c_str()) );
+    strcpy(items[i-2], item.c_str());
+    itemsTotalLength += strlen(item.c_str());
 
 
-	}
-	
-	newJsonLength = strlen(oldJsonData) + strlen(name) + strlen(itemsString)+ 32;
-//	newJsonData = (char*)malloc(sizeof(char) * newJsonLength);
-	char newJsonData [sizeof(char) * newJsonLength];
-	memset(newJsonData, '\0', newJsonLength);
+    if( i > MAXNUMBEROFITEMS+1 ){
 
-	char tmpStr[strlen(oldJsonData)];
-	strncpy(tmpStr, oldJsonData, strlen(oldJsonData)-1 );
-	tmpStr[strlen(oldJsonData)-1] = '\0';
+      isolate->ThrowException(Exception::TypeError(getV8String(isolate, "addSingleDialog argument error : over the maximum number of items")));
+      return;
 
-	sprintf(newJsonData, "%s,\"mDialog\":\"%s[%s]\"}" , tmpStr, name, itemsString);
-	free(items);
-	free(itemsString);
-	return scope.Close(String::New(newJsonData));
+    }
+
+  }
+
+  char* itemsString = (char*) malloc( (sizeof(char) * itemsTotalLength) + 4*i );
+  memset(itemsString, '\0', (sizeof(char) * itemsTotalLength) + 4*i );
+
+  for( int j = 0; j < i-2; j++){
+    if( strchr(items[j], '/') != NULL){ // some items contain '/' character -> cannot use that cuz it's token char
+      isolate->ThrowException(Exception::TypeError(getV8String(isolate, "addSingleDialog::item cannot contain '/' character")));
+      free(items);
+      free(itemsString);
+      return;
+    }
+    strcat(itemsString, items[j]);
+    if(j == i-3){
+      strcat(itemsString, "\0");
+    }
+    else{
+      strcat(itemsString, "/");
+    }
+
+
+  }
+
+  newJsonLength = strlen(oldJsonData) + strlen(name) + strlen(itemsString)+ 32;
+  //	newJsonData = (char*)malloc(sizeof(char) * newJsonLength);
+  char newJsonData [sizeof(char) * newJsonLength];
+  memset(newJsonData, '\0', newJsonLength);
+
+  char tmpStr[strlen(oldJsonData)];
+  strncpy(tmpStr, oldJsonData, strlen(oldJsonData)-1 );
+  tmpStr[strlen(oldJsonData)-1] = '\0';
+
+  sprintf(newJsonData, "%s,\"mDialog\":\"%s[%s]\"}" , tmpStr, name, itemsString);
+  free(items);
+  free(itemsString);
+  args.GetReturnValue().Set(getV8String(isolate, newJsonData));
 }
 
 
@@ -934,90 +925,87 @@ Handle<Value> addMultipleDialog(const Arguments& args) {
 // Return new Json string (+"dateDialog":"Name[flag]")
 // flag 0 = no constraint , 1 = allow only after current date
 
-Handle<Value> addDateDialog(const Arguments& args) {
+void addDateDialog(const FunctionCallbackInfo<Value>& args) {
+  Isolate* isolate = Isolate::GetCurrent();
+  HandleScope scope(isolate);
+
+  const char* oldJsonData;
+
+  const char* name;
+  const char* description;
+  const char* flag;
 
 
-	const char* oldJsonData;
+  if (args.Length() != 4) {
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "addDateDialog::Invalid Use : 4 arguments expected [page,name,description, flag]")));
+    return;
+  }
+  if (!args[0]->IsString()) { 
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "addDateDialog::1st argument is wrong [page]")));
+    return;
+  }
 
-	int newJsonLength;
-			
-	const char* name;
-	const char* description;
-	const char* flag;
+  if (!args[1]->IsString() ) { 
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "addDateDialog::2nd argument is wrong [string:Name]")));
+    return;
+  }
 
-	HandleScope scope;
-	
+  if (!args[2]->IsString() ) { 
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "addDateDialog::3rd argument is wrong [string:description]")));
+    return;
+  }
 
-	if (args.Length() != 4) {
-			ThrowException(Exception::TypeError(String::New("addDateDialog::Invalid Use : 4 arguments expected [page,name,description, flag]")));
-			return scope.Close(Undefined());
-		}
-	if (!args[0]->IsString()) { 
-			ThrowException(Exception::TypeError(String::New("addDateDialog::1st argument is wrong [page]")));
-			return scope.Close(Undefined());
-	}
-
-	if (!args[1]->IsString() ) { 
-			ThrowException(Exception::TypeError(String::New("addDateDialog::2nd argument is wrong [string:Name]")));
-			return scope.Close(Undefined());
-	}
-
-	if (!args[2]->IsString() ) { 
-				ThrowException(Exception::TypeError(String::New("addDateDialog::3rd argument is wrong [string:description]")));
-				return scope.Close(Undefined());
-	}
-
-	if (!args[3]->IsNumber() ) { 
-			ThrowException(Exception::TypeError(String::New("addDateDialog::4th argument is wrong [int 0 or 1]")));
-			return scope.Close(Undefined());
-	}
-	//----------------------------------------------------------------//
+  if (!args[3]->IsNumber() ) { 
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "addDateDialog::4th argument is wrong [int 0 or 1]")));
+    return;
+  }
+  //----------------------------------------------------------------//
 
 
-	
-			
-	//--------------------- Page Name Check -------------------------//
-			
-	v8::String::Utf8Value param1(args[0]->ToString());
-	std::string json = std::string(*param1);
-	oldJsonData = json.c_str();
 
-	v8::String::Utf8Value param2(args[1]->ToString());
-	std::string name_c = std::string(*param2);
-	name = name_c.c_str();
-	
-	v8::String::Utf8Value param11(args[2]->ToString());
-	std::string des = std::string(*param11);
-	description= des.c_str();
 
-	v8::String::Utf8Value param3(args[3]->ToString());
-	std::string flag_c = std::string(*param3);
-	flag = flag_c.c_str();
+  //--------------------- Page Name Check -------------------------//
 
-	if ( check_page_name(oldJsonData) != 2){
-			ThrowException(Exception::TypeError(String::New("addDateDialog argument error : first arg is not the object of config page")));
-			return scope.Close(Undefined());				
-	}
-	if (check_key_overlap(oldJsonData, name) == false){
-				ThrowException(Exception::TypeError(String::New("addConfigItem argument error : the name(key) is already used in this page")));
-				return scope.Close(Undefined());	
-	}
-	
-	if ( atoi(flag)!=0 && atoi(flag)!=1){
-		ThrowException(Exception::TypeError(String::New("addDateDialog::3rd argument is wrong [int 0 or 1]")));
-		return scope.Close(Undefined());
-	}
+  v8::String::Utf8Value param1(args[0]->ToString());
+  std::string json = std::string(*param1);
+  oldJsonData = json.c_str();
 
-	char newJsonData [MSGBUFSIZE];
-	memset(newJsonData, '\0', MSGBUFSIZE);
+  v8::String::Utf8Value param2(args[1]->ToString());
+  std::string name_c = std::string(*param2);
+  name = name_c.c_str();
 
-	char tmpStr[strlen(oldJsonData)];
-	strncpy(tmpStr, oldJsonData, strlen(oldJsonData)-1 );
-	tmpStr[strlen(oldJsonData)-1] = '\0';
+  v8::String::Utf8Value param11(args[2]->ToString());
+  std::string des = std::string(*param11);
+  description= des.c_str();
 
-	sprintf(newJsonData, "%s,\"dateDialog\":\"%s[%s/%s]\"}" , tmpStr, name, description, flag);
-				
-	return scope.Close(String::New(newJsonData));
+  v8::String::Utf8Value param3(args[3]->ToString());
+  std::string flag_c = std::string(*param3);
+  flag = flag_c.c_str();
+
+  if ( check_page_name(oldJsonData) != 2){
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "addDateDialog argument error : first arg is not the object of config page")));
+    return;				
+  }
+  if (check_key_overlap(oldJsonData, name) == false){
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "addConfigItem argument error : the name(key) is already used in this page")));
+    return;	
+  }
+
+  if ( atoi(flag)!=0 && atoi(flag)!=1){
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "addDateDialog::3rd argument is wrong [int 0 or 1]")));
+    return;
+  }
+
+  char newJsonData [MSGBUFSIZE];
+  memset(newJsonData, '\0', MSGBUFSIZE);
+
+  char tmpStr[strlen(oldJsonData)];
+  strncpy(tmpStr, oldJsonData, strlen(oldJsonData)-1 );
+  tmpStr[strlen(oldJsonData)-1] = '\0';
+
+  sprintf(newJsonData, "%s,\"dateDialog\":\"%s[%s/%s]\"}" , tmpStr, name, description, flag);
+
+  args.GetReturnValue().Set(getV8String(isolate, newJsonData));
 }
 
 
@@ -1028,91 +1016,89 @@ Handle<Value> addDateDialog(const Arguments& args) {
 // addTimeDialog(page, name, flag(0||1));
 // Return new Json string (+"timeDialog":"Name[flag]")
 // flag 0 = no constraint , 1 = allow only after current time
-Handle<Value> addTimeDialog(const Arguments& args) {
+void addTimeDialog(const FunctionCallbackInfo<Value>& args) {
+  Isolate* isolate = Isolate::GetCurrent();
+  HandleScope scope(isolate);
 
-	const char* oldJsonData;
+  const char* oldJsonData;
 
-	int newJsonLength;
-			
-	const char* name;
-	const char* description;
-	const char* flag;
+  const char* name;
+  const char* description;
+  const char* flag;
 
-	HandleScope scope;
+  if (args.Length() != 4) {
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "addDateDialog::Invalid Use : 4 arguments expected [page,name,description, flag]")));
+    return;
+  }
 
-	if (args.Length() != 4) {
-			ThrowException(Exception::TypeError(String::New("addDateDialog::Invalid Use : 4 arguments expected [page,name,description, flag]")));
-			return scope.Close(Undefined());
-	}
-	
-	if (!args[0]->IsString()) { 
-			ThrowException(Exception::TypeError(String::New("addDateDialog::1st argument is wrong [page]")));
-			return scope.Close(Undefined());
-	}
+  if (!args[0]->IsString()) { 
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "addDateDialog::1st argument is wrong [page]")));
+    return;
+  }
 
 
-	if (!args[1]->IsString() ) { 
-			ThrowException(Exception::TypeError(String::New("addDateDialog::2nd argument is wrong [string:Name]")));
-			return scope.Close(Undefined());
-	}
+  if (!args[1]->IsString() ) { 
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "addDateDialog::2nd argument is wrong [string:Name]")));
+    return;
+  }
 
-	if (!args[2]->IsString() ) { 
-				ThrowException(Exception::TypeError(String::New("addDateDialog::3rd argument is wrong [string:description]")));
-				return scope.Close(Undefined());
-	}
+  if (!args[2]->IsString() ) { 
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "addDateDialog::3rd argument is wrong [string:description]")));
+    return;
+  }
 
-	if (!args[3]->IsNumber() ) { 
-			ThrowException(Exception::TypeError(String::New("addDateDialog::4th argument is wrong [int 0 or 1]")));
-			return scope.Close(Undefined());
-	}
+  if (!args[3]->IsNumber() ) { 
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "addDateDialog::4th argument is wrong [int 0 or 1]")));
+    return;
+  }
 
-	//----------------------------------------------------------------//
+  //----------------------------------------------------------------//
 
 
-	
-			
-		//--------------------- Page Name Check -------------------------//
-			
-	v8::String::Utf8Value param1(args[0]->ToString());
-	std::string json = std::string(*param1);
-	oldJsonData = json.c_str();
 
-	v8::String::Utf8Value param2(args[1]->ToString());
-	std::string name_c = std::string(*param2);
-	name = name_c.c_str();
-	
-	v8::String::Utf8Value param11(args[2]->ToString());
-	std::string des = std::string(*param11);
-	description= des.c_str();
 
-	v8::String::Utf8Value param3(args[3]->ToString());
-	std::string flag_c = std::string(*param3);
-	flag = flag_c.c_str();
+  //--------------------- Page Name Check -------------------------//
 
-	if ( check_page_name(oldJsonData) != 2){
-			ThrowException(Exception::TypeError(String::New("addDateDialog argument error : first arg is not the object of config page")));
-			return scope.Close(Undefined());				
-	}
-	if (check_key_overlap(oldJsonData, name) == false){
-				ThrowException(Exception::TypeError(String::New("addConfigItem argument error : the name(key) is already used in this page")));
-				return scope.Close(Undefined());	
-	}
-	
-	if ( atoi(flag)!=0 && atoi(flag)!=1){
-		ThrowException(Exception::TypeError(String::New("addDateDialog::3rd argument is wrong [int 0 or 1]")));
-		return scope.Close(Undefined());
-	}
+  v8::String::Utf8Value param1(args[0]->ToString());
+  std::string json = std::string(*param1);
+  oldJsonData = json.c_str();
 
-	char newJsonData [MSGBUFSIZE];
-	memset(newJsonData, '\0', MSGBUFSIZE);
+  v8::String::Utf8Value param2(args[1]->ToString());
+  std::string name_c = std::string(*param2);
+  name = name_c.c_str();
 
-	char tmpStr[strlen(oldJsonData)];
-	strncpy(tmpStr, oldJsonData, strlen(oldJsonData)-1 );
-	tmpStr[strlen(oldJsonData)-1] = '\0';
+  v8::String::Utf8Value param11(args[2]->ToString());
+  std::string des = std::string(*param11);
+  description= des.c_str();
 
-	sprintf(newJsonData, "%s,\"timeDialog\":\"%s[%s/%s]\"}" , tmpStr, name, description, flag);
-				
-	return scope.Close(String::New(newJsonData));
+  v8::String::Utf8Value param3(args[3]->ToString());
+  std::string flag_c = std::string(*param3);
+  flag = flag_c.c_str();
+
+  if ( check_page_name(oldJsonData) != 2){
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "addDateDialog argument error : first arg is not the object of config page")));
+    return;				
+  }
+  if (check_key_overlap(oldJsonData, name) == false){
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "addConfigItem argument error : the name(key) is already used in this page")));
+    return;	
+  }
+
+  if ( atoi(flag)!=0 && atoi(flag)!=1){
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "addDateDialog::3rd argument is wrong [int 0 or 1]")));
+    return;
+  }
+
+  char newJsonData [MSGBUFSIZE];
+  memset(newJsonData, '\0', MSGBUFSIZE);
+
+  char tmpStr[strlen(oldJsonData)];
+  strncpy(tmpStr, oldJsonData, strlen(oldJsonData)-1 );
+  tmpStr[strlen(oldJsonData)-1] = '\0';
+
+  sprintf(newJsonData, "%s,\"timeDialog\":\"%s[%s/%s]\"}" , tmpStr, name, description, flag);
+
+  args.GetReturnValue().Set(getV8String(isolate, newJsonData));
 }
 
 
@@ -1121,87 +1107,91 @@ Handle<Value> addTimeDialog(const Arguments& args) {
 
 
 /*//SEND Format to Android
-	{
-	"conf":"Pid",
-	"rqID":"_rqID",
-	"strTB":"Name[StrTextBoxDialog/10]",
-	"numTB":"Age[NumberTextBoxDialog/0/100]",
-	"sDialog":"Gender[SingleDialog/Male/Female]",
-	"mDialog":"Hobby[MultiDialog/Book/Movie/Tennis/Jogging]",
-	"dateDialog":"Birthday[DateDialog/0]",
-	"timeDialog":"time[TimeDialog/0]"	
-	}
+  {
+  "conf":"Pid",
+  "rqID":"_rqID",
+  "strTB":"Name[StrTextBoxDialog/10]",
+  "numTB":"Age[NumberTextBoxDialog/0/100]",
+  "sDialog":"Gender[SingleDialog/Male/Female]",
+  "mDialog":"Hobby[MultiDialog/Book/Movie/Tennis/Jogging]",
+  "dateDialog":"Birthday[DateDialog/0]",
+  "timeDialog":"time[TimeDialog/0]"	
+  }
 
 */
-Handle<Value> sendConfigPage(const Arguments& args) {
-	HandleScope scope;
-	requestList* rl;
-	DBusMessage* msg;
-	DBusError err;
+void sendConfigPage(const FunctionCallbackInfo<Value>& args) {
+  Isolate* isolate = Isolate::GetCurrent();
+  HandleScope scope(isolate);
 
-	dbus_int32_t pid;
-	dbus_int32_t rq_num; 
+  requestList* rl;
+  DBusMessage* msg;
+  DBusError err;
 
-	const char* jsonData;
+  dbus_int32_t pid;
+  dbus_int32_t rq_num; 
 
-	//----------------------------------------------------------------//
-	//						1. Argument Check
-	if ((args.Length() != 2) ||	!args[1]->IsFunction() || !args[0]->IsString() ) {
-		ThrowException(Exception::TypeError(String::New("Invalid Use : 2 arguments expected [ConfigPage, Function]")));
-		return scope.Close(Undefined());
-	}
-	//
-	//----------------------------------------------------------------//
+  const char* jsonData;
+
+  //----------------------------------------------------------------//
+  //						1. Argument Check
+  if ((args.Length() != 2) ||	!args[1]->IsFunction() || !args[0]->IsString() ) {
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "Invalid Use : 2 arguments expected [ConfigPage, Function]")));
+    return;
+  }
+  //
+  //----------------------------------------------------------------//
 
 
-	v8::String::Utf8Value param1(args[0]->ToString());
-	std::string json_c = std::string(*param1);
-	jsonData = json_c.c_str();
-	
-			
-	if ( check_page_name(jsonData) != 2){
-			ThrowException(Exception::TypeError(String::New("sendConfig argument error : first arg is not the object of config page")));
-			return scope.Close(Undefined());				
-	}
+  v8::String::Utf8Value param1(args[0]->ToString());
+  std::string json_c = std::string(*param1);
+  jsonData = json_c.c_str();
 
-	
 
-	//----------------------------------------------------------------//
-	//			2. Request Creation (For function callback)
+  if ( check_page_name(jsonData) != 2){
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "sendConfig argument error : first arg is not the object of config page")));
+    return;				
+  }
 
-	rl = newRequest(rList);
-	rl->callback = Persistent<Function>::New(Local<Function>::Cast(args[1]));
-	rl->type = APP_REQUEST;
-	
-	pid = (unsigned int)getpid();
-	rq_num = rl->rq_num;
 
-	//
-	//----------------------------------------------------------------//
-	
 
-	//----------------------------------------------------------------//
-	//				3. Send Message (Request struct) 
-	//				Send message with reply or not
-	dbus_error_init(&err);
+  //----------------------------------------------------------------//
+  //			2. Request Creation (For function callback)
 
-	msg = dbus_message_new_signal(SAM_INTERFACE, SAM_PATH, "sendConfigPage");
+  rl = newRequest(rList);
+  Local<Function> localCallback = Local<Function>::Cast(args[1]);
+  rl->callback.Reset(isolate, localCallback);
+//  rl->callback = Persistent<Function>(isolate, Local<Function>::Cast(args[1]));
+  rl->type = APP_REQUEST;
 
-	dbus_message_append_args(msg,
-		DBUS_TYPE_INT32, &pid,
-		DBUS_TYPE_INT32, &rq_num,
-		DBUS_TYPE_STRING, &jsonData,
-		DBUS_TYPE_INVALID);
+  pid = (unsigned int)getpid();
+  rq_num = rl->rq_num;
 
-	/* Send the signal */
-	dbus_connection_send(opelCon, msg, NULL);
-	dbus_message_unref(msg);
+  //
+  //----------------------------------------------------------------//
 
-	printf("[NIL] SendConfigPage >>  %s \n", jsonData);
-	//
-	//----------------------------------------------------------------//
 
-	return scope.Close(Undefined());
+  //----------------------------------------------------------------//
+  //				3. Send Message (Request struct) 
+  //				Send message with reply or not
+  dbus_error_init(&err);
+
+  msg = dbus_message_new_signal(SAM_INTERFACE, SAM_PATH, "sendConfigPage");
+
+  dbus_message_append_args(msg,
+      DBUS_TYPE_INT32, &pid,
+      DBUS_TYPE_INT32, &rq_num,
+      DBUS_TYPE_STRING, &jsonData,
+      DBUS_TYPE_INVALID);
+
+  /* Send the signal */
+  dbus_connection_send(opelCon, msg, NULL);
+  dbus_message_unref(msg);
+
+  printf("[NIL] SendConfigPage >>  %s \n", jsonData);
+  //
+  //----------------------------------------------------------------//
+
+  return;
 }
 
 
@@ -1213,113 +1203,113 @@ Handle<Value> sendConfigPage(const Arguments& args) {
 
 // getData(page[return page], name);
 // Return name(key)->value [string]
-Handle<Value> getData(const Arguments& args) {
+void getData(const FunctionCallbackInfo<Value>& args) {
+  Isolate* isolate = Isolate::GetCurrent();
+  HandleScope scope(isolate);
 
-	const char* rcvJson;
-	const char* name;
-
-	HandleScope scope;
-	
-
-	if (args.Length() != 2) {
-			ThrowException(Exception::TypeError(String::New("getData::Invalid Use : 2 arguments expected [configurableData,Key]")));
-			return scope.Close(Undefined());
-		}
-	if (!args[0]->IsString()) { 
-			ThrowException(Exception::TypeError(String::New("getData::1st argument is wrong [page]")));
-			return scope.Close(Undefined());
-	}
-
-	if (!args[1]->IsString() ) { 
-			ThrowException(Exception::TypeError(String::New("getData::2nd argument is wrong [string:Name]")));
-			return scope.Close(Undefined());
-	}
-
-	//----------------------------------------------------------------//
+  const char* rcvJson;
+  const char* name;
 
 
-	
-			
-	//--------------------- Page Name Check -------------------------//
-			
-	v8::String::Utf8Value param1(args[0]->ToString());
-	std::string json = std::string(*param1);
-	rcvJson = json.c_str();
+  if (args.Length() != 2) {
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "getData::Invalid Use : 2 arguments expected [configurableData,Key]")));
+    return;
+  }
+  if (!args[0]->IsString()) { 
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "getData::1st argument is wrong [page]")));
+    return;
+  }
 
-	v8::String::Utf8Value param2(args[1]->ToString());
-	std::string name_c = std::string(*param2);
-	name = name_c.c_str();
-	
-	int position = 0;
-	char key[512];
-	char value[512];
-	memset(key, '\0', 512);
-	memset(value, '\0', 512);
-	
-	for(unsigned int i=0; i<strlen(rcvJson); i++){
+  if (!args[1]->IsString() ) { 
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "getData::2nd argument is wrong [string:Name]")));
+    return;
+  }
 
-		if ( rcvJson[i] == '{' )
-			continue;
+  //----------------------------------------------------------------//
 
-		else if ( rcvJson[i] == '}' ){
-			if(!strcmp(key, name)){
 
-				return scope.Close(String::New(value));
-			}
-		}
-		
-		else if ( rcvJson[i] == ':' ){
-			if( rcvJson[i+1] == '"'){
-				position++;
-			}
-			else{
-				char tmp[2];
-				tmp[1] = '\0';
-				tmp[0] = rcvJson[i];			
-			
-				if(! (position % 2)) // even num -> key
-					strcat(key, tmp);
-				else				// odd num -> value
-					strcat(value, tmp);
-			}
-		}
 
-		else if ( rcvJson[i] == ',' ){
-			if( rcvJson[i+1] == '"'){
-				position++;
 
-				if(!strcmp(key, name)){
-					
-					return scope.Close(String::New(value));
-				}
-				else{
-					
-					memset(key, '\0', 512);
-					memset(value, '\0', 512);	
-				}
-			}
-		}
+  //--------------------- Page Name Check -------------------------//
 
-		else if ( rcvJson[i] == '"' ){
-			continue;
-		}
+  v8::String::Utf8Value param1(args[0]->ToString());
+  std::string json = std::string(*param1);
+  rcvJson = json.c_str();
 
-		else{
+  v8::String::Utf8Value param2(args[1]->ToString());
+  std::string name_c = std::string(*param2);
+  name = name_c.c_str();
 
-			char tmp[2];
-			tmp[1] = '\0';
-			tmp[0] = rcvJson[i];			
-			
-			if(! (position % 2)) // even num -> key
-				strcat(key, tmp);
-			else				// odd num -> value
-				strcat(value, tmp);
-		}
-	}
-	
-	
-	printf("[NIL] There is no value with the key[%s]\n", name);			
-	return scope.Close(String::New("N/A"));
+  int position = 0;
+  char key[512];
+  char value[512];
+  memset(key, '\0', 512);
+  memset(value, '\0', 512);
+
+  for(unsigned int i=0; i<strlen(rcvJson); i++){
+
+    if ( rcvJson[i] == '{' )
+      continue;
+
+    else if ( rcvJson[i] == '}' ){
+      if(!strcmp(key, name)){
+
+        args.GetReturnValue().Set(getV8String(isolate, value));
+      }
+    }
+
+    else if ( rcvJson[i] == ':' ){
+      if( rcvJson[i+1] == '"'){
+        position++;
+      }
+      else{
+        char tmp[2];
+        tmp[1] = '\0';
+        tmp[0] = rcvJson[i];			
+
+        if(! (position % 2)) // even num -> key
+          strcat(key, tmp);
+        else				// odd num -> value
+          strcat(value, tmp);
+      }
+    }
+
+    else if ( rcvJson[i] == ',' ){
+      if( rcvJson[i+1] == '"'){
+        position++;
+
+        if(!strcmp(key, name)){
+
+          args.GetReturnValue().Set(getV8String(isolate, value));
+        }
+        else{
+
+          memset(key, '\0', 512);
+          memset(value, '\0', 512);	
+        }
+      }
+    }
+
+    else if ( rcvJson[i] == '"' ){
+      continue;
+    }
+
+    else{
+
+      char tmp[2];
+      tmp[1] = '\0';
+      tmp[0] = rcvJson[i];			
+
+      if(! (position % 2)) // even num -> key
+        strcat(key, tmp);
+      else				// odd num -> value
+        strcat(value, tmp);
+    }
+  }
+
+
+  printf("[NIL] There is no value with the key[%s]\n", name);			
+  args.GetReturnValue().Set(getV8String(isolate, "N/A"));
 }
 // [MORE] return multiple choice -> array
 
@@ -1331,176 +1321,180 @@ Handle<Value> getData(const Arguments& args) {
 
 
 //onTermination(function)
-Handle<Value> onTermination(const Arguments& args) {
-	HandleScope scope;
-	requestList* rl;
-	DBusMessage* msg;
-	DBusError err;
+void onTermination(const FunctionCallbackInfo<Value>& args) {
+  Isolate* isolate = Isolate::GetCurrent();
+  HandleScope scope(isolate);
 
-	dbus_int32_t pid;
-	dbus_int32_t rq_num; 
+  requestList* rl;
+  DBusMessage* msg;
+  DBusError err;
 
-	//----------------------------------------------------------------//
-	//						1. Argument Check
-	if ((args.Length() != 1) ||	!args[0]->IsFunction()) {
-		ThrowException(Exception::TypeError(String::New("Invalid Use : 1 arguments expected [Callback Function]")));
-		return scope.Close(Undefined());
-	}
-	//
-	//----------------------------------------------------------------//
+  dbus_int32_t pid;
+  dbus_int32_t rq_num; 
 
-
-
-	//----------------------------------------------------------------//
-	//			2. Request Creation (For function callback)
-
-	rl = newRequest(rList);
-	rl->callback = Persistent<Function>::New(Local<Function>::Cast(args[0]));
-	rl->type = APP_REQUEST;
-	
-	pid = (unsigned int)getpid();
-	rq_num = rl->rq_num;
-
-	//
-	//----------------------------------------------------------------//
-	
-
-	//----------------------------------------------------------------//
-	//				3. Send Message (Request struct) 
-	//				Send message with reply or not
-	dbus_error_init(&err);
-
-	msg = dbus_message_new_signal(SAM_INTERFACE, SAM_PATH, "onTermination");
-
-	dbus_message_append_args(msg,
-		DBUS_TYPE_INT32, &pid,
-		DBUS_TYPE_INT32, &rq_num,
-		DBUS_TYPE_INVALID);
+  //----------------------------------------------------------------//
+  //						1. Argument Check
+  if ((args.Length() != 1) ||	!args[0]->IsFunction()) {
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "Invalid Use : 1 arguments expected [Callback Function]")));
+    return;
+  }
+  //
+  //----------------------------------------------------------------//
 
 
-	dbus_connection_send(opelCon, msg, NULL);
-	dbus_message_unref(msg);
 
-	printf("[NIL] send message to %s, pid : %d, rq_num : %d\n", SAM_PATH, pid, rq_num);
-	//
-	//----------------------------------------------------------------//
+  //----------------------------------------------------------------//
+  //			2. Request Creation (For function callback)
 
-	return scope.Close(Undefined());
+  rl = newRequest(rList);
+  Local<Function> localCallback = Local<Function>::Cast(args[0]);
+  rl->callback.Reset(isolate, localCallback);
+  rl->type = APP_REQUEST;
+
+  pid = (unsigned int)getpid();
+  rq_num = rl->rq_num;
+
+  //
+  //----------------------------------------------------------------//
+
+
+  //----------------------------------------------------------------//
+  //				3. Send Message (Request struct) 
+  //				Send message with reply or not
+  dbus_error_init(&err);
+
+  msg = dbus_message_new_signal(SAM_INTERFACE, SAM_PATH, "onTermination");
+
+  dbus_message_append_args(msg,
+      DBUS_TYPE_INT32, &pid,
+      DBUS_TYPE_INT32, &rq_num,
+      DBUS_TYPE_INVALID);
+
+
+  dbus_connection_send(opelCon, msg, NULL);
+  dbus_message_unref(msg);
+
+  printf("[NIL] send message to %s, pid : %d, rq_num : %d\n", SAM_PATH, pid, rq_num);
+  //
+  //----------------------------------------------------------------//
+
+  return;
 }
 
 
 
-Handle<Value> faceRecognitionWithNoti(const Arguments& args) {
+void faceRecognitionWithNoti(const FunctionCallbackInfo<Value>& args) {
+  Isolate* isolate = Isolate::GetCurrent();
+  HandleScope scope(isolate);
 
-	HandleScope scope;
+  const char* imgInputPath;
 
-	const char* imgInputPath;
-	
-	DBusMessage* msg;
-	DBusError err;
+  DBusMessage* msg;
+  DBusError err;
 
-	dbus_int32_t pid;
-
-	
-	//----------------------------------------------------------------//
-	//						1. Argument Check
-	if ((args.Length() != 1) ||	!args[0]->IsString() ) {
-		ThrowException(Exception::TypeError(String::New("Invalid Use : 1 arguments expected [image]")));
-		return scope.Close(Undefined());
-	}
-
-	v8::String::Utf8Value param1(args[0]->ToString());
-	std::string imageInputPath = std::string(*param1);
-	imgInputPath = imageInputPath.c_str();
-
-	
-	//
-	//----------------------------------------------------------------//
+  dbus_int32_t pid;
 
 
-	//----------------------------------------------------------------//
-	//			2. Request Creation (For function callback)
+  //----------------------------------------------------------------//
+  //						1. Argument Check
+  if ((args.Length() != 1) ||	!args[0]->IsString() ) {
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "Invalid Use : 1 arguments expected [image]")));
+    return;
+  }
+
+  v8::String::Utf8Value param1(args[0]->ToString());
+  std::string imageInputPath = std::string(*param1);
+  imgInputPath = imageInputPath.c_str();
 
 
-	pid = (unsigned int)getpid();
-
-	//
-	//----------------------------------------------------------------//
-	
-
-	//----------------------------------------------------------------//
-	//				3. Send Message (Request struct) 
-	//				Send message with reply or not
-	dbus_error_init(&err);
-	msg = dbus_message_new_signal(SAM_INTERFACE, SAM_PATH, "face_recognition");
-
-	dbus_message_append_args(msg,
-		DBUS_TYPE_INT32, &pid,
-		DBUS_TYPE_STRING, &imgInputPath,
-		DBUS_TYPE_INVALID);
-
-	/* Send the signal */
-	dbus_connection_send(opelCon, msg, NULL);
-	dbus_message_unref(msg);
+  //
+  //----------------------------------------------------------------//
 
 
-	//
-	//----------------------------------------------------------------//
+  //----------------------------------------------------------------//
+  //			2. Request Creation (For function callback)
 
-	return scope.Close(Undefined());
+
+  pid = (unsigned int)getpid();
+
+  //
+  //----------------------------------------------------------------//
+
+
+  //----------------------------------------------------------------//
+  //				3. Send Message (Request struct) 
+  //				Send message with reply or not
+  dbus_error_init(&err);
+  msg = dbus_message_new_signal(SAM_INTERFACE, SAM_PATH, "face_recognition");
+
+  dbus_message_append_args(msg,
+      DBUS_TYPE_INT32, &pid,
+      DBUS_TYPE_STRING, &imgInputPath,
+      DBUS_TYPE_INVALID);
+
+  /* Send the signal */
+  dbus_connection_send(opelCon, msg, NULL);
+  dbus_message_unref(msg);
+
+
+  //
+  //----------------------------------------------------------------//
+
+  return;
 }
 
 
 
 void init(Handle<Object> exports) {
-	nativeInterfaceLayerInit();
-	opelCon = DbusInit(); //Init Dbus message receiver (by PID)
+  Isolate* isolate = Isolate::GetCurrent();
+  nativeInterfaceLayerInit();
+  opelCon = DbusInit(); //Init Dbus message receiver (by PID)
 
 
-//-----------------------EventPage-------------------------------------------
-	exports->Set(String::NewSymbol("makeEventPage"),
-			FunctionTemplate::New(makeEventPage)->GetFunction());
-	exports->Set(String::NewSymbol("addEventText"),
-				FunctionTemplate::New(addEventText)->GetFunction());
-	exports->Set(String::NewSymbol("addEventImg"),
-				FunctionTemplate::New(addEventImg)->GetFunction());
-	exports->Set(String::NewSymbol("sendEventPageWithNoti"),
-					FunctionTemplate::New(sendEventPageWithNoti)->GetFunction());
-	exports->Set(String::NewSymbol("sendEventPage"),
-					FunctionTemplate::New(sendEventPage)->GetFunction());
+  //-----------------------EventPage-------------------------------------------
+  exports->Set(getV8String(isolate, "makeEventPage"),
+      FunctionTemplate::New(isolate, makeEventPage)->GetFunction());
+  exports->Set(getV8String(isolate, "addEventText"),
+      FunctionTemplate::New(isolate, addEventText)->GetFunction());
+  exports->Set(getV8String(isolate, "addEventImg"),
+      FunctionTemplate::New(isolate, addEventImg)->GetFunction());
+  exports->Set(getV8String(isolate, "sendEventPageWithNoti"),
+      FunctionTemplate::New(isolate, sendEventPageWithNoti)->GetFunction());
+  exports->Set(getV8String(isolate, "sendEventPage"),
+      FunctionTemplate::New(isolate, sendEventPage)->GetFunction());
 
 
-//-----------------------ConfigPage-------------------------------------------
+  //-----------------------ConfigPage-------------------------------------------
 
-	exports->Set(String::NewSymbol("makeConfigPage"),
-			FunctionTemplate::New(makeConfigPage)->GetFunction());
-	exports->Set(String::NewSymbol("addStrTextbox"),
-		FunctionTemplate::New(addStrTextbox)->GetFunction());
-	exports->Set(String::NewSymbol("addNumberTextbox"),
-		FunctionTemplate::New(addNumberTextbox)->GetFunction());
-	exports->Set(String::NewSymbol("addSingleDialog"),
-			FunctionTemplate::New(addSingleDialog)->GetFunction());
-	exports->Set(String::NewSymbol("addMultipleDialog"),
-			FunctionTemplate::New(addMultipleDialog)->GetFunction());
-	exports->Set(String::NewSymbol("addDateDialog"),
-			FunctionTemplate::New(addDateDialog)->GetFunction());
-	exports->Set(String::NewSymbol("addTimeDialog"),
-			FunctionTemplate::New(addTimeDialog)->GetFunction());
-	exports->Set(String::NewSymbol("sendConfigPage"),
-			FunctionTemplate::New(sendConfigPage)->GetFunction());
+  exports->Set(getV8String(isolate, "makeConfigPage"),
+      FunctionTemplate::New(isolate, makeConfigPage)->GetFunction());
+  exports->Set(getV8String(isolate, "addStrTextbox"),
+      FunctionTemplate::New(isolate, addStrTextbox)->GetFunction());
+  exports->Set(getV8String(isolate, "addNumberTextbox"),
+      FunctionTemplate::New(isolate, addNumberTextbox)->GetFunction());
+  exports->Set(getV8String(isolate, "addSingleDialog"),
+      FunctionTemplate::New(isolate, addSingleDialog)->GetFunction());
+  exports->Set(getV8String(isolate, "addMultipleDialog"),
+      FunctionTemplate::New(isolate, addMultipleDialog)->GetFunction());
+  exports->Set(getV8String(isolate, "addDateDialog"),
+      FunctionTemplate::New(isolate, addDateDialog)->GetFunction());
+  exports->Set(getV8String(isolate, "addTimeDialog"),
+      FunctionTemplate::New(isolate, addTimeDialog)->GetFunction());
+  exports->Set(getV8String(isolate, "sendConfigPage"),
+      FunctionTemplate::New(isolate, sendConfigPage)->GetFunction());
 
-	exports->Set(String::NewSymbol("getData"),
-			FunctionTemplate::New(getData)->GetFunction());
-
-	
-//------------------------termination-----------------------------------------
-	exports->Set(String::NewSymbol("onTermination"),
-			FunctionTemplate::New(onTermination)->GetFunction());
+  exports->Set(getV8String(isolate, "getData"),
+      FunctionTemplate::New(isolate, getData)->GetFunction());
 
 
-//------------------------cloud service-----------------------------------------
-exports->Set(String::NewSymbol("faceRecognitionWithNoti"),
-		FunctionTemplate::New(faceRecognitionWithNoti)->GetFunction());
+  //------------------------termination-----------------------------------------
+  exports->Set(getV8String(isolate, "onTermination"),
+      FunctionTemplate::New(isolate, onTermination)->GetFunction());
+
+
+  //------------------------cloud service-----------------------------------------
+  exports->Set(getV8String(isolate, "faceRecognitionWithNoti"),
+      FunctionTemplate::New(isolate, faceRecognitionWithNoti)->GetFunction());
 
 
 }
