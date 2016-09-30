@@ -3,6 +3,7 @@
 
 static sensorHead *sensor_head = NULL;
 
+
 sensorList* getSensorByName(sensorHead* sh, char* sensor_name){
 	sensorList* temp;
 	temp = sh->start;
@@ -76,8 +77,4 @@ int countSensor(void);
 /*
 	Sensor On/Off 등의 컨트롤에 대한 정보도 추가.
 */
-<<<<<<< HEAD
-
-=======
->>>>>>> sensorManager
 

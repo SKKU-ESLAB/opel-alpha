@@ -1,4 +1,7 @@
 #include <node.h>
+//#include <include/v8.h>
+#include <v8.h>
+
 #include <stdlib.h>
 #include <glib.h>
 #include <dbus/dbus.h>
@@ -72,9 +75,13 @@ int parsingString(char* string, char* value){
 }
 int parsingToArgv(requestList* rl, char* in_value, char* in_value_type, char* in_value_name){
 	//Make callback arguments
-	v8::Local<Object> obj = Object::New();
-	HandleScope scope;
-	TryCatch try_catch;
+	
+	/*  nodejs 4.0.0   */
+	Isolate* isolate = Isolate::GetCurrent();
+  HandleScope scope(isolate);
+	v8::Local<Object> obj = Object::New(isolate);
+	//HandleScope scope;
+	TryCatch try_catch(isolate);
 
 	char value[MAX_STRING_LENTGH];
 	char type[MAX_STRING_LENTGH];
@@ -98,35 +105,51 @@ int parsingToArgv(requestList* rl, char* in_value, char* in_value_type, char* in
 		parsingString(name, name_temp);
 
 		if (!strcmp(type_temp, "FLOAT")){
-			obj->Set(String::NewSymbol(name_temp), Number::New(atof(value_temp)));
+			obj->Set(String::NewFromUtf8(isolate, name_temp), Number::New(isolate, atof(value_temp)));
 		}
 		else if (!strcmp(type_temp, "INT")){
-			obj->Set(String::NewSymbol(name_temp), Integer::New(atoi(value_temp)));
+			obj->Set(String::NewFromUtf8(isolate, name_temp), Integer::New(isolate, atoi(value_temp)));
 		}
 		else if (!strcmp(type_temp, "STRING")){
-			obj->Set(String::NewSymbol(name_temp), String::New(value_temp));
+			obj->Set(String::NewFromUtf8(isolate, name_temp), String::NewFromUtf8(isolate, value_temp));
 		}
 		else{
 			printf("Error : not supported data type %s\n", type_temp);
 		}
 	}
 
-
+  /*
 	Handle<Value> argv[] = {
 		obj
 	};
+  */
+	
+	//Persistent<Function> cb = rl->callback;
+  Local<Value> argv[] = {
+			obj
+	};
+  //Local<Function> fn = Local<Function>::New(isolate, rl->callback);
+	printf("before call callbak\n");
+  Local<Function> cb = Local<Function>::New(isolate, rl->callback);
+	cb->Call(isolate->GetCurrentContext()->Global(), 1, argv);
 
-	rl->callback->Call(Context::GetCurrent()->Global(), 1, argv);
+	
+	//rl->callback.Call(isolate->GetCurrentContext()->Global(), 1, argv);
 	if (try_catch.HasCaught()) {
-		node::FatalException(try_catch);
+			//node::FatalException(try_catch);
+    Local<Value> exception = try_catch.Exception();
+		String::Utf8Value exception_str(exception);
+		printf("Exception: %s\n", *exception_str);
 	}
 
 	return 0;
 }
-Handle<Value> parsingToReturn(char* in_value, char* in_value_type, char* in_value_name){
+void parsingToReturn(const FunctionCallbackInfo<Value>& args, char* in_value, char* in_value_type, char* in_value_name){
 	//Make return value
-	v8::Local<Object> obj = Object::New();
-	HandleScope scope;
+	
+  Isolate* isolate = Isolate::GetCurrent(); 
+	v8::Local<Object> obj = Object::New(isolate);
+	HandleScope scope(isolate);
 	TryCatch try_catch;
 
 	char value[MAX_STRING_LENTGH];
@@ -151,33 +174,33 @@ Handle<Value> parsingToReturn(char* in_value, char* in_value_type, char* in_valu
 		parsingString(name, name_temp);
 
 		if (!strcmp(type_temp, "FLOAT")){
-			obj->Set(String::NewSymbol(name_temp), Number::New(atof(value_temp)));
+			obj->Set(String::NewFromUtf8(isolate, name_temp), Number::New(isolate, atof(value_temp)));
 		}
 		else if (!strcmp(type_temp, "INT")){
-			obj->Set(String::NewSymbol(name_temp), Integer::New(atoi(value_temp)));
+			obj->Set(String::NewFromUtf8(isolate, name_temp), Integer::New(isolate, atoi(value_temp)));
 		}
 		else if (!strcmp(type_temp, "STRING")){
-			obj->Set(String::NewSymbol(name_temp), String::New(value_temp));
+			obj->Set(String::NewFromUtf8(isolate, name_temp), String::NewFromUtf8(isolate, value_temp));
 		}
 		else{
 			printf("Error : not supported data type %s\n", type_temp);
 		}
 	}
-
-
-	return scope.Close(obj);
+  
+  args.GetReturnValue().Set(obj);
 }
 
 // Handler function for dbus message
 // 1. On (Periodic)
 // 2. On (Notify)
-DBusHandlerResult sensorEventDriven(DBusConnection *connection, DBusMessage *message, void *iface_user_data){
-	int rq_num;
+DBusHandlerResult sensorGetRepeatedly(DBusConnection *connection, DBusMessage *message, void *iface_user_data){
+	Isolate *isolate = Isolate::GetCurrent();
+  int rq_num;
 	char* sensorValue;
 	char* valueType;
 	char* valueName;
 	requestList* rl;
-	TryCatch try_catch;
+	TryCatch try_catch(isolate);
 	DBusError err;
 	dbus_error_init(&err);
 
@@ -192,7 +215,7 @@ DBusHandlerResult sensorEventDriven(DBusConnection *connection, DBusMessage *mes
 
 	if (dbus_error_is_set(&err))
 	{
-		printf("Error get data: %s \n", err.message);
+		printf("Get Repeatedly - Error get data: %s \n", err.message);
 		dbus_error_free(&err);
 	}
 	//printf("[NIL] Receive rq_num : %d / value :%d\n", rq_num, sensorValue);
@@ -205,13 +228,14 @@ DBusHandlerResult sensorEventDriven(DBusConnection *connection, DBusMessage *mes
 	return DBUS_HANDLER_RESULT_HANDLED;
 }
 DBusHandlerResult sensorEventNotify(DBusConnection *connection, DBusMessage *message, void *iface_user_data){
-	int rq_num;
+  Isolate *isolate = Isolate::GetCurrent();
+  int rq_num;
 	requestList* rl;
-	TryCatch try_catch;
+	TryCatch try_catch(isolate);
 	DBusError err;
 
 	dbus_error_init(&err);
-	
+
 	//printRequset(rList);
 
 	dbus_message_get_args(message, &err,
@@ -220,7 +244,7 @@ DBusHandlerResult sensorEventNotify(DBusConnection *connection, DBusMessage *mes
 
 	if (dbus_error_is_set(&err))
 	{
-		printf("Error get data: %s", err.message);
+		printf("Notify Error get data: %s", err.message);
 		dbus_error_free(&err);
 	}
 
@@ -228,10 +252,16 @@ DBusHandlerResult sensorEventNotify(DBusConnection *connection, DBusMessage *mes
 
 	rl = getRequest(rList, rq_num);
 
+	//Persistent<Function> cb = rl->callback;
+	Local<Function> fn = Local<Function>::New(isolate, rl->callback);
+	fn->Call(isolate->GetCurrentContext()->Global(), 0, NULL);
 
-	rl->callback->Call(Context::GetCurrent()->Global(), 0, NULL);
+	//rl->callback->Call(isolate->GetCurrentContext()->Global(), 0, NULL);
 	if (try_catch.HasCaught()) {
-		node::FatalException(try_catch);
+		//node::FatalException(try_catch);
+		Local<Value> exception = try_catch.Exception();
+		String::Utf8Value exception_str(exception);
+		printf("Exception: %s\n", *exception_str);
 	}
 
 	return DBUS_HANDLER_RESULT_HANDLED;
@@ -263,8 +293,11 @@ int wait_delay(){
 // Sensor manager API
 // 1. On
 // 2. Get
-Handle<Value> On(const Arguments& args) {
-	HandleScope scope;
+void On(const FunctionCallbackInfo<Value>& args) {
+  Isolate* isolate = Isolate::GetCurrent();
+	//Isolate* isolate = args.GetIsolate();
+  HandleScope scope(isolate);
+
 	requestList* rl;
 	DBusMessage* msg;
 	DBusError err;
@@ -279,6 +312,7 @@ Handle<Value> On(const Arguments& args) {
 	
 	wait_delay(); //Perform wait.
 
+	printf("start On function\n");
 	/*
 	Receive Args
 	1. sensor name
@@ -295,8 +329,11 @@ Handle<Value> On(const Arguments& args) {
 		!args[1]->IsString() ||
 		!args[2]->IsInt32() ||
 		!args[3]->IsFunction() ) {
-		ThrowException(Exception::TypeError(String::New("Invalid Use : 4 arguments expected [Sensor Name, Handling Type, Interval, Function]")));
-		return scope.Close(Undefined());
+		isolate->ThrowException(Exception::TypeError(
+								String::NewFromUtf8(isolate,
+										"Invalid Use : 4 arguments expected \
+										[Sensor Name, Handling Type, Interval, Function]")));
+		return ;
 	}
 	//
 	//----------------------------------------------------------------//
@@ -310,8 +347,10 @@ Handle<Value> On(const Arguments& args) {
 	sensor_name = name_c.c_str();
 
 	if (check_sensor_name(sensor_name) == -1){
-		ThrowException(Exception::TypeError(String::New("This sensor is not supported sensor\n")));
-		return scope.Close(Undefined());
+		isolate->ThrowException(Exception::TypeError(
+								String::NewFromUtf8(isolate, 
+										"This sensor is not supported sensor\n")));
+		return ;
 	}
 	//
 	//----------------------------------------------------------------//
@@ -330,8 +369,9 @@ Handle<Value> On(const Arguments& args) {
 	}
 
 	if (!handle_type){
-		ThrowException(Exception::TypeError(String::New("Not supported handling type\n")));
-		return scope.Close(Undefined());
+		isolate->ThrowException(Exception::TypeError(
+								String::NewFromUtf8(isolate, "Not supported handling type\n")));
+		return ;
 	}
 	//
 	//----------------------------------------------------------------//
@@ -341,18 +381,33 @@ Handle<Value> On(const Arguments& args) {
 	sensing_interval = args[2]->IntegerValue();
 	
 	if (sensing_interval < MIN_INTERVAL_TIME){
-		ThrowException(Exception::TypeError(String::New("Too small interval time\n")));
-		return scope.Close(Undefined());
+		isolate->ThrowException(Exception::TypeError(
+								String::NewFromUtf8(isolate, "Too small interval time\n")));
+		return ;
 	}
 	//
 	//----------------------------------------------------------------//
 
 
-
 	//----------------------------------------------------------------//
 	//			2. Request Creation (For function callback)
 	rl = newRequest(rList);
-	rl->callback = Persistent<Function>::New(Local<Function>::Cast(args[3]));
+	//rl->callback = callback(isolate, Persistent<Function>::New(Local<Function>::Cast(args[3])));
+	  //rl->callback = Persistent<Function> cb(isolate, arg0);
+	//rl->callback = Persistent<Function>(isolate, arg0);
+
+	Local<Function> cb = Local<Function>::Cast(args[3]);
+
+	printf("right before make callback\n");
+  rl->callback.Reset(isolate, cb);	
+	//rl->callback.Reset(isolate,args[3].As<Function>());
+	
+	//rl->callback.Reset(isolate, Local<Function>::New(isolate,arg0));
+  //rl->callback.Reset(isolate, Persistent<Function>(isolate, arg0));
+	printf("right after make callback\n");
+	
+	
+	
 	rl->type = SENSOR_REQUEST;
 	
 	pid = (unsigned int)getpid();
@@ -361,6 +416,7 @@ Handle<Value> On(const Arguments& args) {
 	//----------------------------------------------------------------//
 	
 
+	printf("after make callback. before send dbus\n");
 	//----------------------------------------------------------------//
 	//				3. Send Message (Request struct) 
 	//				Send message with reply or not
@@ -385,27 +441,32 @@ Handle<Value> On(const Arguments& args) {
 	//----------------------------------------------------------------//
 
 	//return scope.Close(Undefined());
-	return scope.Close(Integer::New(rq_num));
+	//return scope.Close(Integer::New(rq_num));
+  args.GetReturnValue().Set(rq_num);
 }
-Handle<Value> Get(const Arguments& args) {
-	const char* sensorName;
+void Get(const FunctionCallbackInfo<Value>& args) {
+  const char* sensorName;
 	char* sensorValue;
 	char* valueType;
 	char* valueName;
 
-	HandleScope scope;
+	Isolate* isolate = Isolate::GetCurrent();
+	HandleScope scope(isolate);
 	DBusMessage* msg;
 	DBusMessage* reply;
-	DBusError error;	
-
-	//------------------- Argument check-----------------------------//
+	DBusError error;
+	
+  //------------------- Argument check-----------------------------//
 	if (args.Length() != 1) {
-		ThrowException(Exception::TypeError(String::New("Invalid Use : 1 arguments expected [Sensor Name]")));
-		return scope.Close(Undefined());
+		isolate->ThrowException(Exception::TypeError(
+								String::NewFromUtf8(isolate,
+										"Invalid Use : 1 arguments expected [Sensor Name]")));
+		return ;
 	}
 	if (!args[0]->IsString()) { //IsInteger, IsFunction, etc...
-		ThrowException(Exception::TypeError(String::New("Wrong arguments")));
-		return scope.Close(Undefined());
+		isolate->ThrowException(Exception::TypeError(
+								String::NewFromUtf8(isolate,("Wrong arguments"))));
+		return ;
 	}
 	//----------------------------------------------------------------//
 	
@@ -418,8 +479,9 @@ Handle<Value> Get(const Arguments& args) {
 	sensorName = name_c.c_str();
 
 	if ( check_sensor_name(sensorName) == -1){
-		ThrowException(Exception::TypeError(String::New("This sensor is not supported!")));
-		return scope.Close(Undefined());
+		isolate->ThrowException(Exception::TypeError(
+								String::NewFromUtf8(isolate,"This sensor is not supported!")));
+		return ;
 	}
 	//
 	//----------------------------------------------------------------//
@@ -433,8 +495,9 @@ Handle<Value> Get(const Arguments& args) {
 		"Get"); // method name
 	if (NULL == msg) {
 		printf("Message Null\n");
-		ThrowException(Exception::TypeError(String::New("Fail to create message")));
-		return scope.Close(Undefined());
+		isolate->ThrowException(Exception::TypeError(
+								String::NewFromUtf8(isolate,"Fail to create message")));
+		return ;
 	}
 
 	dbus_message_append_args(msg,
@@ -443,7 +506,6 @@ Handle<Value> Get(const Arguments& args) {
 	//
 	//----------------------------------------------------------------//
 	
-
 	//----------------------------------------------------------------//
 	// send message and get a reply
 	//
@@ -482,12 +544,14 @@ Handle<Value> Get(const Arguments& args) {
 	//
 	//----------------------------------------------------------------//
 
-	return parsingToReturn(sensorValue, valueType, valueName);
+	return parsingToReturn(args, sensorValue, valueType, valueName);
 	//Refer this : http://luismreis.github.io/node-bindings-guide/docs/returning.html
 	//About return value from Native to Java	
 }
-Handle<Value> Update(const Arguments& args){
-	HandleScope scope;
+void Update(const FunctionCallbackInfo<Value>& args){
+  Isolate* isolate = Isolate::GetCurrent();
+	HandleScope scope(isolate);
+
 	requestList* rl;
 	DBusMessage* msg;
 	DBusError err;
@@ -508,8 +572,10 @@ Handle<Value> Update(const Arguments& args){
 		!(args[1]->IsString() || args[1]->IsNull()) ||
 		!(args[2]->IsInt32() || args[2]->IsNull()) ||
 		!(args[3]->IsFunction() || args[3]->IsNull()) ) {
-		ThrowException(Exception::TypeError(String::New("Invalid Use : 4 arguments expected [Request ID, Handling Type[or NULL], Interval[or NULL], Function[or NULL]]")));
-		return scope.Close(Undefined());
+		isolate->ThrowException(Exception::TypeError(
+								String::NewFromUtf8(isolate, 
+										"Invalid Use : 4 arguments expected [Request ID, Handling Type[or NULL], Interval[or NULL], Function[or NULL]]")));
+		return ;
 	}
 	//
 	//----------------------------------------------------------------//
@@ -533,8 +599,9 @@ Handle<Value> Update(const Arguments& args){
 		}//Need to oneshot?
 
 		if (!handle_type){
-			ThrowException(Exception::TypeError(String::New("Not supported handling type\n")));
-			return scope.Close(Undefined());
+			isolate->ThrowException(Exception::TypeError(
+									String::NewFromUtf8(isolate, "Not supported handling type\n")));
+			return ;
 		}
 
 		request_change_flag = 1;
@@ -549,8 +616,9 @@ Handle<Value> Update(const Arguments& args){
 		sensing_interval = args[2]->IntegerValue();
 
 		if (sensing_interval < MIN_INTERVAL_TIME){
-			ThrowException(Exception::TypeError(String::New("Too small interval time\n")));
-			return scope.Close(Undefined());
+			isolate->ThrowException(Exception::TypeError(
+									String::NewFromUtf8(isolate, "Too small interval time\n")));
+			return ;
 		}
 		request_change_flag = 1;
 	}
@@ -561,7 +629,11 @@ Handle<Value> Update(const Arguments& args){
 	//-----------------------------------------------------------------//
 	if (args[3]->IsFunction()){
 		rl = getRequest(rList, rq_num);
-		rl->callback = Persistent<Function>::New(Local<Function>::Cast(args[3]));	
+		
+		Handle<Function> arg0 = Handle<Function>::Cast(args[3]);
+		//Persistent<Function> cb(isolate, arg0);
+    rl->callback.Reset(isolate, arg0);
+		//rl->callback = Persistent<Function>::New(Local<Function>::Cast(args[3]));
 	}
 
 	if (request_change_flag){
@@ -585,10 +657,11 @@ Handle<Value> Update(const Arguments& args){
 	}
 	//-----------------------------------------------------------------//
 	
-	return scope.Close(Undefined());
+	return ;
 }
-Handle<Value> Unregister(const Arguments& args){
-	HandleScope scope;
+void Unregister(const FunctionCallbackInfo<Value>& args){
+  Isolate* isolate = Isolate::GetCurrent();
+  HandleScope scope(isolate);
 	DBusMessage* msg;
 	DBusError err;
 	int pid;
@@ -600,8 +673,9 @@ Handle<Value> Unregister(const Arguments& args){
 	printf("Length : %d\n", args.Length());
 	if ((args.Length() < 1) ||
 		!args[0]->IsInt32() ){
-		ThrowException(Exception::TypeError(String::New("Invalid Use : 1 arguments expected [Request ID]")));
-		return scope.Close(Undefined());
+		isolate->ThrowException(Exception::TypeError(
+								String::NewFromUtf8(isolate, "Invalid Use : 1 arguments expected [Request ID]")));
+		return ;
 	}
 	//
 	//----------------------------------------------------------------//
@@ -631,7 +705,7 @@ Handle<Value> Unregister(const Arguments& args){
 
 	deleteRequest(rList, rq_num);
 
-	return scope.Close(Undefined());
+	return ;
 }
 
 
@@ -689,7 +763,8 @@ void sigint_handler(int signo)
 
 void nativeInterfaceLayerInit(){
 	pid = getpid();
-	rList = (requestList*)malloc(sizeof(requestList));
+	//rList = (requestList*)malloc(sizeof(requestList));
+	rList = new requestList();
 	initRequestList(rList);
 	gettimeofday(&time_to_delay, NULL);
 }
@@ -697,7 +772,7 @@ void nativeInterfaceLayerInit(){
 void read_sensorlist()
 {
 	char *opelEnvPath, sensorFile[1024], buf[100];
-	int i,j,len,line = 0;
+	int i,len,line = 0;
 	FILE* fp;
 
 	// Find the directory where sensor list file is
@@ -743,20 +818,27 @@ void init(Handle<Object> exports) {
 	if (atexit(exit_handler)) printf("Failed to register exit_handler1\n");
 	signal(SIGINT, sigint_handler);
 
-	exports->Set(String::NewSymbol("Get"),
-		FunctionTemplate::New(Get)->GetFunction());
-	exports->Set(String::NewSymbol("On"),
-		FunctionTemplate::New(On)->GetFunction());
-	exports->Set(String::NewSymbol("EventRegister"),
-		FunctionTemplate::New(On)->GetFunction());
-	exports->Set(String::NewSymbol("EventUpdate"),
-		FunctionTemplate::New(Update)->GetFunction());
-	exports->Set(String::NewSymbol("EventUnregister"),
-		FunctionTemplate::New(Unregister)->GetFunction());
-
-
-
-
+	//Isolate* isolate = Isolate::GetCurrent();
+  
+	// 4.0.0
+	NODE_SET_METHOD(exports, "Get", Get);
+  NODE_SET_METHOD(exports, "On", On);
+  NODE_SET_METHOD(exports, "EventRegister", On);
+  NODE_SET_METHOD(exports, "EventUpdate", Update);
+  NODE_SET_METHOD(exports, "EventUnregister", Unregister);
+  
+/*	
+	exports->Set(String::NewFromUtf8(isolate, "Get"),
+			FunctionTemplate::New(isolate, Get)->GetFunction());
+	exports->Set(String::NewFromUtf8(isolate, "On"),
+		FunctionTemplate::New(isolate, On)->GetFunction());
+	exports->Set(String::NewFromUtf8(isolate, "EventRegister"),
+		FunctionTemplate::New(isolate, On)->GetFunction());
+	exports->Set(String::NewFromUtf8(isolate, "EventUpdate"),
+		FunctionTemplate::New(isolate, Update)->GetFunction());
+	exports->Set(String::NewFromUtf8(isolate, "EventUnregister"),
+		FunctionTemplate::New(isolate, Unregister)->GetFunction());
+  */
 
 }
 
