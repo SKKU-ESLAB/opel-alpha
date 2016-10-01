@@ -119,8 +119,10 @@ NAN_METHOD(OPELRecording::recStart)
 NAN_METHOD(OPELRecording::jpegStart)
 {
 	OPELRecording *recObj = Nan::ObjectWrap::Unwrap<OPELRecording>(info.This());
+	DBusMessage *reply;
 	dbusRequest *dbus_request = NULL;	
-	DBusMessage *message;	
+	DBusMessage *message;
+	DBusError err;
 	if(!info[0]->IsString())
 	{
 		Nan::ThrowTypeError("First parameter should be callback function");
@@ -142,9 +144,15 @@ NAN_METHOD(OPELRecording::jpegStart)
 	dbus_request->fps = 1;
 	dbus_request->width = 1920;
 	dbus_request->height = 1080;
+	dbus_request->play_seconds = 1;
 
 	message = recObj->sendDbusMsg(snap_start_request, dbus_request);
+	
+	reply = dbus_connection_send_with_reply_and_block(recObj->conn,
+			message, 500, &err);
+
 	dbus_message_unref(message);
+	dbus_message_unref(reply);
 }
 
 NAN_METHOD(OPELRecording::recStop)
