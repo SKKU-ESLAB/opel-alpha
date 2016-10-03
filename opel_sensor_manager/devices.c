@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include "devices.h"
 
+
+
 static sensorHead *sensor_head = NULL;
 
 sensorList* getSensorByName(sensorHead* sh, char* sensor_name){
@@ -29,12 +31,12 @@ sensorHead* initSensors(void){
 
 	return sensor_head;
 }
-
 void addSensor(const struct device_ops *dev)
 {
 	sensorList* sl;
 	sensorList* new_sl;
 
+	printf("bbbb\n");	
 	if (sensor_head == NULL){
 		printf("Sensor head is not initilized! Perform initilizing\n");
 		initSensors();
@@ -76,8 +78,4 @@ int countSensor(void);
 /*
 	Sensor On/Off 등의 컨트롤에 대한 정보도 추가.
 */
-<<<<<<< HEAD
-
-=======
->>>>>>> sensorManager
 

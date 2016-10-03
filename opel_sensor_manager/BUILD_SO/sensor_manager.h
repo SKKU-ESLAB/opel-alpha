@@ -14,9 +14,6 @@
 #include <sys/time.h>
 #include <math.h>
 
-#include <wiringPi.h>
-#include <wiringPiI2C.h>
-
 
 
 #ifndef HEADER_GUARD
@@ -94,7 +91,7 @@ typedef struct{
 	requestData* start;
 }requestHeader;
 
-
+extern void doNothing();
 
 #endif
 

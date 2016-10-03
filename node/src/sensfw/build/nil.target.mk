@@ -33,14 +33,14 @@ CFLAGS_CC_Debug := \
 	-std=gnu++0x
 
 INCS_Debug := \
-	-I/home/pi/.node-gyp/4.0.0/include/node \
-	-I/home/pi/.node-gyp/4.0.0/src \
-	-I/home/pi/.node-gyp/4.0.0/deps/uv/include \
-	-I/home/pi/.node-gyp/4.0.0/deps/v8/include \
+	-I/home/sinban/.node-gyp/4.0.0/include/node \
+	-I/home/sinban/.node-gyp/4.0.0/src \
+	-I/home/sinban/.node-gyp/4.0.0/deps/uv/include \
+	-I/home/sinban/.node-gyp/4.0.0/deps/v8/include \
 	-I/usr/include/glib-2.0 \
-	-I/usr/lib/arm-linux-gnueabihf/glib-2.0/include \
+	-I/usr/lib/aarch64-linux-gnu/glib-2.0/include \
 	-I/usr/include/dbus-1.0 \
-	-I/usr/lib/arm-linux-gnueabihf/dbus-1.0/include
+	-I/usr/lib/aarch64-linux-gnu/dbus-1.0/include
 
 DEFS_Release := \
 	'-DNODE_GYP_MODULE_NAME=nil' \
@@ -73,14 +73,14 @@ CFLAGS_CC_Release := \
 	-std=gnu++0x
 
 INCS_Release := \
-	-I/home/pi/.node-gyp/4.0.0/include/node \
-	-I/home/pi/.node-gyp/4.0.0/src \
-	-I/home/pi/.node-gyp/4.0.0/deps/uv/include \
-	-I/home/pi/.node-gyp/4.0.0/deps/v8/include \
+	-I/home/sinban/.node-gyp/4.0.0/include/node \
+	-I/home/sinban/.node-gyp/4.0.0/src \
+	-I/home/sinban/.node-gyp/4.0.0/deps/uv/include \
+	-I/home/sinban/.node-gyp/4.0.0/deps/v8/include \
 	-I/usr/include/glib-2.0 \
-	-I/usr/lib/arm-linux-gnueabihf/glib-2.0/include \
+	-I/usr/lib/aarch64-linux-gnu/glib-2.0/include \
 	-I/usr/include/dbus-1.0 \
-	-I/usr/lib/arm-linux-gnueabihf/dbus-1.0/include
+	-I/usr/lib/aarch64-linux-gnu/dbus-1.0/include
 
 OBJS := \
 	$(obj).target/$(TARGET)/nil.o \

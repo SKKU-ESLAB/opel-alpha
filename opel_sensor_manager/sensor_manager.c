@@ -237,7 +237,9 @@ void sensorThreadInit(){
 	sensorList* sl;
 	int status;
 
+
 	number_of_sensor = sensor_head_main->count;
+
 	sl = sensor_head_main->start;
 
 	printf("Sensor Thread Initilizing - %d of Sensor  \n", number_of_sensor);
@@ -544,9 +546,10 @@ void initDbus(){
 }
 
 int main(void)
-{	
+{
+	doNothing();
 	sensorThreadInit();
-
+	printf("in the middle of program\n");
 	initDbus();
 
 	return 0;

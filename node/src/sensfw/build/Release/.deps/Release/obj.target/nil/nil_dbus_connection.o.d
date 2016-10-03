@@ -1,20 +1,20 @@
-cmd_Release/obj.target/nil/nil_dbus_connection.o := g++ '-DNODE_GYP_MODULE_NAME=nil' '-DUSING_UV_SHARED=1' '-DUSING_V8_SHARED=1' '-DV8_DEPRECATION_WARNINGS=1' '-D_LARGEFILE_SOURCE' '-D_FILE_OFFSET_BITS=64' '-DBUILDING_NODE_EXTENSION' -I/home/pi/.node-gyp/4.0.0/include/node -I/home/pi/.node-gyp/4.0.0/src -I/home/pi/.node-gyp/4.0.0/deps/uv/include -I/home/pi/.node-gyp/4.0.0/deps/v8/include -I/usr/include/glib-2.0 -I/usr/lib/arm-linux-gnueabihf/glib-2.0/include -I/usr/include/dbus-1.0 -I/usr/lib/arm-linux-gnueabihf/dbus-1.0/include  -fPIC -pthread -Wall -Wextra -Wno-unused-parameter -O3 -ffunction-sections -fdata-sections -fno-omit-frame-pointer -fno-rtti -fno-exceptions -std=gnu++0x -MMD -MF ./Release/.deps/Release/obj.target/nil/nil_dbus_connection.o.d.raw   -c -o Release/obj.target/nil/nil_dbus_connection.o ../nil_dbus_connection.cc
+cmd_Release/obj.target/nil/nil_dbus_connection.o := g++ '-DNODE_GYP_MODULE_NAME=nil' '-DUSING_UV_SHARED=1' '-DUSING_V8_SHARED=1' '-DV8_DEPRECATION_WARNINGS=1' '-D_LARGEFILE_SOURCE' '-D_FILE_OFFSET_BITS=64' '-DBUILDING_NODE_EXTENSION' -I/home/sinban/.node-gyp/4.0.0/include/node -I/home/sinban/.node-gyp/4.0.0/src -I/home/sinban/.node-gyp/4.0.0/deps/uv/include -I/home/sinban/.node-gyp/4.0.0/deps/v8/include -I/usr/include/glib-2.0 -I/usr/lib/aarch64-linux-gnu/glib-2.0/include -I/usr/include/dbus-1.0 -I/usr/lib/aarch64-linux-gnu/dbus-1.0/include  -fPIC -pthread -Wall -Wextra -Wno-unused-parameter -O3 -ffunction-sections -fdata-sections -fno-omit-frame-pointer -fno-rtti -fno-exceptions -std=gnu++0x -MMD -MF ./Release/.deps/Release/obj.target/nil/nil_dbus_connection.o.d.raw   -c -o Release/obj.target/nil/nil_dbus_connection.o ../nil_dbus_connection.cc
 Release/obj.target/nil/nil_dbus_connection.o: ../nil_dbus_connection.cc \
- /home/pi/.node-gyp/4.0.0/include/node/node.h \
- /home/pi/.node-gyp/4.0.0/include/node/v8.h \
- /home/pi/.node-gyp/4.0.0/include/node/v8-version.h \
- /home/pi/.node-gyp/4.0.0/include/node/v8config.h \
- /home/pi/.node-gyp/4.0.0/include/node/node_version.h \
+ /home/sinban/.node-gyp/4.0.0/include/node/node.h \
+ /home/sinban/.node-gyp/4.0.0/include/node/v8.h \
+ /home/sinban/.node-gyp/4.0.0/include/node/v8-version.h \
+ /home/sinban/.node-gyp/4.0.0/include/node/v8config.h \
+ /home/sinban/.node-gyp/4.0.0/include/node/node_version.h \
  /usr/include/glib-2.0/glib.h /usr/include/glib-2.0/glib/galloca.h \
  /usr/include/glib-2.0/glib/gtypes.h \
- /usr/lib/arm-linux-gnueabihf/glib-2.0/include/glibconfig.h \
+ /usr/lib/aarch64-linux-gnu/glib-2.0/include/glibconfig.h \
  /usr/include/glib-2.0/glib/gmacros.h \
  /usr/include/glib-2.0/glib/gversionmacros.h \
  /usr/include/glib-2.0/glib/garray.h \
  /usr/include/glib-2.0/glib/gasyncqueue.h \
  /usr/include/glib-2.0/glib/gthread.h \
  /usr/include/glib-2.0/glib/gatomic.h /usr/include/glib-2.0/glib/gerror.h \
- /usr/include/glib-2.0/glib/gquark.h \
+ /usr/include/glib-2.0/glib/gquark.h /usr/include/glib-2.0/glib/gutils.h \
  /usr/include/glib-2.0/glib/gbacktrace.h \
  /usr/include/glib-2.0/glib/gbase64.h \
  /usr/include/glib-2.0/glib/gbitlock.h \
@@ -38,7 +38,6 @@ Release/obj.target/nil/nil_dbus_connection.o: ../nil_dbus_connection.cc \
  /usr/include/glib-2.0/glib/gmain.h /usr/include/glib-2.0/glib/gpoll.h \
  /usr/include/glib-2.0/glib/gslist.h /usr/include/glib-2.0/glib/gstring.h \
  /usr/include/glib-2.0/glib/gunicode.h \
- /usr/include/glib-2.0/glib/gutils.h \
  /usr/include/glib-2.0/glib/gkeyfile.h \
  /usr/include/glib-2.0/glib/gmappedfile.h \
  /usr/include/glib-2.0/glib/gmarkup.h \
@@ -69,8 +68,9 @@ Release/obj.target/nil/nil_dbus_connection.o: ../nil_dbus_connection.cc \
  /usr/include/glib-2.0/glib/deprecated/gmain.h \
  /usr/include/glib-2.0/glib/deprecated/grel.h \
  /usr/include/glib-2.0/glib/deprecated/gthread.h \
+ /usr/include/glib-2.0/glib/glib-autocleanups.h \
  /usr/include/dbus-1.0/dbus/dbus.h \
- /usr/lib/arm-linux-gnueabihf/dbus-1.0/include/dbus/dbus-arch-deps.h \
+ /usr/include/dbus-1.0/dbus/dbus-arch-deps.h \
  /usr/include/dbus-1.0/dbus/dbus-macros.h \
  /usr/include/dbus-1.0/dbus/dbus-address.h \
  /usr/include/dbus-1.0/dbus/dbus-types.h \
@@ -87,23 +87,23 @@ Release/obj.target/nil/nil_dbus_connection.o: ../nil_dbus_connection.cc \
  /usr/include/dbus-1.0/dbus/dbus-signature.h \
  /usr/include/dbus-1.0/dbus/dbus-syntax.h \
  /usr/include/dbus-1.0/dbus/dbus-threads.h \
- /home/pi/.node-gyp/4.0.0/include/node/uv.h \
- /home/pi/.node-gyp/4.0.0/include/node/uv-errno.h \
- /home/pi/.node-gyp/4.0.0/include/node/uv-version.h \
- /home/pi/.node-gyp/4.0.0/include/node/uv-unix.h \
- /home/pi/.node-gyp/4.0.0/include/node/uv-threadpool.h \
- /home/pi/.node-gyp/4.0.0/include/node/uv-linux.h ../nil.h \
- /home/pi/.node-gyp/4.0.0/include/node/v8.h
+ /home/sinban/.node-gyp/4.0.0/include/node/uv.h \
+ /home/sinban/.node-gyp/4.0.0/include/node/uv-errno.h \
+ /home/sinban/.node-gyp/4.0.0/include/node/uv-version.h \
+ /home/sinban/.node-gyp/4.0.0/include/node/uv-unix.h \
+ /home/sinban/.node-gyp/4.0.0/include/node/uv-threadpool.h \
+ /home/sinban/.node-gyp/4.0.0/include/node/uv-linux.h ../nil.h \
+ /home/sinban/.node-gyp/4.0.0/include/node/v8.h
 ../nil_dbus_connection.cc:
-/home/pi/.node-gyp/4.0.0/include/node/node.h:
-/home/pi/.node-gyp/4.0.0/include/node/v8.h:
-/home/pi/.node-gyp/4.0.0/include/node/v8-version.h:
-/home/pi/.node-gyp/4.0.0/include/node/v8config.h:
-/home/pi/.node-gyp/4.0.0/include/node/node_version.h:
+/home/sinban/.node-gyp/4.0.0/include/node/node.h:
+/home/sinban/.node-gyp/4.0.0/include/node/v8.h:
+/home/sinban/.node-gyp/4.0.0/include/node/v8-version.h:
+/home/sinban/.node-gyp/4.0.0/include/node/v8config.h:
+/home/sinban/.node-gyp/4.0.0/include/node/node_version.h:
 /usr/include/glib-2.0/glib.h:
 /usr/include/glib-2.0/glib/galloca.h:
 /usr/include/glib-2.0/glib/gtypes.h:
-/usr/lib/arm-linux-gnueabihf/glib-2.0/include/glibconfig.h:
+/usr/lib/aarch64-linux-gnu/glib-2.0/include/glibconfig.h:
 /usr/include/glib-2.0/glib/gmacros.h:
 /usr/include/glib-2.0/glib/gversionmacros.h:
 /usr/include/glib-2.0/glib/garray.h:
@@ -112,6 +112,7 @@ Release/obj.target/nil/nil_dbus_connection.o: ../nil_dbus_connection.cc \
 /usr/include/glib-2.0/glib/gatomic.h:
 /usr/include/glib-2.0/glib/gerror.h:
 /usr/include/glib-2.0/glib/gquark.h:
+/usr/include/glib-2.0/glib/gutils.h:
 /usr/include/glib-2.0/glib/gbacktrace.h:
 /usr/include/glib-2.0/glib/gbase64.h:
 /usr/include/glib-2.0/glib/gbitlock.h:
@@ -142,7 +143,6 @@ Release/obj.target/nil/nil_dbus_connection.o: ../nil_dbus_connection.cc \
 /usr/include/glib-2.0/glib/gslist.h:
 /usr/include/glib-2.0/glib/gstring.h:
 /usr/include/glib-2.0/glib/gunicode.h:
-/usr/include/glib-2.0/glib/gutils.h:
 /usr/include/glib-2.0/glib/gkeyfile.h:
 /usr/include/glib-2.0/glib/gmappedfile.h:
 /usr/include/glib-2.0/glib/gmarkup.h:
@@ -176,8 +176,9 @@ Release/obj.target/nil/nil_dbus_connection.o: ../nil_dbus_connection.cc \
 /usr/include/glib-2.0/glib/deprecated/gmain.h:
 /usr/include/glib-2.0/glib/deprecated/grel.h:
 /usr/include/glib-2.0/glib/deprecated/gthread.h:
+/usr/include/glib-2.0/glib/glib-autocleanups.h:
 /usr/include/dbus-1.0/dbus/dbus.h:
-/usr/lib/arm-linux-gnueabihf/dbus-1.0/include/dbus/dbus-arch-deps.h:
+/usr/include/dbus-1.0/dbus/dbus-arch-deps.h:
 /usr/include/dbus-1.0/dbus/dbus-macros.h:
 /usr/include/dbus-1.0/dbus/dbus-address.h:
 /usr/include/dbus-1.0/dbus/dbus-types.h:
@@ -194,11 +195,11 @@ Release/obj.target/nil/nil_dbus_connection.o: ../nil_dbus_connection.cc \
 /usr/include/dbus-1.0/dbus/dbus-signature.h:
 /usr/include/dbus-1.0/dbus/dbus-syntax.h:
 /usr/include/dbus-1.0/dbus/dbus-threads.h:
-/home/pi/.node-gyp/4.0.0/include/node/uv.h:
-/home/pi/.node-gyp/4.0.0/include/node/uv-errno.h:
-/home/pi/.node-gyp/4.0.0/include/node/uv-version.h:
-/home/pi/.node-gyp/4.0.0/include/node/uv-unix.h:
-/home/pi/.node-gyp/4.0.0/include/node/uv-threadpool.h:
-/home/pi/.node-gyp/4.0.0/include/node/uv-linux.h:
+/home/sinban/.node-gyp/4.0.0/include/node/uv.h:
+/home/sinban/.node-gyp/4.0.0/include/node/uv-errno.h:
+/home/sinban/.node-gyp/4.0.0/include/node/uv-version.h:
+/home/sinban/.node-gyp/4.0.0/include/node/uv-unix.h:
+/home/sinban/.node-gyp/4.0.0/include/node/uv-threadpool.h:
+/home/sinban/.node-gyp/4.0.0/include/node/uv-linux.h:
 ../nil.h:
-/home/pi/.node-gyp/4.0.0/include/node/v8.h:
+/home/sinban/.node-gyp/4.0.0/include/node/v8.h:

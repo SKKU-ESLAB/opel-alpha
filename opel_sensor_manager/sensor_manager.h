@@ -91,7 +91,7 @@ typedef struct{
 	requestData* start;
 }requestHeader;
 
-
+extern void doNothing();
 
 #endif
 

@@ -8,13 +8,9 @@
     "libraries": []
   },
   "variables": {
-    "arm_float_abi": "hard",
-    "arm_fpu": "vfpv3",
-    "arm_thumb": 0,
-    "arm_version": "7",
     "asan": 0,
-    "gas_version": "2.22",
-    "host_arch": "arm",
+    "gas_version": "2.24",
+    "host_arch": "arm64",
     "icu_data_file": "icudt55l.dat",
     "icu_data_in": "../../deps/icu/source/data/in/icudt55l.dat",
     "icu_endianness": "l",
@@ -40,7 +36,7 @@
     "openssl_fips": "",
     "openssl_no_asm": 0,
     "python": "/usr/bin/python",
-    "target_arch": "arm",
+    "target_arch": "arm64",
     "uv_parent_path": "/deps/uv/",
     "uv_use_dtrace": "false",
     "v8_enable_gdbjit": 0,
@@ -50,7 +46,7 @@
     "v8_random_seed": 0,
     "v8_use_snapshot": 1,
     "want_separate_host_toolset": 0,
-    "nodedir": "/home/pi/.node-gyp/4.0.0",
+    "nodedir": "/home/sinban/.node-gyp/4.0.0",
     "copy_dev_lib": "true",
     "standalone_static_library": 1
   }

@@ -15,10 +15,12 @@ set(MYLIB_PATH /home/pi)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_BUILD_TYPE RELEASE)
 
-set(SM_driver_sources devices.c driver_common.c sensor1_acc.c sensor2_temp.c sensor3_sound.c sensor4_light.c sensor5_motion.c sensor6_vib.c sensor7_touch.c)
+set(SM_driver_sources sensor_manager.c devices.c jetsonGPIO.c sensor0_button.c)
 
-ADD_DEFINITIONS(-Wall -O2)
+ADD_DEFINITIONS(-Wl,-Wall -O2 -fPIC)
 ADD_LIBRARY(sensors SHARED ${SM_driver_sources})
+
+
 
 
 INCLUDE_DIRECTORIES(./)
