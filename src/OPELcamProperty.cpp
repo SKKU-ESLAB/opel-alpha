@@ -44,7 +44,7 @@ void setTx1DefaultProperty(void)
    ElementProperty *jpeg_sink = new ElementProperty(kSINK, kJPEG_SINK, 
        "filesink", "filesink"); 
    ElementProperty *udp_sink = new ElementProperty(kSINK, kUDP_SINK, 
-       "udpsink", "udpsink");
+       "tcpserversink", "tcpserversink");
 	 ElementProperty *app_sink = new ElementProperty(kSINK, kAPP_SINK,
 			 "appsink", "appsink");
 		

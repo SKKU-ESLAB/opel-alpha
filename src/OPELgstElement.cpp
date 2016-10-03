@@ -14,6 +14,7 @@ extern bool typeElementAllocator(const char *name, const char *element_name,
    __OPEL_FUNCTION_EXIT__;
    return true;
 }
+
 extern bool typeElementCapAllocator(unsigned eid, 
     typeElement **type_element_array, GstCaps *cap)
 {
@@ -55,6 +56,7 @@ typeElement* findByElementName(std::vector<typeElement*> *_v_element,
   OPEL_DBG_ERR("Cannot Find Element By Element Name");
   return NULL;
 }
+
 typeElement* findByElementNameNSubType(std::vector<typeElement*> *_v_element, 
     const char *_str, unsigned _sub_type)
 {

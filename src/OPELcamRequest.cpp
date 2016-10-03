@@ -577,10 +577,10 @@ DBusHandlerResult msg_dbus_filter(DBusConnection *conn,
 				DBUS_TYPE_UINT64, &(msg_handle->port), 
 				DBUS_TYPE_INVALID);
 
-#if OPEL_LOG_VERBOSE
+//#if OPEL_LOG_VERBOSE
 		OPEL_DBG_VERB("IP Address : %s", msg_handle->ip_address);
 		OPEL_DBG_VERB("Port Number : %d", msg_handle->port);
-#endif
+//#endif
 
 		OPELH264Streaming *request_handle = OPELH264Streaming::getInstance();
 		request_handle->setStreamingRequest(msg_handle);

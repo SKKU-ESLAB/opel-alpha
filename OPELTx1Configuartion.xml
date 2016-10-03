@@ -132,8 +132,8 @@
 			</element_property>
 		</item>
 		<item class_id_reference="2" object_id="_11">
-			<element_name>udpsink</element_name>
-			<element_nickname>udpsink</element_nickname>
+			<element_name>tcpserversink</element_name>
+			<element_nickname>tcpserversink</element_nickname>
 			<element_type>6</element_type>
 			<element_sub_type>9</element_sub_type>
 			<element_property>

@@ -9,6 +9,15 @@ static void setH264Parse(typeElement *element)
 	element->name = str;
 	element->type = kNO_PROP;
 }
+
+static void setgdpPay(typeElement *element)
+{
+	assert(element != NULL);
+	const char* n_gdppay = "gdppay";
+	std::string *str = new std::string(n_gdppay);
+	element->name = str;
+	element->type = kNO_PROP;
+}
 static void setRtph264Pay(typeElement *element)
 {
 	assert(element != NULL);
@@ -26,7 +35,7 @@ static bool h264StreamingPropSetting(std::vector<typeElement*>* _v_type_element,
 	typeElement *_enc = findByElementName(_v_type_element, 
 			"omxh264enc");
 	typeElement *_udp_sink = findByElementName(_v_type_element, 
-			"udpsink");
+			"tcpserversink");
 	typeElement *_rtph_264pay = findByElementName(_v_type_element, 
 			"rtph264pay");
 
@@ -36,12 +45,12 @@ static bool h264StreamingPropSetting(std::vector<typeElement*>* _v_type_element,
 		return false;
 	}
 	g_object_set(G_OBJECT(_enc->element), "control-rate", (guint)2, 
-			"bitrate", (guint)4000000, NULL); 
-	g_object_set(G_OBJECT(_rtph_264pay->element), "mtu", (guint)1400, NULL);
+			"bitrate", (guint)2000000, NULL); 
+	g_object_set(G_OBJECT(_rtph_264pay->element), "pt", (guint)96, 
+			"config-interval", (guint)1, NULL);
 	g_object_set(G_OBJECT(_udp_sink->element), "host", 
 			_stream_request->ip_address, "port",
 			_stream_request->port, "sync",
-			FALSE, "async",
 			FALSE, NULL);
 
 	return true;
@@ -57,7 +66,7 @@ OPELH264Streaming::OPELH264Streaming()
 {
 	this->_v_fly_type_element = 
 		new std::vector<typeElement*>(OPEL_NUM_DEFAULT_STREAMING_ELE);
-
+	this->is_streaming_run = false;
 }
 
 OPELH264Streaming::~OPELH264Streaming()
@@ -77,7 +86,7 @@ bool OPELH264Streaming::defaultStreamingFactory(void)
 	typeElement *_enc = findByElementName(this->_v_type_element, 
 			"omxh264enc");
 	typeElement *_udp_sink = findByElementName(this->_v_type_element,
-				"udpsink");
+				"tcpserversink");
 
 	//need to copy
 	typeElement *_new_queue = (typeElement*)malloc(sizeof(typeElement)); 
@@ -102,12 +111,16 @@ bool OPELH264Streaming::defaultStreamingFactory(void)
 	typeElement *_rtph_264_pay = (typeElement*)malloc(sizeof(typeElement));
 	setRtph264Pay(_rtph_264_pay);
 	
+	typeElement *_gdppay = (typeElement*)malloc(sizeof(typeElement));
+	setgdpPay(_gdppay);
+
   (*this->_v_fly_type_element)[0] = _new_queue;
   (*this->_v_fly_type_element)[1] = _new_conv;
   (*this->_v_fly_type_element)[2] = _new_enc;
   (*this->_v_fly_type_element)[3] = _h264_parse;
   (*this->_v_fly_type_element)[4] = _rtph_264_pay;
-  (*this->_v_fly_type_element)[5] = _new_udp_sink;
+  (*this->_v_fly_type_element)[5] = _gdppay;
+  (*this->_v_fly_type_element)[6] = _new_udp_sink;
 
 	gstElementFactory(this->_v_fly_type_element);
 	
@@ -134,9 +147,11 @@ bool OPELH264Streaming::defaultStreamingPipelineAdd(GstElement *pipeline)
 				"h264parse");
 	typeElement *_pay = findByElementName(this->_v_fly_type_element,
 				"rtph264pay");
+	typeElement *_gdppay = findByElementName(this->_v_fly_type_element,
+			"gdppay");
 	typeElement *_udp_sink = findByElementName(this->_v_fly_type_element,
-			"udpsink");
-	if(!_queue || !_conv || !_enc || !_parse || !_pay || !_udp_sink)
+			"tcpserversink");
+	if(!_queue || !_conv || !_enc || !_parse || !_pay || !_udp_sink || !_gdppay)
 	{
 		OPEL_DBG_ERR("elements are NULL");
 		__OPEL_FUNCTION_EXIT__;
@@ -144,7 +159,8 @@ bool OPELH264Streaming::defaultStreamingPipelineAdd(GstElement *pipeline)
 	}
 
 	gst_bin_add_many(GST_BIN(pipeline), _queue->element, _conv->element,
-			_enc->element, _parse->element, _pay->element, _udp_sink->element, NULL);
+			_enc->element, _parse->element, _pay->element, _gdppay->element, 
+			_udp_sink->element, NULL);
 
 	ret = gst_element_link(_queue->element, _conv->element);
 	if(!ret)
@@ -168,7 +184,7 @@ bool OPELH264Streaming::defaultStreamingPipelineAdd(GstElement *pipeline)
 		return false;
 	}
 	ret = gst_element_link_many(_parse->element, _pay->element, 
-			_udp_sink->element, NULL);
+		 _gdppay->element, _udp_sink->element, NULL);
 	if(!ret)
 	{
 		OPEL_DBG_ERR("element link many failed");
