@@ -10,7 +10,7 @@
 				"./NIL_Comm.cc"
 			],
 			"include_dirs": ["<!(node -e \"require('nan')\")", "./inc"],
-			"libraries": ['-lbluetooth', '-luv', '-fpermissive'],
+			"libraries": ['-lbluetooth', '-fpermissive'],
 			"cflags": ['-std=gnu++0x']
 		}
 	]
