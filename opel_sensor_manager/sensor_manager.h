@@ -15,7 +15,6 @@
 #include <math.h>
 
 
-
 #ifndef HEADER_GUARD
 #define HEADER_GUARD
 
@@ -41,6 +40,8 @@
 //--------------------------------------------------------------------------------------------//
 //                                              Request 처리 관련
 //리퀘스트 리스트, 나중에 Linked list 등 동적으로 관리할 수 있도록 하는게 좋아 보임...
+//Request list, It looks better to make it dynamically manageable such as linked list
+
 /*
 struct RequestData
 {
@@ -89,7 +90,7 @@ typedef struct{
 	requestData* start;
 }requestHeader;
 
-
+extern void doNothing();
 
 #endif
 

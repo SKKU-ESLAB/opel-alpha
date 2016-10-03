@@ -1,15 +1,9 @@
 #include <stdio.h>
 #include "devices.h"
 
+
 static sensorHead *sensor_head = NULL;
 
-#define	Clock	27
-#define	Address	28
-#define	DataOut	29
-
-static int ADC_INIT = 0;
-static int ADC_LOCK = 0;
-static int wiring_pi_setup;
 
 sensorList* getSensorByName(sensorHead* sh, char* sensor_name){
 	sensorList* temp;
@@ -37,12 +31,12 @@ sensorHead* initSensors(void){
 
 	return sensor_head;
 }
-
 void addSensor(const struct device_ops *dev)
 {
 	sensorList* sl;
 	sensorList* new_sl;
 
+	printf("bbbb\n");	
 	if (sensor_head == NULL){
 		printf("Sensor head is not initilized! Perform initilizing\n");
 		initSensors();
@@ -84,5 +78,8 @@ int countSensor(void);
 /*
 	Sensor On/Off 등의 컨트롤에 대한 정보도 추가.
 */
+<<<<<<< HEAD
 
+=======
+>>>>>>> tegraTX1
 

@@ -8,6 +8,12 @@
 static int button_flag = 0;
 enum jetsonTX1GPIONumber pushButton = gpio38;
 
+void doNothing()
+{
+//	printf("Hello!\n");
+}
+
+
 static void BUTTON_start(void *data)
 {
   gpioExport(pushButton);
@@ -25,7 +31,11 @@ static char* BUTTON_get(void *data)
 	unsigned int value;
 	static char value_c[20];
 
+<<<<<<< HEAD
   gpioGetValue(pushButton, &value);
+=======
+  	gpioGetValue(pushButton, &value);
+>>>>>>> tegraTX1
 	
 	sprintf(value_c, "%d\n", value);
 	printf("[SM] Button Value :%d \n", value);

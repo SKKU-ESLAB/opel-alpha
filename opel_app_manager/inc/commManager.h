@@ -77,7 +77,7 @@ private:
 public:
 	static comManager* getInstance();
 
-	void sendMsg(char* msg);
+	void sendMsg(const char* msg);
 	bool sendFile(char* filePath, char* fileName);
 	bool sendFile(char* fullPath);
 	ssize_t getMsg(char* msg);

@@ -94,10 +94,10 @@ bool appStatusManager::runNewApplication(jsonString js, char* _filePath ){
 		char dirPath[128] = {'\0',};
 		char dirLastPath[128] = {'\0',};
 
-		strcpy(appID, js.findValue("appID"));
-		strcpy(appName, js.findValue("appName"));
+		strncpy(appID, js.findValue("appID").c_str(), 128);
+		strncpy(appName, js.findValue("appName").c_str(), 128);
 
-		strcpy(dirLastPath, js.findValue("dirPath"));
+		strncpy(dirLastPath, js.findValue("dirPath").c_str(), 128);
 		getcwd(dirPath, 128);
 
 		strncat(dirPath, dirLastPath+1, strlen(dirLastPath)-1);
