@@ -74,6 +74,33 @@ static void send_rec_term(DBusConnection *conn)
   dbus_message_unref(message);
 }
 
+static void send_stream_start(DBusConnection *conn)
+{
+	printf("streaming start");
+	DBusMessage *message;
+	message = dbus_message_new_signal(dbus_path, dbus_interface, streaming_start_request);
+	const char *ip_addr = "127.0.0.1";
+	unsigned port = 5000;
+	dbus_message_append_args(message,
+			DBUS_TYPE_STRING, &ip_addr,
+			DBUS_TYPE_UINT64, &port,
+			DBUS_TYPE_INVALID);
+	
+	dbus_connection_send(conn, message, NULL);
+	dbus_message_unref(message);
+
+}
+
+static void send_stream_stop(DBusConnection *conn)
+{
+	printf("streaming stop");
+	DBusMessage *message;
+	message = dbus_message_new_signal(dbus_path, dbus_interface, streaming_stop_request);
+	dbus_connection_send(conn, message, NULL);
+	dbus_message_unref(message);
+
+}
+
 int main(int argc, char** argv)
 {
  int num;
@@ -101,6 +128,10 @@ int main(int argc, char** argv)
 		send_rec_start(conn, argv[1]);	 
 	 else if(num == 2)
 		send_rec_term(conn);
+	 else if(num == 3)
+		 send_stream_start(conn);
+	 else if(num == 4)
+		 send_stream_stop(conn);
 	 else
 		 break;
  }

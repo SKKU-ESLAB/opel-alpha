@@ -599,12 +599,13 @@ DBusHandlerResult msg_dbus_filter(DBusConnection *conn,
 		OPELH264Streaming *request_handle = OPELH264Streaming::getInstance();
 		if(request_handle->getIsStreamingRun())
 		{
-		   		   	
-
+			OPEL_DBG_VERB("Stop the Streaming Service");
+			//unlink them 		   	
+			request_handle->detachedStreaming();	
 		}
 		else
 		{
-			OPEL_DBG_VERB("Already Stop the Service");
+			OPEL_DBG_VERB("Already Stop the Streaming Service");
   		return DBUS_HANDLER_RESULT_HANDLED;
 		}
 	}

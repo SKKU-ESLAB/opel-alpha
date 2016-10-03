@@ -239,6 +239,7 @@ void OPELH264Streaming::defaultStreamingPadLink(GstPad *tee_src_pad)
 	__OPEL_FUNCTION_EXIT__;
 }
 
+
 void OPELH264Streaming::defaultStreamingSyncStateWithParent(void)
 {
 	assert(this->_v_fly_type_element != NULL);
@@ -246,6 +247,7 @@ void OPELH264Streaming::defaultStreamingSyncStateWithParent(void)
 	OPELgstSyncStateWithParent(this->_v_fly_type_element);
 	__OPEL_FUNCTION_EXIT__;
 }
+
 
 bool streamingStart(std::vector<typeElement*> *_type_element_v, 
 		OPELH264Streaming *request_handle)
@@ -304,4 +306,71 @@ bool streamingStart(std::vector<typeElement*> *_type_element_v,
 	
 	__OPEL_FUNCTION_EXIT__;
 	return request_handle;
+}
+
+static GstPadProbeReturn detachStreamingCB(GstPad *pad, GstPadProbeInfo *info,
+		gpointer user_data)
+{
+	assert(user_data != NULL);
+	__OPEL_FUNCTION_ENTER__;
+
+	OPELH264Streaming *request_handle = NULL;
+	OPELGstElementTx1 *tx1 = OPELGstElementTx1::getInstance();
+	gst_pad_remove_probe(pad, GST_PAD_PROBE_INFO_ID(info));
+	request_handle = (OPELH264Streaming*)user_data;
+
+	std::vector<typeElement*> *_v_type_element = 
+		request_handle->getTypeElementVector();
+	
+	std::vector<typeElement*> *v_fly_type_elements =
+		request_handle->getFlyTypeElementVector();
+
+	typeElement *_tee = findByElementName(_v_type_element,
+			"tee");
+	if(!_tee)
+	{
+		OPEL_DBG_ERR("tee is NULL");
+		return GST_PAD_PROBE_OK;
+	}
+	for(int i=0; i<OPEL_NUM_DEFAULT_STREAMING_ELE; i++)
+	{
+		std::cout << "Removed Elements : " << (*v_fly_type_elements)[i]->name->c_str()
+			<< std::endl;
+		gst_element_set_state((*v_fly_type_elements)[i]->element, GST_STATE_NULL);
+		gst_bin_remove(GST_BIN(tx1->getPipeline()), (*v_fly_type_elements)[i]->element);
+	}
+	gst_element_release_request_pad(_tee->element,
+			request_handle->getSrcPad());
+	
+	request_handle->setIsStreamingRun(false);
+
+	delete request_handle;
+	__OPEL_FUNCTION_EXIT__;
+	return GST_PAD_PROBE_OK;
+}
+
+bool OPELH264Streaming::detachedStreaming(void)
+{
+	assert(this->_v_type_element != NULL && this->_v_fly_type_element != NULL);
+	__OPEL_FUNCTION_ENTER__;
+	GstPad *sink_pad;	
+	typeElement *_queue = findByElementName(this->_v_fly_type_element,
+			            "queue");
+
+	if(!_queue || !this->getSrcPad())
+	{
+		OPEL_DBG_ERR("queue and tee are NULL");
+		return false;
+	}
+	gst_pad_add_probe(this->getSrcPad(), GST_PAD_PROBE_TYPE_BLOCK_DOWNSTREAM,
+			detachStreamingCB, (gpointer)this, NULL);
+
+	sink_pad = gst_element_get_static_pad(_queue->element, "sink");
+	gst_pad_unlink(this->getSrcPad(), sink_pad);
+	
+	gst_pad_send_event(sink_pad, gst_event_new_eos());
+	gst_object_unref(sink_pad);
+
+	__OPEL_FUNCTION_EXIT__;
+	return true;
 }

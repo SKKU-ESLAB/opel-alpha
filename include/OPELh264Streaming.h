@@ -28,6 +28,8 @@ class OPELH264Streaming : public OPELRequest
 		void defaultStreamingPadLink(GstPad *tee_src_pad);
 		void defaultStreamingSyncStateWithParent(void);
 
+		bool detachedStreaming(void);
+
 		void setIsStreamingRun(bool _is_streaming_run)
 		{  this->is_streaming_run = _is_streaming_run; }
 		bool getIsStreamingRun(void)

@@ -3,6 +3,9 @@
 #include <glib.h>
 #include <string>
 
+static const gchar *streaming_start_request = "streamingStart";
+static const gchar *streaming_stop_request = "streamingStop";
+
 static const gchar *dbus_path = "/org/opel/camera/daemon";
 static const gchar *dbus_interface = "org.opel.camera.daemon";
 
