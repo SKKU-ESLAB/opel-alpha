@@ -17,6 +17,7 @@ init_wf()
 	then
 		sudo pkill -x wpa_supplicant
 	fi
+
 	IS_INIT=`cat ${INIT_PATH}/self | awk '{print $1}'`
 	echo $IS_INIT
 	if [ ${IS_INIT} -eq '1' ] 
@@ -24,6 +25,7 @@ init_wf()
 		exit 1
 	fi
 		
+  sudo rfkill unblock all
 	sudo mkdir -p ${WFD_DIR}
 	sudo mkdir -p ${INIT_PATH}
 	sudo mkdir -p ${WFD_STAT_PATH}
@@ -47,7 +49,7 @@ init_wf()
 	sudo echo 0 > ${DHCP_STAT_PATH}/self
 	sudo echo 0 > ${INIT_PATH}/self
 
-	sudo chown -R pi:pi /tmp/wifi
+	sudo chown -R $USER:$USER /tmp/wifi
 	sudo ifconfig wlan0 up
 	sudo ${OPEL_DIR}/bin/wpa_supplicant -Dnl80211 -iwlan0 -c${P2P_CONF_PATH} -Bd
 	sudo ${OPEL_DIR}/bin/wpa_cli p2p_group_add persistent=0
