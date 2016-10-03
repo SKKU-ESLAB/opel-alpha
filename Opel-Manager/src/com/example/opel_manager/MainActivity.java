@@ -18,9 +18,7 @@ import android.content.res.Resources;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.net.wifi.WifiManager;
 import android.net.wifi.p2p.WifiP2pManager;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -36,8 +34,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.CompoundButton;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -76,7 +76,7 @@ public class MainActivity extends Activity {
 				boolean found = false;
 				if(bds.size() > 0){
 					for(BluetoothDevice tmpDevice : bds) {
-						if(tmpDevice.getName().contains(OpelCommunicator.CMFW_BT_NAME)){
+						if(tmpDevice.getName().contains(OpelCommunicator.getTargetBtName())){
 							found = true;
 							break;
 						}
@@ -167,7 +167,7 @@ public class MainActivity extends Activity {
 
 				if (bds.size() > 0) {
 					for (BluetoothDevice tmpDevice : bds) {
-						if (tmpDevice.getName().contains(OpelCommunicator.CMFW_BT_NAME)) {
+						if (tmpDevice.getName().contains(OpelCommunicator.getTargetBtName())) {
 							found = true;
 							break;
 						}
@@ -241,6 +241,24 @@ public class MainActivity extends Activity {
 		if(found){
 			globalData.getInstance().getCommManager().Connect();
 		}
+
+		// Add radio button callbacks
+		RadioButton radioButtonTargetRPi2 = (RadioButton)this.findViewById(R.id.radioButtonTargetRPi2);
+		RadioButton radioButtonTargetTX1 = (RadioButton)this.findViewById(R.id.radioButtonTargetTX1);
+		radioButtonTargetRPi2.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+			@Override
+			public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+				Toast.makeText(getApplicationContext(), "Target board: RPi2(Raspberry Pi 2)",0).show();
+		        OpelCommunicator.setTargetRPi2();
+			}
+		});
+		radioButtonTargetTX1.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+			@Override
+			public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+				Toast.makeText(getApplicationContext(), "Target board: TX1(Nvidia TX1)",0).show();
+				OpelCommunicator.setTargetTX1();
+			}
+		});
 	}
 
 	@Override
@@ -348,7 +366,7 @@ public class MainActivity extends Activity {
 
 						if(bds.size() > 0){
 							for(BluetoothDevice tmpDevice : bds) {
-								if(tmpDevice.getName().contains(OpelCommunicator.CMFW_BT_NAME)){
+								if(tmpDevice.getName().contains(OpelCommunicator.getTargetBtName())){
 									found = true;
 									break;
 								}
@@ -633,7 +651,7 @@ public class MainActivity extends Activity {
 	}
 
 	// Input Json Format
-    /*{		
+    /*{
      * 		"appTitle":"collision detector",
      * 		appID: "2",
     		time: "2015-08-02. 15:02",

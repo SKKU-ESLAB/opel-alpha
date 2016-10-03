@@ -2,12 +2,10 @@ package selectiveconnection;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.Channel;
-import android.os.SystemClock;
 import android.util.Log;
 
 import com.example.opel_manager.globalData;
@@ -22,8 +20,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.Inet4Address;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 import java.net.Socket;
@@ -45,8 +41,27 @@ public class OpelCommunicator {
     public static final int CMFW_STAT_DISCON = 0;
     public static final int CMFW_STAT_BT_CONNECTED = 1;
     public static final int CMFW_STAT_WFD_CONNECTED = 2;
-    public static final String CMFW_BT_NAME = "pi";
-    public static final String CMFW_WFD_NAME = "OPEL";
+
+    private static final String CMFW_BT_NAME_RPI2 = "pi";
+    private static final String CMFW_WFD_NAME_RPI2 = "OPEL";
+    private static final String CMFW_BT_NAME_TX1 = "tegra";
+    private static final String CMFW_WFD_NAME_TX1 = "OPEL-Tegra";
+    private static String sTargetBtName = CMFW_BT_NAME_RPI2;
+    private static String sTargetWfdName = CMFW_WFD_NAME_RPI2;
+    public static String getTargetBtName() {
+        return sTargetBtName;
+    }
+    public static String getTargetWfdName() {
+        return sTargetWfdName;
+    }
+    public static void setTargetRPi2() {
+        sTargetBtName = CMFW_BT_NAME_RPI2;
+        sTargetWfdName = CMFW_WFD_NAME_RPI2;
+    }
+    public static void setTargetTX1() {
+        sTargetBtName = CMFW_BT_NAME_TX1;
+        sTargetWfdName = CMFW_WFD_NAME_TX1;
+    }
 
     private class cmfw_payload_header_c{
         public byte header_id;
@@ -162,7 +177,7 @@ public class OpelCommunicator {
 
             if(paired_devices.size() > 0){
                 for(BluetoothDevice tmpDevice : paired_devices) {
-                    if (tmpDevice.getName().contains(CMFW_BT_NAME)) {
+                    if (tmpDevice.getName().contains(OpelCommunicator.getTargetBtName())) {
                         try {
                             tmp_sock = tmpDevice.createRfcommSocketToServiceRecord(uuid);
                             tmp_sock.connect();
