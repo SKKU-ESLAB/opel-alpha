@@ -495,12 +495,12 @@ DBusHandlerResult msg_dbus_filter(DBusConnection *conn,
 
 		msg_handle->file_path = file_path;
 
-		//#if OPEL_LOG_VERBOSE
+#if OPEL_LOG_VERBOSE
 		std::cout << "File Path : " << msg_handle->file_path << std::endl;
 		std::cout << "PID : " << msg_handle->pid << std::endl;
 		std::cout << "Width : " << msg_handle->width << std::endl;
 		std::cout << "Height : " << msg_handle->height << std::endl;
-		//#endif
+#endif
 
 		request_handle->setMsgHandle(msg_handle);
 		request_handle->setDBusConnection(conn);
@@ -576,7 +576,12 @@ DBusHandlerResult msg_dbus_filter(DBusConnection *conn,
 				DBUS_TYPE_STRING, &(msg_handle->ip_address), 
 				DBUS_TYPE_UINT64, &(msg_handle->port), 
 				DBUS_TYPE_INVALID);
-		
+
+#if OPEL_LOG_VERBOSE
+		OPEL_DBG_VERB("IP Address : %s", msg_handle->ip_address);
+		OPEL_DBG_VERB("Port Number : %d", msg_handle->port);
+#endif
+
 		OPELH264Streaming *request_handle = OPELH264Streaming::getInstance();
 		request_handle->setStreamingRequest(msg_handle);
 		if(request_handle->getIsStreamingRun())

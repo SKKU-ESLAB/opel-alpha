@@ -23,6 +23,20 @@ DBusMessage* OPELRecording::sendDbusMsg(const char* msg,
 	return message;
 }
 
+DBusMessage* OPELRecording::sendStreamingDbusMsg(const char* msg,
+		dbusStreamingRequest *dbus_request)
+{
+ 	assert(msg != NULL && dbus_request != NULL);
+	DBusMessage* message;
+	message = dbus_message_new_signal(dbus_path, dbus_interface, msg);
+	dbus_message_append_args(message,
+			DBUS_TYPE_STRING, &(dbus_request->ip_address),
+			DBUS_TYPE_UINT64, &(dbus_request->port),
+			DBUS_TYPE_INVALID);
+	dbus_connection_send(conn, message, NULL);
+	return message;
+}
+
 void OPELrecordingAsync::Execute()
 {
 	assert(this->conn != NULL && this->msg != NULL);
@@ -157,6 +171,52 @@ NAN_METHOD(OPELRecording::jpegStart)
 //	dbus_message_unref(reply);
 }
 
+NAN_METHOD(OPELRecording::streamingStart)
+{
+	OPELRecording *recObj = Nan::ObjectWrap::Unwrap<OPELRecording>(info.This());
+	DBusMessage* message;
+	std::string ip_address;
+	dbusStreamingRequest *dbus_request;
+	unsigned port;
+	if(!info[0]->IsString())
+	{
+		Nan::ThrowTypeError("First Parameter Should be IP Address");
+		return;
+	}
+	if(!info[1]->IsNumber())
+	{
+		Nan::ThrowTypeError("Second Parameter should be a Port Number");
+		return;
+	}
+	v8::String::Utf8Value param1(info[0]->ToString());
+	ip_address = std::string(*param1);
+	port = Nan::To<int>(info[1]).FromJust();	
+	
+	if(!(recObj->initDbus()))
+	{
+		Nan::ThrowError("D-Bus Initiailization Failed\n");
+		return;
+	}
+	dbus_request = new dbusStreamingRequest();
+	dbus_request->ip_address = ip_address;
+	dbus_request->port = port;
+	message = recObj->sendStreamingDbusMsg(streaming_start_request, dbus_request);
+	
+}
+
+NAN_METHOD(OPELRecording::streamingStop)
+{
+	OPELRecording *recObj = Nan::ObjectWrap::Unwrap<OPELRecording>(info.This());
+	if(!(recObj->initDbus()))
+	{
+		Nan::ThrowError("D-Bus Initiailization Failed\n");
+		return;
+	}
+	DBusMessage* message;
+	message = dbus_message_new_signal(dbus_path, dbus_interface, streaming_stop_request);
+	dbus_connection_send(recObj->conn, message, NULL);
+}
+
 NAN_METHOD(OPELRecording::recStop)
 {
 }
@@ -191,13 +251,16 @@ NAN_METHOD(OPELRecording::New)
 NAN_MODULE_INIT(OPELRecording::Init)
 {
 	v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(New);
-	
+
 	tpl->SetClassName(Nan::New("OPELRecording").ToLocalChecked());
 	tpl->InstanceTemplate()->SetInternalFieldCount(1);
-	
+
 	SetPrototypeMethod(tpl, "RecordingStart", recStart);
 	SetPrototypeMethod(tpl, "RecordingStop", recStop);
 	SetPrototypeMethod(tpl, "SnapshotStart", jpegStart);
+
+	SetPrototypeMethod(tpl, "streamingStart", streamingStart);
+	SetPrototypeMethod(tpl, "streamingStart", streamingStart);
 
 	constructor().Reset(Nan::GetFunction(tpl).ToLocalChecked());
 	Nan::Set(target, Nan::New("OPELRecording").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
