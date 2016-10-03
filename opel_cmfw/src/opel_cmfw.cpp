@@ -632,7 +632,7 @@ int __cmfw_send_cmd(cmfw_port_e port, cmfw_cmd_e cmd)
 
 	return res;
 }
-int cmfw_send_msg(cmfw_port_e port, char *buf, int len)
+int cmfw_send_msg(cmfw_port_e port, const char *buf, int len)
 {
 	int res = 0;
 

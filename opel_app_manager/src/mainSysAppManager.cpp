@@ -91,7 +91,9 @@ int main(){
 		printf("Received Msg : %s\n", rcvMsg);
 		jsonString js(rcvMsg);		
 
-		char* msgType = js.findValue("type");	
+    char msgType[1024];
+    strncpy(msgType, js.findValue("type").c_str(), 1024);
+//		char* msgType = js.findValue("type");	
 
 		if (!strcmp(msgType,INSTALLPKG)){
 			char pkgFileName[MSGBUFSIZE] = {0,};
@@ -104,7 +106,7 @@ int main(){
 			if ( &ret_js != NULL){		
 				
 				char pkgFileName[1024] = {'\0',};
-				strcpy(pkgFileName, js.findValue("pkgFileName"));				
+				strncpy(pkgFileName, js.findValue("pkgFileName").c_str(), 1024);				
 				ret_js.addItem("pkgFileName", pkgFileName);
 				
 				cm->responsePkgInstallComplete(ret_js);	
@@ -115,7 +117,7 @@ int main(){
 			printf("[MAIN] Request >> EXE App\n");
 
 			char appID[16]={'\0',};
-			strcpy(appID, js.findValue("appID"));
+			strncpy(appID, js.findValue("appID").c_str(), 16);
 
 			if( !appProcList->isExistOnRunningTableByAppID( atoi(appID) ) ){
  
@@ -145,14 +147,14 @@ int main(){
 		else if(!strcmp(msgType,KILLAPP)){
 			printf("[MAIN] Request >> KILL App\n");
 
-			if( appProcList->isExistOnRunningTableByAppID( atoi(js.findValue("appID")) )){
+			if( appProcList->isExistOnRunningTableByAppID( atoi(js.findValue("appID").c_str()) )){
 
 				if ( dbusManager.makeTerminationEvent(js) ){
 
 				}
 			}
 			else{
-				printf("[MAIN] appID : %s is already dead\n", js.findValue("appID") );
+				printf("[MAIN] appID : %s is already dead\n", js.findValue("appID").c_str() );
 			}
 
 		}
@@ -201,21 +203,21 @@ int main(){
   			}  
 			js.addItem("IP_ADDR__a", addr);
 
-			cm->responseUpdatePkgList(js.getJsonData());
+			cm->responseUpdatePkgList(js.getJsonData().c_str());
 		}
 
 
 		else if(!strcmp(msgType,CONFIG_EVENT)){
 			printf("[MAIN] Request >> Config Setting Event\n");
 
-			if( appProcList->isExistOnRunningTableByAppID( atoi(js.findValue("appID")) )){
+			if( appProcList->isExistOnRunningTableByAppID( atoi(js.findValue("appID").c_str()) )){
 
 				if ( dbusManager.makeConfigEvent(js) ){
 					
 				}
 			}
 			else{
-				printf("[MAIN] appID : %s is already dead\n", js.findValue("appID") );
+				printf("[MAIN] appID : %s is already dead\n", js.findValue("appID").c_str() );
 			}
 		}
 
@@ -258,7 +260,7 @@ int main(){
 			printf("[MAIN] Request >> DELETE App\n");
 
 			char appID[16]={'\0',};
-			strcpy(appID, js.findValue("appID"));
+			strcpy(appID, js.findValue("appID").c_str());
 
 			
 			if( !appProcList->isExistOnRunningTableByAppID( atoi(appID) ) ){
@@ -283,7 +285,7 @@ int main(){
 		else if(!strcmp(msgType,RemoteFileManager_getListOfCurPath)){
 
 			char path[1024] = {'\0',};
-			strcpy(path, js.findValue("path"));
+			strcpy(path, js.findValue("path").c_str());
 
 			jsonString sendJp;
 			sendJp.addType(RemoteFileManager_getListOfCurPath);
