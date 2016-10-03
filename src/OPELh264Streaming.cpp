@@ -35,7 +35,6 @@ static bool h264StreamingPropSetting(std::vector<typeElement*>* _v_type_element,
 		OPEL_DBG_ERR("Elements are NULL");
 		return false;
 	}
-  g_object_set(G_OBJECT(_conv->element), "flip-method", (guint)6, NULL);
 	g_object_set(G_OBJECT(_enc->element), "control-rate", (guint)2, 
 			"bitrate", (guint)4000000, NULL); 
 	g_object_set(G_OBJECT(_rtph_264pay->element), "mtu", (guint)1400, NULL);
@@ -79,7 +78,8 @@ bool OPELH264Streaming::defaultStreamingFactory(void)
 			"omxh264enc");
 	typeElement *_udp_sink = findByElementName(this->_v_type_element,
 				"udpsink");
-//need to copy
+
+	//need to copy
 	typeElement *_new_queue = (typeElement*)malloc(sizeof(typeElement)); 
 	_new_queue->element_prop = _queue->element_prop;
 	initializeTypeElement(_new_queue, _new_queue->element_prop);
@@ -90,7 +90,7 @@ bool OPELH264Streaming::defaultStreamingFactory(void)
 
 	typeElement *_new_enc  = (typeElement*)malloc(sizeof(typeElement));
 	_new_enc->element_prop = _enc->element_prop;
-	initializeTypeElement(_new_enc, _new_conv->element_prop);
+	initializeTypeElement(_new_enc, _new_enc->element_prop);
 
 	typeElement *_new_udp_sink = (typeElement*)malloc(sizeof(typeElement));
 	_new_udp_sink->element_prop = _udp_sink->element_prop;
@@ -338,13 +338,13 @@ static GstPadProbeReturn detachStreamingCB(GstPad *pad, GstPadProbeInfo *info,
 			<< std::endl;
 		gst_element_set_state((*v_fly_type_elements)[i]->element, GST_STATE_NULL);
 		gst_bin_remove(GST_BIN(tx1->getPipeline()), (*v_fly_type_elements)[i]->element);
+		delete (*v_fly_type_elements)[i];
 	}
 	gst_element_release_request_pad(_tee->element,
 			request_handle->getSrcPad());
 	
 	request_handle->setIsStreamingRun(false);
 
-	delete request_handle;
 	__OPEL_FUNCTION_EXIT__;
 	return GST_PAD_PROBE_OK;
 }
@@ -367,7 +367,9 @@ bool OPELH264Streaming::detachedStreaming(void)
 
 	sink_pad = gst_element_get_static_pad(_queue->element, "sink");
 	gst_pad_unlink(this->getSrcPad(), sink_pad);
-	
+
+	checkRemainRequest();
+
 	gst_pad_send_event(sink_pad, gst_event_new_eos());
 	gst_object_unref(sink_pad);
 

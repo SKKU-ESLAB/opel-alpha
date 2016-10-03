@@ -79,7 +79,7 @@ GstFlowReturn bufferFromSinkCB(GstElement *elt, gpointer data)
 	return GST_FLOW_OK;
 }
 
-static void checkRemainRequest(void)
+void checkRemainRequest(void)
 {
 	__OPEL_FUNCTION_ENTER__;
 	bool ret;
@@ -601,7 +601,8 @@ DBusHandlerResult msg_dbus_filter(DBusConnection *conn,
 		{
 			OPEL_DBG_VERB("Stop the Streaming Service");
 			//unlink them 		   	
-			request_handle->detachedStreaming();	
+			request_handle->detachedStreaming();
+			request_handle->setIsStreamingRun(false);
 		}
 		else
 		{
