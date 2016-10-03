@@ -15,7 +15,6 @@
 #include <math.h>
 
 
-
 #ifndef HEADER_GUARD
 #define HEADER_GUARD
 

@@ -74,7 +74,6 @@ void addSensor(const struct device_ops *dev);
 #define DEVICE_OPS_REGISTER(dev)	\
 static void __attribute__((constructor))  module_init(void) \
 { \
-	printf("aaaa\n"); \
 	addSensor(dev); \
 } 
 /*

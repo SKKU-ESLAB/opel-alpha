@@ -122,12 +122,12 @@ void sendSensorData(sensorList* sl){
 	char* sensor_value = sl->sensor_data_ori;
 	DBusMessage *message;
 
-	printf("make new signal\n");
+	
 	message = dbus_message_new_signal(getPath(sl), getInterface(sl), SEND_SENSOR_DATA);
   if(message == NULL){
 			printf("making new signal failed\n");
 	}
-	printf("Append arguments\n");
+	
 
 	dbus_message_append_args(message,
 		DBUS_TYPE_INT32, &(rq_num),
@@ -136,12 +136,12 @@ void sendSensorData(sensorList* sl){
 		DBUS_TYPE_STRING, &(sl->dev->valueName),
 		DBUS_TYPE_INVALID);
 
-	printf("Send the signal\n");
+
 	/* Send the signal */
 	dbus_connection_send(connection, message, NULL);   
 	dbus_message_unref(message);
 
-	printf("Function end\n");
+
 	//printf("[SM] Send Sensor data to %s, rq_num[%d]\n", getInterface(sl), rq_num);
 }
 void sendSensorNotify(sensorList* sl){
@@ -192,8 +192,9 @@ void* sensorThread(void* args){
 
 		//------------------ 1. Request Ã³¸® ------------------// 
 		// 
-		sl->sensor_data_ori = sensorGet(sl, NULL);
+		//sl->sensor_data_ori = sensorGet(sl, NULL);
 		sensor_value = sensorGet(sl, NULL);
+		sl->sensor_data_ori = sensor_value;
 		strcpy(rd->sensor_data, sensor_value);
 		//rd->sensor_data = sensorGet(sl, NULL);
 
@@ -450,7 +451,7 @@ static sensorManagerEventGet(DBusConnection *connection, DBusMessage *message, v
 	return DBUS_HANDLER_RESULT_HANDLED;
 }
 //Respone function for d-bus message
-static DBusHandlerResult dbus_respone(DBusConnection *connection, DBusMessage *message, void *user_data)
+static DBusHandlerResult dbus_response(DBusConnection *connection, DBusMessage *message, void *user_data)
 {
 	pthread_t tid;
 	unsigned int pid;
@@ -535,7 +536,7 @@ void initDbus(){
 	}
 	
 	dbus_bus_add_match(connection, "type='signal',interface='org.opel.sensorManager'", NULL);  //Dbus ?„ì¹˜ ?¤ì •
-	dbus_connection_add_filter(connection, dbus_respone, loop, NULL); //signal filter?¤ì •
+	dbus_connection_add_filter(connection, dbus_response, loop, NULL); //signal filter?¤ì •
 
 	dbus_connection_setup_with_g_main(connection, NULL);
 	g_main_loop_run(loop); // loop ?œìž‘
@@ -549,7 +550,7 @@ int main(void)
 {
 	doNothing();
 	sensorThreadInit();
-	printf("in the middle of program\n");
+
 	initDbus();
 
 	return 0;

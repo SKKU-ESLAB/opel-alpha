@@ -17,7 +17,7 @@ typedef DBusMessage * (*OpelDbusFunction) (DBusConnection *connection, DBusMessa
 #define DBUS_NEED_REPLY		1
 #define DBUS_NEED_NO_REPLY	0
 
-static DBusHandlerResult dbus_respone(DBusConnection *connection, DBusMessage *message, void *user_data)
+static DBusHandlerResult dbus_response(DBusConnection *connection, DBusMessage *message, void *user_data)
 {
 	if (dbus_message_is_signal(message, nilInterface, SEND_SENSOR_DATA)){
 		//printf("[NIL] sensor_event_driven sensor data");
@@ -83,10 +83,9 @@ DBusConnection *DbusInit() {
 	}
 	dbus_bus_add_match(connection, total_address, NULL);  //Dbus 위치 설정	
 	dbus_connection_flush(connection);
-
-	dbus_connection_add_filter(connection, dbus_respone, NULL, NULL); //Register dbus message handling fuction "dbus_respone"
-
 	
+	// Register dbus message handling function "dbus_response"
+	dbus_connection_add_filter(connection, dbus_response, NULL, NULL); 
 
 	printf("Dbus initializing complete \n");
 	
