@@ -173,8 +173,8 @@ static DBusHandlerResult rcvOnTermination(DBusConnection *connection, DBusMessag
 	}
 
 	
-	strcpy(appName,appProc.getAppProcName());
-	strcpy(appId,appProc.getAppProcId());
+	strncpy(appName,appProc.getAppProcName(), 1024);
+	strncpy(appId,appProc.getAppProcId(), 16);
 
 	sprintf(resultJson, "{\"type\":\"%s\",\"appID\":\"%s\",\"appName\":\"%s\",\"rqID\":\"%d\",\"pid\":\"%d\"}", NIL_TERMINATION, appId, appName, rq_num, pid);
 
@@ -376,11 +376,11 @@ void DbusManager::sendMsg(jsonString js, char* typeOfSignal){ //"termination_eve
 	dbus_error_init(&err);
 
 	char destPid[128] = {'\0',};
-	strcpy(destPid, js.findValue("pid"));
+	strncpy(destPid, js.findValue("pid").c_str(), 128);
 
 
 	char rqID[128] = {'\0',};
-	strcpy(rqID, js.findValue("rqID"));
+	strncpy(rqID, js.findValue("rqID").c_str(), 128);
 
 	dbus_int32_t _rq_num = atoi(rqID); 
 
@@ -393,7 +393,9 @@ void DbusManager::sendMsg(jsonString js, char* typeOfSignal){ //"termination_eve
 
 	msg = dbus_message_new_signal(pid_interface, pid_path, typeOfSignal);
 
-	char* json = js.getJsonData();
+  char json[1024];
+  strncpy(json, js.getJsonData().c_str(), 1024);
+//	char* json = js.getJsonData();
 
 	dbus_message_append_args(msg, DBUS_TYPE_INT32, &_rq_num, DBUS_TYPE_STRING, 
 							&json, DBUS_TYPE_INVALID);
@@ -416,13 +418,13 @@ void DbusManager::sendMsg(jsonString js, char* typeOfSignal){ //"termination_eve
 
 bool DbusManager::makeTerminationEvent(jsonString js){
 
-	printf("\n\n DBUG : send Dbus Termination signal : %s\n\n", js.getJsonData());
+	printf("\n\n DBUG : send Dbus Termination signal : %s\n\n", js.getJsonData().c_str());
 	sendMsg(js, TERMINATION_SIGNAL);
 	return true;
 }
 bool DbusManager::makeConfigEvent(jsonString js){
 
-	printf("\n\n DBUG : send Dbus Config signal : %s\n\n", js.getJsonData());
+	printf("\n\n DBUG : send Dbus Config signal : %s\n\n", js.getJsonData().c_str());
 	sendMsg(js, CONFIGURATION_SIGNAL);
 	return true;
 }

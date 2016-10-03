@@ -18,7 +18,7 @@
 #include <bluetooth/sdp.h>
 #include <bluetooth/sdp_lib.h>
 
-#include <opel_cmfw.h>
+#include "opel_cmfw.h"
 #include "globalData.h"
 #include "commManager.h"
 #include "appStatusManager.h"
@@ -76,7 +76,7 @@ comManager* comManager::getInstance(){
 		}
 }
 	
-void comManager::sendMsg(char* msg){
+void comManager::sendMsg(const char* msg){
 	printf("[commManager] sendMsg >> msg:%s\n", msg);
 	int res = cmfw_send_msg( CMFW_DEFAULT_PORT, msg, strlen(msg));
 	if(res < 0){
@@ -201,12 +201,12 @@ void comManager::error_handling (char *message){
 void comManager::responsePkgInstallComplete(jsonString js){
 	pthread_mutex_lock(&lock);
 
-	sendMsg(js.getJsonData());
+	sendMsg(js.getJsonData().c_str());
 
 	char path[128];
 	char name[128];
-	strcpy( path,  js.findValue("appPath") );
-	strcpy( name,  js.findValue("appIconName") );
+	strncpy( path,  js.findValue("appPath").c_str(), 128 );
+	strncpy( name,  js.findValue("appIconName").c_str(), 128 );
 
 	char fullPath[1024];
 	sprintf(fullPath, "%s/%s", path, name);
@@ -221,7 +221,7 @@ void comManager::responsePkgInstallComplete(jsonString js){
 
 void comManager::responsePkgUninstallComplete(jsonString js){
 	pthread_mutex_lock(&lock);	
-	sendMsg(js.getJsonData());
+	sendMsg(js.getJsonData().c_str());
 	pthread_mutex_unlock(&lock);
 }
 
@@ -231,10 +231,10 @@ void comManager::responseAppRunComplete(jsonString js){
 	jsonString sendJs;								
 	sendJs.addType(EXEAPP);					
 	char appID[16];
-	strcpy(appID, js.findValue("appID"));
+	strncpy(appID, js.findValue("appID").c_str(), 16);
 	sendJs.addItem("appID", appID);	
 
-	sendMsg(sendJs.getJsonData());
+	sendMsg(sendJs.getJsonData().c_str());
 	pthread_mutex_unlock(&lock);
 
 }
@@ -252,7 +252,7 @@ void comManager::responseAppExitComplete(char* appID){
 
 void comManager::responseUpdatePkgList(jsonString js){
 	pthread_mutex_lock(&lock);
-	sendMsg(js.getJsonData());
+	sendMsg(js.getJsonData().c_str());
 	pthread_mutex_unlock(&lock);
 }
 
@@ -341,7 +341,7 @@ bool comManager::response_Dbus_SendNoti(char* json){
 
 			jsonString js;
 			js.addType(NOTI_PRELOAD_IMG);
-			sendMsg(js.getJsonData());
+			sendMsg(js.getJsonData().c_str());
 
 			time_t now;
 			struct tm t;
@@ -384,8 +384,8 @@ bool comManager::response_Dbus_SendNoti(char* json){
 	}
 	
 	if(i == length){
-		printf("[commManager] Send Noti page : %s\n", sendJson.getJsonData() );
-		sendMsg(sendJson.getJsonData());
+		printf("[commManager] Send Noti page : %s\n", sendJson.getJsonData().c_str() );
+		sendMsg(sendJson.getJsonData().c_str());
 		
 	}
 	else{
@@ -421,7 +421,7 @@ bool comManager::response_Dbus_SendConfig(char* json){
 void comManager::responseUpdateFileManager(jsonString js){
 
 	pthread_mutex_lock(&lock);
-	sendMsg(js.getJsonData());
+	sendMsg(js.getJsonData().c_str());
 	pthread_mutex_unlock(&lock);
 	
 }
@@ -442,10 +442,10 @@ void comManager::responseRequestFilefromFileManager(jsonString js){
 	sprintf(dateTimeFileName, "%d_%02d_%02d_%02d_%02d_%02d_%d", t.tm_year + 1900, t.tm_mon + 1, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec);
 	
 	char path[1024] = {'\0',};
-	strcpy(path, js.findValue("path"));
+	strncpy(path, js.findValue("path").c_str(), 1024);
 
 	char share[2] = {'\0',};
-	strcpy(share, js.findValue("share"));
+	strncpy(share, js.findValue("share").c_str(), 2);
 
 	int nResult = access( path, F_OK );
 
@@ -457,7 +457,7 @@ void comManager::responseRequestFilefromFileManager(jsonString js){
 	
 	jsonString js_preload;
 	js_preload.addType(RemoteFileManager_requestFile_Preload);
-	sendMsg(js_preload.getJsonData());
+	sendMsg(js_preload.getJsonData().c_str());
 
 
 	
@@ -474,7 +474,7 @@ void comManager::responseRequestFilefromFileManager(jsonString js){
 	sendJp.addItem("originpath", path);
 	sendJp.addItem("share", share);
 
-	sendMsg(sendJp.getJsonData());
+	sendMsg(sendJp.getJsonData().c_str());
 	
 	pthread_mutex_unlock(&lock);
 
@@ -560,7 +560,7 @@ bool comManager::response_Dbus_FaceRecognition(char* json){
 
 			jsonString js;
 			js.addType(CloudService_faceRecognition_preload);
-			sendMsg(js.getJsonData());
+			sendMsg(js.getJsonData().c_str());
 
 			time_t now;
 			struct tm t;
@@ -598,8 +598,8 @@ bool comManager::response_Dbus_FaceRecognition(char* json){
 	}
 	
 	if(i == length){
-		printf("[commManager] Send FaceRecognition page : %s\n", sendJson.getJsonData() );
-		sendMsg(sendJson.getJsonData());
+		printf("[commManager] Send FaceRecognition page : %s\n", sendJson.getJsonData().c_str() );
+		sendMsg(sendJson.getJsonData().c_str());
 	
 	}
 	else{

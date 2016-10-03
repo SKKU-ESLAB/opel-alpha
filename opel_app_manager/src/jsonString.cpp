@@ -17,10 +17,10 @@ jsonString::~jsonString(){
 	delete[] jsonData;
 }
 */
-jsonString::jsonString(char* inputJson){
+jsonString::jsonString(const char* inputJson){
 	//jsonData = new char[MSGBUFSIZE];
 	memset(jsonData, '\0', (sizeof(char) * MSGBUFSIZE));	
-	strcpy(jsonData, inputJson);
+	strncpy(jsonData, inputJson, (sizeof(char) * MSGBUFSIZE));
 }
 
 void jsonString::addType(char* value){
@@ -56,11 +56,11 @@ void jsonString::addItem(const char* key, const char* value){
 	strcpy( jsonData, tmpStr);
 }
 
-char* jsonString::getJsonData(){
-	return jsonData;
+std::string jsonString::getJsonData(){
+	return std::string(jsonData);
 }
 
-char* jsonString::findValue(char* desKey){
+std::string jsonString::findValue(char* desKey){
 	int position = 0;
 	char key[512];
 	char value[512];
@@ -75,7 +75,7 @@ char* jsonString::findValue(char* desKey){
 			else if ( jsonData[i] == '}' ){
 				if(!strcmp(key, desKey)){
 
-					return value;
+					return std::string(value);
 				}
 			}
 			
@@ -102,7 +102,7 @@ char* jsonString::findValue(char* desKey){
 	
 					if(!strcmp(key, desKey)){
 
-						return value;
+						return std::string(value);
 					}
 					else{
 						

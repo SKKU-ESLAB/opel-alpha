@@ -111,7 +111,7 @@ watch_toggled (DBusWatch *watch, void *data) {
 }
 
 static void
-timeout_cb(uv_timer_t *w, int status) {
+timeout_cb(uv_timer_t *w) {
   DBusTimeout *timeout = (DBusTimeout*)w->data;
   dbus_timeout_handle(timeout);
 }
@@ -169,7 +169,7 @@ wakeup_ev (void *data) {
 }
 
 static void
-asyncw_cb(uv_async_t *w, int revents) {
+asyncw_cb(uv_async_t *w) {
   DBusConnection *bus_cnxn = (DBusConnection *)w->data;
   dbus_connection_read_write(bus_cnxn, 0);
   while (dbus_connection_dispatch(bus_cnxn) ==

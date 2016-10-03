@@ -16,14 +16,14 @@ private:
 public:
 	jsonString();
    // ~jsonString();
-	jsonString(char* json);
+	jsonString(const char* json);
 
 	void addType(char* value);
 	void addItem(const char* key, const char* value);
 
 	
-	char* getJsonData();
-	char* findValue(char* key);
+  std::string getJsonData();
+  std::string findValue(char* key);
 	int getWholeKeyValue(char returnArray[32][128]);
 };
 
