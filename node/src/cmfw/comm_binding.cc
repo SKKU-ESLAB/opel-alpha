@@ -30,12 +30,13 @@ static Nan::Callback *main_cb;
 void onAck(OPEL_MSG *op_msg, int status)
 {
 	Nan::Callback *cb = NULL;
+  v8::Isolate *isolate = v8::Isolate::GetCurrent();
 	if(NULL != op_msg->priv)
 		cb = (Nan::Callback *)op_msg->priv;
 
 	if(NULL != cb){
 		Local<Value> argv[] = {
-			v8::String::New((const char *)op_msg->get_data())
+			v8::String::NewFromUtf8(isolate, (const char *)op_msg->get_data())
 			, New<Number>(status)
 		};
 
@@ -45,9 +46,10 @@ void onAck(OPEL_MSG *op_msg, int status)
 
 void onRead(OPEL_MSG *op_msg, int status)
 {
+  v8::Isolate *isolate = v8::Isolate::GetCurrent();
 	if(main_cb != NULL){
 		Local<Value> argv[] = {
-			v8::String::New((const char *)op_msg->get_data())
+			v8::String::NewFromUtf8(isolate, (const char *)op_msg->get_data())
 				, New<Number>(status)
 		};
 
