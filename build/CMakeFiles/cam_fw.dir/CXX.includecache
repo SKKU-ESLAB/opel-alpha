@@ -86,6 +86,12 @@ dbus/dbus.h
 OPELgstElement.h
 ../include/OPELgstElement.h
 
+../include/OPELh264Streaming.h
+OPELgstElement.h
+../include/OPELgstElement.h
+OPELgstElementTx1.h
+../include/OPELgstElementTx1.h
+
 ../include/OPELrawRequest.h
 OPELgstElement.h
 ../include/OPELgstElement.h
@@ -147,6 +153,10 @@ OPELgstElementTx1.h
 /home/ubuntu/opel-alpha/src/OPELgstElementTx1.h
 OPELcommonUtil.h
 /home/ubuntu/opel-alpha/src/OPELcommonUtil.h
+
+/home/ubuntu/opel-alpha/src/OPELh264Streaming.cpp
+OPELh264Streaming.h
+/home/ubuntu/opel-alpha/src/OPELh264Streaming.h
 
 /home/ubuntu/opel-alpha/src/OPELrawRequest.cpp
 OPELrawRequest.h

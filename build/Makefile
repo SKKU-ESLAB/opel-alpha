@@ -214,6 +214,21 @@ src/OPELgstElementTx1.s:
 .PHONY : src/OPELgstElementTx1.s
 
 # target to build an object file
+src/OPELh264Streaming.o:
+	$(MAKE) -f CMakeFiles/cam_fw.dir/build.make CMakeFiles/cam_fw.dir/src/OPELh264Streaming.o
+.PHONY : src/OPELh264Streaming.o
+
+# target to preprocess a source file
+src/OPELh264Streaming.i:
+	$(MAKE) -f CMakeFiles/cam_fw.dir/build.make CMakeFiles/cam_fw.dir/src/OPELh264Streaming.i
+.PHONY : src/OPELh264Streaming.i
+
+# target to generate assembly for a file
+src/OPELh264Streaming.s:
+	$(MAKE) -f CMakeFiles/cam_fw.dir/build.make CMakeFiles/cam_fw.dir/src/OPELh264Streaming.s
+.PHONY : src/OPELh264Streaming.s
+
+# target to build an object file
 src/OPELrawRequest.o:
 	$(MAKE) -f CMakeFiles/cam_fw.dir/build.make CMakeFiles/cam_fw.dir/src/OPELrawRequest.o
 .PHONY : src/OPELrawRequest.o
@@ -285,6 +300,9 @@ help:
 	@echo "... src/OPELgstElementTx1.o"
 	@echo "... src/OPELgstElementTx1.i"
 	@echo "... src/OPELgstElementTx1.s"
+	@echo "... src/OPELh264Streaming.o"
+	@echo "... src/OPELh264Streaming.i"
+	@echo "... src/OPELh264Streaming.s"
 	@echo "... src/OPELrawRequest.o"
 	@echo "... src/OPELrawRequest.i"
 	@echo "... src/OPELrawRequest.s"
