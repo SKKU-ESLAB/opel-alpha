@@ -49,18 +49,24 @@ public class OpelCommunicator {
     private static String sTargetBtName = CMFW_BT_NAME_RPI2;
     private static String sTargetWfdName = CMFW_WFD_NAME_RPI2;
     public static String getTargetBtName() {
+        Log.d("OPEL", "bt: " + sTargetBtName);
         return sTargetBtName;
     }
     public static String getTargetWfdName() {
+        Log.d("OPEL", "wfd: " + sTargetWfdName);
         return sTargetWfdName;
     }
     public static void setTargetRPi2() {
         sTargetBtName = CMFW_BT_NAME_RPI2;
         sTargetWfdName = CMFW_WFD_NAME_RPI2;
+        Log.d("OPEL", "bt: " + sTargetBtName);
+        Log.d("OPEL", "wfd: " + sTargetWfdName);
     }
     public static void setTargetTX1() {
         sTargetBtName = CMFW_BT_NAME_TX1;
         sTargetWfdName = CMFW_WFD_NAME_TX1;
+        Log.d("OPEL", "bt: " + sTargetBtName);
+        Log.d("OPEL", "wfd: " + sTargetWfdName);
     }
 
     private class cmfw_payload_header_c{

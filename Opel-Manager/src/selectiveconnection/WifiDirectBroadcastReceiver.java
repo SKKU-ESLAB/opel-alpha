@@ -34,6 +34,12 @@ public class WifiDirectBroadcastReceiver extends BroadcastReceiver {
 
     public boolean removing = false;
 
+    private WifiDirectStateListener mStateListener = null;
+
+    public void setStateListener(WifiDirectStateListener stateListener) {
+        this.mStateListener = stateListener;
+    }
+
     public WifiDirectBroadcastReceiver(WifiP2pManager manager, WifiP2pManager.Channel channel){
         super();
 
@@ -134,6 +140,9 @@ public class WifiDirectBroadcastReceiver extends BroadcastReceiver {
                         opelDevice = p2pGroup.getOwner();
                         connection = true;
 
+                        if(this.mStateListener != null)
+                            this.mStateListener.onWifiDirectStateChanged(true);
+
                         if (isConnected() && globalData.getInstance().getCommManager().opelCommunicator.wfd_in_use == 0)
                             globalData.getInstance().getCommManager().opelCommunicator.cmfw_wfd_off();
                     }
@@ -145,6 +154,9 @@ public class WifiDirectBroadcastReceiver extends BroadcastReceiver {
                         opelDevice = null;
                         removing = false;
                         connection = false;
+
+                        if(this.mStateListener != null)
+                            this.mStateListener.onWifiDirectStateChanged(false);
                     }
                 }
 

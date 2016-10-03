@@ -11,39 +11,57 @@
     
     android:background="@drawable/bg"
     tools:context=".MainActivity" >
-    <RadioGroup
-        android:id="@+id/radioGroupTarget"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <TextView
+    <FrameLayout
+        android:id="@+id/topBarFrame"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <RadioGroup
+            android:id="@+id/radioGroupTarget"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:paddingLeft="10dp"
-            android:text="Target Board: " />
+            android:orientation="horizontal">
 
-        <RadioButton
-            android:id="@+id/radioButtonTargetRPi2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:checked="true"
-            android:text="RPi2" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:paddingLeft="10dp"
+                android:text="Target: " />
 
-        <RadioButton
-            android:id="@+id/radioButtonTargetTX1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="TX1" />
+            <RadioButton
+                android:id="@+id/radioButtonTargetRPi2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="RPi2" />
 
-    </RadioGroup>
+            <RadioButton
+                android:id="@+id/radioButtonTargetTX1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TX1" />
 
+            <ImageView
+                android:id="@+id/indicatorBT"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:src="@drawable/bluetooth_disabled"
+                android:adjustViewBounds="true"
+                />
+            <ImageView
+                android:id="@+id/indicatorWFD"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/wifidirect_disabled"
+                android:adjustViewBounds="true"
+                />
+        </RadioGroup>
+    </FrameLayout>
     <GridView
         android:id="@+id/gridView1"
         android:layout_width="match_parent"
         android:layout_height="fill_parent"
-        android:layout_below="@id/radioGroupTarget"
+        android:layout_below="@id/topBarFrame"
         android:layout_margin="4dp"
         android:columnWidth="80dp"
         android:gravity="center"
