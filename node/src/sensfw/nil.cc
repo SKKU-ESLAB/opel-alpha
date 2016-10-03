@@ -312,7 +312,7 @@ void On(const FunctionCallbackInfo<Value>& args) {
 	
 	wait_delay(); //Perform wait.
 
-	printf("start On function\n");
+
 	/*
 	Receive Args
 	1. sensor name
@@ -398,13 +398,13 @@ void On(const FunctionCallbackInfo<Value>& args) {
 
 	Local<Function> cb = Local<Function>::Cast(args[3]);
 
-	printf("right before make callback\n");
+
   rl->callback.Reset(isolate, cb);	
 	//rl->callback.Reset(isolate,args[3].As<Function>());
 	
 	//rl->callback.Reset(isolate, Local<Function>::New(isolate,arg0));
   //rl->callback.Reset(isolate, Persistent<Function>(isolate, arg0));
-	printf("right after make callback\n");
+
 	
 	
 	
@@ -416,7 +416,7 @@ void On(const FunctionCallbackInfo<Value>& args) {
 	//----------------------------------------------------------------//
 	
 
-	printf("after make callback. before send dbus\n");
+
 	//----------------------------------------------------------------//
 	//				3. Send Message (Request struct) 
 	//				Send message with reply or not
@@ -540,7 +540,7 @@ void Get(const FunctionCallbackInfo<Value>& args) {
 		DBUS_TYPE_INVALID);
 
 	dbus_message_unref(reply);
-	printf("receive : %d \n", sensorValue);
+	//printf("receive : %d \n", sensorValue);
 	//
 	//----------------------------------------------------------------//
 
