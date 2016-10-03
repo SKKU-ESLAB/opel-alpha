@@ -79,6 +79,8 @@ OPELconfig.h
 ../include/OPELconfig.h
 OPELcamRequest.h
 ../include/OPELcamRequest.h
+dbus/dbus.h
+-
 
 ../include/OPELgstElementTx1.h
 OPELgstElement.h
@@ -154,6 +156,12 @@ OPELgstElementTx1.h
 OPELglobalRequest.h
 /home/ubuntu/opel-alpha/src/OPELglobalRequest.h
 gst/app/gstappsink.h
+-
+
+/home/ubuntu/opel-alpha/src/OPELreplyDBus.cpp
+OPELcamRequest.h
+/home/ubuntu/opel-alpha/src/OPELcamRequest.h
+assert.h
 -
 
 /home/ubuntu/opel-alpha/src/main.cpp

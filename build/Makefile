@@ -229,6 +229,21 @@ src/OPELrawRequest.s:
 .PHONY : src/OPELrawRequest.s
 
 # target to build an object file
+src/OPELreplyDBus.o:
+	$(MAKE) -f CMakeFiles/cam_fw.dir/build.make CMakeFiles/cam_fw.dir/src/OPELreplyDBus.o
+.PHONY : src/OPELreplyDBus.o
+
+# target to preprocess a source file
+src/OPELreplyDBus.i:
+	$(MAKE) -f CMakeFiles/cam_fw.dir/build.make CMakeFiles/cam_fw.dir/src/OPELreplyDBus.i
+.PHONY : src/OPELreplyDBus.i
+
+# target to generate assembly for a file
+src/OPELreplyDBus.s:
+	$(MAKE) -f CMakeFiles/cam_fw.dir/build.make CMakeFiles/cam_fw.dir/src/OPELreplyDBus.s
+.PHONY : src/OPELreplyDBus.s
+
+# target to build an object file
 src/main.o:
 	$(MAKE) -f CMakeFiles/cam_fw.dir/build.make CMakeFiles/cam_fw.dir/src/main.o
 .PHONY : src/main.o
@@ -273,6 +288,9 @@ help:
 	@echo "... src/OPELrawRequest.o"
 	@echo "... src/OPELrawRequest.i"
 	@echo "... src/OPELrawRequest.s"
+	@echo "... src/OPELreplyDBus.o"
+	@echo "... src/OPELreplyDBus.i"
+	@echo "... src/OPELreplyDBus.s"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"

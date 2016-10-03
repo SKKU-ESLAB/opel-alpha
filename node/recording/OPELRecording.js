@@ -10,7 +10,9 @@ dt = new Date();
 d = dt.toFormat('YYYY-MM-DD HH24:MI:SS');
 
 
-cameraAPI.RecordingStart("/home/ubuntu/some.mp4", 10);
+cameraAPI.RecordingStart("/home/ubuntu/some.mp4", 10, function(err){
+				console.log("Success");
+		});
 
 
 var repeat = setInterval(function(){

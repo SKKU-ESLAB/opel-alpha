@@ -41,4 +41,5 @@ static GstPadProbeReturn event_probe_cb(GstPad *pad, GstPadProbeInfo *info,
         gpointer user_data);
 static void checkRemainRequest(void);
 static gboolean unLinkCallBack(gpointer _request_elements);
+void sendReply(DBusConnection *_conn, DBusMessage *_reply, bool is_success);
 #endif /* OPEL_CAM_REQUEST_H */

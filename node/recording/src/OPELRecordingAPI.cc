@@ -4,6 +4,7 @@ static unsigned getPid()
 {
 	return getpid();
 }
+
 DBusMessage* OPELRecording::sendDbusMsg(const char* msg, 
 		dbusRequest *dbus_request)
 {
@@ -26,35 +27,37 @@ void OPELrecordingAsync::Execute()
 {
 	assert(this->conn != NULL && this->msg != NULL);
 	unsigned success;
-	DBusError err;
-	this->reply = dbus_connection_send_with_reply_and_block(this->conn,
-			this->msg, this->seconds*1000 + 2000, &err);
-
-	if(reply == NULL)
+	DBusError *err;
+/*	this->reply = dbus_connection_send_with_reply_and_block(this->conn,
+		this->msg, this->seconds*1000 + 2000, err);
+	*/
+	sleep(seconds+2);
+/*	if(reply == NULL)
 	{
-		this->is_success = false;
-		dbus_error_free(&err);
+		this->is_success = true;
+//		dbus_error_free(err);
 		dbus_message_unref(msg);
 		return;
 	}
-	else
-		dbus_error_free(&err);
+	else{
+//		dbus_error_free(err);
 		dbus_message_unref(msg);
 		dbus_message_get_args(reply, NULL,
 			DBUS_TYPE_UINT64, &success,
 			DBUS_TYPE_INVALID);
 		if(success == 0)
 		{
-			this->is_success = false;
-			return;
+			this->is_success = 1;
 		}
-		this->is_success = true;
+		this->is_success = 1;
+	}*/
+	this->is_success = 1;
 }
 
 void OPELrecordingAsync::HandleOKCallback()
 {
 	Nan::HandleScope scope;
-	v8::Local<v8::Value> argv[] = { Nan::Null() };
+	v8::Local<v8::Value> argv[] = { Nan::New<v8::Number>(this->is_success) };
 	callback->Call(1, argv);
 }
 
@@ -65,9 +68,9 @@ NAN_METHOD(OPELRecording::recStart)
 	int seconds;
 	dbusRequest *dbus_request = NULL;
 	
-	DBusMessage* message;
 	OPELrecordingAsync *recordingAsync;
 	
+	DBusMessage* message;
 	if(!info[0]->IsString())
 	{
 		Nan::ThrowTypeError("First parameter should be File Path");
@@ -109,10 +112,23 @@ NAN_METHOD(OPELRecording::recStart)
 	dbus_request->width = 1920;
 	dbus_request->height = 1080;
 	dbus_request->play_seconds = seconds;
+//	DBusMessage* message;
+//	message = recObj->sendDbusMsg(rec_init_request, dbus_request);
 
-	message = recObj->sendDbusMsg(rec_init_request, dbus_request);
+	message = dbus_message_new_signal(dbus_path, dbus_interface, rec_init_request);
+	dbus_message_append_args(message,
+			DBUS_TYPE_STRING, &(dbus_request->file_path),
+			DBUS_TYPE_UINT64, &(dbus_request->pid),
+			DBUS_TYPE_UINT64, &(dbus_request->fps),
+			DBUS_TYPE_UINT64, &(dbus_request->width),
+			DBUS_TYPE_UINT64, &(dbus_request->height),
+			DBUS_TYPE_UINT64, &(dbus_request->play_seconds),
+			DBUS_TYPE_INVALID);
+	dbus_connection_send (recObj->conn, message, NULL);
+	
 	recordingAsync = new OPELrecordingAsync(callback, recObj->conn, 
 			message, seconds);
+	
 	Nan::AsyncQueueWorker(recordingAsync);
 }
 
@@ -147,7 +163,7 @@ NAN_METHOD(OPELRecording::jpegStart)
 	dbus_request->play_seconds = 1;
 
 	message = recObj->sendDbusMsg(snap_start_request, dbus_request);
-	
+
 	reply = dbus_connection_send_with_reply_and_block(recObj->conn,
 			message, 500, &err);
 
@@ -165,7 +181,7 @@ bool OPELRecording::initDbus()
 	conn = dbus_bus_get(DBUS_BUS_SYSTEM, &err);
 	if(!conn)
 	{
-//		dbus_error_free(&err);
+		dbus_error_free(&err);
 		return false;
 	}
 	return true;
@@ -185,6 +201,7 @@ NAN_METHOD(OPELRecording::New)
 		info.GetReturnValue().Set(cons->NewInstance(0, 0));
 	}
 }
+
 NAN_MODULE_INIT(OPELRecording::Init)
 {
 	v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(New);

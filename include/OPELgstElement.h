@@ -6,6 +6,7 @@
 #include <string>
 #include "OPELconfig.h"
 #include "OPELcamRequest.h"
+#include <dbus/dbus.h>
 
 //#define TARGET_SRC_IS_CAM 1
 
@@ -96,6 +97,16 @@ class OPELRequest{
 		{ return this->num_iter; }
 		void setNumIter(unsigned _num_iter)
 		{ this->num_iter = _num_iter; }
+		
+		DBusMessage* getDBusMessage(void)
+		{ return this->reply; }
+		DBusConnection* getDBusConnection(void)
+		{ return this->conn; }
+		void setDBusMessage(DBusMessage *_reply)
+		{ this->reply = _reply; }
+		void setDBusConnection(DBusConnection *_conn)
+		{ this->conn = _conn; }
+
 			
 
 	protected:
@@ -105,6 +116,8 @@ class OPELRequest{
     GstPadTemplate *src_templ;
     dbusRequest *msg_handle;
 		unsigned num_iter;
+		DBusMessage *reply;
+		DBusConnection *conn;
 };
 
 

@@ -4,12 +4,12 @@
 #include "OPELrawRequest.h"
 #include <gst/app/gstappsink.h>
 #include <errno.h>
-
 void closeFile(FILE *_fout)
 {
 	if(_fout)
 		fclose(_fout);
 }
+
 unsigned fileWrite(const char *file_path, char *buffer, unsigned size)
 {
 	FILE *fout;
@@ -198,7 +198,10 @@ static GstPadProbeReturn event_probe_cb(GstPad *pad, GstPadProbeInfo *info,
 	}
   
 	gst_element_release_request_pad(tee->element, request_elements->getSrcPad());
-	
+//	sendReply(request_elements->getDBusConnection(), 
+	//		request_elements->getDBusMessage(), true);
+
+
 	delete request_elements;
 	
 	checkRemainRequest();	
@@ -409,11 +412,12 @@ DBusHandlerResult msg_dbus_filter(DBusConnection *conn,
 //#endif
 
     request_handle->setMsgHandle(msg_handle);
-
+		request_handle->setDBusConnection(conn);
+		request_handle->setDBusMessage(msg);
     request_elements = 
       recordingInit((std::vector<typeElement*>*)_type_element_vector, 
           request_handle);
-
+	
     if(!request_elements)
     {
       OPEL_DBG_ERR("Recording Initialization Failed");
@@ -498,6 +502,9 @@ DBusHandlerResult msg_dbus_filter(DBusConnection *conn,
 		//#endif
 
 		request_handle->setMsgHandle(msg_handle);
+		request_handle->setDBusConnection(conn);
+		request_handle->setDBusMessage(msg);
+		
 		request_elements = snapshotInit((std::vector<typeElement*>*)_type_element_vector, 
 				request_handle);
 		if(!request_elements)

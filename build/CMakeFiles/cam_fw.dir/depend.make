@@ -56,6 +56,9 @@ CMakeFiles/cam_fw.dir/src/OPELrawRequest.o: ../include/OPELgstElementTx1.h
 CMakeFiles/cam_fw.dir/src/OPELrawRequest.o: ../include/OPELrawRequest.h
 CMakeFiles/cam_fw.dir/src/OPELrawRequest.o: ../src/OPELrawRequest.cpp
 
+CMakeFiles/cam_fw.dir/src/OPELreplyDBus.o: ../include/OPELcamRequest.h
+CMakeFiles/cam_fw.dir/src/OPELreplyDBus.o: ../src/OPELreplyDBus.cpp
+
 CMakeFiles/cam_fw.dir/src/main.o: ../include/OPELcamProperty.h
 CMakeFiles/cam_fw.dir/src/main.o: ../include/OPELcamRequest.h
 CMakeFiles/cam_fw.dir/src/main.o: ../include/OPELconfig.h
