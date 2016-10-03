@@ -47,6 +47,7 @@ void setTx1DefaultProperty(void)
        "udpsink", "udpsink");
 	 ElementProperty *app_sink = new ElementProperty(kSINK, kAPP_SINK,
 			 "appsink", "appsink");
+		
 
 	 nv_src->setWidth(1920);
    nv_src->setHeight(1080);

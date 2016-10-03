@@ -107,7 +107,11 @@ class OPELRequest{
 		void setDBusConnection(DBusConnection *_conn)
 		{ this->conn = _conn; }
 
-			
+		dbusStreamingRequest* getStreamingRequest(void)
+		{ return this->streaming_handle; } 
+		void setStreamingRequest(dbusStreamingRequest* _streaming_handle)
+		{ this->streaming_handle = _streaming_handle; }
+		
 
 	protected:
     std::vector<typeElement*> *_v_type_element; 
@@ -115,6 +119,7 @@ class OPELRequest{
     GstPad *src_pad;
     GstPadTemplate *src_templ;
     dbusRequest *msg_handle;
+		dbusStreamingRequest *streaming_handle;
 		unsigned num_iter;
 		DBusMessage *reply;
 		DBusConnection *conn;

@@ -21,14 +21,25 @@ class OPELH264Streaming : public OPELRequest
 		{return false;}
 		virtual bool defaultJpegCapFactory(void)
 		{return false;}
-			
+		
+		bool defaultStreamingFactory(void);
+		bool defaultStreamingCapFactory(void);
+		bool defaultStreamingPipelineAdd(GstElement *pipeline);
+		void defaultStreamingPadLink(GstPad *tee_src_pad);
+		void defaultStreamingSyncStateWithParent(void);
 
+		void setIsStreamingRun(bool _is_streaming_run)
+		{  this->is_streaming_run = _is_streaming_run; }
+		bool getIsStreamingRun(void)
+		{  return this->is_streaming_run; }
 	private:
 		static OPELH264Streaming *opel_h264_streaming;
 		OPELH264Streaming();
-		unsigned num_users;	
+		bool is_streaming_run;
 
 };
 
+bool streamingStart(std::vector<typeElement*> *_type_element_v,
+		    OPELH264Streaming *request_handle);
 
 #endif /* OPEL_H264_STREAMING_H */

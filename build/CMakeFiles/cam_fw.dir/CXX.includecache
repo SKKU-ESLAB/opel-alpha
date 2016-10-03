@@ -125,6 +125,8 @@ OPELglobalRequest.h
 /home/ubuntu/opel-alpha/src/OPELglobalRequest.h
 OPELrawRequest.h
 /home/ubuntu/opel-alpha/src/OPELrawRequest.h
+OPELh264Streaming.h
+/home/ubuntu/opel-alpha/src/OPELh264Streaming.h
 gst/app/gstappsink.h
 -
 errno.h

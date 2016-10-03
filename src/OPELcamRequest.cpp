@@ -2,6 +2,7 @@
 #include "OPELgstElementTx1.h"
 #include "OPELglobalRequest.h"
 #include "OPELrawRequest.h"
+#include "OPELh264Streaming.h"
 #include <gst/app/gstappsink.h>
 #include <errno.h>
 void closeFile(FILE *_fout)
@@ -566,7 +567,47 @@ DBusHandlerResult msg_dbus_filter(DBusConnection *conn,
 		else
 			OPEL_DBG_VERB("Num Users : %d", cur_attached_user);
 	}
+
+	if(dbus_message_is_signal(msg, dbus_interface, streaming_start_request))
+	{
+		OPEL_DBG_WARN("Get Streaming Start Request");
+		dbusStreamingRequest *msg_handle = new dbusStreamingRequest;
+		dbus_message_get_args(msg, NULL, 
+				DBUS_TYPE_STRING, &(msg_handle->ip_address), 
+				DBUS_TYPE_UINT64, &(msg_handle->port), 
+				DBUS_TYPE_INVALID);
+		
+		OPELH264Streaming *request_handle = OPELH264Streaming::getInstance();
+		request_handle->setStreamingRequest(msg_handle);
+		if(request_handle->getIsStreamingRun())
+		{
+			OPEL_DBG_VERB("Already Streaming Service is Running");
+			return DBUS_HANDLER_RESULT_HANDLED;
+		}
+		else
+		{
+			OPEL_DBG_VERB("Start Streaming Service");
+			request_handle->setIsStreamingRun(true);
+			streamingStart((std::vector<typeElement*>*)_type_element_vector,
+					request_handle);
+		}
+	}
 	
+	if(dbus_message_is_signal(msg, dbus_interface, streaming_stop_request))
+	{
+		OPEL_DBG_WARN("Get Streaming Stop Request");
+		OPELH264Streaming *request_handle = OPELH264Streaming::getInstance();
+		if(request_handle->getIsStreamingRun())
+		{
+		   		   	
+
+		}
+		else
+		{
+			OPEL_DBG_VERB("Already Stop the Service");
+  		return DBUS_HANDLER_RESULT_HANDLED;
+		}
+	}
 	__OPEL_FUNCTION_EXIT__;
   return DBUS_HANDLER_RESULT_HANDLED;
 }

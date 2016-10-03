@@ -14,6 +14,7 @@ CMakeFiles/cam_fw.dir/src/OPELcamRequest.o: ../include/OPELdbugLog.h
 CMakeFiles/cam_fw.dir/src/OPELcamRequest.o: ../include/OPELglobalRequest.h
 CMakeFiles/cam_fw.dir/src/OPELcamRequest.o: ../include/OPELgstElement.h
 CMakeFiles/cam_fw.dir/src/OPELcamRequest.o: ../include/OPELgstElementTx1.h
+CMakeFiles/cam_fw.dir/src/OPELcamRequest.o: ../include/OPELh264Streaming.h
 CMakeFiles/cam_fw.dir/src/OPELcamRequest.o: ../include/OPELrawRequest.h
 CMakeFiles/cam_fw.dir/src/OPELcamRequest.o: ../src/OPELcamRequest.cpp
 

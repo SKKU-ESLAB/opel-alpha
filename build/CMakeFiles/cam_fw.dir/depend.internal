@@ -15,6 +15,7 @@ CMakeFiles/cam_fw.dir/src/OPELcamRequest.o
  ../include/OPELglobalRequest.h
  ../include/OPELgstElement.h
  ../include/OPELgstElementTx1.h
+ ../include/OPELh264Streaming.h
  ../include/OPELrawRequest.h
  /home/ubuntu/opel-alpha/src/OPELcamRequest.cpp
 CMakeFiles/cam_fw.dir/src/OPELcommonUtil.o
