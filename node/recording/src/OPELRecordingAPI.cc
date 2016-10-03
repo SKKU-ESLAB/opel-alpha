@@ -26,12 +26,12 @@ DBusMessage* OPELRecording::sendDbusMsg(const char* msg,
 void OPELrecordingAsync::Execute()
 {
 	assert(this->conn != NULL && this->msg != NULL);
-	unsigned success;
-	DBusError *err;
+//	unsigned success;
+//	DBusError *err;
 /*	this->reply = dbus_connection_send_with_reply_and_block(this->conn,
 		this->msg, this->seconds*1000 + 2000, err);
 	*/
-	sleep(seconds+2);
+	sleep(seconds+1);
 /*	if(reply == NULL)
 	{
 		this->is_success = true;
@@ -97,12 +97,10 @@ NAN_METHOD(OPELRecording::recStart)
 		Nan::ThrowTypeError("Seconds cannot be 0");
 		return;
 	}
-	if(!recObj->conn){
-		if(!(recObj->initDbus()))
-		{
+	if(!(recObj->initDbus()))
+	{
 			Nan::ThrowError("D-Bus Initialization Failed\n");
 			return;
-		}
 	}
 
 	dbus_request = new dbusRequest();
@@ -112,19 +110,7 @@ NAN_METHOD(OPELRecording::recStart)
 	dbus_request->width = 1920;
 	dbus_request->height = 1080;
 	dbus_request->play_seconds = seconds;
-//	DBusMessage* message;
-//	message = recObj->sendDbusMsg(rec_init_request, dbus_request);
-
-	message = dbus_message_new_signal(dbus_path, dbus_interface, rec_init_request);
-	dbus_message_append_args(message,
-			DBUS_TYPE_STRING, &(dbus_request->file_path),
-			DBUS_TYPE_UINT64, &(dbus_request->pid),
-			DBUS_TYPE_UINT64, &(dbus_request->fps),
-			DBUS_TYPE_UINT64, &(dbus_request->width),
-			DBUS_TYPE_UINT64, &(dbus_request->height),
-			DBUS_TYPE_UINT64, &(dbus_request->play_seconds),
-			DBUS_TYPE_INVALID);
-	dbus_connection_send (recObj->conn, message, NULL);
+	message = recObj->sendDbusMsg(rec_init_request, dbus_request);
 	
 	recordingAsync = new OPELrecordingAsync(callback, recObj->conn, 
 			message, seconds);
@@ -163,12 +149,12 @@ NAN_METHOD(OPELRecording::jpegStart)
 	dbus_request->play_seconds = 1;
 
 	message = recObj->sendDbusMsg(snap_start_request, dbus_request);
-
-	reply = dbus_connection_send_with_reply_and_block(recObj->conn,
-			message, 500, &err);
-
+	
+//	reply = dbus_connection_send_with_reply_and_block(recObj->conn,
+//			message, 500, &err);
+	sleep(1);
 	dbus_message_unref(message);
-	dbus_message_unref(reply);
+//	dbus_message_unref(reply);
 }
 
 NAN_METHOD(OPELRecording::recStop)
