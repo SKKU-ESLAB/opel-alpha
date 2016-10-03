@@ -22,7 +22,7 @@ static DBusHandlerResult dbus_respone(DBusConnection *connection, DBusMessage *m
 	if (dbus_message_is_signal(message, nilInterface, SEND_SENSOR_DATA)){
 		//printf("[NIL] sensor_event_driven sensor data");
 
-		return sensorEventDriven(connection, message, user_data);
+		return sensorGetRepeatedly(connection, message, user_data);
 	}
 	if (dbus_message_is_signal(message, nilInterface, SEND_SENSOR_NOTIFY)){
 		//printf("[NIL] sensor_event_driven notify");
