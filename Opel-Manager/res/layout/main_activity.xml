@@ -11,11 +11,39 @@
     
     android:background="@drawable/bg"
     tools:context=".MainActivity" >
+    <RadioGroup
+        android:id="@+id/radioGroupTarget"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:paddingLeft="10dp"
+            android:text="Target Board: " />
+
+        <RadioButton
+            android:id="@+id/radioButtonTargetRPi2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="RPi2" />
+
+        <RadioButton
+            android:id="@+id/radioButtonTargetTX1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="TX1" />
+
+    </RadioGroup>
 
     <GridView
         android:id="@+id/gridView1"
         android:layout_width="match_parent"
         android:layout_height="fill_parent"
+        android:layout_below="@id/radioGroupTarget"
         android:layout_margin="4dp"
         android:columnWidth="80dp"
         android:gravity="center"
@@ -25,5 +53,4 @@
         >
         
     </GridView>
-
 </RelativeLayout>

@@ -24,15 +24,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.TextView;
-
-import android.util.Log;
 import android.widget.Toast;
 
 import com.example.opel_manager.R;
@@ -199,7 +197,7 @@ public class DeviceListActivity extends Activity {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 // If it's already paired, skip it, because it's been listed already
                 if (device.getBondState() != BluetoothDevice.BOND_BONDED) {
-                    if(device.getName() != null && device.getName().contains(OpelCommunicator.CMFW_BT_NAME)){
+                    if(device.getName() != null && device.getName().contains(OpelCommunicator.getTargetBtName())){
                         mNewDevicesArrayAdapter.add(device.getName() + "\n" + device.getAddress());
                         mBtAdapter.cancelDiscovery();
                         setTitle("Found OPEL - Pairing");

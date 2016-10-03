@@ -1,6 +1,5 @@
 package selectiveconnection;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -13,16 +12,9 @@ import android.net.wifi.p2p.WifiP2pGroup;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
-import android.os.Handler;
 import android.util.Log;
 
 import com.example.opel_manager.globalData;
-
-import java.net.InetAddress;
-import java.util.Collection;
-import java.util.Iterator;
-
-import selectiveconnection.OpelCommunicator;
 
 /**
  * Created by eslab on 2016-05-16.
@@ -56,7 +48,7 @@ public class WifiDirectBroadcastReceiver extends BroadcastReceiver {
                 WifiP2pConfig config = new WifiP2pConfig();
 
                 for(WifiP2pDevice device : peers.getDeviceList()){
-                    if(device.deviceName.equals(OpelCommunicator.CMFW_WFD_NAME)) {
+                    if(device.deviceName.equals(OpelCommunicator.getTargetWfdName())) {
                         Log.d("BReceiver", "Found device connecting...");
                         opelDevice = device;
                         if(opelDevice.status != WifiP2pDevice.AVAILABLE)
@@ -136,7 +128,7 @@ public class WifiDirectBroadcastReceiver extends BroadcastReceiver {
 
                 if (networkInfo.isConnected()) {
                     WifiP2pGroup p2pGroup = (WifiP2pGroup)intent.getParcelableExtra(WifiP2pManager.EXTRA_WIFI_P2P_GROUP);
-                    if(p2pGroup.getOwner().deviceName != null && p2pGroup.getOwner().deviceName.equals(OpelCommunicator.CMFW_WFD_NAME)) {
+                    if(p2pGroup.getOwner().deviceName != null && p2pGroup.getOwner().deviceName.equals(OpelCommunicator.getTargetWfdName())) {
                         Log.d("Breceiver", "Connected:" + Integer.toString(globalData.getInstance().getCommManager().opelCommunicator.wfd_in_use));
 
                         opelDevice = p2pGroup.getOwner();
