@@ -48,8 +48,9 @@ import java.util.Set;
 import selectiveconnection.DeviceListActivity;
 import selectiveconnection.OpelCommunicator;
 import selectiveconnection.WifiDirectBroadcastReceiver;
+import selectiveconnection.WifiDirectStateListener;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements WifiDirectStateListener {
 
 	GridView gridView;
 	static mainView _mainView;
@@ -244,21 +245,25 @@ public class MainActivity extends Activity {
 
 		// Add radio button callbacks
 		RadioButton radioButtonTargetRPi2 = (RadioButton)this.findViewById(R.id.radioButtonTargetRPi2);
-		RadioButton radioButtonTargetTX1 = (RadioButton)this.findViewById(R.id.radioButtonTargetTX1);
 		radioButtonTargetRPi2.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 			@Override
 			public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-				Toast.makeText(getApplicationContext(), "Target board: RPi2(Raspberry Pi 2)",0).show();
-		        OpelCommunicator.setTargetRPi2();
+				if(b == true) {
+					Toast.makeText(getApplicationContext(), "Target board: RPi2(Raspberry Pi 2)", 0).show();
+					OpelCommunicator.setTargetRPi2();
+				} else {
+					Toast.makeText(getApplicationContext(), "Target board: TX1(Nvidia TX1)",0).show();
+					OpelCommunicator.setTargetTX1();
+				}
 			}
 		});
-		radioButtonTargetTX1.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-			@Override
-			public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-				Toast.makeText(getApplicationContext(), "Target board: TX1(Nvidia TX1)",0).show();
-				OpelCommunicator.setTargetTX1();
-			}
-		});
+
+		// Add Wi-fi direct state listener
+		globalData.getInstance().getWifiReceiver().setStateListener(this);
+	}
+
+	public void onWifiDirectStateChanged(boolean isOn) {
+		this.setIndicatorWFD(isOn);
 	}
 
 	@Override
@@ -569,34 +574,55 @@ public class MainActivity extends Activity {
 				Log.d("OPEL", "Toast connected");
 				conn_stat = true;
 				Toast.makeText(getApplicationContext(), "Successfully connected to OPEL", 0).show();
-
+				setIndicatorBT(true);
 			}
 			else if(inputMessage.what == global_communication.COMM_DISCONNECTED){
 				Log.d("OPEL", "Toast disconnected");
 				conn_stat = false;
 				Toast.makeText(getApplicationContext(), "Disconnected to OPEL", 0).show();
+				setIndicatorBT(false);
 			}
 			else if(inputMessage.what == global_communication.COMM_CONNECTING){
 				Log.d("OPEL", "Toast disconnected");
 				Toast.makeText(getApplicationContext(), "Connecting to OPEL", 0).show();
+				setIndicatorBT(false);
 			}
 			else if (inputMessage.what == global_communication.COMM_CONNECT_FAILED){
 				Log.d("OPEL", "Toast disconnected");
 				conn_stat = false;
 				Toast.makeText(getApplicationContext(), "Failed connecting to OPEL, re-connect with CONNECT button", Toast.LENGTH_LONG).show();
+				setIndicatorBT(false);
 			}
 			else if (inputMessage.what == global_communication.COMM_ALREADY_CONNECTED){
 				Log.d("OPEL", "Toast already connecteed");
 				conn_stat = true;
 				Toast.makeText(getApplicationContext(), "Already conneceted", 0).show();
+				setIndicatorBT(true);
 			}
 			else if (inputMessage.what == global_communication.COMM_ALREADY_CONNECTING){
 				Log.d("OPEL", "Toast already connecteed");
 				Toast.makeText(getApplicationContext(), "Already connecting", 0).show();
+				setIndicatorBT(false);
 			}
 
 		}
 	};
+
+	private void setIndicatorBT(boolean isOn) {
+		ImageView imageView = (ImageView)this.findViewById(R.id.indicatorBT);
+		if(isOn == true)
+			imageView.setImageResource(R.drawable.bluetooth);
+		else
+			imageView.setImageResource(R.drawable.bluetooth_disabled);
+	}
+
+	private void setIndicatorWFD(boolean isOn) {
+		ImageView imageView = (ImageView)this.findViewById(R.id.indicatorWFD);
+		if(isOn == true)
+			imageView.setImageResource(R.drawable.wifidirect);
+		else
+			imageView.setImageResource(R.drawable.wifidirect_disabled);
+	}
 
 	public void initStorageWorkspace(){
 
