@@ -46,8 +46,8 @@ public class OpelCommunicator {
     private static final String CMFW_WFD_NAME_RPI2 = "OPEL";
     private static final String CMFW_BT_NAME_TX1 = "tegra";
     private static final String CMFW_WFD_NAME_TX1 = "OPEL-Tegra";
-    private static String sTargetBtName = CMFW_BT_NAME_RPI2;
-    private static String sTargetWfdName = CMFW_WFD_NAME_RPI2;
+    private static String sTargetBtName = CMFW_BT_NAME_TX1;
+    private static String sTargetWfdName = CMFW_WFD_NAME_TX1;
     public static String getTargetBtName() {
         Log.d("OPEL", "bt: " + sTargetBtName);
         return sTargetBtName;

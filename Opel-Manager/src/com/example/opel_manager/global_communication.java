@@ -796,7 +796,7 @@ public class global_communication {
 		sendMsg(_jp.getJsonData());
 	}
 
-	void requestRunNativeJSAppCameraViewer(){
+	public void requestRunNativeJSAppCameraViewer(){
 		jsonParser jp = new jsonParser();
 		jp.makeNewJson();
 
