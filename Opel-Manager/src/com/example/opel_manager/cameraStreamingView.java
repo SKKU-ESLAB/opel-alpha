@@ -175,12 +175,12 @@ public class cameraStreamingView extends Activity {
     }
 
     public void forwardToGstreamerViewer() {
-        Log.d("cameraStreamingView", "forwardToGstreamerViewer()");
+        Log.d("cameraStreamingView", "onWidiReady()");
         final cameraStreamingView self = this;
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Log.d("cameraStreamingView", "forwardToGstreamerViewer() -> runOnUiThread");
+                Log.d("cameraStreamingView", "onWidiReady() -> runOnUiThread");
                 Intent intent = new Intent(self, rpiviewer.class);
                 startActivity(intent);
             }

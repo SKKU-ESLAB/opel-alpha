@@ -41,6 +41,8 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.gst_sdk_tutorials.rpi_control.rpiviewer;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Set;
@@ -399,7 +401,8 @@ public class MainActivity extends Activity implements WifiDirectStateListener {
                     if (conn_stat == false) {
                         Toast.makeText(getApplicationContext(), "Disconnected to OPEL", 0).show();
                     }
-                    Intent intent = new Intent(MainActivity.this, cameraStreamingView.class);
+                    //Intent intent = new Intent(MainActivity.this, cameraStreamingView.class);
+                    Intent intent = new Intent(MainActivity.this, rpiviewer.class);
                     startActivity(intent);
 
                 }
