@@ -20,7 +20,7 @@
     <string name="title_other_devices">Other Available Devices</string>
     <string name="button_scan">Scan for devices</string>
 
-    <!-- RPi Viewer -->
+    <!-- GStreamer Example -->
     <string name="button_play">Play</string>
     <string name="button_stop">Stop</string>
     <string name="IP"> </string>
