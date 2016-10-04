@@ -4,6 +4,9 @@ TOOLSET := target
 TARGET := OPELFaceDetection
 DEFS_Debug := \
 	'-DNODE_GYP_MODULE_NAME=OPELFaceDetection' \
+	'-DUSING_UV_SHARED=1' \
+	'-DUSING_V8_SHARED=1' \
+	'-DV8_DEPRECATION_WARNINGS=1' \
 	'-D_LARGEFILE_SOURCE' \
 	'-D_FILE_OFFSET_BITS=64' \
 	'-DBUILDING_NODE_EXTENSION' \
@@ -13,12 +16,12 @@ DEFS_Debug := \
 # Flags passed to all source files.
 CFLAGS_Debug := \
 	-fPIC \
+	-pthread \
 	-Wall \
 	-Wextra \
 	-Wno-unused-parameter \
-	-pthread \
 	-I/usr/include/dbus-1.0 \
-	-I/usr/lib/arm-linux-gnueabihf/dbus-1.0/include \
+	-I/usr/lib/aarch64-linux-gnu/dbus-1.0/include \
 	-I/usr/local/include/opencv \
 	-I/usr/local/include \
 	-g \
@@ -31,22 +34,26 @@ CFLAGS_C_Debug :=
 CFLAGS_CC_Debug := \
 	-frtti \
 	-fno-exceptions \
+	-std=gnu++0x \
 	-I/usr/include/dbus-1.0 \
-	-I/usr/lib/arm-linux-gnueabihf/dbus-1.0/include \
+	-I/usr/lib/aarch64-linux-gnu/dbus-1.0/include \
 	-I/usr/local/include/opencv \
 	-I/usr/local/include
 
 INCS_Debug := \
-	-I/home/pi/.node-gyp/0.10.28/include/node \
-	-I/home/pi/.node-gyp/0.10.28/src \
-	-I/home/pi/.node-gyp/0.10.28/deps/uv/include \
-	-I/home/pi/.node-gyp/0.10.28/deps/v8/include \
+	-I/home/ubuntu/.node-gyp/4.0.0/include/node \
+	-I/home/ubuntu/.node-gyp/4.0.0/src \
+	-I/home/ubuntu/.node-gyp/4.0.0/deps/uv/include \
+	-I/home/ubuntu/.node-gyp/4.0.0/deps/v8/include \
 	-I$(srcdir)/node_modules/nan \
 	-I$(srcdir)/src \
 	-I/usr/local/include
 
 DEFS_Release := \
 	'-DNODE_GYP_MODULE_NAME=OPELFaceDetection' \
+	'-DUSING_UV_SHARED=1' \
+	'-DUSING_V8_SHARED=1' \
+	'-DV8_DEPRECATION_WARNINGS=1' \
 	'-D_LARGEFILE_SOURCE' \
 	'-D_FILE_OFFSET_BITS=64' \
 	'-DBUILDING_NODE_EXTENSION'
@@ -54,17 +61,17 @@ DEFS_Release := \
 # Flags passed to all source files.
 CFLAGS_Release := \
 	-fPIC \
+	-pthread \
 	-Wall \
 	-Wextra \
 	-Wno-unused-parameter \
-	-pthread \
 	-I/usr/include/dbus-1.0 \
-	-I/usr/lib/arm-linux-gnueabihf/dbus-1.0/include \
+	-I/usr/lib/aarch64-linux-gnu/dbus-1.0/include \
 	-I/usr/local/include/opencv \
 	-I/usr/local/include \
-	-O2 \
-	-fno-strict-aliasing \
-	-fno-tree-vrp \
+	-O3 \
+	-ffunction-sections \
+	-fdata-sections \
 	-fno-omit-frame-pointer
 
 # Flags passed to only C files.
@@ -74,16 +81,17 @@ CFLAGS_C_Release :=
 CFLAGS_CC_Release := \
 	-frtti \
 	-fno-exceptions \
+	-std=gnu++0x \
 	-I/usr/include/dbus-1.0 \
-	-I/usr/lib/arm-linux-gnueabihf/dbus-1.0/include \
+	-I/usr/lib/aarch64-linux-gnu/dbus-1.0/include \
 	-I/usr/local/include/opencv \
 	-I/usr/local/include
 
 INCS_Release := \
-	-I/home/pi/.node-gyp/0.10.28/include/node \
-	-I/home/pi/.node-gyp/0.10.28/src \
-	-I/home/pi/.node-gyp/0.10.28/deps/uv/include \
-	-I/home/pi/.node-gyp/0.10.28/deps/v8/include \
+	-I/home/ubuntu/.node-gyp/4.0.0/include/node \
+	-I/home/ubuntu/.node-gyp/4.0.0/src \
+	-I/home/ubuntu/.node-gyp/4.0.0/deps/uv/include \
+	-I/home/ubuntu/.node-gyp/4.0.0/deps/v8/include \
 	-I$(srcdir)/node_modules/nan \
 	-I$(srcdir)/src \
 	-I/usr/local/include
@@ -128,23 +136,23 @@ LIBS := \
 	-ldbus-1 \
 	-lglib-2.0 \
 	-L/usr/local/lib \
-	-lopencv_calib3d \
-	-lopencv_core \
-	-lopencv_features2d \
-	-lopencv_flann \
-	-lopencv_hal \
-	-lopencv_highgui \
-	-lopencv_imgcodecs \
-	-lopencv_imgproc \
-	-lopencv_ml \
-	-lopencv_objdetect \
-	-lopencv_photo \
 	-lopencv_shape \
 	-lopencv_stitching \
+	-lopencv_objdetect \
 	-lopencv_superres \
-	-lopencv_video \
+	-lopencv_videostab \
+	-lopencv_calib3d \
+	-lopencv_features2d \
+	-lopencv_highgui \
 	-lopencv_videoio \
-	-lopencv_videostab
+	-lopencv_imgcodecs \
+	-lopencv_video \
+	-lopencv_photo \
+	-lopencv_ml \
+	-lopencv_imgproc \
+	-lopencv_flann \
+	-lopencv_core \
+	-lopencv_hal
 
 $(obj).target/OPELFaceDetection.node: GYP_LDFLAGS := $(LDFLAGS_$(BUILDTYPE))
 $(obj).target/OPELFaceDetection.node: LIBS := $(LIBS)

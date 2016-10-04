@@ -1,5 +1,6 @@
 /*OPEL Camera Library */
 #include "precomp.hpp"
+#include <errno.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -34,11 +35,13 @@
 #define OPENCV_DEFAULT_WIDTH 640
 #define OPENCV_DEFAULT_HEIGHT 480
 
-#define OPENCV_DEFAULT_BUF_SIZE 921600
+#define OPENCV_DEFAULT_BUF_SIZE OPENCV_480P_BUF_SIZE * 2
+#define OPENCV_480P_BUF_SIZE 1228800
 #define OPENCV_DEFAULT_BUF_INDEX 4
 
+
 const char* dev_name = "/dev/video0";
-char SEM_NAME[] = "CCDSTATUS";
+char SEM_NAME[] = "ORG.OPEL.CAMERA";
 typedef struct status
 {
 	bool isCCDRunning;
@@ -58,17 +61,7 @@ typedef struct property
 	bool isPropertyChanged;
 	bool allowRunning;
 }property;
-static bool isRecRunning(status* st, sem_t* mutex)
-{
-	bool retVar= false;	
-	sem_wait(mutex);
-	retVar = st->isRecRunning;
-	sem_post(mutex);
-	if(retVar)
-		fprintf(stderr, "Resource Busy\n");
-	
-	return retVar;
-}
+
 static void sendDbusMsg(DBusConnection* conn, const char* msg)
 {
 	DBusMessage* message;
@@ -108,7 +101,7 @@ class CvCaptureCAM_OPEL_CPP : CvCapture
 					bool uinit_Semaphore(void);
 					bool init_DBus(void);
 					bool readFrame(void);
-					sem_t* statusMutex; 
+					sem_t* sem; 
 					int width, height;
 					int mode;
 					property* prop;
@@ -117,23 +110,24 @@ class CvCaptureCAM_OPEL_CPP : CvCapture
 					int semid;
 				
 				
-					DBusConnection* connection;
+						DBusConnection* connection;
 					DBusError error;
 					
 };
 
 bool CvCaptureCAM_OPEL_CPP::uinit_Semaphore(void)
 {
-	sem_close(this->statusMutex);
-	sem_unlink(SEM_NAME);
+	sem_close(this->sem);
+//	sem_unlink(SEM_NAME);
 	return true;
 }
 bool CvCaptureCAM_OPEL_CPP::init_Semaphore(void)
 {
-	this->statusMutex = sem_open(SEM_NAME, 0, 0666, 0);
-	if(this->statusMutex == SEM_FAILED)
+	this->sem = sem_open(SEM_NAME, 0, 0666, 0);
+	if(this->sem == SEM_FAILED)
 	{
 		fprintf(stderr, "[CvCaptureCAM_OPEL_CPP::init_Semaphore] : Semaphore Initialization Error\n");
+		fprintf(stderr, "Error : %s\n", strerror(errno));
 		sem_unlink(SEM_NAME);
 		return false;
 	}
@@ -215,8 +209,10 @@ CvCaptureCAM_OPEL_CPP::CvCaptureCAM_OPEL_CPP()
 
 CvCaptureCAM_OPEL_CPP::~CvCaptureCAM_OPEL_CPP()
 {
+	
+	sendDbusMsg(this->connection, "openCVStop");			
 	/* MINI */
-//	uinit_Semaphore();
+ 	uinit_Semaphore();
 }
 
 bool CvCaptureCAM_OPEL_CPP::init_SharedMemorySpaceForProperty()
@@ -242,16 +238,16 @@ bool CvCaptureCAM_OPEL_CPP::init_SharedMemorySpace()
 				shmid = shmget((key_t)SHM_KEY_FOR_BUFFER, 0, 0);
 				if(shmid == -1)
 				{
-	//							fprintf(stderr, "[CvCaptureCAM_OPEL_CPP::init_SharedMemorySpace] : Shmget Error\n");
+								fprintf(stderr, "[CvCaptureCAM_OPEL_CPP::init_SharedMemorySpace] : Shmget Error\n");
 								return false;
 				}
 				shmPtr = shmat(shmid, (void*)0, 0666|IPC_CREAT);
 				if(shmPtr == (void*)-1)
 				{
-		//					fprintf(stderr, "[CvCaptureCAM_OPEL_CPP::init_SharedMemorySpace] : Shmat Error\n");
+							fprintf(stderr, "[CvCaptureCAM_OPEL_CPP::init_SharedMemorySpace] : Shmat Error\n");
 							return false;
 				}
-			//	fprintf(stderr, "Shared Memory Space Init\n");
+				fprintf(stderr, "Shared Memory Space Init\n");
 				return true;
 			
 }
@@ -271,63 +267,35 @@ static void open_device(int* fd)
 }
 bool CvCaptureCAM_OPEL_CPP::open(int index)
 {	
-				bool allowIsRunning;
 				open_device(&fd);
-				
-				if(this->fd == -1)
-						return false;
-  			
-				if(!(this->init_SharedMemorySpaceForProperty()))
-						return false;
-       	
-				if(!init_DBus())
-						return false;
-				
-				sendDbusMsg(this->connection, "recStop");
-				usleep(50000);
 
-				if(!init_Semaphore())
-						return false;
-				
-				if(isRecRunning(this->st, this->statusMutex))
-				{
-				//	uinit_Semaphore();
-					return false;
-				}
+				init_DBus();
+				sendDbusMsg(this->connection, "openCVStart");
+			  sleep(2);		
 
-				printf("******* CAMERA PROPERTY ********\n");
-				printf("width = %d\n", this->width);
-				printf("height = %d\n", this->height);
-				printf("buffer_size = %d\n", this->buffer_size);
-				fflush(stdout);
-						
-				
-				sendDbusMsg(this->connection, "OpenCVInit");
-
-				cvInitImageHeader(&frame, cvSize(this->width, this->height), IPL_DEPTH_8U, channels_for_mode(mode), IPL_ORIGIN_TL, 4);
+				cvInitImageHeader(&frame, cvSize(this->width, this->height), IPL_DEPTH_8U, 4, IPL_ORIGIN_BL, 4);
+			//	frame = cvCreateImageHeader(cvSize(this->width, this->height), IPL_DEPTH_8U, 3);
 				frame.imageData = (char *)cvAlloc(frame.imageSize); 
 				if(!frame.imageData)
 				{
 					fprintf(stderr, "[CvCaptureCAM_OPEL_CPP::open] : cvAlloc Error\n");
 					return false;
 				}
-				
 				for(;;){
 				 if(init_SharedMemorySpace())
 							break;
 				}
-				
-
-
-				//MINI CHECK STATUS
-				sendDbusMsg(this->connection, "OpenCVStart");
-
+				if(!init_Semaphore())
+				{
+					fprintf(stderr, "[CvCaptureCAM_OPEL_CPP::open] : Cannot Init Semaphore\n");
+					return false;
+				}
 			  return true;
 }
 bool CvCaptureCAM_OPEL_CPP::close()
 {
 // check if already running
-//	sendDbusMsg(this->connection, "OpenCVClose");			
+	sendDbusMsg(this->connection, "OpenCVStop");			
 	return true;			
 }
 /* get property Not Supported in OPEL OpenCV lib */
@@ -343,25 +311,22 @@ bool CvCaptureCAM_OPEL_CPP::setProperty(int, double)
 }
 bool CvCaptureCAM_OPEL_CPP::grabFrame()
 {
-				//MINI CHECK STATUS	
-				if(isRecRunning(this->st, this->statusMutex))
-				{
-			//		uinit_Semaphore();
-					fprintf(stderr, "Resource Busy\n");
-					return false;
-				}
 				mainLoop();				
 				return true;
 }
 IplImage* CvCaptureCAM_OPEL_CPP::retrieveFrame(int)
 {
 		  	unsigned offset;
-				offset = (buffer_index-1)*buffer_size;
+				offset = buffer_size;
 			//	printf("buffer_size : %d\n", buffer_size);
 		  //	printf("frame_image_size : %d\n", frame.imageSize);
+				unsigned int* buffer_size_ptr = (unsigned int*)(shmPtr+offset);
 				if(shmPtr)
 				{
-								memcpy((char*)frame.imageData, (char*)shmPtr+offset, buffer_size);
+					sem_wait(sem);
+//					printf("%d\n", *buffer_size_ptr);
+					memcpy((char*)frame.imageData, (char*)shmPtr, *buffer_size_ptr);
+					sem_post(sem);
 				}
 				return &frame;
 }
