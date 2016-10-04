@@ -60,6 +60,7 @@ comm.OpenChannel('Sensor Intf', mainCb)
 
 var repeat = setInterval(function(){
 		if(viewOn == 1){
+		/*
 			var tch = sensorManager.Get("TOUCH");
 			var acc = sensorManager.Get("ACC");
 			var mot = sensorManager.Get("MOTION");
@@ -67,7 +68,9 @@ var repeat = setInterval(function(){
 			var lit = sensorManager.Get("LIGHT");
 			var vib = sensorManager.Get("VIBRATION");
 			var tmp = sensorManager.Get("TEMP");
-			
+			*/
+		  var button = sensorManager.Get("BUTTON");
+
 			var str = "{\"Touch\":\""+tch.TOUCH+"\",\"Accelerometer\":\""+"23"+"\",\"Motion\":\""+mot.MOTION+"\",\"Sound\":\""+snd.SOUND+"\",\"Light\":\""+lit.LIGHT+"\",\"Vibration\":\""+vib.VIBRATION+"\",\"Temperature\":\""+tmp.TEMP+"\"}";
 			comm.SendMsg(str);
 			console.log("Sent\n");

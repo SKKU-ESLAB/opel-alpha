@@ -4,6 +4,7 @@ bin/appManager/sysAppManager
 bin/appManager/appPackageRepository.db
 bin/appManager/deviceRepository.db
 bin/appManager/serviceDaemonRepository.db
+bin/appManager/application/*
 lib
 tags
 CMakeCache.txt
