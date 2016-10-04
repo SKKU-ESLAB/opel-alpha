@@ -2,11 +2,11 @@ package com.example.opel_manager;
 import android.bluetooth.BluetoothSocket;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -814,7 +814,7 @@ public class global_communication {
 
 		sendMsg(jp.getJsonData());
 	}
-	void requestTermNativeJSAppCameraViewer(){
+	public void requestTermNativeJSAppCameraViewer(){
 		jsonParser jp = new jsonParser();
 		jp.makeNewJson();
 

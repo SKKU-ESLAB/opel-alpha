@@ -4,8 +4,6 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:2.2.0'
-
-
     }
 }
 allprojects {
@@ -26,6 +24,16 @@ android {
     compileSdkVersion 23
     buildToolsVersion '23.0.3'
 
+    // NDK build
+    ext {
+        nativeDebuggable = false
+    }
+    buildTypes {
+        debug {
+            jniDebuggable true
+        }
+    }
+
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
@@ -35,6 +43,10 @@ android {
             renderscript.srcDirs = ['src']
             res.srcDirs = ['res']
             assets.srcDirs = ['assets']
+
+            // NDK build
+            jniLibs.srcDir 'libs'
+            jni.srcDirs = []
         }
 
         // Move the tests to tests/java, tests/res, etc...
