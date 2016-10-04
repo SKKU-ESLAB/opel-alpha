@@ -32,7 +32,7 @@ public class fileManagerView extends Activity{
 
 	//Drawing based on the jp information
 
-	final String homePath = "/home/pi/opelData";
+	final String homePath = "/home/ubuntu/opelData";
 	String curPath;
 
 	protected void onCreate(Bundle savedInstanceState) {
