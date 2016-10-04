@@ -241,16 +241,18 @@ public class rpiviewer extends Activity implements SurfaceHolder.Callback, TCPSt
     private void initializeGstreamerConnection() {
         Log.d("rpiviewer", "initializeGstreamerConnection()");
         nativeInit(server, vport);
+
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         nativeSurfaceInit(mDelayedSurface);
 
         is_playing_desired = true;
         imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(editTextIPAddress.getWindowToken(), 0);
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         nativePlay();
     }
 
