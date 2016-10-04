@@ -1,9 +1,8 @@
 cmake_minimum_required(VERSION 2.8)
 include(FindPkgConfig)
 
-find_path(CAMFW_DIR ./)
-set(CAMFW_SRC_DIR ${CAMFW_DIR}/src)
-include_directories(${CAMFW_DIR}/include)
+set(CAMFW_SRC_DIR ./src)
+include_directories(./include)
 
 add_definitions(`pkg-config --libs --cflags dbus-1 glib-2.0 dbus-glib-1 gstreamer-1.0` -g)
 
