@@ -502,14 +502,11 @@ find_path(DBUS_ARCH_INCLUDE_DIR
     HINTS
     ${DBUS_ROOT_DIR}
     ${_dbus_hint_INCLUDE_DIRS}
-    PATHS
-    # TODO use CMAKE_SYSTEM_PROCESSOR or similar?
-    #/usr/lib/${CMAKE_SYSTEM_PROCESSOR}/dbus-1.0/include/
-    /usr/lib/i386-linux-gnu/dbus-1.0/include/
-    PATH_SUFFIXES
-    dbus-1.0/include/
-)	
-  include(CheckFunctionExists)
+    PATH
+    /usr/lib/aarch-64-linux-gnu/dbus-1.0/include/
+)
+  
+	include(CheckFunctionExists)
   include(CheckIncludeFile)
 	if(NOT APPLE)
     CHECK_INCLUDE_FILE(pthread.h HAVE_LIBPTHREAD)

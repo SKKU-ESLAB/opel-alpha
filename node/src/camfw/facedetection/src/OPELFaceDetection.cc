@@ -16,7 +16,7 @@
 using namespace std;
 using namespace cv;
 
-string face_cascade = "/home/pi/OPEL-CameraFramework/npm/facedetection/haarcascade_frontalface_alt.xml";
+string face_cascade = "/home/ubuntu/opel-alpha/node/facedetection/haarcascade_frontalface_alt.xml";
 
 class OPELFaceDetection : public Nan::AsyncWorker
 {
@@ -50,6 +50,7 @@ class OPELFaceDetection : public Nan::AsyncWorker
 				if(numOfFace != 0)
 					break;
 			}
+			cap.release();
 		}
 		
 		void HandleOKCallback(){

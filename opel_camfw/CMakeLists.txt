@@ -1,12 +1,16 @@
-find_package(Threads REQUIRED)
-find_path(OPEL_CAMERAFRAMEWORK_DIR ./)
+cmake_minimum_required(VERSION 2.8)
+include(FindPkgConfig)
 
+find_path(CAMFW_DIR ./)
+set(CAMFW_SRC_DIR ${CAMFW_DIR}/src)
+include_directories(${CAMFW_DIR}/include)
 
-include_directories(${OPEL_CAMERAFRAMEWORK_DIR}/include)
-add_definitions(`pkg-config --libs --cflags dbus-1 glib-2.0 dbus-glib-1` -g `pkg-config --libs --cflags dbus-1 glib-2.0 dbus-glib-1`)
+add_definitions(`pkg-config --libs --cflags dbus-1 glib-2.0 dbus-glib-1 gstreamer-1.0` -g)
 
-add_executable(cam_manager ./src/main.cpp ./src/cam_core.cpp ./src/cam_property.cpp ./src/cam_status.cpp ./src/cam_cap_check.cpp)
-target_link_libraries(cam_manager dbus-1 glib-2.0 dbus-glib-1 ${CMAKE_THREAD_LIBS_INIT})
-set_target_properties(cam_manager
+add_executable(cam_fw ${CAMFW_SRC_DIR}/main.cpp ${CAMFW_SRC_DIR}/OPELgstElement.cpp ${CAMFW_SRC_DIR}/OPELgstElementTx1.cpp ${CAMFW_SRC_DIR}/OPELcamProperty.cpp ${CAMFW_SRC_DIR}/OPELcamRequest.cpp ${CAMFW_SRC_DIR}/OPELcommonUtil.cpp ${CAMFW_SRC_DIR}/OPELglobalRequest.cpp ${CAMFW_SRC_DIR}/OPELrawRequest.cpp ${CAMFW_SRC_DIR}/OPELreplyDBus.cpp ${CAMFW_SRC_DIR}/OPELh264Streaming.cpp)
+	
+target_link_libraries(cam_fw dbus-1 glib-2.0 dbus-glib-1 gstreamer-1.0 gstapp-1.0 gobject-2.0 gmodule-2.0 boost_serialization pthread)
+
+set_target_properties(cam_fw
 		PROPERTIES
 		RUNTIME_OUTPUT_DIRECTORY "../bin")
