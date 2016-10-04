@@ -1,9 +1,9 @@
 var opel_dir = process.env.OPEL_DIR;
-var addon_path = opel_dir+'/node/OPELStreaming';
+var addon_path = opel_dir+'/node/OPELRecording';
 var nil_path = opel_dir+'/node/sysfw/nil';
 var addon = require(addon_path);
 var nil = require(nil_path);
-var streamObj = new addon.OPELStreaming();
+var streamObj = new addon.OPELRecording();
 
 //require('date-utils');
 var count=0;
@@ -13,11 +13,6 @@ var d;
 //dt = new Date();
 //d = dt.toFormat('YYYY-MM-DD HH24:MI:SS');
 
-streamObj.init(function(width, height, buffer_size){ 
-		console.log('width : ', width);
-		console.log('height : ', height);
-		console.log('buffer_size : ', buffer_size);
-		});
 //two API Set 
 
 /*******************************  API MODEL *******************************/
@@ -27,13 +22,13 @@ streamObj.init(function(width, height, buffer_size){
 // streamObj.start(int n, function(err, data); n != 0 : finite Number of Frame n == 0 : Infinite Number of Frame 
 // streamObj.stop(); //aborting
 
-streamObj.start(0/*30Sec*/, function(error, data){
-		if(data == 1){
-			console.log('Streaming Done');
-	//		streamObj.stop();
-			}
-		});
+streamObj.streamingStart("192.168.49.1", 5000);
 
+
+nil.onTermination(function(){
+			console.log('<onTermination Called');
+			streamObj.streamingStop();
+		});
 
 
 /*
@@ -42,8 +37,6 @@ streamObj.start(0, function(error, data){
 			console.log('Streaming Done');		
 		});
 
-
-var repeat = setInterval(function(){
-		streamObj.stop();		
-}, 5000);
 */
+var repeat = setInterval(function(){
+}, 5000);

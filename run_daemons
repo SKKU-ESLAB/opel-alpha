@@ -10,7 +10,7 @@ start_daemons(){
 
 stop_daemons(){
 	pkill -x cam_manager
-	pkill -x node
+	sudo pkill -x node
 	pkill -x sysAppManager
 	sudo pkill -x sensorManager
 	${OPEL_DIR}/bin/p2p_setup.sh stop
