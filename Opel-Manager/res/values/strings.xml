@@ -20,5 +20,22 @@
     <string name="title_other_devices">Other Available Devices</string>
     <string name="button_scan">Scan for devices</string>
 
-
+    <!-- RPi Viewer -->
+    <string name="button_play">Play</string>
+    <string name="button_stop">Stop</string>
+    <string name="IP"> </string>
+    <string name="Port"> </string>
+    <string name="Up"> △ </string>
+    <string name="Right"> ▷ </string>
+    <string name="Left"> ◁ </string>
+    <string name="Down"> ▽ </string>
+    <string name="Center"> □ </string>
+    <string name="LedOn"> On </string>
+    <string name="LedOff">Off</string>
+    <string name="CamUp"> Up </string>
+    <string name="CamDown">Down</string>
+    <string name="IP1">1</string>
+    <string name="IP2">2</string>
+    <string name="IP3">3</string>
+    <string name="Connect">Connect</string>
 </resources>
