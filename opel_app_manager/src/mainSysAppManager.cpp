@@ -3,20 +3,13 @@
 
 #include "mainSysAppManager.h"
 #include "globalData.h"
-#include "deviceManager.h"
-#include "serviceDaemonManager.h"
 #include "appStatusManager.h"
 #include "appPackageManager.h"
 #include "DbusManager.h"
-#include "memoryManager.h"
 #include "commManager.h"
 #include "remoteFileManager.h"
 #include "jsonString.h"
 
-
-deviceManager devManager;
-serviceDaemonManager smManager; //keep tracking pid of running process (service)
-memoryManager memManager;
 appPackageManager apManager;
 appStatusManager asManager; //keep tracking pid of running process (user app)
 DbusManager dbusManager;
