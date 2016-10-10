@@ -35,7 +35,8 @@ requestList *rList;
 
 void nativeInterfaceLayerInit(){
   pid = getpid();
-  rList = (requestList*)malloc(sizeof(requestList));
+//  rList = (requestList*)malloc(sizeof(requestList));
+	rList = new requestList();
   initRequestList(rList);
 }
 
@@ -459,7 +460,6 @@ void sendEventPageWithNoti(const FunctionCallbackInfo<Value>& args) {
     return;				
   }
 
-
   //
   //----------------------------------------------------------------//
 
@@ -478,7 +478,9 @@ void sendEventPageWithNoti(const FunctionCallbackInfo<Value>& args) {
   //				3. Send Message (Request struct) 
   //				Send message with reply or not
   dbus_error_init(&err);
+
   msg = dbus_message_new_signal(SAM_INTERFACE, SAM_PATH, "sendNotiPage");
+
 
   dbus_message_append_args(msg,
       DBUS_TYPE_INT32, &pid,
@@ -488,6 +490,7 @@ void sendEventPageWithNoti(const FunctionCallbackInfo<Value>& args) {
 
   /* Send the signal */
   dbus_connection_send(opelCon, msg, NULL);
+
   dbus_message_unref(msg);
 
   printf("[NIL] SendEventPage to Manager>>  %s\n", jsonData);

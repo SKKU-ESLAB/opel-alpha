@@ -207,13 +207,10 @@ void appPackageRepo::selectAllAppPackage(appPackageList& allApList){
 	
 	stmt = prepareQuery("SELECT * from APPPACKAGE");
 	while(sqlite3_step(stmt) == SQLITE_ROW){
-		printf("1.5\n");
 		appPackage* tmpAp = new appPackage(sqlite3_column_int(stmt, 0), (char*)sqlite3_column_text (stmt, 1)
 										, (char*)sqlite3_column_text(stmt, 2), (char*)sqlite3_column_text(stmt, 3));
-				printf("1.6\n");
 		allApList.insert(tmpAp);
 		delete tmpAp;
-				printf("1.7\n");
 	}
 
 	sqlite3_finalize(stmt);

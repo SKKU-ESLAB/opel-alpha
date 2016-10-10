@@ -31,7 +31,7 @@ void sigchld_handler(int signum){
 	int status;
 	int pid;
 
-	pid = wait(&status);
+//	pid = wait(&status);
 
 	if(pid > 0 && pid != pidOfCameraViewer && pid != pidOfSensorViewer){
 		printf("[Main] SIGCHLD Handler >> Child was killed [User app pid : %d]\n", pid);
