@@ -15,13 +15,9 @@ add_library(miniunz OBJECT ${SRC_DIR}/libz/miniunz.c ${SRC_DIR}/libz/ioapi.c ${S
 add_library(appPackageManager OBJECT ${SRC_DIR}/appPackageManager.cpp)
 add_library(appPackageRepo OBJECT ${SRC_DIR}/appPackageRepo.cpp)
 add_library(appStatusManager OBJECT ${SRC_DIR}/appStatusManager.cpp)
-add_library(deviceManager OBJECT ${SRC_DIR}/deviceManager.cpp)
-add_library(deviceRepo OBJECT ${SRC_DIR}/deviceRepo.cpp)
-add_library(serviceDaemonManager OBJECT ${SRC_DIR}/serviceDaemonManager.cpp)
-add_library(serviceDaemonRepo OBJECT ${SRC_DIR}/serviceDaemonRepo.cpp)
 add_library(repoClass OBJECT ${SRC_DIR}/_repoClass.cpp)
 add_library(DbusManager OBJECT ${SRC_DIR}/DbusManager.cpp)
-add_executable(sysAppManager ${SRC_DIR}/mainSysAppManager $<TARGET_OBJECTS:remoteFileManager> $<TARGET_OBJECTS:globalData> $<TARGET_OBJECTS:jsonString> $<TARGET_OBJECTS:commManager> $<TARGET_OBJECTS:miniunz> $<TARGET_OBJECTS:appPackageManager> $<TARGET_OBJECTS:appPackageRepo> $<TARGET_OBJECTS:appStatusManager> $<TARGET_OBJECTS:deviceManager> $<TARGET_OBJECTS:deviceRepo> $<TARGET_OBJECTS:serviceDaemonManager> $<TARGET_OBJECTS:serviceDaemonRepo> $<TARGET_OBJECTS:repoClass> $<TARGET_OBJECTS:DbusManager>)
+add_executable(sysAppManager ${SRC_DIR}/mainSysAppManager $<TARGET_OBJECTS:remoteFileManager> $<TARGET_OBJECTS:globalData> $<TARGET_OBJECTS:jsonString> $<TARGET_OBJECTS:commManager> $<TARGET_OBJECTS:miniunz> $<TARGET_OBJECTS:appPackageManager> $<TARGET_OBJECTS:appPackageRepo> $<TARGET_OBJECTS:appStatusManager> $<TARGET_OBJECTS:repoClass> $<TARGET_OBJECTS:DbusManager>)
 
 set_target_properties(sysAppManager
 		PROPERTIES
