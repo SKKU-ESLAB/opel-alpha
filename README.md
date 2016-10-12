@@ -26,9 +26,9 @@ For more details, see [Getting Started](https://github.com/sinban04/opel-alpha/w
 * [Getting Started](https://github.com/sinban04/opel-alpha/wiki/Getting-Started)
 
 ## Videos
-* (OPEL Demo Video: Raspberry Pi 2)[https://www.youtube.com/watch?v=6iI4zDDX-YE] (2016.01.14)
-* (OPEL Demo Scenario Video: Smart Guardner)[https://www.youtube.com/watch?v=oYkVgrFMAuc] (2016.01.12)
-* (OPEL Demo Video: Nvidia TX1)[https://www.youtube.com/watch?v=MFXGAeuxfxE] (2016.10.06)
+* [OPEL Demo Video: Raspberry Pi 2](https://www.youtube.com/watch?v=6iI4zDDX-YE) (2016.01.14)
+* [OPEL Demo Scenario Video: Smart Guardner](https://www.youtube.com/watch?v=oYkVgrFMAuc) (2016.01.12)
+* [OPEL Demo Video: Nvidia TX1](https://www.youtube.com/watch?v=MFXGAeuxfxE) (2016.10.06)
 
 ## [License](https://github.com/sinban04/opel-alpha/wiki/License)
 OPEL is open source software under the [Apache 2.0 license](http://www.apache.org/licenses/LICENSE-2.0). Complete license and copyright information can be found within the code.
