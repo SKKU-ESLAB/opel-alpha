@@ -1,3 +1,5 @@
+[![License](https://img.shields.io/badge/licence-Apache%202.0-brightgreen.svg?style=flat)](LICENSE)
+
 # OPEL: Open Platform Event Logger (Alpha Version)
 ## Quick Start
 ### How to Get the Source Code
