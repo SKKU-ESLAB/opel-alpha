@@ -21,282 +21,236 @@ int pidOfSensorViewer;
 
 void sigchld_handler(int signum){
 
-	int status;
-	int pid;
+  int status;
+  int pid;
 
-//	pid = wait(&status);
+  if(pid > 0 && pid != pidOfCameraViewer && pid != pidOfSensorViewer) {
+    // Handle 3rd-party App Termination Event on the main thread of Sys/App Manager
+    printf("[Main] SIGCHLD Handler >> Child was killed [User app pid : %d]\n", pid);
 
-	if(pid > 0 && pid != pidOfCameraViewer && pid != pidOfSensorViewer){
-		printf("[Main] SIGCHLD Handler >> Child was killed [User app pid : %d]\n", pid);
+    //TODO: send D-bus signal to sensor/camera manager
+    //TODO: update killed app info to android
+    char appID[4] = {'\0',};
+    appProcessInfo appProc;
+    if(!appProcessTable::getInstance()->findProcessByAppPid(pid, &appProc)){
+      printf("[sigchld handler] Cannot find the procInfo >> pid : %d\n", pid);
+      return;
+    }
 
-		//[MORE] send D-bus signal to sensor/camera manager
-		//[MORE] update killed app info to android
+    strcpy(appID, appProc.getAppProcId());
 
-		char appID[4] = {'\0',};
-		appProcessInfo appProc;
-		if(  ! appProcessTable::getInstance()->findProcessByAppPid(pid, &appProc)  ){
-			printf("[sigchld handler] Cannot find the procInfo >> pid : %d\n", pid);
-			return ;
-		}
-		
-		strcpy(appID, appProc.getAppProcId());
-
-		asManager.exitApplication(atoi(appID));
-		cm->responseAppExitComplete(appID);
-		//		dbusManager.Sensor_all_request_unregister(pid);
-	}
-
-	else{
-		if(pid == pidOfCameraViewer){
-			printf("[Main] SIGCHLD Handler >> Native Camera Child was killed\n");
-			pidOfCameraViewer = 0;
-		}
-		else if(pid == pidOfSensorViewer){
-			printf("[Main] SIGCHLD Handler >> Native Sensor Child was killed\n");
-			pidOfSensorViewer = 0;
-		}
-	}
-
+    asManager.exitApplication(atoi(appID));
+    cm->responseAppExitComplete(appID);
+  } else {
+    // Handle Built-in App Termination Event on the main thread of Sys/App Manager
+    // ex. camera viewer, sensor viewer
+    if(pid == pidOfCameraViewer){
+      printf("[Main] SIGCHLD Handler >> Native Camera Child was killed\n");
+      pidOfCameraViewer = 0;
+    }
+    else if(pid == pidOfSensorViewer){
+      printf("[Main] SIGCHLD Handler >> Native Sensor Child was killed\n");
+      pidOfSensorViewer = 0;
+    }
+  }
 }
 
 
 
 int main(){
+  // Spawn sigchld handler
+  signal(SIGCHLD, sigchld_handler);
+  char rsBuf[512] = {'/0',};
 
-	signal(SIGCHLD, sigchld_handler);
-	char rsBuf[512] = {'/0',};
-	
-	cm = comManager::getInstance();
-	appProcessTable* appProcList = appProcessTable::getInstance();
+  cm = comManager::getInstance();
+  appProcessTable* appProcList = appProcessTable::getInstance();
 
-	while(1){
-		char rcvMsg[MSGBUFSIZE] = {'\0',};
+  // Main Loop
+  while(1){
+    char rcvMsg[MSGBUFSIZE] = {'\0',};
+    // Get message from communication framework
+    ssize_t numBytesRcvd = cm->getMsg(rcvMsg);
 
-		ssize_t numBytesRcvd = cm->getMsg(rcvMsg);
+    if (numBytesRcvd == 0 || numBytesRcvd < 0){
+      printf("peer connection closed, accept again\n");
+      cm->closeConnection();
+      cm->makeConnection();
+      continue;
+    }
 
-		if (numBytesRcvd == 0 || numBytesRcvd < 0){
-			printf("peer connection closed, accept again\n");
-			cm->closeConnection();
-			cm->makeConnection();
-			continue;
-		}
-
-		printf("Received Msg : %s\n", rcvMsg);
-		jsonString js(rcvMsg);		
+    printf("Received Msg : %s\n", rcvMsg);
+    jsonString js(rcvMsg);		
 
     char msgType[1024];
     strncpy(msgType, js.findValue("type").c_str(), 1024);
-//		char* msgType = js.findValue("type");	
 
-		if (!strcmp(msgType,INSTALLPKG)){
-			char pkgFileName[MSGBUFSIZE] = {0,};
+    // Filter Message Types
+    if (!strcmp(msgType,INSTALLPKG)){
+      // Intall App Package
+      printf("[MAIN] Request >> Install Package\n");
+      char pkgFileName[MSGBUFSIZE] = {0,};
 
-			if(!(cm->HandleInstallPkg(pkgFileName)))
-				continue;
+      if(!(cm->HandleInstallPkg(pkgFileName)))
+        continue;
 
-			jsonString ret_js = apManager.installPackage(pkgFileName);	
-			
-			if ( &ret_js != NULL){		
-				
-				char pkgFileName[1024] = {'\0',};
-				strncpy(pkgFileName, js.findValue("pkgFileName").c_str(), 1024);				
-				ret_js.addItem("pkgFileName", pkgFileName);
-				
-				cm->responsePkgInstallComplete(ret_js);	
-			}
-		}
+      jsonString ret_js = apManager.installPackage(pkgFileName);	
 
-		else if(!strcmp(msgType, EXEAPP)){
-			printf("[MAIN] Request >> EXE App\n");
+      if ( &ret_js != NULL){		
 
-			char appID[16]={'\0',};
-			strncpy(appID, js.findValue("appID").c_str(), 16);
+        char pkgFileName[1024] = {'\0',};
+        strncpy(pkgFileName, js.findValue("pkgFileName").c_str(), 1024);				
+        ret_js.addItem("pkgFileName", pkgFileName);
 
-			if( !appProcList->isExistOnRunningTableByAppID( atoi(appID) ) ){
- 
-				char* runPath = apManager.getRunningPath(appID);
-				char* dirPath = apManager.getAppDirPath(appID);	
+        cm->responsePkgInstallComplete(ret_js);	
+      }
+    } else if(!strcmp(msgType, EXEAPP)){
+      // Execute App
+      printf("[MAIN] Request >> Execute App\n");
 
-				js.addItem("dirPath",dirPath);
+      char appID[16]={'\0',};
+      strncpy(appID, js.findValue("appID").c_str(), 16);
 
-				printf("[MAIN] run app runpath : %s, dir path : %s\n", runPath, dirPath);
+      // Check if the app exists in running table
+      if(!appProcList->isExistOnRunningTableByAppID(atoi(appID))){
+        char* runPath = apManager.getRunningPath(appID);
+        char* dirPath = apManager.getAppDirPath(appID);	
 
-				if ( asManager.runNewApplication(js, runPath) ){
+        js.addItem("dirPath",dirPath);
+        printf("[MAIN] run app runpath : %s, dir path : %s\n", runPath, dirPath);
 
-					cm->responseAppRunComplete(js);
-				}
+        if( asManager.runNewApplication(js, runPath)){
+          cm->responseAppRunComplete(js);
+        }
+        delete runPath;
+        delete dirPath;
+      } else {
+        printf("[MAIN] appID : %s is already running\n", appID );
+      }
+    } else if(!strcmp(msgType,KILLAPP)){
+      // Kill App
+      printf("[MAIN] Request >> KILL App\n");
 
-				//pid_t pid = HandleExecuteApp(clnt_sock); 
+      if(appProcList->isExistOnRunningTableByAppID(atoi(js.findValue("appID").c_str()))){
 
-				delete runPath;
-				delete dirPath;
-				
-			}
-			else{
-				printf("[MAIN] appID : %s is already running\n", appID );
-			}
-		}
+        if(dbusManager.makeTerminationEvent(js)){
 
-		else if(!strcmp(msgType,KILLAPP)){
-			printf("[MAIN] Request >> KILL App\n");
+        }
+      }
+      else{
+        printf("[MAIN] appID : %s is already dead\n", js.findValue("appID").c_str());
+      }
+    } else if(!strcmp(msgType,UPDATEAPPINFO)){
+      // Update App Information
+      printf("[MAIN] Request >> Update App Infomation\n");
 
-			if( appProcList->isExistOnRunningTableByAppID( atoi(js.findValue("appID").c_str()) )){
+      vector<appPackage*> *apList = apManager.getAppList()->getListVector();
+      vector<appPackage*>::iterator apIter;
 
-				if ( dbusManager.makeTerminationEvent(js) ){
+      jsonString js;
+      js.addType(UPDATEAPPINFO);
 
-				}
-			}
-			else{
-				printf("[MAIN] appID : %s is already dead\n", js.findValue("appID").c_str() );
-			}
+      for(apIter = apList->begin(); apIter != apList->end(); ++apIter ){
+        int appID_ = (*apIter)->getApID();
+        char appID[16]= {'\0',};
+        sprintf(appID, "%d", appID_);
 
-		}
+        char appName[fileNameLength]= {'\0',};
+        strcpy(appName, (*apIter)->getApName());
 
-		else if(!strcmp(msgType,UPDATEAPPINFO)){
-			printf("[MAIN] Request >> Update App Infomation\n");
+        if(appProcList->isExistOnRunningTableByAppID(appID_)){
+          strcat(appID, "/1");
+        } else { 
+          strcat(appID, "/0");
+        }
+        js.addItem(appID, appName);
+      }	
 
-			vector<appPackage*> *apList = apManager.getAppList()->getListVector();
-			vector<appPackage*>::iterator apIter;
+      char addr[64] = {0,};  
+      if (cm->getIpAddress("wlan0", addr) > 0) {  
+        printf("[CommManager] get IP(wlan0) : %s\n", addr);  
+      } else if (cm->getIpAddress("eth0", addr) > 0) {  
+        printf("[CommManager] get IP(eth0) : %s\n", addr);
+      }  
+      js.addItem("IP_ADDR__a", addr);
 
-			jsonString js;
-			js.addType(UPDATEAPPINFO);
+      cm->responseUpdatePkgList(js.getJsonData().c_str());
+    } else if(!strcmp(msgType,CONFIG_EVENT)){
+      // Config Setting Event
+      printf("[MAIN] Request >> Config Setting Event\n");
 
-			for(apIter = apList->begin(); apIter != apList->end(); ++apIter ){
+      // Check if the app exists in running table
+      if(appProcList->isExistOnRunningTableByAppID(atoi(js.findValue("appID").c_str()))){
+        if (dbusManager.makeConfigEvent(js)){
+          // TODO: handle config event's return value
+        }
+      } else {
+        printf("[MAIN] appID : %s is already dead\n", js.findValue("appID").c_str() );
+      }
+    } else if(!strcmp(msgType,RUN_NATIVE_CAMERAVIEWER)) {
+      // Run native camera viwer app
+      if(pidOfCameraViewer == 0){
+        while(false == cm->wfdOn()){
+          sleep(1);
+        }
+        pidOfCameraViewer = asManager.runNativeJSApp(1); 
+      }
+    } else if(!strcmp(msgType,RUN_NATIVE_SENSORVIEWER)) {
+      // Run native sensor viewer app
+      pidOfSensorViewer = asManager.runNativeJSApp(2);	
+    } else if(!strcmp(msgType, TERM_NATIVE_CAMERAVIEWER)){
+      // Terminate native camera viewer app
+      if(pidOfCameraViewer != 0){
+        kill(pidOfCameraViewer, SIGKILL);
+        dbusManager.sendTerminationToCameraManager();
+      }
+    } else if(!strcmp(msgType, TERM_NATIVE_SENSORVIEWER)){
+      // Terminate native sensor viewer app
+      if(pidOfSensorViewer != 0){
+        kill(pidOfSensorViewer, SIGKILL);
+      }
+    } else if(!strcmp(msgType,ANDROID_TERMINATE)){
+      // Terminate Android OPEL Manager
+      printf("Android activity backed or pause\n");
+      cm->closeConnection();
+      cm->makeConnection();
+      continue;
+    } else if(!strcmp(msgType,DELETEAPP)){
+      // Delete app
+      printf("[MAIN] Request >> DELETE App\n");
 
-				int appID_ = (*apIter)->getApID();
+      char appID[16]={'\0',};
+      strcpy(appID, js.findValue("appID").c_str());
 
-				char appID[16]= {'\0',};
-				sprintf(appID, "%d", appID_);
+      if(!appProcList->isExistOnRunningTableByAppID(atoi(appID))) {
+        //Delete whole of the file and update DB
+        if(apManager.deletePackage(atoi(appID))) {	
+          //jsonString ret_js;
+          //ret_js.addType(DELETEAPP);
+          //ret_js.addItem("appID", appID);
 
-				char appName[fileNameLength]= {'\0',};
-				strcpy( appName, (*apIter)->getApName() );
+          cm->responsePkgUninstallComplete(js);
+        } else {
+          printf("[MAIN] appID : %s fail to delete\n", appID );				 	
+        }
+      } else {
+        printf("[MAIN] appID : %s is running, Cannot remove this app\n", appID );
+      }		
+    } else if(!strcmp(msgType,RemoteFileManager_getListOfCurPath)){
+      // Get list of current paths
+      char path[1024] = {'\0',};
+      strcpy(path, js.findValue("path").c_str());
 
-				if(appProcList->isExistOnRunningTableByAppID(appID_)){
-					strcat(appID, "/1");
+      jsonString sendJp;
+      sendJp.addType(RemoteFileManager_getListOfCurPath);
+      rfm.seekDir(path,&sendJp);
 
-				}
-
-				else{
-					strcat(appID, "/0");
-
-				}
-
-				js.addItem(appID, appName);
-
-			}	
-
-			char addr[64] = {0,};  
-  
-			if (cm->getIpAddress("wlan0", addr) > 0) {  
-			        printf("[CommManager] get IP(wlan0) : %s\n", addr);  
-  			}  			
-
-			else if (cm->getIpAddress("eth0", addr) > 0) {  
-			        printf("[CommManager] get IP(eth0) : %s\n", addr);
-  			}  
-			js.addItem("IP_ADDR__a", addr);
-
-			cm->responseUpdatePkgList(js.getJsonData().c_str());
-		}
-
-
-		else if(!strcmp(msgType,CONFIG_EVENT)){
-			printf("[MAIN] Request >> Config Setting Event\n");
-
-			if( appProcList->isExistOnRunningTableByAppID( atoi(js.findValue("appID").c_str()) )){
-
-				if ( dbusManager.makeConfigEvent(js) ){
-					
-				}
-			}
-			else{
-				printf("[MAIN] appID : %s is already dead\n", js.findValue("appID").c_str() );
-			}
-		}
-
-		else if(!strcmp(msgType,RUN_NATIVE_CAMERAVIEWER)){
-			if(pidOfCameraViewer == 0){
-				while(false == cm->wfdOn()){
-					sleep(1);
-				}
-				pidOfCameraViewer = asManager.runNativeJSApp(1); 
-
-			}
-		}
-
-		else if(!strcmp(msgType,RUN_NATIVE_SENSORVIEWER)){
-			pidOfSensorViewer = asManager.runNativeJSApp(2);	
-		}
-		
-		else if(!strcmp(msgType, TERM_NATIVE_CAMERAVIEWER)){
-			if(pidOfCameraViewer != 0){
-				kill(pidOfCameraViewer, SIGKILL);
-				dbusManager.sendTerminationToCameraManager();
-			}
-		}
-
-		else if(!strcmp(msgType, TERM_NATIVE_SENSORVIEWER)){
-			if(pidOfSensorViewer != 0){
-				kill(pidOfSensorViewer, SIGKILL);
-		
-			}
-		}
-		
-		else if(!strcmp(msgType,ANDROID_TERMINATE)){
-			printf("Android activity backed or pause\n");
-			cm->closeConnection();
-			cm->makeConnection();
-			continue;
-		}
-
-		else if(!strcmp(msgType,DELETEAPP)){
-			printf("[MAIN] Request >> DELETE App\n");
-
-			char appID[16]={'\0',};
-			strcpy(appID, js.findValue("appID").c_str());
-
-			
-			if( !appProcList->isExistOnRunningTableByAppID( atoi(appID) ) ){
-				 //Delete whole of the file and update DB
-				 if(apManager.deletePackage(atoi(appID))){	
-					//jsonString ret_js;
-					//ret_js.addType(DELETEAPP);
-					//ret_js.addItem("appID", appID);
-					
-					cm->responsePkgUninstallComplete(js);
-				 }
-				 else{
-					printf("[MAIN] appID : %s fail to delete\n", appID );				 	
-				 }
-			}
-			else{
-				printf("[MAIN] appID : %s is running, Cannot remove this app\n", appID );
-			}		
-		}
-
-
-		else if(!strcmp(msgType,RemoteFileManager_getListOfCurPath)){
-
-			char path[1024] = {'\0',};
-			strcpy(path, js.findValue("path").c_str());
-
-			jsonString sendJp;
-			sendJp.addType(RemoteFileManager_getListOfCurPath);
-			rfm.seekDir(path,&sendJp);
-
-			cm->responseUpdateFileManager(sendJp);	
-
-
-		}
-		
-		else if(!strcmp(msgType,RemoteFileManager_requestFile)){
-
-			cm->responseRequestFilefromFileManager(js);
-		}
-
-		else{
-			printf("[MAIN] error_not define msg : %s\n", msgType);
-		}
-	}	
+      cm->responseUpdateFileManager(sendJp);	
+    } else if(!strcmp(msgType,RemoteFileManager_requestFile)){
+      // Request a file from remote file manager
+      cm->responseRequestFilefromFileManager(js);
+    } else {
+      printf("[MAIN] error_not define msg : %s\n", msgType);
+    }
+  }	
 }
 

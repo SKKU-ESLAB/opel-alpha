@@ -11,7 +11,7 @@
 
 class jsonString{
 private:
-		char jsonData[1024]; // [MORE] change 1024 -> BUFSIZE
+		char jsonData[1024]; // TODO: change 1024 -> BUFSIZE (defined in comManager)
 
 public:
 	jsonString();
