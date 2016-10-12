@@ -26,7 +26,7 @@ For more details, see [Getting Started](https://github.com/sinban04/opel-alpha/w
 * [Getting Started]
 
 ## [License](https://github.com/sinban04/opel-alpha/wiki/License)
-OPEL is open source software under the Apache 2.0 license. Complete license and copyright information can be found within the code.
+OPEL is open source software under the [Apache 2.0 license](http://www.apache.org/licenses/LICENSE-2.0). Complete license and copyright information can be found within the code.
 
 Copyright 2015-2016 CISS, and contributors.
 
