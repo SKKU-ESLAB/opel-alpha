@@ -56,6 +56,15 @@ def log(message):
     return
 
 ############################## EDIT HERE!!! ##############################
+def initialize_ipcrm():
+    run_command("ipcrm -M 9447")
+    run_command("ipcrm -M 5315")
+    run_command("ipcrm -M 4941")
+    run_command("ipcrm -S 49411")
+    run_command("ipcrm -S 49441")
+    run_command("ipcrm -M 4944")
+    run_command("ipcrm -S 9948")
+    return
 
 # on_did_initialize: (event handler) initialization process is completed
 # initialization process includes setting options and signal handlers.
@@ -65,7 +74,7 @@ def on_did_initialize():
     # Execute prerequisites on system server
     os.environ['OPEL_DIR'] = opelDir;
     run_command("hciconfig hci0 piscan")
-    run_command("./ipcrm.sh")
+    initialize_ipcrm()
     run_command("./deletesem")
 
     # Execute daemons
