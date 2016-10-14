@@ -38,12 +38,16 @@ def run_command(command, baseDir=opelDir):
     os.system(command)
     return
 
-def run_on_daemon(command, name, uid, gid, baseDir=opelDir):
+def run_on_daemon(command, name, uid=0, gid=0, baseDir=opelDir):
     # Run a command on child daemon process
     pid = os.fork()
     if pid:
         log("{} process is executed (pid {})".format(name, pid))
     else:
+        # Set uid & gid
+        os.setuid(uid)
+        os.setgid(uid)
+
         # Change directory
         os.chdir(baseDir)
 
@@ -79,12 +83,12 @@ def on_did_initialize():
 
     # Execute daemons
     run_on_daemon(command=["./sysAppManager"],
-            name="App/Sys Manager Daemon", uid=0, gid=0,
+            name="App/Sys Manager Daemon",
             baseDir="./appManager")
     run_on_daemon(command=["./cam_fw"],
-            name="Camera Framework Daemon", uid=0, gid=0)
+            name="Camera Framework Daemon")
     run_on_daemon(command=["./sensorManager"],
-            name="Sensor Manager Daemon", uid=0, gid=0)
+            name="Sensor Manager Daemon")
     return
 
 # on_did_halt_by_user: (event handler) user killed OPEL manager manually
