@@ -1,0 +1,3 @@
+#!/bin/bash
+OPEL_PYTHON3=`which python3`
+${OPEL_PYTHON3} ./bin/opel.py

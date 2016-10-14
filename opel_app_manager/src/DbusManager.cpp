@@ -285,7 +285,7 @@ static DBusHandlerResult rcvFaceRecognition(DBusConnection *connection, DBusMess
 	return DBUS_HANDLER_RESULT_HANDLED;
 }
 
-static DBusHandlerResult dbus_respone(DBusConnection *connection, DBusMessage *message, void *user_data)
+static DBusHandlerResult dbus_response(DBusConnection *connection, DBusMessage *message, void *user_data)
 {	
 
 
@@ -500,7 +500,7 @@ void *DbusManager::initDbus(void* data){
 	dbus_bus_add_match(connection, "type='signal',interface='org.opel.sysAppManager'", NULL);  
 	dbus_connection_flush(connection);
 	printf("[DbusManager] DBUS Respose ready\n");
-	dbus_connection_add_filter(connection, dbus_respone, loop, NULL); 
+	dbus_connection_add_filter(connection, dbus_response, loop, NULL); 
 
 
 	dbus_connection_setup_with_g_main(connection, NULL);

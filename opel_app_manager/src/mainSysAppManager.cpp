@@ -268,8 +268,10 @@ int main() {
 
   // Main Loop
   while (1) {
-    char rcvMsg[MSGBUFSIZE] = {'\0', };
     // Get message from communication framework
+    // TODO(redcarrottt): This part should be replaced with glib main loop.
+    // TODO(redcarrottt): Communication framework will be out of process.
+    char rcvMsg[MSGBUFSIZE] = {'\0', };
     ssize_t numBytesRcvd = cm->getMsg(rcvMsg);
 
     if (numBytesRcvd == 0 || numBytesRcvd < 0) {
