@@ -3,7 +3,6 @@ console.log('Code start!');
 var sensorManager = require("./build/Release/nil");
 
 
-
 sensorManager.On("SOUND", "PERIODIC", 1000, function(sound){
 		console.log("callback came");
 		var value = sound.SOUND;
@@ -17,6 +16,7 @@ sensorManager.On("SOUND", "PERIODIC", 1000, function(sound){
 
 setInterval(function(){
 },1000);
+
 
 /*
 sensorManager.On("SOUND", "PERIODIC", 1000, function(sound){

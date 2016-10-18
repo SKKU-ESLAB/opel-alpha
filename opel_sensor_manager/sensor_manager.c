@@ -122,25 +122,20 @@ void sendSensorData(sensorList* sl){
 	char* sensor_value = sl->sensor_data_ori;
 	DBusMessage *message;
 
-
 	message = dbus_message_new_signal(getPath(sl), getInterface(sl), SEND_SENSOR_DATA);
   if(message == NULL){
 			printf("making new signal failed\n");
 	}
-
-
-	dbus_message_append_args(message,
+  dbus_message_append_args(message,
 		DBUS_TYPE_INT32, &(rq_num),
 		DBUS_TYPE_STRING, &(sensor_value),
 		DBUS_TYPE_STRING, &(sl->dev->valueType),
 		DBUS_TYPE_STRING, &(sl->dev->valueName),
 		DBUS_TYPE_INVALID);
 
-
 	/* Send the signal */
 	dbus_connection_send(connection, message, NULL);   
 	dbus_message_unref(message);
-
 
 	//printf("[SM] Send Sensor data to %s, rq_num[%d]\n", getInterface(sl), rq_num);
 }

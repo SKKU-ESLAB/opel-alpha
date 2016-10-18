@@ -120,6 +120,7 @@ int parsingToArgv(requestList* rl, char* in_value, char* in_value_type,
 		}
 	}
 
+
   Local<Value> argv[] = {
 			obj
 	};
@@ -138,6 +139,7 @@ int parsingToArgv(requestList* rl, char* in_value, char* in_value_type,
 
 	return 0;
 }
+
 void parsingToReturn(const FunctionCallbackInfo<Value>& args, char* in_value, 
                                   char* in_value_type, char* in_value_name){
 	//Make return value
@@ -192,6 +194,7 @@ void parsingToReturn(const FunctionCallbackInfo<Value>& args, char* in_value,
 // Handler function for dbus message
 // 1. On (Periodic)
 // 2. On (Notify)
+
 DBusHandlerResult sensorGetRepeatedly(DBusConnection *connection, 
                           DBusMessage *message, void *iface_user_data){
 	Isolate *isolate = Isolate::GetCurrent();
@@ -228,6 +231,7 @@ DBusHandlerResult sensorGetRepeatedly(DBusConnection *connection,
 	
 	return DBUS_HANDLER_RESULT_HANDLED;
 }
+
 DBusHandlerResult sensorEventNotify(DBusConnection *connection, 
                         DBusMessage *message, void *iface_user_data){
   Isolate *isolate = Isolate::GetCurrent();
@@ -312,6 +316,7 @@ void On(const FunctionCallbackInfo<Value>& args) {
 	
 	wait_delay(); //Perform wait.
 
+	printf("start On function\n");
 	/*
 	Receive Args
 	1. sensor name
@@ -394,8 +399,7 @@ void On(const FunctionCallbackInfo<Value>& args) {
 
 	Local<Function> cb = Local<Function>::Cast(args[3]);
   rl->callback.Reset(isolate, cb);	
-	
-		
+
 	rl->type = SENSOR_REQUEST;
 	
 	pid = (unsigned int)getpid();
@@ -403,8 +407,6 @@ void On(const FunctionCallbackInfo<Value>& args) {
 	//
 	//----------------------------------------------------------------//
 	
-
-
 	//----------------------------------------------------------------//
 	//				3. Send Message (Request struct) 
 	//				Send message with reply or not
@@ -471,6 +473,7 @@ void Get(const FunctionCallbackInfo<Value>& args) {
 		isolate->ThrowException(Exception::TypeError(
 								String::NewFromUtf8(isolate,"This sensor is not supported!")));
 		return ;
+
 	}
 	//
 	//----------------------------------------------------------------//
@@ -514,8 +517,6 @@ void Get(const FunctionCallbackInfo<Value>& args) {
 		printf("Error : %s\n", error.message);
 	}
 	dbus_error_free(&error);
-
-
 	dbus_message_unref(msg);
 	//
 	//----------------------------------------------------------------//
@@ -535,6 +536,7 @@ void Get(const FunctionCallbackInfo<Value>& args) {
 	//----------------------------------------------------------------//
 
 	return parsingToReturn(args, sensorValue, valueType, valueName);
+
 	//Refer this : 
   // http://luismreis.github.io/node-bindings-guide/docs/returning.html
 	//About return value from Native to Java	
@@ -598,9 +600,10 @@ void Update(const FunctionCallbackInfo<Value>& args){
 		!(args[3]->IsFunction() || args[3]->IsNull()) ) {
 		isolate->ThrowException(Exception::TypeError(
 								String::NewFromUtf8(isolate, 
-                "Invalid Use : 4 arguments expected 
-                [Request ID, Handling Type[or NULL], Interval[or NULL], 
+                "Invalid Use : 4 arguments expected  \ 
+                [Request ID, Handling Type[or NULL], Interval[or NULL],  \
                 Function[or NULL]]")));
+
 		return ;
 	}
 	//
@@ -702,6 +705,7 @@ void Unregister(const FunctionCallbackInfo<Value>& args){
 		isolate->ThrowException(Exception::TypeError(
 		        String::NewFromUtf8(isolate, 
             "Invalid Use : 1 arguments expected [Request ID]")));
+
 		return ;
 	}
 	//
@@ -861,6 +865,7 @@ void init(Handle<Object> exports) {
   NODE_SET_METHOD(exports, "EventUnregister", Unregister);
   NODE_SET_METHOD(exports, "GetSensorList", GetSensorList); 
  
+
 /*	
 	exports->Set(String::NewFromUtf8(isolate, "Get"),
 			FunctionTemplate::New(isolate, Get)->GetFunction());
