@@ -14,7 +14,7 @@
 using namespace v8;
 //using namespace node;
 
-//------------------------- Sensor Manager define value ----------------------------//
+//------------------- Sensor Manager define value ----------------------------//
 //
 #define DEBUG_MODE	0
 
@@ -30,7 +30,7 @@ using namespace v8;
 
 
 //
-//----------------------------------------------------------------------------------//
+//------------------------------------------------------------------------//
 
 
 
@@ -38,7 +38,7 @@ using namespace v8;
 #ifndef __NATIVE_INTERFACE_LAYER_H__
 #define __NATIVE_INTERFACE_LAYER_H__
 
-//------------------------------------------------------------------------------------//
+//-------------------------------------------------------------------------//
 //								 Sensor Manager Structure                            //
 #define MAX_REQUEST 20
 
@@ -71,7 +71,7 @@ static char nilInterface[100];
 static int SENSOR_NUM;
 static char** SUPPORT_LIST;
 //
-//------------------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 
 
@@ -92,5 +92,7 @@ int countRequest(requestList *rList);
 int deleteRequest(requestList *rList, int rq_num);
 requestList * newRequest(requestList *rList);
 requestList * getRequest(requestList *rList, int rq_num);
-DBusHandlerResult sensorGetRepeatedly(DBusConnection *connection, DBusMessage *message, void *iface_user_data);
-DBusHandlerResult sensorEventNotify(DBusConnection *connection, DBusMessage *message, void *iface_user_data);
+DBusHandlerResult sensorGetRepeatedly(DBusConnection *connection, 
+                      DBusMessage *message, void *iface_user_data);
+DBusHandlerResult sensorEventNotify(DBusConnection *connection, 
+                      DBusMessage *message, void *iface_user_data);
