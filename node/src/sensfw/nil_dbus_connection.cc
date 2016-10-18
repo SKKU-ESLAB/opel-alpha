@@ -137,7 +137,8 @@ add_timeout(DBusTimeout *timeout, void *data) {
 	timer->data = timeout;
 	uv_timer_init(uv_default_loop(), timer);
 	uv_timer_start(timer, timeout_cb, dbus_timeout_get_interval(timeout), 0);
-	//int uv_timer_start(uv_timer_t* handle, uv_timer_cb cb, uint64_t timeout, uint64_t repeat)
+	//int uv_timer_start(uv_timer_t* handle, uv_timer_cb cb, 
+  //                        uint64_t timeout, uint64_t repeat)
 
 	dbus_timeout_set_data(timeout, (void *)timer, handle_timeout_freed);
 	return true;

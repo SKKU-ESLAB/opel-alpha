@@ -75,8 +75,9 @@ static char* ACC_get(void *data)
 static const struct device_ops ACC_device_ops = {
 	.name = "ACC",
 	.valueType = "INT INT INT",
-	.valueName = "X Y Z" ,//If the number of value is 1, no need to write the name of value
-	.start = ACC_start,
+	  //If the number of value is 1, no need to write the name of value
+	.valueName = "X Y Z" ,
+  .start = ACC_start,
 	.stop = ACC_stop,
 	.get = ACC_get
 };

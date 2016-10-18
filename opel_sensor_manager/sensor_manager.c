@@ -122,26 +122,21 @@ void sendSensorData(sensorList* sl){
 	char* sensor_value = sl->sensor_data_ori;
 	DBusMessage *message;
 
-	printf("make new signal\n");
 	message = dbus_message_new_signal(getPath(sl), getInterface(sl), SEND_SENSOR_DATA);
   if(message == NULL){
 			printf("making new signal failed\n");
 	}
-	printf("Append arguments\n");
-
-	dbus_message_append_args(message,
+  dbus_message_append_args(message,
 		DBUS_TYPE_INT32, &(rq_num),
 		DBUS_TYPE_STRING, &(sensor_value),
 		DBUS_TYPE_STRING, &(sl->dev->valueType),
 		DBUS_TYPE_STRING, &(sl->dev->valueName),
 		DBUS_TYPE_INVALID);
 
-	printf("Send the signal\n");
 	/* Send the signal */
 	dbus_connection_send(connection, message, NULL);   
 	dbus_message_unref(message);
 
-	printf("Function end\n");
 	//printf("[SM] Send Sensor data to %s, rq_num[%d]\n", getInterface(sl), rq_num);
 }
 void sendSensorNotify(sensorList* sl){
@@ -507,12 +502,14 @@ void initDbus(){
 		dbus_error_free(&error);
 	}
 
-	retval = dbus_bus_request_name(connection, OPEL_BUS_NAME, DBUS_NAME_FLAG_ALLOW_REPLACEMENT, &error);
+	retval = dbus_bus_request_name(connection, 
+                    OPEL_BUS_NAME, DBUS_NAME_FLAG_ALLOW_REPLACEMENT, &error);
 	dbus_connection_flush(connection);
 
 	switch (retval) {
 		case -1: {
-			printf("Couldn't acquire name %s for connection: %s\n", OPEL_BUS_NAME, error.message);
+			printf("Couldn't acquire name %s for connection: %s\n", 
+                  OPEL_BUS_NAME, error.message);
 			dbus_error_free(&error);
 			break;
 		}
@@ -532,14 +529,17 @@ void initDbus(){
 			printf("Unknown result = %d\n", retval);
 	}
 	
-	dbus_bus_add_match(connection, "type='signal',interface='org.opel.sensorManager'", NULL);  //Dbus ?„ì¹˜ ?¤ì •
-	dbus_connection_add_filter(connection, dbus_respone, loop, NULL); //signal filter?¤ì •
+	dbus_bus_add_match(connection, 
+        "type='signal',interface='org.opel.sensorManager'", NULL);
+
+	// signal filter
+  dbus_connection_add_filter(connection, dbus_respone, loop, NULL);
 
 	dbus_connection_setup_with_g_main(connection, NULL);
 	g_main_loop_run(loop); // loop ?œìž‘
 	printf("dbus loop end... \n");
-	//                                                                                                                                                                //
-	//--------------------------------------------------------------------------------//
+	//
+	//-------------------------------------------------------------------------//
 
 }
 

@@ -68,7 +68,10 @@ var repeat = setInterval(function(){
 			var vib = sensorManager.Get("VIBRATION");
 			var tmp = sensorManager.Get("TEMP");
 			
-			var str = "{\"Touch\":\""+tch.TOUCH+"\",\"Accelerometer\":\""+acc.Z+"\",\"Motion\":\""+mot.MOTION+"\",\"Sound\":\""+snd.SOUND+"\",\"Light\":\""+lit.LIGHT+"\",\"Vibration\":\""+vib.VIBRATION+"\",\"Temperature\":\""+tmp.TEMP+"\"}";
+			var str = "{\"Touch\":\""+tch.TOUCH+"\",\"Accelerometer\":\""+acc.Z+  \
+"\",\"Motion\":\""+mot.MOTION+"\",\"Sound\":\""+snd.SOUND+"\",\"Light\":\""+  \
+lit.LIGHT+"\",\"Vibration\":\""+vib.VIBRATION+"\",\"Temperature\":\""+  \
+tmp.TEMP+"\"}";
 			comm.SendMsg(str);
 			console.log("Sent\n");
 
