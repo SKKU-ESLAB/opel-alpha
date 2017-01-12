@@ -75,14 +75,11 @@ int parsingString(char* string, char* value){
 int parsingToArgv(requestList* rl, char* in_value, char* in_value_type,
                                   char* in_value_name){
 	//Make callback arguments
-	
-	/*  nodejs 4.0.0   */
-	Isolate* isolate = Isolate::GetCurrent();
-  HandleScope scope(isolate);
-	v8::Local<Object> obj = Object::New(isolate);
-	TryCatch try_catch(isolate);
+  v8::Local<Object> obj = Object::New();
+  HandleScope scope;
+	TryCatch try_catch;
 
-	char value[MAX_STRING_LENTGH];
+  char value[MAX_STRING_LENTGH];
 	char type[MAX_STRING_LENTGH];
 	char name[MAX_STRING_LENTGH];
 
@@ -104,49 +101,39 @@ int parsingToArgv(requestList* rl, char* in_value, char* in_value_type,
 		parsingString(name, name_temp);
 
 		if (!strcmp(type_temp, "FLOAT")){
-			obj->Set(String::NewFromUtf8(isolate, name_temp), 
-      Number::New(isolate, atof(value_temp)));
+			obj->Set(String::NewSymbol(name_temp), 
+      Number::New(atof(value_temp)));
 		}
 		else if (!strcmp(type_temp, "INT")){
-			obj->Set(String::NewFromUtf8(isolate, name_temp), 
-      Integer::New(isolate, atoi(value_temp)));
+			obj->Set(String::NewSymbol(name_temp), 
+      Integer::New(atoi(value_temp)));
 		}
 		else if (!strcmp(type_temp, "STRING")){
-			obj->Set(String::NewFromUtf8(isolate, name_temp), 
-      String::NewFromUtf8(isolate, value_temp));
+			obj->Set(String::NewSymbol(name_temp), 
+      String::NewSymbol(value_temp));
 		}
 		else{
 			printf("Error : not supported data type %s\n", type_temp);
 		}
 	}
 
-
-  Local<Value> argv[] = {
+  Handle<Value> argv[] = {
 			obj
 	};
 
-  Local<Function> cb = Local<Function>::New(isolate, rl->callback);
-	cb->Call(isolate->GetCurrentContext()->Global(), 1, argv);
-
-	
-	//rl->callback.Call(isolate->GetCurrentContext()->Global(), 1, argv);
-	if (try_catch.HasCaught()) {
-			//node::FatalException(try_catch);
-    Local<Value> exception = try_catch.Exception();
-		String::Utf8Value exception_str(exception);
-		printf("Exception: %s\n", *exception_str);
+  rl->callback->Call(Context::GetCurrent()->Global(), 1, argv);
+  if (try_catch.HasCaught()) {
+    node::FatalException(try_catch);
 	}
 
 	return 0;
 }
 
-void parsingToReturn(const FunctionCallbackInfo<Value>& args, char* in_value, 
-                                  char* in_value_type, char* in_value_name){
-	//Make return value
-	
-  Isolate* isolate = Isolate::GetCurrent(); 
-	v8::Local<Object> obj = Object::New(isolate);
-	HandleScope scope(isolate);
+Handle<Value> parsingToReturn(char* in_value, char* in_value_type, 
+                          char* in_value_name){
+  //Make return value
+	v8::Local<Object> obj = Object::New();
+	HandleScope scope;
 	TryCatch try_catch;
 
 	char value[MAX_STRING_LENTGH];
@@ -171,24 +158,24 @@ void parsingToReturn(const FunctionCallbackInfo<Value>& args, char* in_value,
 		parsingString(name, name_temp);
 
 		if (!strcmp(type_temp, "FLOAT")){
-			obj->Set(String::NewFromUtf8(isolate, name_temp), 
-        Number::New(isolate, atof(value_temp)));
+			obj->Set(String::NewSymbol(name_temp), 
+        Number::New(atof(value_temp)));
 		}
 		else if (!strcmp(type_temp, "INT")){
-			obj->Set(String::NewFromUtf8(isolate, name_temp), 
-        Integer::New(isolate, atoi(value_temp)));
+			obj->Set(String::NewSymbol(name_temp), 
+        Integer::New(atoi(value_temp)));
 		}
 		else if (!strcmp(type_temp, "STRING")){
-			obj->Set(String::NewFromUtf8(isolate, name_temp), 
-        String::NewFromUtf8(isolate, value_temp));
-		}
+			obj->Set(String::NewSymbol(name_temp), 
+        String::NewSymbol(value_temp));
+  	}
     
     else{
 			printf("Error : not supported data type %s\n", type_temp);
 		}
 	}
   
-  args.GetReturnValue().Set(obj);
+  return scope.Close(obj); 
 }
 
 // Handler function for dbus message
@@ -197,13 +184,12 @@ void parsingToReturn(const FunctionCallbackInfo<Value>& args, char* in_value,
 
 DBusHandlerResult sensorGetRepeatedly(DBusConnection *connection, 
                           DBusMessage *message, void *iface_user_data){
-	Isolate *isolate = Isolate::GetCurrent();
-  int rq_num;
+   int rq_num;
 	char* sensorValue;
 	char* valueType;
 	char* valueName;
 	requestList* rl;
-	TryCatch try_catch(isolate);
+	TryCatch try_catch;
 	DBusError err;
 	dbus_error_init(&err);
 
@@ -234,10 +220,9 @@ DBusHandlerResult sensorGetRepeatedly(DBusConnection *connection,
 
 DBusHandlerResult sensorEventNotify(DBusConnection *connection, 
                         DBusMessage *message, void *iface_user_data){
-  Isolate *isolate = Isolate::GetCurrent();
   int rq_num;
 	requestList* rl;
-	TryCatch try_catch(isolate);
+	TryCatch try_catch;
 	DBusError err;
 
 	dbus_error_init(&err);
@@ -258,16 +243,9 @@ DBusHandlerResult sensorEventNotify(DBusConnection *connection,
 
 	rl = getRequest(rList, rq_num);
 
-	//Persistent<Function> cb = rl->callback;
-	Local<Function> fn = Local<Function>::New(isolate, rl->callback);
-	fn->Call(isolate->GetCurrentContext()->Global(), 0, NULL);
-
-	//rl->callback->Call(isolate->GetCurrentContext()->Global(), 0, NULL);
-	if (try_catch.HasCaught()) {
-		//node::FatalException(try_catch);
-		Local<Value> exception = try_catch.Exception();
-		String::Utf8Value exception_str(exception);
-		printf("Exception: %s\n", *exception_str);
+	rl->callback->Call(Context::GetCurrent()->Global(), 0, NULL);
+  if (try_catch.HasCaught()) {
+		node::FatalException(try_catch);
 	}
 
 	return DBUS_HANDLER_RESULT_HANDLED;
@@ -299,10 +277,8 @@ int wait_delay(){
 // Sensor manager API
 // 1. On
 // 2. Get
-void On(const FunctionCallbackInfo<Value>& args) {
-  Isolate* isolate = Isolate::GetCurrent();
-  HandleScope scope(isolate);
-
+Handle<Value> On(const Arguments& args) { 
+  HandleScope scope;
 	requestList* rl;
 	DBusMessage* msg;
 	DBusError err;
@@ -333,11 +309,10 @@ void On(const FunctionCallbackInfo<Value>& args) {
 		!args[1]->IsString() ||
 		!args[2]->IsInt32() ||
 		!args[3]->IsFunction() ) {
-		isolate->ThrowException(Exception::TypeError(
-								String::NewFromUtf8(isolate,
-										"Invalid Use : 4 arguments expected \
+		ThrowException(Exception::TypeError(String::New(
+                    "Invalid Use : 4 arguments expected \
 										[Sensor Name, Handling Type, Interval, Function]")));
-		return ;
+		return scope.Close(Undefined());
 	}
 	//
 	//----------------------------------------------------------------//
@@ -351,10 +326,9 @@ void On(const FunctionCallbackInfo<Value>& args) {
 	sensor_name = name_c.c_str();
 
 	if (check_sensor_name(sensor_name) == -1){
-		isolate->ThrowException(Exception::TypeError(
-								String::NewFromUtf8(isolate, 
+		ThrowException(Exception::TypeError(String::New(
 										"This sensor is not supported sensor\n")));
-		return ;
+		return scope.Close(Undefined());
 	}
 	//
 	//----------------------------------------------------------------//
@@ -373,9 +347,9 @@ void On(const FunctionCallbackInfo<Value>& args) {
 	}
 
 	if (!handle_type){
-		isolate->ThrowException(Exception::TypeError(
-								String::NewFromUtf8(isolate, "Not supported handling type\n")));
-		return ;
+		ThrowException(Exception::TypeError(
+								String::New("Not supported handling type\n")));
+		return scope.Close(Undefined());
 	}
 	//
 	//----------------------------------------------------------------//
@@ -385,9 +359,9 @@ void On(const FunctionCallbackInfo<Value>& args) {
 	sensing_interval = args[2]->IntegerValue();
 	
 	if (sensing_interval < MIN_INTERVAL_TIME){
-		isolate->ThrowException(Exception::TypeError(
-								String::NewFromUtf8(isolate, "Too small interval time\n")));
-		return ;
+		ThrowException(Exception::TypeError(
+								String::New("Too small interval time\n")));
+		return scope.Close(Undefined());
 	}
 	//
 	//----------------------------------------------------------------//
@@ -396,10 +370,7 @@ void On(const FunctionCallbackInfo<Value>& args) {
 	//----------------------------------------------------------------//
 	//			2. Request Creation (For function callback)
 	rl = newRequest(rList);
-
-	Local<Function> cb = Local<Function>::Cast(args[3]);
-  rl->callback.Reset(isolate, cb);	
-
+  rl->callback = Persistent<Function>::New(Local<Function>::Cast(args[3]));
 	rl->type = SENSOR_REQUEST;
 	
 	pid = (unsigned int)getpid();
@@ -432,32 +403,29 @@ void On(const FunctionCallbackInfo<Value>& args) {
 	//----------------------------------------------------------------//
 
 	//return scope.Close(Undefined());
-	//return scope.Close(Integer::New(rq_num));
-  args.GetReturnValue().Set(rq_num);
+	return scope.Close(Integer::New(rq_num));
 }
-void Get(const FunctionCallbackInfo<Value>& args) {
+Handle<Value> Get(const Arguments& args) {
   const char* sensorName;
 	char* sensorValue;
 	char* valueType;
 	char* valueName;
 
-	Isolate* isolate = Isolate::GetCurrent();
-	HandleScope scope(isolate);
+	HandleScope scope;
 	DBusMessage* msg;
 	DBusMessage* reply;
 	DBusError error;
 	
   //------------------- Argument check-----------------------------//
 	if (args.Length() != 1) {
-		isolate->ThrowException(Exception::TypeError(
-								String::NewFromUtf8(isolate,
-										"Invalid Use : 1 arguments expected [Sensor Name]")));
-		return ;
+		ThrowException(Exception::TypeError(String::New(
+                "Invalid Use : 1 arguments expected [Sensor Name]")));
+		return scope.Close(Undefined());
 	}
 	if (!args[0]->IsString()) { //IsInteger, IsFunction, etc...
-		isolate->ThrowException(Exception::TypeError(
-								String::NewFromUtf8(isolate,("Wrong arguments"))));
-		return ;
+		ThrowException(Exception::TypeError(
+								String::New("Wrong arguments")));
+		return scope.Close(Undefined());
 	}
 	//----------------------------------------------------------------//
 	
@@ -470,10 +438,9 @@ void Get(const FunctionCallbackInfo<Value>& args) {
 	sensorName = name_c.c_str();
 
 	if ( check_sensor_name(sensorName) == -1){
-		isolate->ThrowException(Exception::TypeError(
-								String::NewFromUtf8(isolate,"This sensor is not supported!")));
-		return ;
-
+		ThrowException(Exception::TypeError(
+								String::New("This sensor is not supported!")));
+		return scope.Close(Undefined());
 	}
 	//
 	//----------------------------------------------------------------//
@@ -488,9 +455,9 @@ void Get(const FunctionCallbackInfo<Value>& args) {
 		"Get"); // method name
 	if (NULL == msg) {
 		printf("Message Null\n");
-		isolate->ThrowException(Exception::TypeError(
-								String::NewFromUtf8(isolate,"Fail to create message")));
-		return ;
+		ThrowException(Exception::TypeError(
+								String::New("Fail to create message")));
+		return scope.Close(Undefined());
 	}
 
 	dbus_message_append_args(msg,
@@ -535,49 +502,44 @@ void Get(const FunctionCallbackInfo<Value>& args) {
 	//
 	//----------------------------------------------------------------//
 
-	return parsingToReturn(args, sensorValue, valueType, valueName);
+
+	return parsingToReturn(sensorValue, valueType, valueName);
 
 	//Refer this : 
   // http://luismreis.github.io/node-bindings-guide/docs/returning.html
 	//About return value from Native to Java	
 }
 
-void GetSensorList(const FunctionCallbackInfo<Value>& args) {
-	Isolate* isolate = Isolate::GetCurrent();
-	HandleScope scope(isolate);
+Handle<Value> GetSensorList(const Arguments& args) {
+	HandleScope scope;
 	
   //------------------- Argument check-----------------------------//
 	if (args.Length() != 0) {
-		isolate->ThrowException(Exception::TypeError(
-								String::NewFromUtf8(isolate,
-										"Invalid Use : no arguments expected ")));
-		return ;
+		ThrowException(Exception::TypeError(
+								String::New("Invalid Use : no arguments expected ")));
+	return scope.Close(Undefined());
 	}
 	
 	//----------------------------------------------------------------//
-  Local<Object> obj = Object::New(isolate);
+  Local<Object> obj = Object::New();
   
   // Register # of sensors
-  obj->Set(String::NewFromUtf8(isolate, "NUM"), 
-            Integer::New(isolate, SENSOR_NUM)); 
+  obj->Set(String::NewSymbol("NUM"), 
+            Integer::New(SENSOR_NUM)); 
   // Register Sensors
   int i;
   char str[10];
   for(i=0; i<SENSOR_NUM; i++){
     sprintf(str,"SENSOR%d",i+1);
-    obj->Set(String::NewFromUtf8(isolate,str),
-            String::NewFromUtf8(isolate, SUPPORT_LIST[i]));
+    obj->Set(String::NewSymbol(str),
+            String::NewSymbol(SUPPORT_LIST[i]));
   }
-
-	
-  args.GetReturnValue().Set(obj); 
-
+  
+  return scope.Close(obj);
 }
 
-void Update(const FunctionCallbackInfo<Value>& args){
-  Isolate* isolate = Isolate::GetCurrent();
-	HandleScope scope(isolate);
-
+Handle<Value> Update(const Arguments& args){
+	HandleScope scope;
 	requestList* rl;
 	DBusMessage* msg;
 	DBusError err;
@@ -598,13 +560,12 @@ void Update(const FunctionCallbackInfo<Value>& args){
 		!(args[1]->IsString() || args[1]->IsNull()) ||
 		!(args[2]->IsInt32() || args[2]->IsNull()) ||
 		!(args[3]->IsFunction() || args[3]->IsNull()) ) {
-		isolate->ThrowException(Exception::TypeError(
-								String::NewFromUtf8(isolate, 
+      ThrowException(Exception::TypeError(String::New( 
                 "Invalid Use : 4 arguments expected  \ 
                 [Request ID, Handling Type[or NULL], Interval[or NULL],  \
                 Function[or NULL]]")));
 
-		return ;
+		return scope.Close(Undefined());
 	}
 	//
 	//----------------------------------------------------------------//
@@ -628,9 +589,9 @@ void Update(const FunctionCallbackInfo<Value>& args){
 		}//Need to oneshot?
 
 		if (!handle_type){
-			isolate->ThrowException(Exception::TypeError(
-								String::NewFromUtf8(isolate, "Not supported handling type\n")));
-			return ;
+			ThrowException(Exception::TypeError(
+								String::New("Not supported handling type\n")));
+			return scope.Close(Undefined());
 		}
 
 		request_change_flag = 1;
@@ -645,9 +606,9 @@ void Update(const FunctionCallbackInfo<Value>& args){
 		sensing_interval = args[2]->IntegerValue();
 
 		if (sensing_interval < MIN_INTERVAL_TIME){
-			isolate->ThrowException(Exception::TypeError(
-									String::NewFromUtf8(isolate, "Too small interval time\n")));
-			return ;
+			ThrowException(Exception::TypeError(
+									String::New("Too small interval time\n")));
+			return scope.Close(Undefined());
 		}
 		request_change_flag = 1;
 	}
@@ -658,11 +619,7 @@ void Update(const FunctionCallbackInfo<Value>& args){
 	//-----------------------------------------------------------------//
 	if (args[3]->IsFunction()){
 		rl = getRequest(rList, rq_num);
-		
-		Handle<Function> arg0 = Handle<Function>::Cast(args[3]);
-		//Persistent<Function> cb(isolate, arg0);
-    rl->callback.Reset(isolate, arg0);
-		//rl->callback = Persistent<Function>::New(Local<Function>::Cast(args[3]));
+    rl->callback = Persistent<Function>::New(Local<Function>::Cast(args[3]));
 	}
 
 	if (request_change_flag){
@@ -686,11 +643,11 @@ void Update(const FunctionCallbackInfo<Value>& args){
 	}
 	//-----------------------------------------------------------------//
 	
-	return ;
+	return scope.Close(Undefined());
 }
-void Unregister(const FunctionCallbackInfo<Value>& args){
-  Isolate* isolate = Isolate::GetCurrent();
-  HandleScope scope(isolate);
+
+Handle<Value>Unregister(const Arguments& args){
+  HandleScope scope;
 	DBusMessage* msg;
 	DBusError err;
 	int pid;
@@ -702,11 +659,10 @@ void Unregister(const FunctionCallbackInfo<Value>& args){
 	printf("Length : %d\n", args.Length());
 	if ((args.Length() < 1) ||
 		!args[0]->IsInt32() ){
-		isolate->ThrowException(Exception::TypeError(
-		        String::NewFromUtf8(isolate, 
-            "Invalid Use : 1 arguments expected [Request ID]")));
+		ThrowException(Exception::TypeError(
+		        String::New("Invalid Use : 1 arguments expected [Request ID]")));
 
-		return ;
+		return scope.Close(Undefined());
 	}
 	//
 	//----------------------------------------------------------------//
@@ -736,7 +692,7 @@ void Unregister(const FunctionCallbackInfo<Value>& args){
 
 	deleteRequest(rList, rq_num);
 
-	return ;
+	return scope.Close(Undefined());
 }
 
 
@@ -854,31 +810,20 @@ void init(Handle<Object> exports) {
 
 	if (atexit(exit_handler)) printf("Failed to register exit_handler1\n");
 	signal(SIGINT, sigint_handler);
-
-	//Isolate* isolate = Isolate::GetCurrent();
-  
-	// 4.0.0
-	NODE_SET_METHOD(exports, "Get", Get);
-  NODE_SET_METHOD(exports, "On", On);
-  NODE_SET_METHOD(exports, "EventRegister", On);
-  NODE_SET_METHOD(exports, "EventUpdate", Update);
-  NODE_SET_METHOD(exports, "EventUnregister", Unregister);
-  NODE_SET_METHOD(exports, "GetSensorList", GetSensorList); 
- 
-
-/*	
-	exports->Set(String::NewFromUtf8(isolate, "Get"),
-			FunctionTemplate::New(isolate, Get)->GetFunction());
-	exports->Set(String::NewFromUtf8(isolate, "On"),
-		FunctionTemplate::New(isolate, On)->GetFunction());
-	exports->Set(String::NewFromUtf8(isolate, "EventRegister"),
-		FunctionTemplate::New(isolate, On)->GetFunction());
-	exports->Set(String::NewFromUtf8(isolate, "EventUpdate"),
-		FunctionTemplate::New(isolate, Update)->GetFunction());
-	exports->Set(String::NewFromUtf8(isolate, "EventUnregister"),
-		FunctionTemplate::New(isolate, Unregister)->GetFunction());
-  */
-
+ 	
+  exports->Set(String::NewSymbol("Get"),
+    FunctionTemplate::New(Get)->GetFunction());
+  exports->Set(String::NewSymbol("On"),
+    FunctionTemplate::New(On)->GetFunction());
+  exports->Set(String::NewSymbol("EventRegister"),
+    FunctionTemplate::New(On)->GetFunction());
+  exports->Set(String::NewSymbol("EventUpdate"),
+    FunctionTemplate::New(Update)->GetFunction());
+  exports->Set(String::NewSymbol("EventUnregister"),
+    FunctionTemplate::New(Unregister)->GetFunction());
+  exports->Set(String::NewSymbol("GetSensorList"),
+    FunctionTemplate::New(GetSensorList)->GetFunction());
+    
 }
 
 NODE_MODULE(nil, init)
