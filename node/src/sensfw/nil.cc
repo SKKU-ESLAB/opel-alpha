@@ -75,12 +75,11 @@ int parsingString(char* string, char* value){
 int parsingToArgv(requestList* rl, char* in_value, char* in_value_type,
                                   char* in_value_name){
 	//Make callback arguments
-	
   v8::Local<Object> obj = Object::New();
   HandleScope scope;
 	TryCatch try_catch;
 
-	char value[MAX_STRING_LENTGH];
+  char value[MAX_STRING_LENTGH];
 	char type[MAX_STRING_LENTGH];
 	char name[MAX_STRING_LENTGH];
 
@@ -118,7 +117,6 @@ int parsingToArgv(requestList* rl, char* in_value, char* in_value_type,
 		}
 	}
 
-
   Handle<Value> argv[] = {
 			obj
 	};
@@ -133,7 +131,7 @@ int parsingToArgv(requestList* rl, char* in_value, char* in_value_type,
 
 Handle<Value> parsingToReturn(char* in_value, char* in_value_type, 
                           char* in_value_name){
-	//Make return value
+  //Make return value
 	v8::Local<Object> obj = Object::New();
 	HandleScope scope;
 	TryCatch try_catch;
@@ -170,7 +168,7 @@ Handle<Value> parsingToReturn(char* in_value, char* in_value_type,
 		else if (!strcmp(type_temp, "STRING")){
 			obj->Set(String::NewSymbol(name_temp), 
         String::NewSymbol(value_temp));
-		}
+  	}
     
     else{
 			printf("Error : not supported data type %s\n", type_temp);
@@ -186,7 +184,7 @@ Handle<Value> parsingToReturn(char* in_value, char* in_value_type,
 
 DBusHandlerResult sensorGetRepeatedly(DBusConnection *connection, 
                           DBusMessage *message, void *iface_user_data){
-  int rq_num;
+   int rq_num;
 	char* sensorValue;
 	char* valueType;
 	char* valueName;
@@ -443,7 +441,6 @@ Handle<Value> Get(const Arguments& args) {
 		ThrowException(Exception::TypeError(
 								String::New("This sensor is not supported!")));
 		return scope.Close(Undefined());
-
 	}
 	//
 	//----------------------------------------------------------------//
@@ -505,6 +502,7 @@ Handle<Value> Get(const Arguments& args) {
 	//
 	//----------------------------------------------------------------//
 
+
 	return parsingToReturn(sensorValue, valueType, valueName);
 
 	//Refer this : 
@@ -562,7 +560,7 @@ Handle<Value> Update(const Arguments& args){
 		!(args[1]->IsString() || args[1]->IsNull()) ||
 		!(args[2]->IsInt32() || args[2]->IsNull()) ||
 		!(args[3]->IsFunction() || args[3]->IsNull()) ) {
-		ThrowException(Exception::TypeError(String::New( 
+      ThrowException(Exception::TypeError(String::New( 
                 "Invalid Use : 4 arguments expected  \ 
                 [Request ID, Handling Type[or NULL], Interval[or NULL],  \
                 Function[or NULL]]")));
@@ -825,8 +823,7 @@ void init(Handle<Object> exports) {
     FunctionTemplate::New(Unregister)->GetFunction());
   exports->Set(String::NewSymbol("GetSensorList"),
     FunctionTemplate::New(GetSensorList)->GetFunction());
-  
-  
+    
 }
 
 NODE_MODULE(nil, init)
