@@ -41,7 +41,7 @@ recObj.start("/home/pi/camData/some2.mjpg", 300, function(error, data){
 
 var repeat = setInterval(function(){
 		count++;
-//			recObj.start(path+'['+d+']['+count+'].jpeg', 1, function(err, data){
-//			console.log('count : '+ count);
-	//	}); 
+			recObj.start(path+'['+d+']['+count+'].jpeg', 1, function(err, data){
+			console.log('count : '+ count);
+		}); 
 },	5000);
