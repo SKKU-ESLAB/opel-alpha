@@ -1,13 +1,5 @@
 var addon = require('../../../OPEL-CameraFramework/npm/streaming/build/Release/OPELStreaming');
 var streamObj = new addon.OPELStreaming();
-var path = '/home/pi/camData/'
-require('date-utils');
-var count=0;
-var dt;
-var d;
-
-dt = new Date();
-d = dt.toFormat('YYYY-MM-DD HH24:MI:SS');
 
 streamObj.init(function(width, height, buffer_size){ 
 		console.log('width : ', width);

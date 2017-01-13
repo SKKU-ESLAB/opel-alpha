@@ -4,7 +4,7 @@ include(FindPkgConfig)
 set(CAMFW_SRC_DIR ./src)
 include_directories(./include)
 
-add_definitions(`pkg-config --libs --cflags dbus-1 glib-2.0 dbus-glib-1 gstreamer-1.0` -g)
+add_definitions(`pkg-config --libs --cflags dbus-1 glib-2.0 dbus-glib-1 gstreamer-1.0`)
 
 add_executable(cam_fw ${CAMFW_SRC_DIR}/main.cpp ${CAMFW_SRC_DIR}/OPELgstElement.cpp ${CAMFW_SRC_DIR}/OPELgstElementTx1.cpp ${CAMFW_SRC_DIR}/OPELcamProperty.cpp ${CAMFW_SRC_DIR}/OPELcamRequest.cpp ${CAMFW_SRC_DIR}/OPELcommonUtil.cpp ${CAMFW_SRC_DIR}/OPELglobalRequest.cpp ${CAMFW_SRC_DIR}/OPELrawRequest.cpp ${CAMFW_SRC_DIR}/OPELreplyDBus.cpp ${CAMFW_SRC_DIR}/OPELh264Streaming.cpp)
 	
