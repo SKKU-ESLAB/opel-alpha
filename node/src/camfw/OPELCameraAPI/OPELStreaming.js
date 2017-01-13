@@ -1,6 +1,6 @@
 var addon = require('./build/Release/OPELRecording');
 var cameraAPI = new addon.OPELRecording();
-var path = '/home/ubuntu/'
+var opel_dir = process.env.OPEL_DIR;
 require('date-utils');
 var count=0;
 var dt;
@@ -15,7 +15,7 @@ cameraAPI.streamingStart("127.0.0.1", 5000);
 
 var repeat = setInterval(function(){
 		count++;
-//			recObj.start(path+'['+d+']['+count+'].jpeg', 1, function(err, data){
+//			recObj.start(opel_dir+'['+d+']['+count+'].jpeg', 1, function(err, data){
 //			console.log('count : '+ count);
 	//	}); 
 },	5000);

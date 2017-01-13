@@ -16,7 +16,7 @@
 using namespace std;
 using namespace cv;
 
-string face_cascade = "/home/ubuntu/haarcascade_frontalface_alt.xml";
+string face_cascade_name = "haarcascade_frontalface_alt.xml";
 
 class OPELFaceDetection : public Nan::AsyncWorker
 {
@@ -30,7 +30,12 @@ class OPELFaceDetection : public Nan::AsyncWorker
 			VideoCapture cap(-1);
 			while(counts--)
 			{
-				if(!face.load(face_cascade))
+        char* opel_dir = getenv("OPEL_DIR");
+        char str[512] = "";
+        strcat(str, opel_dir);
+        strcat(str, "/");
+        strcat(str, face_cascade_name);
+				if(!face.load(str))
 				{
 					fprintf(stderr, "cascade open failed\n");
 					break;

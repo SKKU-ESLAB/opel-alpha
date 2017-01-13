@@ -1,6 +1,6 @@
 var addon = require('./build/Release/OPELRecording');
 var cameraAPI = new addon.OPELRecording();
-var path = '/home/ubuntu/'
+var opel_dir = process.env.OPEL_DIR;
 require('date-utils');
 var count=0;
 var dt;
@@ -10,12 +10,12 @@ dt = new Date();
 d = dt.toFormat('YYYY-MM-DD HH24:MI:SS');
 
 
-cameraAPI.SnapshotStart("/home/ubuntu/some.jpg");
+cameraAPI.SnapshotStart(opel_dir+"/some.jpg");
 
 
 var repeat = setInterval(function(){
 		count++;
-//			recObj.start(path+'['+d+']['+count+'].jpeg', 1, function(err, data){
+//			recObj.start(opel_dir+'['+d+']['+count+'].jpeg', 1, function(err, data){
 //			console.log('count : '+ count);
 	//	}); 
 },	5000);
