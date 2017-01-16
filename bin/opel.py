@@ -76,7 +76,9 @@ def on_did_initialize():
     log("Initializing OPEL daemons...")
 
     # Execute prerequisites on system server
-    os.environ['OPEL_DIR'] = opelDir;
+    os.environ['OPEL_DIR'] = opelDir
+    opelDataDir = opelDir + "/data"
+    run_command("mkdir -p " + opelDataDir)
     run_command("hciconfig hci0 piscan")
     initialize_ipcrm()
     run_command("./deletesem")

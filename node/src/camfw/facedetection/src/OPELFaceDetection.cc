@@ -34,7 +34,7 @@ class OPELFaceDetection : public Nan::AsyncWorker
         char str[512] = "";
         strcat(str, opel_dir);
         strcat(str, "/");
-        strcat(str, face_cascade_name);
+        strcat(str, face_cascade_name.c_str());
 				if(!face.load(str))
 				{
 					fprintf(stderr, "cascade open failed\n");

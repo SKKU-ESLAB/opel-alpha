@@ -15,3 +15,7 @@ cmake_install.cmake
 Makefile
 */Makefile
 node/*/build
+node/*/Release
+node/*.node
+node/sensfw
+node/sysfw
