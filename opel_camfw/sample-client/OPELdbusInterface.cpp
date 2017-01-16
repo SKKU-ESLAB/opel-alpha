@@ -14,7 +14,10 @@ static void send_rec_init(DBusConnection *conn, char* file_name)
   printf("init\n");
   DBusMessage *message;
   message = dbus_message_new_signal("/org/opel/camera/daemon", "org.opel.camera.daemon", "recInit");
-	char str[256] = "/home/ubuntu/";
+  char* opel_dir = getenv("OPEL_DIR");
+	char str[256] = "";
+  strcat(str, opel_dir);
+  strcat(str, "/");
 	strcat(str, file_name);
 	const char *file_path = str;
 	unsigned pid = getpid();
@@ -41,7 +44,10 @@ static void send_rec_start(DBusConnection *conn, char* file_name)
   printf("start\n");
   DBusMessage *message;
 		message = dbus_message_new_signal(dbus_path, dbus_interface, snap_start_request);
-	char str[512] = "/home/ubuntu/";
+  char* opel_dir = getenv("OPEL_DIR");
+	char str[512] = "";
+  strcat(str, opel_dir);
+  strcat(str, "/");
 	char prop[256] = ".jpeg";
 	strcat(str, file_name);	
 	strcat(str, prop);

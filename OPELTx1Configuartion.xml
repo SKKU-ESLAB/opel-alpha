@@ -101,7 +101,7 @@
 			<element_type>6</element_type>
 			<element_sub_type>7</element_sub_type>
 			<element_property class_id="7" tracking_level="0" version="0">
-				<location>/home/ubuntu/hihihi.mp4</location>
+        <location>/home/redcarrottt/opel-alpha2/data/hihihi.mp4</location>
 			</element_property>
 			<element_property class_id="8" tracking_level="0" version="0">
 				<host_ip></host_ip>
@@ -119,7 +119,7 @@
 			<element_type>6</element_type>
 			<element_sub_type>8</element_sub_type>
 			<element_property>
-				<location>/home/ubuntu/hihihi.jpeg</location>
+        <location>/home/redcarrottt/opel-alpha2/data/hihihi.jpeg</location>
 			</element_property>
 			<element_property>
 				<host_ip></host_ip>

@@ -71,7 +71,8 @@ var repeat = setInterval(function(){
 			*/
 		  var button = sensorManager.Get("BUTTON");
 
-			var str = "{\"Touch\":\""+tch.TOUCH+"\",\"Accelerometer\":\""+"23"+"\",\"Motion\":\""+mot.MOTION+"\",\"Sound\":\""+snd.SOUND+"\",\"Light\":\""+lit.LIGHT+"\",\"Vibration\":\""+vib.VIBRATION+"\",\"Temperature\":\""+tmp.TEMP+"\"}";
+      var tch = sensorManager.Get("BUTTON");
+      var str = "{\"Touch\":\""+tch.BUTTON+"\",\"Accelerometer\":\""+"23"+"\",\"Motion\":\""+mot.MOTION+"\",\"Sound\":\""+snd.SOUND+"\",\"Light\":\""+lit.LIGHT+"\",\"Vibration\":\""+vib.VIBRATION+"\",\"Temperature\":\""+tmp.TEMP+"\"}";
 			comm.SendMsg(str);
 			console.log("Sent\n");
 

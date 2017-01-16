@@ -7,7 +7,7 @@
 #include <signal.h>
 #include <unistd.h>
 
-const char *path_configuration_Tx1 = "/home/ubuntu/opel-alpha/OPELTx1Configuartion.xml";
+const char *path_configuration_Tx1_FileName = "OPELTx1Configuartion.xml";
 
 static GMainLoop *loop;
 
@@ -134,9 +134,14 @@ int main(int argc, char** argv)
   ElementXMLSerialization *tx1_element_property = NULL; 
 	OPELGlobalVectorRequest *global_vector_request = NULL;
 
-  tx1_element_property = openXMLconfig(path_configuration_Tx1);
+  char* opel_dir = getenv("OPEL_DIR");
+  char str[512];
+  strcat(str, opel_dir);
+  strcat(str, "/");
+  strcat(str, path_configuration_Tx1_FileName);
+  tx1_element_property = openXMLconfig(str);
   if(tx1_element_property == NULL)
-    writeXMLconfig(path_configuration_Tx1);
+    writeXMLconfig(str);
 
 #if OPEL_LOG_VERBOSE
   printVectorElement(v_element_property);
