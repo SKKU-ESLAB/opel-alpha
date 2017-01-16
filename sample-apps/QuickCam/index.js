@@ -29,7 +29,9 @@ setInterval(function(){
 			if(curr == 0) {
 				console.log('Capture!');
 				d = cnt++;
-				var fileName = '/home/ubuntu/opelData/quickCam'+d+'.jpeg';
+        var opel_dir = process.env.OPEL_DIR;
+        var opel_data_dir = opel_dir + "/data/";
+				var fileName = opel_data_dir + '/quickCam'+d+'.jpeg';
 				cameraAPI.SnapshotStart(fileName);
 				var notiPage = sysAppNIL.makeEventPage("Snapshot Saved");
 				notiPage = sysAppNIL.addEventText(notiPage, "Quick Cam Snapshot");

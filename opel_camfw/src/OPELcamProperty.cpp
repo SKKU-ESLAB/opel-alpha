@@ -62,7 +62,7 @@ void setTx1DefaultProperty(void)
    h264_enc->encProp->quality_level = 2;
    i420_conv->conProp->flip_method = 2;
    
-   char opel_dir = getenv("OPEL_DIR");
+   char* opel_dir = getenv("OPEL_DIR");
    char str1[512] = "";
    strcat(str1, opel_dir);
    strcat(str1, "/hihihi.mp4");

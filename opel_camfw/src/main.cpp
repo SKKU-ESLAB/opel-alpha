@@ -139,9 +139,9 @@ int main(int argc, char** argv)
   strcat(str, opel_dir);
   strcat(str, "/");
   strcat(str, path_configuration_Tx1_FileName);
-  tx1_element_property = openXMLconfig(path_configuration_Tx1);
+  tx1_element_property = openXMLconfig(str);
   if(tx1_element_property == NULL)
-    writeXMLconfig(path_configuration_Tx1);
+    writeXMLconfig(str);
 
 #if OPEL_LOG_VERBOSE
   printVectorElement(v_element_property);
