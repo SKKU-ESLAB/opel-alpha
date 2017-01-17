@@ -7,7 +7,7 @@
 #include <signal.h>
 #include <unistd.h>
 
-const char *path_configuration_Tx1_FileName = "OPELTx1Configuartion.xml";
+const char *path_configuration_Tx1_FileName = "OPELTx1Configuration.xml";
 
 static GMainLoop *loop;
 
@@ -32,7 +32,8 @@ message_cb(GstBus *bus, GstMessage *message, gpointer user_data)
 			         gst_message_parse_error(message, &err, &debug_info);
 								 OPEL_DBG_ERR("Error Received From Element %s: %s\n",
 								 GST_OBJECT_NAME (message->src), err->message);
-								 OPEL_DBG_ERR("Debugging information: %s\n", debug_info ? debug_info : "none"); 
+								 OPEL_DBG_ERR("Debugging information: %s\n",
+                     ((debug_info) ? debug_info : "none")); 
 								 g_clear_error(&err);
 								 g_free(debug_info);
 			break;
@@ -66,6 +67,7 @@ ElementXMLSerialization* openXMLconfig(const char *_path_xml)
   __OPEL_FUNCTION_ENTER__;
   ElementXMLSerialization *element_property;
   std::ifstream xml_file;
+
   xml_file.open(_path_xml, std::ios::in); 
   if(xml_file.fail())
   {
@@ -135,10 +137,11 @@ int main(int argc, char** argv)
 	OPELGlobalVectorRequest *global_vector_request = NULL;
 
   char* opel_dir = getenv("OPEL_DIR");
-  char str[512];
-  strcat(str, opel_dir);
-  strcat(str, "/");
-  strcat(str, path_configuration_Tx1_FileName);
+  char str[512] = "";
+  strncpy(str, opel_dir, strlen(opel_dir));
+  strncat(str, "/", strlen("/"));
+  strncat(str, path_configuration_Tx1_FileName,
+      strlen(path_configuration_Tx1_FileName));
   tx1_element_property = openXMLconfig(str);
   if(tx1_element_property == NULL)
     writeXMLconfig(str);
@@ -208,7 +211,9 @@ int main(int argc, char** argv)
     goto exit;
   }
 
-  dbus_bus_add_match(dbus_conn, "type='signal', interface='org.opel.camera.daemon'", NULL);
+  dbus_bus_add_match(dbus_conn,
+      "type='signal', interface='org.opel.camera.daemon'",
+      NULL);
   dbus_connection_add_filter(dbus_conn, msg_dbus_filter, 
       (void*)_type_element_vector, NULL);
   dbus_connection_setup_with_g_main(dbus_conn, NULL);

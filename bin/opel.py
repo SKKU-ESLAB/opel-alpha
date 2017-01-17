@@ -24,12 +24,20 @@
 
 import argparse, signal, os, time, sys
 
-opelDir = os.path.dirname(os.path.realpath(__file__))
+
+# Check OPEL_DIR
+try:
+    gOpelDir = os.environ['OPEL_DIR']
+except KeyError:
+    print("Not found OPEL_DIR in your environment."
+    + "Please set 'OPEL_DIR' variable.")
+gOpelBinDir = gOpelDir + "/bin/"
+gOpelDataDir = gOpelDir + "/data/"
 
 def signal_handler(signum, frame):
     return
 
-def run_command(command, baseDir=opelDir):
+def run_command(command, baseDir=gOpelBinDir):
     # Run command on this system server
     # Change directory
     os.chdir(baseDir)
@@ -38,7 +46,7 @@ def run_command(command, baseDir=opelDir):
     os.system(command)
     return
 
-def run_on_daemon(command, name, uid=0, gid=0, baseDir=opelDir):
+def run_on_daemon(command, name, uid=0, gid=0, baseDir=gOpelBinDir):
     # Run a command on child daemon process
     pid = os.fork()
     if pid:
@@ -76,9 +84,7 @@ def on_did_initialize():
     log("Initializing OPEL daemons...")
 
     # Execute prerequisites on system server
-    os.environ['OPEL_DIR'] = opelDir
-    opelDataDir = opelDir + "/data"
-    run_command("mkdir -p " + opelDataDir)
+    run_command("mkdir -p " + gOpelDataDir)
     run_command("hciconfig hci0 piscan")
     initialize_ipcrm()
     run_command("./deletesem")
@@ -86,7 +92,7 @@ def on_did_initialize():
     # Execute daemons
     run_on_daemon(command=["./sysAppManager"],
             name="App/Sys Manager Daemon",
-            baseDir="./appManager")
+            baseDir=(gOpelBinDir + "appManager"))
     run_on_daemon(command=["./cam_fw"],
             name="Camera Framework Daemon")
     run_on_daemon(command=["./sensorManager"],
