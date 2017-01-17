@@ -14,8 +14,10 @@ cmake_install.cmake
 */cmake_install.cmake
 Makefile
 */Makefile
-node/*/build
-node/*/Release
+node/*/build/*
+node/*/Release/*
 node/*.node
 node/sensfw
 node/sysfw
+p2p.conf
+dhcpd.conf
