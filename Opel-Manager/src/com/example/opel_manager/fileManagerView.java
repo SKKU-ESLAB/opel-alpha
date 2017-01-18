@@ -29,10 +29,11 @@ public class fileManagerView extends Activity{
 	static ListAdapter_fileManager ca;
 	ArrayList<ListItem_fileManager> arr;
 
+	/////////////////////////////////////////////////////////////
+	// Please edit here before you use this app!
+	final String homePath = "/home/redcarrottt/opel-alpha/data";
+	/////////////////////////////////////////////////////////////
 
-	//Drawing based on the jp information
-
-	final String homePath = "/home/ubuntu/opelData";
 	String curPath;
 
 	protected void onCreate(Bundle savedInstanceState) {
