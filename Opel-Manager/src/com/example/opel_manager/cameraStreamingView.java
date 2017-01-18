@@ -56,7 +56,6 @@ public class cameraStreamingView extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         handler = new TcpHandler();
 

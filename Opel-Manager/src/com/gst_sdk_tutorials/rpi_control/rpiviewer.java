@@ -41,34 +41,48 @@ import java.net.UnknownHostException;
 import static android.R.attr.port;
 
 
-public class rpiviewer extends Activity implements SurfaceHolder.Callback, TCPStreaming.WidiStateListener {
-    private native void nativeInit(String addr, String vport);     // Initialize native code, build pipeline, etc
+public class rpiviewer extends Activity implements SurfaceHolder.Callback,
+        TCPStreaming.WidiStateListener {
+    private native void nativeInit(String addr, String vport);     //
+    // Initialize native code, build pipeline, etc
 
-    private native void nativeFinalize(); // Destroy pipeline and shutdown native code
+    private native void nativeFinalize(); // Destroy pipeline and shutdown
+    // native code
 
-    private native void nativeSetUri(String uri); // Set the URI of the media to play
+    private native void nativeSetUri(String uri); // Set the URI of the media
+    // to play
 
     private native void nativePlay();     // Set pipeline to PLAYING
 
     private native void nativePause();    // Set pipeline to PAUSED
 
-    private static native boolean nativeClassInit(); // Initialize native class: cache Method IDs for callbacks
+    private static native boolean nativeClassInit(); // Initialize native
+    // class: cache Method IDs for callbacks
 
-    private native void nativeSurfaceInit(Object surface); // A new surface is available
+    private native void nativeSurfaceInit(Object surface); // A new surface
+    // is available
 
-    private native void nativeSurfaceFinalize(); // Surface about to be destroyed
+    private native void nativeSurfaceFinalize(); // Surface about to be
+    // destroyed
 
-    private long native_custom_data;      // Native code will use this to keep private data
+    private long native_custom_data;      // Native code will use this to
+    // keep private data
 
 
-    private boolean is_playing_desired;   // Whether the user asked to go to PLAYING
-    private int position;                 // Current position, reported by native code
-    private int duration;                 // Current clip duration, reported by native code
-    private boolean is_local_media;       // Whether this clip is stored locally or is being streamed
-    private int desired_position;         // Position where the users wants to seek to
+    private boolean is_playing_desired;   // Whether the user asked to go to
+    // PLAYING
+    private int position;                 // Current position, reported by
+    // native code
+    private int duration;                 // Current clip duration, reported
+    // by native code
+    private boolean is_local_media;       // Whether this clip is stored
+    // locally or is being streamed
+    private int desired_position;         // Position where the users wants
+    // to seek to
     private String mediaUri;              // URI of the clip being played
 
-    private final String defaultMediaUri = "http://docs.gstreamer.com/media/sintel_trailer-368p.ogv";
+    private final String defaultMediaUri = "http://docs.gstreamer" +
+            ".com/media/sintel_trailer-368p.ogv";
     private String vport = "5000";
 
     private EditText editTextIPAddress;
@@ -78,16 +92,6 @@ public class rpiviewer extends Activity implements SurfaceHolder.Callback, TCPSt
 
     private Button buttonRecord;
     private Button buttonCapture;
-
-//    private Button buttonUp;
-//    private Button buttonLeftTurn;
-//    private Button buttonRightTurn;
-//    private Button buttonDown;
-//    private Button buttonCenter;
-//    private Button buttonLedOn;
-//    private Button buttonLedOff;
-//    private Button buttonCamUp;
-//    private Button buttonCamDown;
 
     private Object mDelayedSurface;
 
@@ -120,17 +124,16 @@ public class rpiviewer extends Activity implements SurfaceHolder.Callback, TCPSt
 
     private void acquireCpuWakeLock() {
         Context context = this;
-        PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-        mCpuWakeLock = pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK
-                        | PowerManager.ACQUIRE_CAUSES_WAKEUP
-                        | PowerManager.ON_AFTER_RELEASE,
-                "OPEL Camera Wakelock");
+        PowerManager pm = (PowerManager) context.getSystemService(Context
+                .POWER_SERVICE);
+        mCpuWakeLock = pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK |
+                PowerManager.ACQUIRE_CAUSES_WAKEUP | PowerManager
+                .ON_AFTER_RELEASE, "OPEL Camera Wakelock");
         mCpuWakeLock.acquire();
     }
 
     private void releaseCpuWakeLock() {
-        if (mCpuWakeLock != null)
-            mCpuWakeLock.release();
+        if (mCpuWakeLock != null) mCpuWakeLock.release();
     }
 
     // Called when the activity is first created.
@@ -151,7 +154,8 @@ public class rpiviewer extends Activity implements SurfaceHolder.Callback, TCPSt
         // Initialize GStreamer and warn if it fails
         try {
             GStreamer.init(this);
-            //Toast.makeText(getApplicationContext(), "Gstreamer Set success", Toast.LENGTH_LONG).show();
+            //Toast.makeText(getApplicationContext(), "Gstreamer Set
+            // success", Toast.LENGTH_LONG).show();
 
         } catch (Exception e) {
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
@@ -163,53 +167,14 @@ public class rpiviewer extends Activity implements SurfaceHolder.Callback, TCPSt
         setContentView(R.layout.main);
 
         if (android.os.Build.VERSION.SDK_INT > 9) {
-            StrictMode.ThreadPolicy policy =
-                    new StrictMode.ThreadPolicy.Builder().permitAll().build();
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy
+                    .Builder().permitAll().build();
             StrictMode.setThreadPolicy(policy);
         }
 
-        editTextIPAddress = (EditText) this.findViewById(R.id.editTextIPAddress);
+        editTextIPAddress = (EditText) this.findViewById(R.id
+                .editTextIPAddress);
         editTextIPAddress.setText(server);
-//        imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-
-//        ImageButton play = (ImageButton) this.findViewById(R.id.button_play);
-//        ImageButton pause = (ImageButton) this.findViewById(R.id.button_stop);
-//        buttonUp = (Button) this.findViewById(R.id.buttonUp);
-//        buttonLeftTurn = (Button) this.findViewById(R.id.buttonLeftTurn);
-//        buttonRightTurn = (Button) this.findViewById(R.id.buttonRightTurn);
-//        buttonDown = (Button) this.findViewById(R.id.buttonDown);
-//        buttonCenter = (Button) this.findViewById(R.id.buttonCenter);
-//        buttonLedOn = (Button) this.findViewById(R.id.buttonLedOn);
-//        buttonLedOff = (Button) this.findViewById(R.id.buttonLedOff);
-//        buttonCamUp = (Button) this.findViewById(R.id.buttonCamUp);
-//        buttonCamDown = (Button) this.findViewById(R.id.buttonCamDown);
-
-
-//        play.setOnClickListener(new OnClickListener() {
-//            public void onClick(View v) {
-//
-//                imm.hideSoftInputFromWindow(editTextIPAddress.getWindowToken(), 0);
-//
-//                server = editTextIPAddress.getText().toString();
-//
-//                is_playing_desired = true;
-//                nativePlay();
-//            }
-//        });
-//
-//
-//        pause.setOnClickListener(new OnClickListener() {
-//            public void onClick(View v) {
-//
-//                imm.hideSoftInputFromWindow(editTextIPAddress.getWindowToken(), 0);
-//
-//                // XXX: Watch out!
-//                exitFromRunLoop();
-//
-//                is_playing_desired = false;
-//                nativePause();
-//            }
-//        });
 
         SurfaceView sv = (SurfaceView) this.findViewById(R.id.surface_video);
         SurfaceHolder sh = sv.getHolder();
@@ -229,7 +194,8 @@ public class rpiviewer extends Activity implements SurfaceHolder.Callback, TCPSt
             Log.i("GStreamer", "Activity created with no saved state:");
         }
         is_local_media = false;
-        Log.i("GStreamer", "  playing:" + is_playing_desired + " position:" + position +
+        Log.i("GStreamer", "  playing:" + is_playing_desired + " position:" +
+                position +
                 " duration: " + duration + " uri: " + mediaUri);
 
         // Start with disabled buttons, until native code is initialized
@@ -251,14 +217,16 @@ public class rpiviewer extends Activity implements SurfaceHolder.Callback, TCPSt
         nativeSurfaceInit(mDelayedSurface);
 
         is_playing_desired = true;
-        imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm = (InputMethodManager) getSystemService(Context
+                .INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(editTextIPAddress.getWindowToken(), 0);
         nativePlay();
     }
 
 
     protected void onSaveInstanceState(Bundle outState) {
-        Log.d("GStreamer", "Saving state, playing:" + is_playing_desired + " position:" + position +
+        Log.d("GStreamer", "Saving state, playing:" + is_playing_desired + " " +
+                "position:" + position +
                 " duration: " + duration + " uri: " + mediaUri);
         outState.putBoolean("playing", is_playing_desired);
         outState.putString("mediaUri", mediaUri);
@@ -267,7 +235,8 @@ public class rpiviewer extends Activity implements SurfaceHolder.Callback, TCPSt
     @Override
     protected void onResume() {
         // Initialize TCP handling
-        globalData.getInstance().getCommManager().requestRunNativeJSAppCameraViewer();
+        globalData.getInstance().getCommManager()
+                .requestRunNativeJSAppCameraViewer();
         if (tcpstreaming == null) {
             tcpstreaming = new TCPStreaming(server, port, this, handler);
             tcpstreaming.start();
@@ -279,14 +248,17 @@ public class rpiviewer extends Activity implements SurfaceHolder.Callback, TCPSt
         this.acquireCpuWakeLock();
 
         // Initialize Wifi receiver
-        registerReceiver(globalData.getInstance().getWifiReceiver(), globalData.getInstance().getIntentFilter());
+        registerReceiver(globalData.getInstance().getWifiReceiver(),
+                globalData.getInstance().getIntentFilter());
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        globalData.getInstance().getCommManager().requestTermNativeJSAppCameraViewer();
-        globalData.getInstance().getCommManager().opelCommunicator.cmfw_wfd_off();
+        globalData.getInstance().getCommManager()
+                .requestTermNativeJSAppCameraViewer();
+        globalData.getInstance().getCommManager().opelCommunicator
+                .cmfw_wfd_off();
         this.releaseCpuWakeLock();
 
         // Finalize TCP handling
@@ -305,7 +277,8 @@ public class rpiviewer extends Activity implements SurfaceHolder.Callback, TCPSt
         super.onDestroy();
     }
 
-    // Called from native code. This sets the content of the TextView from the UI thread.
+    // Called from native code. This sets the content of the TextView from
+    // the UI thread.
     private void setMessage(final String message) {
         final TextView tv = (TextView) this.findViewById(R.id.textview_message);
         runOnUiThread(new Runnable() {
@@ -321,11 +294,13 @@ public class rpiviewer extends Activity implements SurfaceHolder.Callback, TCPSt
         is_local_media = mediaUri.startsWith("file://");
     }
 
-    // Called from native code. Native code calls this once it has created its pipeline and
-    // the main loop is running, so it is ready to accept commands.
+    // Called from native code. Native code calls this once it has created
+    // its pipeline and the main loop is running, so it is ready to accept
+    // commands.
     private void onGStreamerInitialized() {
         Log.i("GStreamer", "GStreamer initialized:");
-        Log.i("GStreamer", "  playing:" + is_playing_desired + " position:" + position + " uri: " + mediaUri);
+        Log.i("GStreamer", "  playing:" + is_playing_desired + " position:" +
+                position + " uri: " + mediaUri);
 
         // Restore previous playing state
         setMediaUri();
@@ -372,11 +347,13 @@ public class rpiviewer extends Activity implements SurfaceHolder.Callback, TCPSt
         nativeSurfaceFinalize();
     }
 
-    // Called from native code when the size of the media changes or is first detected.
+    // Called from native code when the size of the media changes or is first
+    // detected.
     // Inform the video surface about the new size and recalculate the layout.
     private void onMediaSizeChanged(int width, int height) {
         Log.i("GStreamer", "Media size changed to " + width + "x" + height);
-        final GStreamerSurfaceView gsv = (GStreamerSurfaceView) this.findViewById(R.id.surface_video);
+        final GStreamerSurfaceView gsv = (GStreamerSurfaceView) this
+                .findViewById(R.id.surface_video);
         gsv.media_width = width;
         gsv.media_height = height;
         runOnUiThread(new Runnable() {
@@ -387,14 +364,6 @@ public class rpiviewer extends Activity implements SurfaceHolder.Callback, TCPSt
     }
 
     void exitFromRunLoop() {
-//        try {
-//            String sndOpkey = "[close]";
-////            outs.write(sndOpkey.getBytes("UTF-8"));
-////            outs.flush();
-//        } catch (IOException e) {
-//
-//            e.printStackTrace();
-//        }
     }
 
     public void onWidiReady() {
@@ -426,7 +395,8 @@ class TCPStreaming extends Thread {
 
     private WidiStateListener mListener;
 
-    public TCPStreaming(String ip, int port, WidiStateListener listener, rpiviewer.TcpHandler handler) {
+    public TCPStreaming(String ip, int port, WidiStateListener listener,
+                        rpiviewer.TcpHandler handler) {
         mHandler = handler;
         this.ip = new String(ip);
         this.port = port;
@@ -439,77 +409,6 @@ class TCPStreaming extends Thread {
 
         this.mListener = listener;
     }
-
-
-//    public void connect() {
-//        Socket tmpSock = null;
-//
-//        try {
-//            Log.d("What the", "Msg1");
-//            tmpSock = new Socket(ip, port);
-//            sock_addr = tmpSock.getRemoteSocketAddress();
-//            if (tmpSock.isConnected()) {
-//                stat = STAT_CONNECTED;
-//                mInStream = tmpSock.getInputStream();
-//                onStatChanged(stat);
-//            } else
-//                tmpSock = null;
-//        } catch (UnknownHostException e) {
-//            // TODO Auto-generated catch block
-//            e.printStackTrace();
-//        } catch (IOException e) {
-//            // TODO Auto-generated catch block
-//            e.printStackTrace();
-//        }
-//        tcpSocket = tmpSock;
-//    }
-
-//    public void connect(String ip, int port) {
-//        if (stat != STAT_DISCON) {
-//            Log.d("TCPStreaming", "Already connecting or connected");
-//            return;
-//        }
-//
-//        if (tcpSocket == null) {
-//            Socket tmpSock = null;
-//            try {
-//                stat = STAT_CONNECTING;
-//                tmpSock = new Socket(ip, port);
-//                sock_addr = tmpSock.getRemoteSocketAddress();
-//                if (tmpSock.isConnected()) {
-//                    stat = STAT_CONNECTED;
-//                    mInStream = tmpSock.getInputStream();
-//                    onStatChanged(stat);
-//                }
-//            } catch (UnknownHostException e) {
-//                // TODO Auto-generated catch block
-//                e.printStackTrace();
-//            } catch (IOException e) {
-//                // TODO Auto-generated catch block
-//                e.printStackTrace();
-//            }
-//            tcpSocket = tmpSock;
-//        } else {
-//            stat = STAT_CONNECTING;
-//            try {
-//                tcpSocket.connect(sock_addr);
-//            } catch (IOException e) {
-//                // TODO Auto-generated catch block
-//                e.printStackTrace();
-//            }
-//            if (tcpSocket.isConnected()) {
-//                stat = STAT_CONNECTED;
-//                try {
-//                    mInStream = tcpSocket.getInputStream();
-//                } catch (IOException e) {
-//                    // TODO Auto-generated catch block
-//                    e.printStackTrace();
-//                }
-//                onStatChanged(stat);
-//            }
-//        }
-//
-//    }
 
     public void onStatChanged(short stat) {
       /*
@@ -536,7 +435,8 @@ class TCPStreaming extends Thread {
         sch = true;
         while (sch) {
             if (tcpSocket == null) {
-                while (globalData.getInstance().getCommManager().opelCommunicator.cmfw_wfd_on(false) < 0) {
+                while (globalData.getInstance().getCommManager()
+                        .opelCommunicator.cmfw_wfd_on(false) < 0) {
                     try {
                         sleep(1000);
                     } catch (InterruptedException e) {
@@ -569,7 +469,6 @@ class TCPStreaming extends Thread {
                     Log.d("Streaming", "Frame Len:" + Integer.toString(len));
                     frame = new byte[len];
                     bis.readFully(frame);
-                    //Log.d("TCPStreaming", offset+"/"+totalLen);
 
                     onReceived(frame);
 
@@ -589,8 +488,5 @@ class TCPStreaming extends Thread {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-
-        // XXX: removed for RPiViewer
-        //globalData.getInstance().getCommManager().opelCommunicator.cmfw_wfd_off();
     }
 }

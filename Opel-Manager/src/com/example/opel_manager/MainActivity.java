@@ -401,17 +401,10 @@ public class MainActivity extends Activity implements WifiDirectStateListener {
                     if (conn_stat == false) {
                         Toast.makeText(getApplicationContext(), "Disconnected to OPEL", 0).show();
                     }
-                    //Intent intent = new Intent(MainActivity.this, cameraStreamingView.class);
                     Intent intent = new Intent(MainActivity.this, rpiviewer.class);
                     startActivity(intent);
 
                 }
-				
-			/*	// [Native] Gallery
-				else if (list.allApplicationList.get(position).getTitle().equals("Gallery")) {
-					Intent intent = new Intent(MainActivity.this, galleryView.class);
-					startActivity(intent);
-				}*/
 
                 // [Native] Sensor
                 else if (list.allApplicationList.get(position).getTitle().equals("Sensor")) {
