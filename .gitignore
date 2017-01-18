@@ -21,3 +21,5 @@ node/sensfw
 node/sysfw
 p2p.conf
 dhcpd.conf
+node/src/camfw/facedetection/build
+node/src/camfw/OPELCameraAPI/build
