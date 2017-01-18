@@ -72,7 +72,7 @@ void sigchld_handler(int signum) {
   }
 }
 
-void onCommandInstallAppPackage(jsonString js) {
+void onCommandInstallAppPackage(jsonString inJS) {
   // Intall App Package
   printf("[MAIN] Request >> Install Package\n");
   char pkgFileName[MSGBUFSIZE] = {0, };
@@ -84,31 +84,31 @@ void onCommandInstallAppPackage(jsonString js) {
 
   if (&ret_js != NULL) {
     char pkgFileName[1024] = {'\0', };
-    strncpy(pkgFileName, js.findValue("pkgFileName").c_str(), 1024);
+    strncpy(pkgFileName, inJS.findValue("pkgFileName").c_str(), 1024);
     ret_js.addItem("pkgFileName", pkgFileName);
 
     cm->responsePkgInstallComplete(ret_js);
   }
 }
 
-void onCommandExecuteApp(jsonString js) {
+void onCommandExecuteApp(jsonString inJS) {
   // Execute App
   printf("[MAIN] Request >> Execute App\n");
 
   char appID[16]={'\0', };
-  strncpy(appID, js.findValue("appID").c_str(), 16);
+  strncpy(appID, inJS.findValue("appID").c_str(), 16);
 
   // Check if the app exists in running table
   if (!appProcList->isExistOnRunningTableByAppID(atoi(appID))) {
     char* runPath = apManager.getRunningPath(appID);
     char* dirPath = apManager.getAppDirPath(appID);
 
-    js.addItem("dirPath", dirPath);
+    inJS.addItem("dirPath", dirPath);
     printf("[MAIN] run app runpath : %s, dir path : %s\n",
         runPath, dirPath);
 
-    if (asManager.runNewApplication(js, runPath)) {
-      cm->responseAppRunComplete(js);
+    if (asManager.runNewApplication(inJS, runPath)) {
+      cm->responseAppRunComplete(inJS);
     }
     delete runPath;
     delete dirPath;
@@ -117,28 +117,33 @@ void onCommandExecuteApp(jsonString js) {
   }
 }
 
-void onCommandKillApp(jsonString js) {
+void onCommandKillApp(jsonString inJS) {
   // Kill App
   printf("[MAIN] Request >> KILL App\n");
-  int appId = atoi(js.findValue("appID").c_str());
+  int appId = atoi(inJS.findValue("appID").c_str());
   if (appProcList->isExistOnRunningTableByAppID(appId)) {
-    if (dbusManager.makeTerminationEvent(js)) {
+    if (dbusManager.makeTerminationEvent(inJS)) {
       // TODO(redcarrottt): termination event's return value
     }
   } else {
     printf("[MAIN] appID : %s is already dead\n",
-        js.findValue("appID").c_str());
+        inJS.findValue("appID").c_str());
   }
 }
 
-void onCommandUpdateAppInfo(jsonString js) {
+void onCommandUpdateAppInfo(jsonString inJS) {
   // Update App Information
   printf("[MAIN] Request >> Update App Infomation\n");
+  jsonString js;
 
   vector<appPackage*> *apList = apManager.getAppList()->getListVector();
   vector<appPackage*>::iterator apIter;
 
+  printf("[MAIN] 0: %s\n", js.getJsonData().c_str());
+
   js.addType(UPDATEAPPINFO);
+
+  printf("[MAIN] 1: %s\n", js.getJsonData().c_str());
 
   for (apIter = apList->begin(); apIter != apList->end(); ++apIter) {
     int appID_ = (*apIter)->getApID();
@@ -157,6 +162,7 @@ void onCommandUpdateAppInfo(jsonString js) {
     }
     js.addItem(appID, appName);
   }
+  printf("[MAIN] 2: %s\n", js.getJsonData().c_str());
 
   char addr[64] = {0, };
   if (cm->getIpAddress("wlan0", addr) > 0) {
@@ -166,26 +172,28 @@ void onCommandUpdateAppInfo(jsonString js) {
   }
   js.addItem("IP_ADDR__a", addr);
 
+  printf("[MAIN] 3: %s\n", js.getJsonData().c_str());
+
   cm->responseUpdatePkgList(js.getJsonData().c_str());
 }
 
-void onEventConfigSetting(jsonString js) {
+void onEventConfigSetting(jsonString inJS) {
   // Config Setting Event
   printf("[MAIN] Request >> Config Setting Event\n");
 
   // Check if the app exists in running table
-  int appId = atoi(js.findValue("appID").c_str());
+  int appId = atoi(inJS.findValue("appID").c_str());
   if (appProcList->isExistOnRunningTableByAppID(appId)) {
-    if (dbusManager.makeConfigEvent(js)) {
+    if (dbusManager.makeConfigEvent(inJS)) {
       // TODO(redcarrottt): handle config event's return value
     }
   } else {
     printf("[MAIN] appID : %s is already dead\n",
-        js.findValue("appID").c_str());
+        inJS.findValue("appID").c_str());
   }
 }
 
-void onCommandRunNativeCameraViewer(jsonString js) {
+void onCommandRunNativeCameraViewer(jsonString inJS) {
   // Run native camera viwer app
   if (pidOfCameraViewer == 0) {
     while (false == cm->wfdOn()) {
@@ -195,12 +203,12 @@ void onCommandRunNativeCameraViewer(jsonString js) {
   }
 }
 
-void onCommandRunNativeSensorViewer(jsonString js) {
+void onCommandRunNativeSensorViewer(jsonString inJS) {
   // Run native sensor viewer app
   pidOfSensorViewer = asManager.runNativeJSApp(2);
 }
 
-void onCommandTerminateNativeCameraViewer(jsonString js) {
+void onCommandTerminateNativeCameraViewer(jsonString inJS) {
   // Terminate native camera viewer app
   if (pidOfCameraViewer != 0) {
     kill(pidOfCameraViewer, SIGKILL);
@@ -214,24 +222,24 @@ void onCommandTerminateNativeSensorViewer(jsonString js) {
     kill(pidOfSensorViewer, SIGKILL);
   }
 }
-void onEventAndroidTerminate(jsonString js) {
+void onEventAndroidTerminate(jsonString inJS) {
   // Terminate Android OPEL Manager Event
   printf("Android activity backed or pause\n");
   cm->closeConnection();
   cm->makeConnection();
 }
 
-void onCommandDeleteApp(jsonString js) {
+void onCommandDeleteApp(jsonString inJS) {
   // Delete app
   printf("[MAIN] Request >> DELETE App\n");
 
   char appID[16]={'\0', };
-  snprintf(appID, sizeof(appID), "%s", js.findValue("appID").c_str());
+  snprintf(appID, sizeof(appID), "%s", inJS.findValue("appID").c_str());
 
   if (!appProcList->isExistOnRunningTableByAppID(atoi(appID))) {
     // Delete whole of the file and update DB
     if (apManager.deletePackage(atoi(appID))) {
-      cm->responsePkgUninstallComplete(js);
+      cm->responsePkgUninstallComplete(inJS);
     } else {
       printf("[MAIN] appID : %s fail to delete\n", appID);
     }
@@ -241,10 +249,10 @@ void onCommandDeleteApp(jsonString js) {
   }
 }
 
-void onRFMCommandGetListOfCurrentPaths(jsonString js) {
+void onRFMCommandGetListOfCurrentPaths(jsonString inJS) {
   // Get list of current paths
   char path[1024] = {'\0', };
-  snprintf(path, sizeof(path), "%s", js.findValue("path").c_str());
+  snprintf(path, sizeof(path), "%s", inJS.findValue("path").c_str());
 
   jsonString sendJp;
   sendJp.addType(RemoteFileManager_getListOfCurPath);
@@ -253,9 +261,9 @@ void onRFMCommandGetListOfCurrentPaths(jsonString js) {
   cm->responseUpdateFileManager(sendJp);
 }
 
-void onRFMCommandRequestFile(jsonString js) {
+void onRFMCommandRequestFile(jsonString inJS) {
   // Request a file from remote file manager
-  cm->responseRequestFilefromFileManager(js);
+  cm->responseRequestFilefromFileManager(inJS);
 }
 
 int main() {
@@ -272,6 +280,7 @@ int main() {
     // TODO(redcarrottt): This part should be replaced with glib main loop.
     // TODO(redcarrottt): Communication framework will be out of process.
     char rcvMsg[MSGBUFSIZE] = {'\0', };
+    printf("Wait for next message\n", rcvMsg);
     ssize_t numBytesRcvd = cm->getMsg(rcvMsg);
 
     if (numBytesRcvd == 0 || numBytesRcvd < 0) {

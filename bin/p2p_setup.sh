@@ -89,7 +89,7 @@ deinit_wfd()
 	sudo echo 0 > ${DHCP_STAT_PATH}/self
 	sudo rm /var/lib/dhcpcd5/dhcpcd-p2p-wlan0-* -f
 
-	sudo pkill -x ${OPEL_BIN_DIR}/wpa_supplicant
+	sudo pkill -x wpa_supplicant
 	sudo ifconfig wlan0 down
 	sudo echo 0 > ${WFD_STAT_PATH}/self
 	sudo echo 0 > ${INIT_PATH}/self
