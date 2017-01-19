@@ -33,7 +33,7 @@ class OPELFaceDetection : public Nan::AsyncWorker
         char* opel_dir = getenv("OPEL_DIR");
         char str[512] = "";
         strcat(str, opel_dir);
-        strcat(str, "/");
+        strcat(str, "/node/src/camfw/facedetection/");
         strcat(str, face_cascade_name.c_str());
 				if(!face.load(str))
 				{

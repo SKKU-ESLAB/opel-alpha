@@ -17,13 +17,13 @@ unsigned fileWrite(const char *file_path, char *buffer, unsigned size)
 	int ret=0;
 	fout = fopen(file_path, "w+");
 	if(!fout){
-		OPEL_DBG_ERR("File Open Failed");
+		OPEL_DBG_ERR("File Open Failed: %s", file_path);
 		return ret;
 	}
   ret = fwrite((char*)buffer, sizeof(char), size, fout);	
 	if(ret != size)
 	{
-		OPEL_DBG_ERR("File Write Failed ");	
+		OPEL_DBG_ERR("File Write Failed: %s", file_path);
 		closeFile(fout);
 		return 0;
 	}
@@ -140,13 +140,13 @@ bool openCVStart(DBusMessage *msg, OPELGstElementTx1 *tx1,
 	
 	if(!(tx1->getIsPlaying()))
 	{
-		OPEL_DBG_ERR("Is Not Playing");
+		OPEL_DBG_VERB("Is Not Playing");
 		ret = gst_element_set_state(tx1->getPipeline(), GST_STATE_READY);	
 		ret = gst_element_set_state(tx1->getPipeline(), GST_STATE_PLAYING); 
 		tx1->setIsPlaying(true);
 	}
 	else{
-		OPEL_DBG_ERR("Is Already Playing");
+		OPEL_DBG_VERB("Is Already Playing");
 		request_handle->defaultOpenCVGstSyncStateWithParent();
 	}
 

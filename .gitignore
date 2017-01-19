@@ -1,5 +1,6 @@
 bin/sensorManager
 bin/cam_manager
+bin/cam_fw
 bin/appManager/sysAppManager
 bin/appManager/appPackageRepository.db
 bin/appManager/deviceRepository.db
@@ -23,3 +24,5 @@ p2p.conf
 dhcpd.conf
 node/src/camfw/facedetection/build
 node/src/camfw/OPELCameraAPI/build
+data
+node_modules
