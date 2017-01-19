@@ -131,6 +131,8 @@ void onCommandKillApp(jsonString inJS) {
   }
 }
 
+#define APPID_LENGTH 16
+
 void onCommandUpdateAppInfo(jsonString inJS) {
   // Update App Information
   printf("[MAIN] Request >> Update App Infomation\n");
@@ -146,21 +148,20 @@ void onCommandUpdateAppInfo(jsonString inJS) {
   printf("[MAIN] 1: %s\n", js.getJsonData().c_str());
 
   for (apIter = apList->begin(); apIter != apList->end(); ++apIter) {
-    int appID_ = (*apIter)->getApID();
-    char appID[16]= {'\0', };
-    snprintf(appID, sizeof(appID), "%d", appID_);
+    int appIDNum = (*apIter)->getApID();
+    char appIDStr[APPID_LENGTH]= {'\0', };
 
     char appName[fileNameLength]= {'\0', };
     snprintf(appName, sizeof(appName), "%s", (*apIter)->getApName());
 
-    if (appProcList->isExistOnRunningTableByAppID(appID_)) {
+    if (appProcList->isExistOnRunningTableByAppID(appIDNum)) {
       // Append "/1" to appID
-      snprintf(appID, sizeof(appID), "%s/1", appID);
+      snprintf(appIDStr, APPID_LENGTH, "%d/1", appIDNum);
     } else {
       // Append "/0" to appID
-      snprintf(appID, sizeof(appID), "%s/0", appID);
+      snprintf(appIDStr, APPID_LENGTH, "%d/0", appIDNum);
     }
-    js.addItem(appID, appName);
+    js.addItem(appIDStr, appName);
   }
   printf("[MAIN] 2: %s\n", js.getJsonData().c_str());
 
