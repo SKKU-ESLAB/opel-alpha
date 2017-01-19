@@ -2,8 +2,16 @@ var opel_dir = process.env.OPEL_DIR;
 
 var sysAppNIL = require(opel_dir + '/node/sysfw/nil');
 var cameraNIL = require(opel_dir + '/node/OPELFaceDetection');
-require('date-utils');
 
+try {
+  require('date-utils');
+} catch (e) {
+  console.log("\n[App-FaceDetection] Error occured");
+  console.log("Please install 'date-utils' NPM module manually.");
+  console.log(" $ cd " + opel_dir);
+  console.log(" $ npm install date-utils\n");
+  process.exit();
+}
 
 var count = 6;
 var name, time;
