@@ -1,0 +1,1 @@
+cmd_Release/obj.target/camera-api.node := g++ -shared -pthread -rdynamic  -Wl,-soname=camera-api.node -o Release/obj.target/camera-api.node -Wl,--start-group Release/obj.target/camera-api/src/OPELRecordingAPI.o -Wl,--end-group -ldbus-1 -lglib-2.0
