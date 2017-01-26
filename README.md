@@ -9,13 +9,13 @@ $ cd opel-alpha
 ```
 
 ### How to Switch to Target Device's Branch
-* Raspberry Pi 2 or Raspberry Pi 3
+* Alpha 1(Raspberry Pi 2 or Raspberry Pi 3)
 ```
-$ git checkout origin/raspberry-pi2_3 -b raspberry-pi2_3
+$ git checkout alpha1
 ```
-* Nvidia TX1
+* Alpha 2(Nvidia TX1)
 ```
-$ git checkout origin/tegraTX1 -b tegraTX1
+$ git checkout alpha2
 ```
 ### How to Build
 ```
