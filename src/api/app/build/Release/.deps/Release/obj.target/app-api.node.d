@@ -1,0 +1,1 @@
+cmd_Release/obj.target/app-api.node := g++ -shared -pthread -rdynamic  -Wl,-soname=app-api.node -o Release/obj.target/app-api.node -Wl,--start-group Release/obj.target/app-api/nil.o Release/obj.target/app-api/nil_dbus_connection.o Release/obj.target/app-api/nil_dbus.o Release/obj.target/app-api/nil_request.o -Wl,--end-group -lglib-2.0 -ldbus-1
