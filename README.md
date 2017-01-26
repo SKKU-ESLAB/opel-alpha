@@ -9,11 +9,11 @@ $ cd opel-alpha
 ```
 
 ### How to Switch to Target Device's Branch
-* Alpha 1(Raspberry Pi 2 or Raspberry Pi 3)
+* Alpha 1 (Raspberry Pi 2 or Raspberry Pi 3)
 ```
 $ git checkout alpha1
 ```
-* Alpha 2(Nvidia TX1)
+* Alpha 2 (Nvidia TX1)
 ```
 $ git checkout alpha2
 ```
