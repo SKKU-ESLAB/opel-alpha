@@ -302,20 +302,20 @@ check_opel_out_dir
 print_progress 4 "Install OPEL binaries..."
 THIS_SCRIPT_DIR=$(dirname "$0")
 cp -R ${OPEL_OUT_DIR}/bin ${OPEL_BIN_DIR}
-cp ${THIS_SCRIPT_DIR}/opel.py ${OPEL_BIN_DIR}
-cp ${THIS_SCRIPT_DIR}/opel_p2p_setup.sh ${OPEL_BIN_DIR}
+cp ${THIS_SCRIPT_DIR}/install/opel.py ${OPEL_BIN_DIR}
+cp ${THIS_SCRIPT_DIR}/install/opel_p2p_setup.sh ${OPEL_BIN_DIR}
 
 # Make run_opel with fusion of target_profile and run_opel_tail
 echo "#!/bin/bash
 export OPEL_BIN_DIR=\"${OPEL_BIN_DIR}\";
 export OPEL_CONFIG_DIR=\"${OPEL_CONFIG_DIR}\";
-export OPEL_SENSOR_DRIVER_DIR=\"${OPEL_SENSOR_DRIVER_DIR}\"
-export OPEL_APPS_DIR=\"${OPEL_APPS_DIR}\"
-export OPEL_DATA_DIR=\"${OPEL_DATA_DIR}\"
-export OPEL_WPA_SUPPLICANT_DIR=\"${OPEL_WPA_SUPPLICANT_DIR}\"
-export OPEL_WPA_CLI_DIR=\"${OPEL_WPA_CLI_DIR}\"
-export OPEL_DELETESEM_DIR=\"${OPEL_DELETESEM_DIR}\"" >> ${OPEL_BIN_DIR}/run_opel
-cat ${THIS_SCRIPT_DIR}/run_opel_tail >> ${OPEL_BIN_DIR}/run_opel
+export OPEL_SENSOR_DRIVER_DIR=\"${OPEL_SENSOR_DRIVER_DIR}\";
+export OPEL_APPS_DIR=\"${OPEL_APPS_DIR}\";
+export OPEL_DATA_DIR=\"${OPEL_DATA_DIR}\";
+export OPEL_WPA_SUPPLICANT_DIR=\"${OPEL_WPA_SUPPLICANT_DIR}\";
+export OPEL_WPA_CLI_DIR=\"${OPEL_WPA_CLI_DIR}\";
+export OPEL_DELETESEM_DIR=\"${OPEL_DELETESEM_DIR}\";" >> ${OPEL_BIN_DIR}/run_opel
+cat ${THIS_SCRIPT_DIR}/install/run_opel_tail >> ${OPEL_BIN_DIR}/run_opel
 
 chmod +x ${OPEL_BIN_DIR}/*
 ln -s ${OPEL_BIN_DIR}/run_opel ${OPEL_SYSTEM_BIN_DIR}/run_opel 
