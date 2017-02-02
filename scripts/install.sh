@@ -22,40 +22,190 @@
 # install.sh: OPEL Install Script
 ##########################################################################
 
+## Available target boards
+AVAILABLE_TARGET_LIST=("tegraTX1")
+
+## Functions
+# show_usage(): Show the usage of install script
+#  - no arguments
 show_usage() {
   echo \
 "$0: OPEL install script
 usage: $0 --target=<TARGET_BOARD> [-h] [--help]
 
-Available target boards(--target):
-  tegraTX1
-
-You can pass following environment variables to this script.
- - OPEL_OUT_DIR: OPEL build output directory
- - OPEL_BIN_DIR: OPEL binary directory
- - OPEL_CONFIG_DIR: OPEL config directory
- - OPEL_SENSOR_DRIVER_DIR: OPEL sensor driver directory
- - OPEL_APPS_DIR: OPEL application directory
- - OPEL_DATA_DIR: OPEL data directory"
+Available target boards(--target):"
+  AVAILABLE_TARGET_STR=""
+  for AVAILABLE_TARGET_ITEM in "${AVAILABLE_TARGET_LIST[@]}";
+  do
+    AVAILABLE_TARGET_STR="${AVAILABLE_TARGET_STR} ${AVAILABLE_TARGET_ITEM}"
+  done
+  echo "${AVAILABLE_TARGET_STR}"
 }
 
-# Get help
+# check_var(): Check if an environment variable is vaild
+# - $1(ENV_NAME): (string) Environment variable's name to be determined
+check_var() {
+  ENV_NAME=$1
+  if [ ! ${!ENV_NAME} ]
+  then
+  fi
+}
+
+# determine_var(): Determine an environment variable. If the environment
+#                  variable's value has already determined, use that as it is.
+#                  If not, user should input its value.
+#  - $1(ENV_NAME): (string) Environment variable's name to be determined
+#  - $2(ENV_DESC): (string) The environment variable's description
+#  - $3(IS_DIRECTORY): (boolean) If the environment variable's value should be
+#                                the path of directory, it is set as "y".
+#                                If not, it is set as "n".
+#                                If "y" and the directory path indicated by the
+#                                value of the environment name dose not exist,
+#                                new directory can be created.
+#  - $4(DEFAULT_VALUE): (string; optional) If the environment variable's value
+#                                          does not exist, the given default
+#                                          value is proposed to user.
+determine_var() {
+  ENV_NAME=$1
+  ENV_DESC=$2
+  IS_DIRECTORY=$3
+  DEFAULT_VALUE=$4
+
+  # If the environment variable's value is determined, use that as it is.
+  if [ ${!ENV_NAME} ]
+  then
+    echo "$ENV_NAME($ENV_DESC) = ${!ENV_NAME}"
+    return
+  fi
+
+  # If default value is given, transform it into absolute path
+  eval DEFAULT_VALUE=`readlink --canonicalize ${DEFAULT_VALUE}`
+
+  # If the value is not determined, user should its value.
+  LOOP_CONTINUE=y
+  while [ $LOOP_CONTINUE = y ]
+  do
+    # If default value is given, user can use it without any key input.
+    if [ ${!DEFAULT_VALUE} ]
+    then
+      echo -n "Enter $ENV_DESC(${ENV_NAME}; default=${DEFAULT_VALUE}): "
+    else
+      echo -n "Enter $ENV_DESC(${ENV_NAME}): "
+    fi
+    read INPUT_VALUE
+
+    # If user did not gave any input, use default value.
+    # If default value is not given, require input of user again.
+    if [ -z ${INPUT_VALUE} ]
+    then
+      if [ ${DEFAULT_VALUE} ]
+      then
+        eval ${ENV_NAME}=${DEFAULT_VALUE}
+      else
+        continue
+      fi
+    else
+      eval ${ENV_NAME}=${INPUT_VALUE}
+    fi
+
+    # Transform relative path into absolute path
+    eval ${ENV_NAME}=`readlink --canonicalize ${!ENV_NAME}`
+
+    # Check if the path indicated by environment variable exists
+    if [ ${!ENV_NAME} ]
+    then
+      if [ ! -e ${!ENV_NAME} ]
+      then
+        echo "${!ENV_NAME} does not exist."
+
+        if [ $IS_DIRECTORY = y ]
+        then
+          IS_CREATE_NEW=y
+          
+          # If the environment variable's value should be directory path,
+          # user can create a new directory.
+          while [ : ];
+          do
+            echo -n "Do you want to create a new directory? (y/n; default=y): "
+            read IS_CREATE_NEW
+            if [ $IS_CREATE_NEW = y ] || [ $IS_CREATE_NEW = n];
+            then
+              LOOP_CONTINUE=n
+              break;
+            fi
+          done
+          if [ $IS_CREATE_NEW = y ]
+          then
+            mkdir -p ${!ENV_NAME}
+          fi
+        fi
+      else
+        # Check if the environment variable indicates directory or regular file.
+        if [ $IS_DIRECTORY = y ]
+        then
+          if [ ! -d ${!ENV_NAME} ]
+          then
+            echo "${!ENV_NAME} is not directory."
+          else
+            LOOP_CONTINUE=n
+          fi
+        else
+          if [ ! -f ${!ENV_NAME} ]
+          then
+            echo "${!ENV_NAME} is not regular file."
+          else
+            LOOP_CONTINUE=n
+          fi
+        fi
+      fi
+    fi
+  done
+
+  echo "$ENV_NAME($ENV_DESC) = ${!ENV_NAME}"
+  echo ""
+}
+
+# print_progress(): Print the progress
+#  - $1(ENV_NAME): (string) Environment variable's name to be determined
+#  - $2(ENV_DESC): (string) The environment variable's description
+print_progress() {
+  ENV_NAME=$1
+  ENV_DESC=$2
+
+  WARN_COLO="\033[31;47m"
+  INFO_COLO="\033[36m"
+  INIT_COLO="\033[0m"
+  
+  echo -e "${INFO_COLO}Step ${STEP_NUM}. ${STEP_DESC} ${INIT_COLO}"
+}
+
+## Main Code
+## Step 0. Check permission and arguments
+
+# Check permission
+if ! [ $(id -u) = 0 ]; then
+  echo "This script should run with root permission."
+  exit 1
+fi
+
+# Test getopt
 getopt --test > /dev/null
 if [[ $? -ne 4 ]]; then
   echo "This system has failed to test getopt."
   exit 1
 fi
 
-SHORT=h
-LONG=help
+# Variables set by parameters
+ARG_HELP=n
 
+# Parse arguments
+SHORT=th
+LONG=target:,help
 PARSED=`getopt --options $SHORT --longoptions $LONG --name "$0" -- "$@"`
 if [[ $? -ne 0 ]]; then
   exit 2
 fi
 eval set -- "$PARSED"
-
-ARG_HELP=n
 while true; do
   case "$1" in
     -t|--target)
@@ -85,110 +235,100 @@ then
 fi
 
 # Check target board
-if [ $ARG_TARGET_BOARD = "tegraTX1" ]
-then
-  echo "Target board $ARG_TARGET_BOARD is selected."
-  TARGET_DIR=target/$ARG_TARGET_BOARD
-  if [ -e $TARGET_DIR ]
+VALID_TARGET=n
+for AVAILABLE_TARGET_ITEM in "${AVAILABLE_TARGET_LIST[@]}";
+do
+  if [ $ARG_TARGET_BOARD = ${AVAILABLE_TARGET_ITEM} ]
   then
-    echo "Target board directory does not exist."
+    echo "Target board $ARG_TARGET_BOARD is selected."
+    TARGET_DIR=target/$ARG_TARGET_BOARD
+    if [ -e $TARGET_DIR ]
+    then
+      echo "Target board directory does not exist: $TARGET_DIR"
+      exit 3
+    fi
+    VALID_TARGET=y
+    break
   fi
-else
+done
+if [ ${VALID_TARGET} = "n" ]
+then
   echo "Invalid target board: $ARG_TARGET_BOARD"
   exit 3
 fi
 
+## Step 1. Import target profile
+print_progress 1 "Import target profile..."
+TARGET_PROFILE_PATH=$TARGET_DIR/profile.env
+if [ ! -e $TARGET_PROFILE_PATH ]
+then
+  echo "Target profile does not exist: $TARGET_PROFILE_PATH"
+  exit 3
+fi
+source $TARGET_PROFILE_PATH
+
+## Step 2. Determine environment variables to be used by install process
+print_progress 2 "OPEL Environment variable setting..."
 # Determine environment variables
-determine_var() {
-  ENV_NAME=$1
-  ENV_DESC=$2
-  IS_DIRECTORY=$3
-  LOOP_CONTINUE=y
-  while [ $LOOP_CONTINUE = y ]
-  do
-    if [ ${!ENV_NAME} ]
-    then
-      echo -n "Enter $ENV_DESC(${!ENV_NAME}): "
-    else
-      echo -n "Enter $ENV_DESC: "
-    fi
-    read $ENV_NAME
-    eval ${ENV_NAME}=`readlink --canonicalize ${!ENV_NAME}`
+determine_var "OPEL_OUT_DIR" "OPEL output directory" y "./out"
 
-    if [ ${!ENV_NAME} ]
-    then
-      if [ ! -e ${!ENV_NAME} ]
-      then
-        echo "${!ENV_NAME} does not exist."
-
-        if [ $IS_DIRECTORY = y ]
-        then
-          IS_CREATE_NEW=y
-          
-          while [ : ];
-          do
-            echo -n "Do you want to create a new directory? (y/n; default=y): "
-            read IS_CREATE_NEW
-            if [ $IS_CREATE_NEW = y ] || [ $IS_CREATE_NEW = n];
-            then
-              LOOP_CONTINUE=n
-              break;
-            fi
-          done
-          if [ $IS_CREATE_NEW = y ]
-          then
-            mkdir -p ${!ENV_NAME}
-          fi
-        fi
-      else
-        if [ $IS_DIRECTORY = y ]
-        then
-          if [ ! -d ${!ENV_NAME} ]
-          then
-            echo "${!ENV_NAME} is not directory."
-          else
-            LOOP_CONTINUE=n
-          fi
-        else
-          if [ ! -f ${!ENV_NAME} ]
-          then
-            echo "${!ENV_NAME} is not regular file."
-          else
-            LOOP_CONTINUE=n
-          fi
-        fi
-      fi
-    fi
-  done
-
-  echo "$ENV_NAME= ${!ENV_NAME}"
-  echo ""
-}
-echo "* OPEL Environment variable setting"
-# 1: OPEL_OUT_DIR
-determine_var "OPEL_OUT_DIR" "OPEL output directory" y
-# 2: OPEL_BIN_DIR
+# Runtime directory path
 determine_var "OPEL_BIN_DIR" "OPEL binary directory" y
-# 3: OPEL_CONFIG_DIR
 determine_var "OPEL_CONFIG_DIR" "OPEL config directory" y
-# 4: OPEL_SENSOR_DRIVER_DIR
 determine_var "OPEL_SENSOR_DRIVER_DIR" "OPEL sensor driver directory" y
-# 5: OPEL_APPS_DIR
 determine_var "OPEL_APPS_DIR" "OPEL sensor driver directory" y
-# 6: OPEL_DATA_DIR
 determine_var "OPEL_DATA_DIR" "OPEL data directory" y
-# 7: THIS_SCRIPT_DIR
-THIS_SCRIPT_DIR=$(dirname "$0")
 
-# TODO: Check OPEL_OUT_DIR
-check_out_dir() {
+# Dependent binary path
+determine_var "OPEL_WPA_SUPPLICANT_PATH" \
+              "wpa_supplicant's path to be used by OPEL" y \
+              `which wpa_supplicant`
+determine_var "OPEL_WPA_CLI_PATH" \
+              "wpa_cli's path to be used by OPEL" y \
+              `which wpa_cli`
+determine_var "OPEL_DELETESEM_PATH" \
+              "deletesem's path to be used by OPEL" y \
+              `which deletesem`
+
+### Step 3. Check the contents of OPEL_OUT_DIR
+print_progress 3 "Check the contents of OPEL out directory..."
+check_opel_out_dir() {
+  # TODO
 }
-check_out_dir
+check_opel_out_dir
 
+## Step 4+. Install OPEL
 # Install OPEL_BIN_DIR
+print_progress 4 "Install OPEL binaries..."
+THIS_SCRIPT_DIR=$(dirname "$0")
 cp -R ${OPEL_OUT_DIR}/bin ${OPEL_BIN_DIR}
 cp ${THIS_SCRIPT_DIR}/opel.py ${OPEL_BIN_DIR}
-cp ${THIS_SCRIPT_DIR}/run_opel ${OPEL_BIN_DIR}
 cp ${THIS_SCRIPT_DIR}/opel_p2p_setup.sh ${OPEL_BIN_DIR}
 
+# Make run_opel with fusion of target_profile and run_opel_tail
+cat ${TARGET_PROFILE_PATH} > ${OPEL_BIN_DIR}/run_opel
+cat ${THIS_SCRIPT_DIR}/run_opel_tail >> ${OPEL_BIN_DIR}/run_opel
+
+chmod +x ${OPEL_BIN_DIR}/*
+ln -s ${OPEL_BIN_DIR}/run_opel ${OPEL_SYSTEM_BIN_DIR}/run_opel 
+
 # Install OPEL_CONFIG_DIR
+print_progress 5 "Install OPEL configs..."
+cp -R ${OPEL_OUT_DIR}/config ${OPEL_CONFIG_DIR}/
+
+# Install OPEL_SENSOR_DRIVER_DIR
+print_progress 6 "Install OPEL sensor drivers..."
+cp -R ${OPEL_OUT_DIR}/sensor-drivers ${OPEL_SENSOR_DRIVER_DIR}/
+
+# Install OPEL_APPS_DIR
+print_progress 7 "Install OPEL system applications..."
+mkdir -p ${OPEL_APPS_DIR}/system
+mkdir -p ${OPEL_APPS_DIR}/user
+cp -R ${OPEL_OUT_DIR}/system-apps ${OPEL_APPS_DIR}/system/
+
+WARN_COLO="\033[31;47m"
+INFO_COLO="\033[36m"
+INIT_COLO="\033[0m"
+
+echo -e "${WARN_COLO}OPEL install completed${INIT_COLO}"
+echo -e "Input ${INFO_COLO}run_opel${INIT_COLO} to run OPEL."
