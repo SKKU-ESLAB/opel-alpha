@@ -1,0 +1,4 @@
+export OPEL_DIR=${PWD}
+OPEL_PYTHON3=`which python3`
+
+${OPEL_PYTHON3} ./bin/opel.py
