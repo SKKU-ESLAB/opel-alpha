@@ -166,11 +166,11 @@ determine_var() {
 }
 
 # print_progress(): Print the progress
-#  - $1(ENV_NAME): (string) Environment variable's name to be determined
-#  - $2(ENV_DESC): (string) The environment variable's description
+#  - $1(STEP_NUM): (int) Progress step's number
+#  - $2(STEP_DESC): (string) Progress step's description
 print_progress() {
-  ENV_NAME=$1
-  ENV_DESC=$2
+  STEP_NUM=$1
+  STEP_DESC=$2
 
   WARN_COLO="\033[31;47m"
   INFO_COLO="\033[36m"
@@ -306,7 +306,15 @@ cp ${THIS_SCRIPT_DIR}/opel.py ${OPEL_BIN_DIR}
 cp ${THIS_SCRIPT_DIR}/opel_p2p_setup.sh ${OPEL_BIN_DIR}
 
 # Make run_opel with fusion of target_profile and run_opel_tail
-cat ${TARGET_PROFILE_PATH} > ${OPEL_BIN_DIR}/run_opel
+echo "#!/bin/bash
+export OPEL_BIN_DIR=\"${OPEL_BIN_DIR}\";
+export OPEL_CONFIG_DIR=\"${OPEL_CONFIG_DIR}\";
+export OPEL_SENSOR_DRIVER_DIR=\"${OPEL_SENSOR_DRIVER_DIR}\"
+export OPEL_APPS_DIR=\"${OPEL_APPS_DIR}\"
+export OPEL_DATA_DIR=\"${OPEL_DATA_DIR}\"
+export OPEL_WPA_SUPPLICANT_DIR=\"${OPEL_WPA_SUPPLICANT_DIR}\"
+export OPEL_WPA_CLI_DIR=\"${OPEL_WPA_CLI_DIR}\"
+export OPEL_DELETESEM_DIR=\"${OPEL_DELETESEM_DIR}\"" >> ${OPEL_BIN_DIR}/run_opel
 cat ${THIS_SCRIPT_DIR}/run_opel_tail >> ${OPEL_BIN_DIR}/run_opel
 
 chmod +x ${OPEL_BIN_DIR}/*
