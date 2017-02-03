@@ -1,1 +1,0 @@
-cmd_Release/obj.target/sensor-api.node := g++ -shared -pthread -rdynamic  -Wl,-soname=sensor-api.node -o Release/obj.target/sensor-api.node -Wl,--start-group Release/obj.target/sensor-api/nil.o Release/obj.target/sensor-api/nil_dbus_connection.o Release/obj.target/sensor-api/nil_dbus.o Release/obj.target/sensor-api/nil_request.o -Wl,--end-group -lglib-2.0 -ldbus-1

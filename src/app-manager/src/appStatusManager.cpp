@@ -121,7 +121,7 @@ bool appStatusManager::runNewApplication(jsonString js, char* _filePath ){
 		strncat(appPath, dirLastPath+1, strlen(dirLastPath)-1);
 
 		printf("[appStatusManager] Fork & Run App id %s name %s pid %d path %s\n",
-        appID, appName, pid, dirPath);		
+        appID, appName, pid, appPath);		
 		appProcessInfo newProcess(appID, appName, pid, appPath);
 		appProcList->insertProcess(newProcess);
 		
