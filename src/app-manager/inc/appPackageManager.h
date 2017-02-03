@@ -32,7 +32,7 @@
 #include "appPackageRepo.h"
 #include "jsonString.h"
 
-//#define PKG_STORAGE_PATH "/application/"
+//#define mUserAppsPath "/application/"
 
 using namespace std;
 
@@ -41,7 +41,7 @@ class appPackageManager{
 	private:
 		appPackageRepo appPkgRepo;
 		appPackageList appPkgList;
-		char PKG_STORAGE_PATH[1024];
+		char mUserAppsPath[1024];
 		
 	public:
 		appPackageManager();

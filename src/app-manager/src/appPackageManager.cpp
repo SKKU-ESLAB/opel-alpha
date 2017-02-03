@@ -47,13 +47,13 @@ appPackageManager::appPackageManager(){
 
 	struct stat st = {0};
 	
-	char* opelEnvPath;
-	opelEnvPath = getenv("OPEL_DIR");
+	char* opelAppsDir;
+	opelAppsDir = getenv("OPEL_APPS_DIR");
 
-	sprintf(PKG_STORAGE_PATH, "%s%s", opelEnvPath, "/bin/appManager/application/");
+	sprintf(mUserAppsPath, "%s%s", opelAppsDir, "/user/");
 
-	if (stat(PKG_STORAGE_PATH, &st) == -1) {
-    	mkdir(PKG_STORAGE_PATH, 0755);
+	if (stat(mUserAppsPath, &st) == -1) {
+    	mkdir(mUserAppsPath, 0755);
 	}
 	
 }
@@ -87,7 +87,7 @@ jsonString appPackageManager::installPackage(char* pkgFileName){
 	char pkgFullDirPath[256]={'\0',};							  // ./application/2015_xx_xx_xx_xx/
 	char pkgFilePath[256]={'\0',};								  // ./application/2015_xx_xx_xx_xx.opk
 	strncpy(pkgDirName, pkgFileName, strlen(pkgFileName)-4);
-	sprintf(pkgFullDirPath, "%s%s", PKG_STORAGE_PATH, pkgDirName);
+	sprintf(pkgFullDirPath, "%s%s", mUserAppsPath, pkgDirName);
 
 
 	struct stat st = {0};
@@ -99,7 +99,7 @@ jsonString appPackageManager::installPackage(char* pkgFileName){
 		return ;
 	}*/
 
-	sprintf(pkgFilePath, "%s%s", PKG_STORAGE_PATH, pkgFileName);
+	sprintf(pkgFilePath, "%s%s", mUserAppsPath, pkgFileName);
 //	sprintf(unzipCommand,"unzip -o %s -d %s/", pkgFilePath, pkgFullDirPath);
 //	sprintf(unzipCommand,"tar xvf %s -C %s/", pkgFilePath, pkgFullDirPath);
 //	{"","test", "-d", "./test/"};

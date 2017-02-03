@@ -307,14 +307,16 @@ cp ${THIS_SCRIPT_DIR}/install/opel_p2p_setup.sh ${OPEL_BIN_DIR}
 
 # Make run_opel with fusion of target_profile and run_opel_tail
 echo "#!/bin/bash
+export OPEL_TARGET_NAME=\"${OPEL_TARGET_NAME}\";
 export OPEL_BIN_DIR=\"${OPEL_BIN_DIR}\";
 export OPEL_CONFIG_DIR=\"${OPEL_CONFIG_DIR}\";
 export OPEL_SENSOR_DRIVER_DIR=\"${OPEL_SENSOR_DRIVER_DIR}\";
 export OPEL_APPS_DIR=\"${OPEL_APPS_DIR}\";
 export OPEL_DATA_DIR=\"${OPEL_DATA_DIR}\";
-export OPEL_WPA_SUPPLICANT_DIR=\"${OPEL_WPA_SUPPLICANT_DIR}\";
-export OPEL_WPA_CLI_DIR=\"${OPEL_WPA_CLI_DIR}\";
-export OPEL_DELETESEM_DIR=\"${OPEL_DELETESEM_DIR}\";" >> ${OPEL_BIN_DIR}/run_opel
+export OPEL_WPA_SUPPLICANT_PATH=\"${OPEL_WPA_SUPPLICANT_PATH}\";
+export OPEL_WPA_CLI_PATH=\"${OPEL_WPA_CLI_PATH}\";
+export OPEL_DELETESEM_PATH=\"${OPEL_DELETESEM_PATH}\";" \
+  > ${OPEL_BIN_DIR}/run_opel
 cat ${THIS_SCRIPT_DIR}/install/run_opel_tail >> ${OPEL_BIN_DIR}/run_opel
 
 chmod +x ${OPEL_BIN_DIR}/*
@@ -323,6 +325,10 @@ ln -s ${OPEL_BIN_DIR}/run_opel ${OPEL_SYSTEM_BIN_DIR}/run_opel
 # Install OPEL_CONFIG_DIR
 print_progress 5 "Install OPEL configs..."
 cp -R ${OPEL_OUT_DIR}/config ${OPEL_CONFIG_DIR}/
+cp ${TARGET_DIR}/camera-config.xml ${OPEL_CONFIG_DIR}/
+cp ${TARGET_DIR}/dhcpd.conf ${OPEL_CONFIG_DIR}/
+cp ${TARGET_DIR}/p2p.conf ${OPEL_CONFIG_DIR}/
+cp ${TARGET_DIR}/haarcascade_frontalface_alt.xml ${OPEL_CONFIG_DIR}/
 
 # Install OPEL_SENSOR_DRIVER_DIR
 print_progress 6 "Install OPEL sensor drivers..."

@@ -41,4 +41,12 @@ LINK_DIRECTORIES(/usr/lib/dbus-1.0)
 LINK_DIRECTORIES( ${CMAKE_CURRENT_SOURCE_DIR}/libsensor.so )
 LINK_DIRECTORIES( ${CMAKE_CURRENT_SOURCE_DIR}/BUILD_SO/libsensor.so )
 
+add_custom_target(
+  sensor-list ALL
+  COMMAND mkdir -p ${CMAKE_SOURCE_DIR}/out/config
+  COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/SENSOR_LIST ${CMAKE_SOURCE_DIR}/out/config/
+  COMMENT "Copying sensor list to config directory..."
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+  )
+
 ADD_SUBDIRECTORY(BUILD_SO)

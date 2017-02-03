@@ -25,14 +25,23 @@
 import argparse, signal, os, time, sys
 
 
-# Check OPEL_DIR
+# Check environment variables
 try:
-    gOpelDir = os.environ['OPEL_DIR']
-except KeyError:
-    print("Not found OPEL_DIR in your environment."
-    + "Please set 'OPEL_DIR' variable.")
-gOpelBinDir = "./"
-gOpelDataDir = gOpelDir + "/data/"
+    # Environment variables that is used in this script
+    gOpelBinDir = os.environ['OPEL_BIN_DIR']
+    gOpelDataDir = os.environ['OPEL_DATA_DIR']
+    gOpelDeleteSemPath = os.environ['OPEL_DELETESEM_PATH']
+
+    # Environment variables that will be used inside of OPEL frameworks
+    gOpelTargetName = os.environ['OPEL_TARGET_NAME']
+    gOpelWpaSupplicantPath = os.environ['OPEL_WPA_SUPPLICANT_PATH']
+    gOpelWpaCliPath = os.environ['OPEL_WPA_CLI_PATH']
+    gOpelConfigDir = os.environ['OPEL_CONFIG_DIR']
+    gOpelSensorDriverDir = os.environ['OPEL_SENSOR_DRIVER_DIR']
+    gOpelAppsDir = os.environ['OPEL_APPS_DIR']
+except KeyError, e:
+    print("Not found environment variable. {}".format(str(e)))
+    exit()
 
 def signal_handler(signum, frame):
     return
@@ -87,7 +96,7 @@ def on_did_initialize():
     run_command("mkdir -p " + gOpelDataDir)
     run_command("hciconfig hci0 piscan")
     initialize_ipcrm()
-    run_command("./deletesem")
+    run_command(gOpelDeleteSemPath)
 
     # Execute daemons
     run_on_daemon(command=["./sysAppManager"],
@@ -102,7 +111,7 @@ def on_did_initialize():
 def on_did_halt_by_user():
     log("User key interrupt is detected.")
     log("Terminating OPEL...")
-    run_command("./p2p_setup.sh stop")
+    run_command("./opel_p2p_setup.sh stop")
     return
 
 # on_did_dead_daemon: (event handler) daemon process is dead
