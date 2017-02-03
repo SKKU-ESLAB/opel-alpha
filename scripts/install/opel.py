@@ -99,11 +99,11 @@ def on_did_initialize():
     run_command(gOpelDeleteSemPath)
 
     # Execute daemons
-    run_on_daemon(command=["./sysAppManager"],
+    run_on_daemon(command=["./opel-appcore-manager"],
             name="App/Sys Manager Daemon")
-    run_on_daemon(command=["./cam_fw"],
+    run_on_daemon(command=["./opel-camera-manager"],
             name="Camera Framework Daemon")
-    run_on_daemon(command=["./sensorManager"],
+    run_on_daemon(command=["./opel-sensor-manager"],
             name="Sensor Manager Daemon")
     return
 
