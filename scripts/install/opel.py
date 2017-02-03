@@ -116,7 +116,7 @@ def on_did_halt_by_user():
 
 # on_did_dead_daemon: (event handler) daemon process is dead
 def on_did_dead_deamon(pid):
-    log("An OPEL process (pid {}) is dead.".format(siginfo.si_pid))
+    log("An OPEL process (pid {}) is dead.".format(pid))
     return
 ##########################################################################
 

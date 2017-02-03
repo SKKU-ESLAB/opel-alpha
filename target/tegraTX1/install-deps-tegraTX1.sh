@@ -104,6 +104,7 @@ mkdir -p /usr/bin/opel-deps
 sudo cp ${OPEL_REPO_DIR}/dep/wpa/wpa_supplicant /usr/bin/opel-deps/
 sudo cp ${OPEL_REPO_DIR}/dep/wpa/wpa_cli /usr/bin/opel-deps/
 sudo cp ${OPEL_REPO_DIR}/dep/deletesem/deletesem /usr/bin/opel-deps/
+chmod +x /usr/bin/opel-deps/*
 
 # Step 9. Build and install nodejs-4.0.0
 print_progress 9 "Build and install nodejs-4.0.0..."

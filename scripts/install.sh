@@ -325,13 +325,13 @@ determine_var "OPEL_DATA_DIR" "OPEL data directory" y
 
 # Dependent binary path
 determine_var "OPEL_WPA_SUPPLICANT_PATH" \
-              "wpa_supplicant's path to be used by OPEL" y \
+              "wpa_supplicant's path to be used by OPEL" n \
               `which wpa_supplicant`
 determine_var "OPEL_WPA_CLI_PATH" \
-              "wpa_cli's path to be used by OPEL" y \
+              "wpa_cli's path to be used by OPEL" n \
               `which wpa_cli`
 determine_var "OPEL_DELETESEM_PATH" \
-              "deletesem's path to be used by OPEL" y \
+              "deletesem's path to be used by OPEL" n \
               `which deletesem`
 
 ### Step 3. Check the contents of OPEL_OUT_DIR
