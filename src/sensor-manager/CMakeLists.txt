@@ -18,16 +18,16 @@ set(SM_sources sensor_manager.c request.c devices.c)
 set(SM_driver_sources sensor_manager.c devices.c jetsonGPIO.c sensor0_button.c)
 
 
-ADD_EXECUTABLE(sensorManager ${SM_sources})
+ADD_EXECUTABLE(opel-sensor-manager ${SM_sources})
 set(COMPILE_FLAGS -Wall -O2 -fPIC)
 
 FIND_LIBRARY(LIBSENSOR NAMES libsensors.so PATHS ${CMAKE_CURRENT_SOURCE_DIR}/BUILD_SO)
 
-TARGET_COMPILE_OPTIONS(sensorManager PRIVATE ${COMPILE_FLAGS})
-TARGET_LINK_LIBRARIES(sensorManager pthread c m dbus-glib-1 dbus-1 glib-2.0 ${LIBSENSOR})
+TARGET_COMPILE_OPTIONS(opel-sensor-manager PRIVATE ${COMPILE_FLAGS})
+TARGET_LINK_LIBRARIES(opel-sensor-manager pthread c m dbus-glib-1 dbus-1 glib-2.0 ${LIBSENSOR})
 
 
-set_target_properties(sensorManager
+set_target_properties(opel-sensor-manager
 	PROPERTIES
 	RUNTIME_OUTPUT_DIRECTORY "../../out/bin")
 
