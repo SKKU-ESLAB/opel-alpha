@@ -45,7 +45,7 @@ add_custom_target(
   sensor-list ALL
   COMMAND mkdir -p ${CMAKE_SOURCE_DIR}/out/config
   COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/SENSOR_LIST ${CMAKE_SOURCE_DIR}/out/config/
-  COMMENT "Copying sensor list to config directory..."
+  COMMENT "Copy sensor list to config directory"
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
   )
 

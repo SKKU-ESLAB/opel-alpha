@@ -51,7 +51,7 @@ init_wf()
 	sudo chown -R $USER:$USER /tmp/wifi
 	sudo ifconfig wlan0 up
 	sudo ${OPEL_WPA_SUPPLICANT_PATH} -Dnl80211 -iwlan0 -c${P2P_CONF_PATH} -Bd
-	sudo ${OPEL_CLI_PATH} p2p_group_add persistent=0
+	sudo ${OPEL_WPA_CLI_PATH} p2p_group_add persistent=0
 	P2P_IFNAME=`ifconfig | awk '/p2p/ {print $1}'`
 	if [ -z ${P2P_IFNAME} ]
 	then
@@ -65,7 +65,7 @@ init_wf()
 	sudo ifconfig ${P2P_IFNAME} 192.168.49.1 up
 	DEV_ADDR=`cat ${DEV_ADDR_PATH}/self`
 	
-	sudo ${OPEL_CLI_PATH} wps_pin any 12345670
+	sudo ${OPEL_WPA_CLI_PATH} wps_pin any 12345670
 	sudo udhcpd ${DHCP_CONF_PATH} -f &
 	echo 1 > ${INIT_PATH}/self
 
@@ -80,8 +80,8 @@ deinit_wfd()
 	exit 1
 	fi
 	P2P_IFNAME=`ifconfig | awk '/p2p/ {print $1}'`
-	sudo ${OPEL_CLI_PATH} p2p_flush
-	sudo ${OPEL_CLI_PATH} p2p_group_remove ${P2P_IFNAME}
+	sudo ${OPEL_WPA_CLI_PATH} p2p_flush
+	sudo ${OPEL_WPA_CLI_PATH} p2p_group_remove ${P2P_IFNAME}
 	sudo pkill -x udhcpd
 	sudo echo 0 > ${DHCP_STAT_PATH}/self
 	sudo rm /var/lib/dhcpcd5/dhcpcd-p2p-wlan0-* -f
@@ -99,7 +99,7 @@ start_wfd()
 	then
 	exit 1
 	fi
-	IS_START=`sudo ${OPEL_CLI_PATH} wps_pin any 12345670 | grep 12345670`
+	IS_START=`sudo ${OPEL_WPA_CLI_PATH} wps_pin any 12345670 | grep 12345670`
 	if [ -z ${IS_START} ]
 	then
 	echo "Failed to start WFD"
@@ -112,14 +112,15 @@ start_wfd()
 
 stop_wfd()
 {
-	sudo ${OPEL_CLI_PATH} p2p_flush
+	sudo ${OPEL_WPA_CLI_PATH} p2p_flush
 	
 	sudo echo 0 > ${WFD_STAT_PATH}/self
 	echo stopped
 }
 
 # Check required environment variables
-CHECK_ENV_LIST=("OPEL_CONFIG_DIR", "OPEL_WPA_SUPPLICANT_PATH", "OPEL_CLI_PATH")
+CHECK_ENV_LIST=("OPEL_CONFIG_DIR" "OPEL_WPA_SUPPLICANT_PATH"
+                "OPEL_WPA_CLI_PATH")
 for CHECK_ENV_ITEM in "${CHECK_ENV_LIST[@]}";
 do
   if [ -z ${!CHECK_ENV_ITEM} ]

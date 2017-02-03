@@ -39,7 +39,7 @@ try:
     gOpelConfigDir = os.environ['OPEL_CONFIG_DIR']
     gOpelSensorDriverDir = os.environ['OPEL_SENSOR_DRIVER_DIR']
     gOpelAppsDir = os.environ['OPEL_APPS_DIR']
-except KeyError, e:
+except KeyError as e:
     print("Not found environment variable. {}".format(str(e)))
     exit()
 
@@ -116,7 +116,7 @@ def on_did_halt_by_user():
 
 # on_did_dead_daemon: (event handler) daemon process is dead
 def on_did_dead_deamon(pid):
-    log("An OPEL process (pid {}) is dead.".format(siginfo.si_pid))
+    log("An OPEL process (pid {}) is dead.".format(pid))
     return
 ##########################################################################
 

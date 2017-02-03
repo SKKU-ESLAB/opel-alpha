@@ -39,7 +39,7 @@ $ make
 
 For more details, see [Getting Started](https://github.com/sinban04/opel-alpha/wiki/Getting-Started).
 
-### How to Install
+### How to Install (Alpha 3)
 In example of tegraTX1:
 
 ```

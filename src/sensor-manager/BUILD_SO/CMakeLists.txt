@@ -34,3 +34,10 @@ LINK_DIRECTORIES(/usr/lib/dbus-1.0)
 LINK_DIRECTORIES( ${CMAKE_CURRENT_SOURCE_DIR} )
 LINK_DIRECTORIES( ${CMAKE_CURRENT_SOURCE_DIR}/.. )
 
+add_custom_target(
+  copy-sensor-drivers ALL
+  COMMAND mkdir -p ${CMAKE_SOURCE_DIR}/out/sensor-drivers
+  COMMAND cp ./libsensors.so ${CMAKE_SOURCE_DIR}/out/sensor-drivers
+  COMMENT "Copy sensor drivers"
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+  )
