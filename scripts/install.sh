@@ -42,25 +42,25 @@ Available target boards(--target):"
   echo "${AVAILABLE_TARGET_STR}"
 }
 
-# check_var(): Check if an environment variable is vaild
-# - $1(ENV_NAME): (string) Environment variable's name to be determined
-check_var() {
-  ENV_NAME=$1
-  if [ ! ${!ENV_NAME} ]
-  then
-  fi
-}
+## check_var(): Check if an environment variable is vaild
+## - $1(ENV_NAME): (string) Environment variable's name to be determined
+#check_var() {
+#  ENV_NAME=$1
+#  if [ ! ${!ENV_NAME} ]
+#  then
+#  fi
+#}
 
-# determine_var(): Determine an environment variable. If the environment
-#                  variable's value has already determined, use that as it is.
-#                  If not, user should input its value.
+## determine_var(): Determine an environment variable. If the environment
+#                   variable's value has already determined, use that as it is.
+#                   If not, user should input its value.
 #  - $1(ENV_NAME): (string) Environment variable's name to be determined
 #  - $2(ENV_DESC): (string) The environment variable's description
 #  - $3(IS_DIRECTORY): (boolean) If the environment variable's value should be
 #                                the path of directory, it is set as "y".
 #                                If not, it is set as "n".
 #                                If "y" and the directory path indicated by the
-#                                value of the environment name dose not exist,
+#                                value of the environment name does not exist,
 #                                new directory can be created.
 #  - $4(DEFAULT_VALUE): (string; optional) If the environment variable's value
 #                                          does not exist, the given default
@@ -71,22 +71,58 @@ determine_var() {
   IS_DIRECTORY=$3
   DEFAULT_VALUE=$4
 
+  RESU_COLO="\033[33m"
+  INIT_COLO="\033[0m"
+
   # If the environment variable's value is determined, use that as it is.
   if [ ${!ENV_NAME} ]
   then
-    echo "$ENV_NAME($ENV_DESC) = ${!ENV_NAME}"
+    echo -e "${RESU_COLO}$ENV_NAME($ENV_DESC) = ${!ENV_NAME}${INIT_COLO}"
+
+    if [ $IS_DIRECTORY = y ]
+    then
+      if [ -e ${!ENV_NAME} ]
+      then
+        return
+      fi
+
+      IS_CREATE_NEW=y
+
+      # If the environment variable's value should be directory path,
+      # user can create a new directory.
+      while [ : ];
+      do
+        echo -n "Do you want to create a new directory? (y/n; default=y): "
+        read IS_CREATE_NEW
+        if [ -z $IS_CREATE_NEW ]
+        then
+          break;
+        fi
+        if [ $IS_CREATE_NEW = y ] || [ $IS_CREATE_NEW = n];
+        then
+          break;
+        fi
+      done
+      if [ -z $IS_CREATE_NEW ] || [ $IS_CREATE_NEW = y ]
+      then
+        mkdir -p ${!ENV_NAME}
+      fi
+    fi
     return
   fi
 
   # If default value is given, transform it into absolute path
-  eval DEFAULT_VALUE=`readlink --canonicalize ${DEFAULT_VALUE}`
+  if [ ${DEFAULT_VALUE} ]
+  then
+    eval DEFAULT_VALUE=`readlink --canonicalize ${DEFAULT_VALUE}`
+  fi
 
   # If the value is not determined, user should its value.
   LOOP_CONTINUE=y
   while [ $LOOP_CONTINUE = y ]
   do
     # If default value is given, user can use it without any key input.
-    if [ ${!DEFAULT_VALUE} ]
+    if [ ${DEFAULT_VALUE} ]
     then
       echo -n "Enter $ENV_DESC(${ENV_NAME}; default=${DEFAULT_VALUE}): "
     else
@@ -128,13 +164,16 @@ determine_var() {
           do
             echo -n "Do you want to create a new directory? (y/n; default=y): "
             read IS_CREATE_NEW
+            if [ -z $IS_CREATE_NEW ]
+            then
+              break;
+            fi
             if [ $IS_CREATE_NEW = y ] || [ $IS_CREATE_NEW = n];
             then
-              LOOP_CONTINUE=n
               break;
             fi
           done
-          if [ $IS_CREATE_NEW = y ]
+          if [ -z $IS_CREATE_NEW ] || [ $IS_CREATE_NEW = y ]
           then
             mkdir -p ${!ENV_NAME}
           fi
@@ -161,8 +200,7 @@ determine_var() {
     fi
   done
 
-  echo "$ENV_NAME($ENV_DESC) = ${!ENV_NAME}"
-  echo ""
+  echo -e "${RESU_COLO}$ENV_NAME($ENV_DESC) = ${!ENV_NAME}${INIT_COLO}"
 }
 
 # print_progress(): Print the progress
@@ -236,13 +274,19 @@ fi
 
 # Check target board
 VALID_TARGET=n
+if [ -z $ARG_TARGET_BOARD ]
+then
+  echo "No target board specified."
+  show_usage
+  exit 3
+fi
 for AVAILABLE_TARGET_ITEM in "${AVAILABLE_TARGET_LIST[@]}";
 do
   if [ $ARG_TARGET_BOARD = ${AVAILABLE_TARGET_ITEM} ]
   then
     echo "Target board $ARG_TARGET_BOARD is selected."
     TARGET_DIR=target/$ARG_TARGET_BOARD
-    if [ -e $TARGET_DIR ]
+    if [ ! -e $TARGET_DIR ]
     then
       echo "Target board directory does not exist: $TARGET_DIR"
       exit 3
@@ -294,6 +338,7 @@ determine_var "OPEL_DELETESEM_PATH" \
 print_progress 3 "Check the contents of OPEL out directory..."
 check_opel_out_dir() {
   # TODO
+  return
 }
 check_opel_out_dir
 
@@ -320,7 +365,8 @@ export OPEL_DELETESEM_PATH=\"${OPEL_DELETESEM_PATH}\";" \
 cat ${THIS_SCRIPT_DIR}/install/run_opel_tail >> ${OPEL_BIN_DIR}/run_opel
 
 chmod +x ${OPEL_BIN_DIR}/*
-ln -s ${OPEL_BIN_DIR}/run_opel ${OPEL_SYSTEM_BIN_DIR}/run_opel 
+rm ${OPEL_SYSTEM_BIN_DIR}/run_opel
+ln -s ${OPEL_BIN_DIR}/run_opel ${OPEL_SYSTEM_BIN_DIR}/run_opel
 
 # Install OPEL_CONFIG_DIR
 print_progress 5 "Install OPEL configs..."

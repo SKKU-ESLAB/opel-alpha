@@ -21,12 +21,32 @@ $ git checkout origin/tegraTX1
 ```
 $ git checkout origin/alpha3
 ```
-### How to Build
+
+### How to Install Prerequisites
+It is dependent on target device.
+
+In example of tegraTX1:
+
+```
+$ ./target/tegraTX1/install-deps-tegraTX1.sh
+```
+
+### How to Build (Alpha 2, 3)
 ```
 $ cmake .
 $ make
 ```
+
 For more details, see [Getting Started](https://github.com/sinban04/opel-alpha/wiki/Getting-Started).
+
+### How to Install
+In example of tegraTX1:
+
+```
+$ sudo ./scripts/install.sh --target=tegraTX1
+```
+
+You need target profile on ```target/TARGET_NAME/profile.env``` before running install script.
 
 ## Documentation
 * [Getting Started](https://github.com/sinban04/opel-alpha/wiki/Getting-Started)
