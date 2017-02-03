@@ -25,8 +25,8 @@ void wfd_init()
 		cmfw_log("P2p already inited");
 	}
 	else{
-		strcpy(buf, getenv("OPEL_DIR"));
-		strcat(buf, "/bin/p2p_setup.sh init");
+		strcpy(buf, getenv("OPEL_BIN_DIR"));
+		strcat(buf, "/opel_p2p_setup.sh init");
 		system( buf );
 	}
 
@@ -55,8 +55,8 @@ void wfd_on(cmfw_port_e port)
 	__ENTER__;
 	if(wfd_sock[port] > 0){
 		char buf[256]; 
-		strcpy(buf, getenv("OPEL_DIR"));
-		strcat(buf, "/bin/p2p_setup.sh start");
+		strcpy(buf, getenv("OPEL_BIN_DIR"));
+		strcat(buf, "/opel_p2p_setup.sh start");
 		system(buf);
 		cmfw_log("P2p start!");
 	}
@@ -71,8 +71,8 @@ void wfd_reset()
 {
 	__ENTER__;
 	char buf[256]; 
-	strcpy(buf, getenv("OPEL_DIR"));
-	strcat(buf, "/bin/p2p_setup.sh stop");
+	strcpy(buf, getenv("OPEL_BIN_DIR"));
+	strcat(buf, "/opel_p2p_setup.sh stop");
 	system(buf);
 	cmfw_log("P2p reset");
 

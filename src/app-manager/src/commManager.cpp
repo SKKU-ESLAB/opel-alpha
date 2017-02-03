@@ -50,10 +50,10 @@ comManager::comManager(){
 
 	cmfw_init();
 	makeConnection();
-	char* opelEnvPath;
-	opelEnvPath = getenv("OPEL_DIR");
+	char* opelAppsDir;
+	opelAppsDir = getenv("OPEL_APPS_DIR");
 
-	sprintf(PKG_STORAGE_PATH, "%s%s", opelEnvPath, "/bin/appManager/application/");
+	sprintf(mUserAppsPath, "%s%s", opelAppsDir, "/user/");
 
 }
 
@@ -197,7 +197,7 @@ bool comManager::HandleInstallPkg (char *rcvFileName){
 		}
 		netFileSize = atoi(rcvFileSize);
 	 
-		sprintf(saveFilePath, "%s", PKG_STORAGE_PATH);
+		sprintf(saveFilePath, "%s", mUserAppsPath);
 
 		int res = cmfw_recv_file(CMFW_DEFAULT_PORT, saveFilePath);
 		if(res < 0){

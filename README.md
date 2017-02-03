@@ -9,20 +9,44 @@ $ cd opel-alpha
 ```
 
 ### How to Switch to Target Device's Branch
-* Raspberry Pi 2 or Raspberry Pi 3
+* Alpha 1(Raspberry Pi 2 or Raspberry Pi 3)
 ```
 $ git checkout origin/raspberry-pi2_3
 ```
-* Nvidia TX1
+* Alpha 2(Nvidia TX1)
 ```
 $ git checkout origin/tegraTX1
 ```
-### How to Build
+* Alpha 3
+```
+$ git checkout origin/alpha3
+```
+
+### How to Install Prerequisites
+It is dependent on target device.
+
+In example of tegraTX1:
+
+```
+$ ./target/tegraTX1/install-deps-tegraTX1.sh
+```
+
+### How to Build (Alpha 2, 3)
 ```
 $ cmake .
 $ make
 ```
+
 For more details, see [Getting Started](https://github.com/sinban04/opel-alpha/wiki/Getting-Started).
+
+### How to Install
+In example of tegraTX1:
+
+```
+$ sudo ./scripts/install.sh --target=tegraTX1
+```
+
+You need target profile on ```target/TARGET_NAME/profile.env``` before running install script.
 
 ## Documentation
 * [Getting Started](https://github.com/sinban04/opel-alpha/wiki/Getting-Started)

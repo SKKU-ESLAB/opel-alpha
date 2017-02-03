@@ -1,16 +1,14 @@
-var opel_dir = process.env.OPEL_DIR;
+var opel_api_dir = process.env.OPEL_BIN_DIR + "/api/";
+var cameraApi = require(opel_api_dir + "camera-api");
+var faceDetectionApi = require(opel_api_dir + "face-detection-api");
+var appApi = require(opel_api_dir + "app-api");
 
-var OPELCameraAddon = require(opel_dir +'/node/OPELRecording');
-var faceDetectAddon = require(opel_dir +'/node/OPELFaceDetection');
-var sensorAddon = require(opel_dir +'/node/sensfw/nil');
-var systemManager = require(opel_dir +'/node/sysfw/nil');
-
-var recObj = new OPELCameraAddon.OPELRecording();
+var recObj = new cameraApi.OPELRecording();
 var count = 10000;
 
-var opel_dir = process.env.OPEL_DIR;
-var opel_data_dir = process.env.OPEL_DIR + "/data/";
-faceDetectAddon.faceDetection(count, function(err, numberOfFace) {
+var opel_data_dir = process.env.OPEL_DATA_DIR;
+
+faceDetectionApi.faceDetection(count, function(err, numberOfFace) {
   if(numberOfFace > 0) {
     // Face Detection Event Handling
     var filePath = opel_data_dir + "BB[12345].mp4";
@@ -18,12 +16,12 @@ faceDetectAddon.faceDetection(count, function(err, numberOfFace) {
     var handler = function(err) {
       console.log("Face Detection Event: " + filePath);
 
-      var notiPage = systemManager.makeEventPage("Blackbox video was recorded");
-      notiPage = systemManager.addEventText(notiPage, 
+      var notiPage = appApi.makeEventPage("Blackbox video was recorded");
+      notiPage = appApi.addEventText(notiPage, 
           numberOfFace + " faces are detected.");
-      notiPage = systemManager.addEventText(notiPage, 
+      notiPage = appApi.addEventText(notiPage, 
           "File path: " + filePath);
-      systemManager.sendEventPageWithNoti(notiPage);
+      appApi.sendEventPageWithNoti(notiPage);
     }
 
     console.log("Start recording...");

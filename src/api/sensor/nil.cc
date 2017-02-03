@@ -771,13 +771,13 @@ void nativeInterfaceLayerInit(){
 
 void read_sensorlist()
 {
-	char *opelEnvPath, sensorFile[1024], buf[100];
+	char *opelConfigDir, sensorFile[1024], buf[100];
 	int i,len,line = 0;
 	FILE* fp;
 
 	// Find the directory where sensor list file is
-	opelEnvPath = getenv("OPEL_DIR");
-	sprintf(sensorFile, "%s%s", opelEnvPath, "/opel_sensor_manager/SENSOR_LIST");
+	opelConfigDir = getenv("OPEL_CONFIG_DIR");
+	sprintf(sensorFile, "%s%s", opelConfigDir, "/SENSOR_LIST");
 	
 	// Read the sensor list file written by user
 	fp = fopen(sensorFile, "r");

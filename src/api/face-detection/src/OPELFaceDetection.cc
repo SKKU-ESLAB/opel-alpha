@@ -21,7 +21,8 @@ string face_cascade_name = "haarcascade_frontalface_alt.xml";
 class OPELFaceDetection : public Nan::AsyncWorker
 {
 	public:
-		OPELFaceDetection(Nan::Callback *callback, int counts) : Nan::AsyncWorker(callback), counts(counts), numOfFace(0) {}
+		OPELFaceDetection(Nan::Callback *callback, int counts)
+      : Nan::AsyncWorker(callback), counts(counts), numOfFace(0) {}
 		~OPELFaceDetection() {}
 		
 		void Execute() 
@@ -30,10 +31,9 @@ class OPELFaceDetection : public Nan::AsyncWorker
 			VideoCapture cap(-1);
 			while(counts--)
 			{
-        char* opel_dir = getenv("OPEL_DIR");
+        char* opel_config_dir = getenv("OPEL_CONFIG_DIR");
         char str[512] = "";
-        strcat(str, opel_dir);
-        strcat(str, "/node/src/camfw/facedetection/");
+        strcat(str, opel_config_dir);
         strcat(str, face_cascade_name.c_str());
 				if(!face.load(str))
 				{
@@ -50,7 +50,8 @@ class OPELFaceDetection : public Nan::AsyncWorker
 				}
 				cvtColor(frame, gray, CV_RGB2GRAY);
 				vector<Rect> face_pos; 
-				face.detectMultiScale(gray, face_pos, 1.1, 3, 0 | CV_HAAR_SCALE_IMAGE, Size(10, 10));
+				face.detectMultiScale(gray, face_pos, 1.1, 3, 0 | CV_HAAR_SCALE_IMAGE,
+            Size(10, 10));
 				numOfFace = (int)face_pos.size();
 				if(numOfFace != 0)
 					break;
@@ -60,7 +61,8 @@ class OPELFaceDetection : public Nan::AsyncWorker
 		
 		void HandleOKCallback(){
 			Nan::HandleScope scope;
-			v8::Local<v8::Value> argv[] = { Nan::Null(), Nan::New<v8::Number>(numOfFace)};
+			v8::Local<v8::Value> argv[] = { Nan::Null(),
+        Nan::New<v8::Number>(numOfFace)};
 			callback->Call(2, argv);
 		}
 	

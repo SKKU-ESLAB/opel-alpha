@@ -1,10 +1,11 @@
 console.log("Application start");
 
-var opel_dir = process.env.OPEL_DIR;
-var addon = require(opel_dir + '/node/OPELRecording');
-var sensorManager = require(opel_dir + '/node/sensfw/nil');
-var sysAppNIL = require(opel_dir + '/node/sysfw/nil');
-var cameraAPI = new addon.OPELRecording();
+var opel_api_dir = process.env.OPEL_BIN_DIR + "/api/";
+var cameraApi = require(opel_api_dir + "camera-api");
+var sensorApi = require(opel_api_dir + "sensor-api");
+var appApi = require(opel_api_dir + "app-api");
+
+var recordingObj = new cameraApi.OPELRecording();
 var count = 0;
 
 var prev;
@@ -15,7 +16,7 @@ console.log("setInterval start");
 setInterval(function(){
 		console.log("Inside setInterval");
 		
-		var touch = sensorManager.Get("BUTTON").BUTTON;
+		var touch = sensorApi.Get("BUTTON").BUTTON;
 		curr = touch;
 		console.log('TOUCH value: ' + touch);
 		console.log('curr:'+curr+'/prev:'+prev+'/touch'+touch);
@@ -25,16 +26,15 @@ setInterval(function(){
 			if(curr == 0) {
 				console.log('Capture!');
 				cnt++;
-        var opel_dir = process.env.OPEL_DIR;
-        var opel_data_dir = opel_dir + "/data/";
+        var opel_data_dir = process.env.OPEL_DATA_DIR;
 				var fileName = opel_data_dir + '/quickCam' + cnt + '.jpeg';
-				cameraAPI.SnapshotStart(fileName);
-				var notiPage = sysAppNIL.makeEventPage("Snapshot Saved");
-				notiPage = sysAppNIL.addEventText(notiPage, "Quick Cam Snapshot");
-				notiPage = sysAppNIL.addEventImg(notiPage, fileName);
+				recordingObj.SnapshotStart(fileName);
+				var notiPage = appApi.makeEventPage("Snapshot Saved");
+				notiPage = appApi.addEventText(notiPage, "Quick Cam Snapshot");
+				notiPage = appApi.addEventImg(notiPage, fileName);
 
         // Polling the sensor Data (Crap or Touch Event)
-				sysAppNIL.sendEventPageWithNoti(notiPage);
+				appApi.sendEventPageWithNoti(notiPage);
 			}
 			else
 				console.log("Touch:"+curr);

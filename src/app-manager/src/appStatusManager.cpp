@@ -43,15 +43,15 @@ int appStatusManager::runNativeJSApp(int type){
 
 	pid_t pid;
 	
-	char* dirPath;
-	dirPath = getenv("OPEL_DIR");
+	char* appPath;
+	appPath = getenv("OPEL_APPS_DIR");
 	
 	if (type == 1){
 		pid = fork();
 		if(pid == 0){	// Child for executing the application
 		
 			char _filePath[1024] = {'0', };
-			sprintf(_filePath, "%s%s", dirPath,  "/bin/appManager/nativeJSApp/CameraViewer/index.js");
+			sprintf(_filePath, "%s%s", appPath,  "/system/CameraViewer/index.js");
 
 			char* fullPath[] = {"node", _filePath, NULL};	
 			printf("[appStatusManager] runNewApp full run Path : %s\n", _filePath);
@@ -72,7 +72,7 @@ int appStatusManager::runNativeJSApp(int type){
 		if(pid == 0){	// Child for executing the application
 
 			char _filePath[1024] = {'0', };
-			sprintf(_filePath, "%s%s", dirPath,  "/bin/appManager/nativeJSApp/SensorViewer/index.js");
+			sprintf(_filePath, "%s%s", appPath,  "/system/SensorViewer/index.js");
 
 			char* fullPath[] = {"node", _filePath, NULL};	
 			printf("[appStatusManager] runNewApp full run Path : %s\n", _filePath);
@@ -109,19 +109,20 @@ bool appStatusManager::runNewApplication(jsonString js, char* _filePath ){
 
 		char appID[128] = {'\0',};
 		char appName[128] = {'\0',};
-		char dirPath[128] = {'\0',};
+		char appPath[128] = {'\0',};
 		char dirLastPath[128] = {'\0',};
 
 		strncpy(appID, js.findValue("appID").c_str(), 128);
 		strncpy(appName, js.findValue("appName").c_str(), 128);
 
-		strncpy(dirLastPath, js.findValue("dirPath").c_str(), 128);
-		getcwd(dirPath, 128);
+		strncpy(dirLastPath, js.findValue("appPath").c_str(), 128);
+		getcwd(appPath, 128);
 
-		strncat(dirPath, dirLastPath+1, strlen(dirLastPath)-1);
+		strncat(appPath, dirLastPath+1, strlen(dirLastPath)-1);
 
-		printf("[appStatusManager] Fork & Run App appId %s appName %s pid %d dirPath %s\n", appID, appName, pid, dirPath);		
-		appProcessInfo newProcess(appID, appName, pid, dirPath);
+		printf("[appStatusManager] Fork & Run App id %s name %s pid %d path %s\n",
+        appID, appName, pid, appPath);		
+		appProcessInfo newProcess(appID, appName, pid, appPath);
 		appProcList->insertProcess(newProcess);
 		
 		return true;
@@ -133,6 +134,3 @@ void appStatusManager::exitApplication(int _appid){
 	appProcList->deleteProcess(_appid);
 
 }
-
-
-

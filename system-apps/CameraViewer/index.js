@@ -1,9 +1,8 @@
-var opel_dir = process.env.OPEL_DIR;
-var addon_path = opel_dir+'/node/OPELRecording';
-var nil_path = opel_dir+'/node/sysfw/nil';
-var addon = require(addon_path);
-var nil = require(nil_path);
-var streamObj = new addon.OPELRecording();
+var opel_api_dir = process.env.OPEL_BIN_DIR + "/api/";
+var cameraApi = require(opel_api_dir + "camera-api");
+var appApi = require(opel_api_dir + "app-api");
+
+var streamObj = new cameraApi.OPELRecording();
 
 //require('date-utils');
 var count=0;

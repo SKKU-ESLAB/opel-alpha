@@ -1,0 +1,3 @@
+OPEL_PYTHON3_PATH=`which python3`
+
+${OPEL_PYTHON3_PATH} ./bin/opel.py

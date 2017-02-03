@@ -1,6 +1,6 @@
-var opel_dir = process.env.OPEL_DIR;
-var comm = require(opel_dir + "/node/NIL_Comm");
-var sensorManager = require(opel_dir + "/node/sensfw/nil");
+var opel_api_dir = process.env.OPEL_BIN_DIR + "/api/";
+var commApi = require(opel_api_dir + "communication-api");
+var sensorApi = require(opel_api_dir + "sensor-api");
 var isViewReady = 0;
 
 function mainCb(str, stat) {
@@ -13,17 +13,17 @@ function mainCb(str, stat) {
   }
 }
 
-comm.OpenChannel("Sensor Interface", mainCb);
+commApi.OpenChannel("Sensor Interface", mainCb);
 
 var repeat = setInterval(function() {
 		if(isViewReady == 1){
-			var tch = sensorManager.Get("BUTTON");
-			var acc = sensorManager.Get("ACC");
-			var mot = sensorManager.Get("MOTION");
-			var snd = sensorManager.Get("SOUND");
-			var lit = sensorManager.Get("LIGHT");
-			var vib = sensorManager.Get("VIBRATION");
-			var tmp = sensorManager.Get("TEMP");
+			var tch = sensorApi.Get("BUTTON");
+			var acc = sensorApi.Get("ACC");
+			var mot = sensorApi.Get("MOTION");
+			var snd = sensorApi.Get("SOUND");
+			var lit = sensorApi.Get("LIGHT");
+			var vib = sensorApi.Get("VIBRATION");
+			var tmp = sensorApi.Get("TEMP");
 
       var str = "{\"Touch\":\"" + tch.BUTTON
         + "\",\"Accelerometer\":\"" + acc.Z
@@ -33,7 +33,7 @@ var repeat = setInterval(function() {
         + "\",\"Vibration\":\"" + vib.VIBRATION
         + "\",\"Temperature\":\"" + tmp.TEMP
         + "\"}";
-			comm.SendMsg(str);
+			commApi.SendMsg(str);
 			console.log("Sent\n");
     }
 }, 500);

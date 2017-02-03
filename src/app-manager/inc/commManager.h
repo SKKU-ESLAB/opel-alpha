@@ -89,7 +89,7 @@ private:
 	comManager();
 	~comManager();
 
-	char PKG_STORAGE_PATH[1024];
+	char mUserAppsPath[1024];
 
 public:
 	static comManager* getInstance();

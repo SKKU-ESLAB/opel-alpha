@@ -7,7 +7,7 @@
 #include <signal.h>
 #include <unistd.h>
 
-const char *path_configuration_Tx1_FileName = "OPELTx1Configuration.xml";
+const char *path_configuration_camera_FileName = "camera-config.xml";
 
 static GMainLoop *loop;
 
@@ -136,12 +136,12 @@ int main(int argc, char** argv)
   ElementXMLSerialization *tx1_element_property = NULL; 
 	OPELGlobalVectorRequest *global_vector_request = NULL;
 
-  char* opel_dir = getenv("OPEL_DIR");
+  char* opel_config_dir = getenv("OPEL_CONFIG_DIR");
   char str[512] = "";
-  strncpy(str, opel_dir, strlen(opel_dir));
+  strncpy(str, opel_config_dir, strlen(opel_config_dir));
   strncat(str, "/", strlen("/"));
-  strncat(str, path_configuration_Tx1_FileName,
-      strlen(path_configuration_Tx1_FileName));
+  strncat(str, path_configuration_camera_FileName,
+      strlen(path_configuration_camera_FileName));
   tx1_element_property = openXMLconfig(str);
   if(tx1_element_property == NULL)
     writeXMLconfig(str);
