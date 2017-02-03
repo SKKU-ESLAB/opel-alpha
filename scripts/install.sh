@@ -346,7 +346,7 @@ check_opel_out_dir
 # Install OPEL_BIN_DIR
 print_progress 4 "Install OPEL binaries..."
 THIS_SCRIPT_DIR=$(dirname "$0")
-cp -R ${OPEL_OUT_DIR}/bin ${OPEL_BIN_DIR}
+cp -R ${OPEL_OUT_DIR}/bin/* ${OPEL_BIN_DIR}
 cp ${THIS_SCRIPT_DIR}/install/opel.py ${OPEL_BIN_DIR}
 cp ${THIS_SCRIPT_DIR}/install/opel_p2p_setup.sh ${OPEL_BIN_DIR}
 
@@ -370,7 +370,7 @@ ln -s ${OPEL_BIN_DIR}/run_opel ${OPEL_SYSTEM_BIN_DIR}/run_opel
 
 # Install OPEL_CONFIG_DIR
 print_progress 5 "Install OPEL configs..."
-cp -R ${OPEL_OUT_DIR}/config ${OPEL_CONFIG_DIR}/
+cp -R ${OPEL_OUT_DIR}/config/* ${OPEL_CONFIG_DIR}/
 cp ${TARGET_DIR}/camera-config.xml ${OPEL_CONFIG_DIR}/
 cp ${TARGET_DIR}/dhcpd.conf ${OPEL_CONFIG_DIR}/
 cp ${TARGET_DIR}/p2p.conf ${OPEL_CONFIG_DIR}/
@@ -378,13 +378,13 @@ cp ${TARGET_DIR}/haarcascade_frontalface_alt.xml ${OPEL_CONFIG_DIR}/
 
 # Install OPEL_SENSOR_DRIVER_DIR
 print_progress 6 "Install OPEL sensor drivers..."
-cp -R ${OPEL_OUT_DIR}/sensor-drivers ${OPEL_SENSOR_DRIVER_DIR}/
+cp -R ${OPEL_OUT_DIR}/sensor-drivers/* ${OPEL_SENSOR_DRIVER_DIR}/
 
 # Install OPEL_APPS_DIR
 print_progress 7 "Install OPEL system applications..."
 mkdir -p ${OPEL_APPS_DIR}/system
 mkdir -p ${OPEL_APPS_DIR}/user
-cp -R ${OPEL_OUT_DIR}/system-apps ${OPEL_APPS_DIR}/system/
+cp -R ${OPEL_OUT_DIR}/system-apps/* ${OPEL_APPS_DIR}/system/
 
 WARN_COLO="\033[31;47m"
 INFO_COLO="\033[36m"

@@ -8,7 +8,6 @@ add_subdirectory(sensor)
 
 add_custom_target(
   nil ALL
-  COMMAND mkdir -p ${CMAKE_SOURCE_DIR}/out/bin/api
-  COMMENT "Make an NIL directory"
+  COMMENT "Make NIL directory"
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
   )

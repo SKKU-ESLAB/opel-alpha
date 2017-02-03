@@ -39,7 +39,7 @@ try:
     gOpelConfigDir = os.environ['OPEL_CONFIG_DIR']
     gOpelSensorDriverDir = os.environ['OPEL_SENSOR_DRIVER_DIR']
     gOpelAppsDir = os.environ['OPEL_APPS_DIR']
-except KeyError, e:
+except KeyError as e:
     print("Not found environment variable. {}".format(str(e)))
     exit()
 
