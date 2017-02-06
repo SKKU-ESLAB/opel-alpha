@@ -15,8 +15,6 @@ set(MYLIB_PATH /home/pi)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_BUILD_TYPE RELEASE)
 set(SM_sources sensor_manager.c request.c devices.c)
-set(SM_driver_sources sensor_manager.c devices.c jetsonGPIO.c sensor0_button.c)
-
 
 ADD_EXECUTABLE(opel-sensor-manager ${SM_sources})
 set(COMPILE_FLAGS -Wall -O2 -fPIC)
@@ -49,4 +47,3 @@ add_custom_target(
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
   )
 
-ADD_SUBDIRECTORY(BUILD_SO)

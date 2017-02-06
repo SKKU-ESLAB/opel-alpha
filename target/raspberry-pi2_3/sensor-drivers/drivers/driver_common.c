@@ -4,10 +4,6 @@
 #define Address 28
 #define DataOut 29
 
-#define Clock 27
-#define Address 28
-#define DataOut 29
-
 static int ADC_INIT = 0;
 static int ADC_LOCK = 0;
 static int wiring_pi_setup;
