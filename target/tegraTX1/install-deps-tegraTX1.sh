@@ -114,6 +114,9 @@ cd ${OPEL_REPO_DIR}/dep/nodejs-4.0.0
 make -j4
 sudo make install
 
+# Step 10. Install nan package 
+sudo npm install -g nan
+
 WARN_COLO="\033[31;47m"
 INFO_COLO="\033[36m"
 INIT_COLO="\033[0m"
