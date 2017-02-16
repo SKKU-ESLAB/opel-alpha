@@ -31,15 +31,17 @@ typedef struct{
 }sensorData;
 
 struct device_ops {
-	char *name;
+	char name[20];
 	int status;
-	char *valueType;
-	char *valueName;
+	char valueType[10];
+	char valueName[10];
 	//Data type 배열 추가 
 	void (*start) (void *data);
 	void (*stop) (void *data);
 	char* (*get) (void *data);
 };
+
+struct device_ops *device_ops_list;
 
 enum device_ops_status {
 	SENSOR_STOP,

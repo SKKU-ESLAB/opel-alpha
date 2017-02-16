@@ -1,7 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-
-#include "devices.h"
 #include "driver_common.h"
 
 #define TOUCH	25			//Digital, wiringPI
@@ -37,16 +33,5 @@ static char* TOUCH_get(void *data)
 	
 	return value_c;
 }
-
-static const struct device_ops TOUCH_device_ops = {
-	.name = "TOUCH",
-	.valueType = "INT",
-	.valueName = "TOUCH",//If the number of value is 1, no need to write the name of value
-	.start = TOUCH_start,
-	.stop = TOUCH_stop,
-	.get = TOUCH_get
-};
-
-DEVICE_OPS_REGISTER(&TOUCH_device_ops)
 
 

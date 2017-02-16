@@ -1,7 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-
-#include "devices.h"
 #include "driver_common.h"
 
 #define MOTION_PIN	1			//Digital, wiringPI
@@ -33,16 +29,5 @@ static char* MOTION_get(void *data)
 	return value_c;
 	
 }
-
-static const struct device_ops MOTION_device_ops = {
-	.name = "MOTION",
-	.valueType = "INT",
-	.valueName = "MOTION" ,//If the number of value is 1, no need to write the name of value
-	.start = MOTION_start,
-	.stop = MOTION_stop,
-	.get = MOTION_get
-};
-
-DEVICE_OPS_REGISTER(&MOTION_device_ops)
 
 

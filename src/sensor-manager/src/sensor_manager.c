@@ -2,6 +2,8 @@
 #include "devices.h"
 #include <pthread.h>
 #include <unistd.h>
+#include <dlfcn.h>
+#include "cJSON.h"
 
 #define OPEL_INTERFACE "org.opel.sensorManager"
 
@@ -541,16 +543,141 @@ void initDbus(){
 	dbus_connection_setup_with_g_main(connection, NULL);
 	g_main_loop_run(loop); // loop ?œìž‘
 	printf("dbus loop end... \n");
-	//                                                                                                                                                                //
-	//--------------------------------------------------------------------------------//
+//------------------------------------------------------------------------//
 
+}
+
+/*
+ *  This function is the alternatives to macro DEVICE_OPS_REGISTER(dev).
+ *  From the version Alpha3, registering the sensor is done by sensor manager.
+ *  Before Alpha3, each sensor driver registered its data structures and functions.
+ */
+void load_sensors(){
+  char *opel_dir;
+  const char *error = NULL;
+  int sensor_num;
+
+  opel_dir = getenv("OPEL_DIR");
+
+  if(!opel_dir){
+    fprintf(stderr, "No environement variable: OPEL_DIR\n");
+    exit(1);
+  }
+
+  // load the configuration file (json)
+  FILE *infile;
+  char *buffer;
+  long numbytes;
+  char json_file_path[50];
+ 
+  sprintf(json_file_path, "%s/out/sensor-drivers/sensor_config.json",opel_dir);
+  infile = fopen(json_file_path, "r");
+  if(infile == NULL){
+    fprintf(stderr, "Cannot read the sensor configuration file");
+    exit(1);
+  }
+  fseek(infile, 0L, SEEK_END);
+  numbytes = ftell(infile);
+  fseek(infile, 0L, SEEK_SET);
+
+  buffer = (char*) calloc(numbytes, sizeof(char));
+  if(buffer == NULL)
+  {
+    fprintf(stderr,"error while allocating buffer!");
+    exit(1);
+  }
+  fread(buffer,sizeof(char), numbytes, infile);
+  fclose(infile);
+
+  // Get the root object of the json
+  cJSON *root = NULL;
+  root = cJSON_Parse(buffer);
+  if(!root){
+    fprintf(stderr, "Error before: [%s]\n", cJSON_GetErrorPtr());
+    exit(1);
+  }
+  
+  // find the target name and # of sensors
+  char *target_name = cJSON_GetObjectItem(root, "target_name")->valuestring;
+  sensor_num = cJSON_GetObjectItem(root, "sensor_num")->valueint;
+  
+  // make device_ops structures
+  /*
+   *  This data strcuture should be keep alive until the program exits.
+   *  Sensor Manager executes infinite loop, and never stops until killed by signal.
+   *  Therefore, i didn't insert any free() function of this data structure.
+   *  Please keep this in mind.
+   *
+   *  sensorList refers to this data structure.
+   *  Please see the addSensor() function.
+   */
+  device_ops_list = (struct device_ops*)malloc(sensor_num * sizeof(struct device_ops));
+
+  // load the dynamic library
+  char library_path[50];
+  sprintf(library_path, "%s/out/sensor-drivers/libsensors.so", opel_dir);
+  printf("the library_path: %s\n", library_path);
+  void *handle = dlopen(library_path, RTLD_LAZY);
+  if(!handle){
+    fprintf(stderr, "Error while loading so file: %s\n",error);
+    exit(1);
+  }
+ 
+  int i;
+  for(i=0; i<sensor_num; i++){
+    // read the sensor_index from the json
+    char sensor_index[10];
+    sprintf(sensor_index, "sensor%d",i+1);
+    cJSON *sensor_object = cJSON_GetObjectItem(root, sensor_index);
+    
+    char* sensor_name = cJSON_GetObjectItem(sensor_object, "name")->valuestring;
+    char* value_type = cJSON_GetObjectItem(sensor_object, "value_type")->valuestring;
+    char* value_name = cJSON_GetObjectItem(sensor_object, "value_name")->valuestring;
+    char* start_func_name = cJSON_GetObjectItem(sensor_object, "start_func")->valuestring;
+    char* stop_func_name = cJSON_GetObjectItem(sensor_object, "stop_func")->valuestring;
+    char* get_func_name = cJSON_GetObjectItem(sensor_object, "get_func")->valuestring;
+    if(!sensor_name || !value_type || !value_name || !start_func_name 
+          || !stop_func_name || !get_func_name){
+        fprintf(stderr, "error while reading the sensor configuration\n");
+    }
+   
+    // set the name, value type, value name of the device ops
+    strcpy(device_ops_list[i].name, sensor_name);
+    strcpy(device_ops_list[i].valueType, value_type);
+    strcpy(device_ops_list[i].valueName, value_name);
+
+    // find the functions in the shared objece and set the device ops
+    device_ops_list[i].start = dlsym(handle, start_func_name);
+    if((error = dlerror()) != NULL){
+      fprintf(stderr, "Error while loading so file: %s\n",error);
+      exit(1);
+    }
+    device_ops_list[i].stop = dlsym(handle, stop_func_name);
+    if((error = dlerror()) != NULL){
+      fprintf(stderr, "Error while loading so file: %s\n",error);
+      exit(1);
+    }
+    device_ops_list[i].get = dlsym(handle, get_func_name);
+    if((error = dlerror()) != NULL){
+      fprintf(stderr, "Error while loading so file: %s\n",error);
+      exit(1);
+    }
+
+    // call add_sensor() function to add to sensor list
+    addSensor(&device_ops_list[i]); 
+
+  } // End of for loop
+
+  dlclose(handle);
+ 
 }
 
 int main(void)
 {
-	doNothing();
-	sensorThreadInit();
 
+  
+  load_sensors();
+	sensorThreadInit();
 	initDbus();
 
 	return 0;

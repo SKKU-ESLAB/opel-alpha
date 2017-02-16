@@ -1,7 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-
-#include "devices.h"
 #include "driver_common.h"
 
 #define VIBRATION	2		//Digital, wiringPI
@@ -51,16 +47,5 @@ static char* VIBRATION_get(void *data)
 
 	return value_c;
 }
-
-static const struct device_ops VIBRATION_device_ops = {
-	.name = "VIBRATION",
-	.valueType = "INT",
-	.valueName = "VIBRATION" ,//If the number of value is 1, no need to write the name of value
-	.start = VIBRATION_start,
-	.stop = VIBRATION_stop,
-	.get = VIBRATION_get
-};
-
-DEVICE_OPS_REGISTER(&VIBRATION_device_ops)
 
 

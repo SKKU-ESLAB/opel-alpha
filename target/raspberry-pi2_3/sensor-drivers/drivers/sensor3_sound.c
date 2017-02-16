@@ -1,7 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-
-#include "devices.h"
 #include "driver_common.h"
 
 #define SOUND	9
@@ -26,16 +22,4 @@ static char* SOUND_get(void *data)
 	return value_c;
 
 }
-
-static const struct device_ops SOUND_device_ops = {
-	.name = "SOUND",
-	.valueType = "INT",
-	.valueName = "SOUND" ,//If the number of value is 1, no need to write the name of value
-	.start = SOUND_start,
-	.stop = SOUND_stop,
-	.get = SOUND_get
-};
-
-DEVICE_OPS_REGISTER(&SOUND_device_ops)
-
 
