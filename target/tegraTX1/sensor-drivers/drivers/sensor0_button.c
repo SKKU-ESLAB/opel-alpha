@@ -1,29 +1,28 @@
+#include <stdio.h>
 #include "jetsonGPIO.h"
 
 static int button_flag = 0;
 enum jetsonTX1GPIONumber pushButton = gpio38;
 
-void doNothing()
-{
-//	printf("Hello!\n");
-}
+void BUTTON_start(void *data);
+void BUTTON_stop(void *data);
+char* BUTTON_get(void *data);
 
 
-static void BUTTON_start(void *data)
-{
-  
+void BUTTON_start (void *data)
+{  
   gpioExport(pushButton);
   gpioSetDirection(pushButton, inputPin);
   printf("Button sensor is start\n");
 }
 
-static void BUTTON_stop(void *data)
+void BUTTON_stop(void *data)
 {
 	printf("Button sensor is terminated\n");
 	gpioUnexport(pushButton);
 }
 
-static char* BUTTON_get(void *data)
+char* BUTTON_get(void *data)
 {
 	unsigned int value;
 	static char value_c[20];
@@ -37,5 +36,4 @@ static char* BUTTON_get(void *data)
 	
 	return value_c;
 }
-
 

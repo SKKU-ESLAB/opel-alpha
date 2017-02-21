@@ -4,21 +4,15 @@ PROJECT(SENSOR_DRIVER_RPI)
 include(FindPkgConfig)
 
 #dependencies
-pkg_check_modules(GLIB2	glib-2.0)
-pkg_check_modules(DBUS1	dbus-1)
-pkg_check_modules(DBUSGLIB1 dbus-glib-1)
-
 FIND_PACKAGE(PkgConfig)
-add_definitions("`pkg-config --libs --cflags dbus-1 glib-2.0 dbus-glib-1`")
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_BUILD_TYPE RELEASE)
 
-
 set(DRIVER_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/drivers)
 set(driver_sources ${DRIVER_SOURCE_DIR}/driver_common.c ${DRIVER_SOURCE_DIR}/sensor1_acc.c ${DRIVER_SOURCE_DIR}/sensor2_temp.c ${DRIVER_SOURCE_DIR}/sensor3_sound.c ${DRIVER_SOURCE_DIR}/sensor4_light.c ${DRIVER_SOURCE_DIR}/sensor5_motion.c ${DRIVER_SOURCE_DIR}/sensor6_vib.c ${DRIVER_SOURCE_DIR}/sensor7_touch.c)
 
-ADD_DEFINITIONS(-Wl,-Wall -O2 -fPIC)
+ADD_DEFINITIONS(-Wl,-Wall -O2 -fPIC -rdynamic)
 ADD_LIBRARY(sensors SHARED ${driver_sources})
 
 INCLUDE_DIRECTORIES( 
@@ -30,7 +24,6 @@ INCLUDE_DIRECTORIES(
 LINK_DIRECTORIES(
 		/usr/local/lib/pkgconfig
 		/usr/local/lib
-		/usr/lib/dbus-1.0
 )
 
 set_target_properties( sensors

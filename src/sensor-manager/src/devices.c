@@ -25,6 +25,7 @@ sensorHead* getSensorHead(void){
 	return sensor_head;
 }
 sensorHead* initSensors(void){
+  // It might not free the sensor_list ?
 	sensor_head = (sensorHead*)malloc(sizeof(sensorHead));
 	sensor_head->start = NULL;
 	sensor_head->count = 0;

@@ -107,7 +107,7 @@ static inline int sensorStop(sensorList* sl, void *data)
 	const struct device_ops *dev = sl->dev;
 
 	if (dev && dev->stop) {
-		dev->stop(data);
+		dev->stop(data);  
 		sl->status = SENSOR_STOP;
 			
 		return 0;

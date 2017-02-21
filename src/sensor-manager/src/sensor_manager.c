@@ -1,3 +1,5 @@
+#include <stdio.h>
+#include <stdlib.h>
 #include "sensor_manager.h"
 #include "devices.h"
 #include <pthread.h>
@@ -179,6 +181,7 @@ void* sensorThread(void* args){
 
 	while(1){
 		if (sl->rh->num_of_request == 0){
+
 			sensorStop(sl, NULL);
 			pthread_cond_wait(&(sl->cond), &(sl->mutex));
 			continue;
@@ -232,14 +235,13 @@ void* sensorThread(void* args){
 		pthread_cond_timedwait(&(sl->cond), &(sl->mutex), &(sleep_time));
 		
 	}
-
 }
+
 void sensorThreadInit(){
 	int i, number_of_sensor;
 	sensor_head_main = getSensorHead();
 	sensorList* sl;
 	int status;
-
 
 	number_of_sensor = sensor_head_main->count;
 
@@ -536,12 +538,12 @@ void initDbus(){
 		default:
 			printf("Unknown result = %d\n", retval);
 	}
-	
-	dbus_bus_add_match(connection, "type='signal',interface='org.opel.sensorManager'", NULL);  //Dbus ?„ì¹˜ ?¤ì •
-	dbus_connection_add_filter(connection, dbus_response, loop, NULL); //signal filter?¤ì •
+
+	dbus_bus_add_match(connection, "type='signal',interface='org.opel.sensorManager'", NULL); 
+	dbus_connection_add_filter(connection, dbus_response, loop, NULL); 
 
 	dbus_connection_setup_with_g_main(connection, NULL);
-	g_main_loop_run(loop); // loop ?œìž‘
+	g_main_loop_run(loop); // loop ?
 	printf("dbus loop end... \n");
 //------------------------------------------------------------------------//
 
@@ -556,20 +558,19 @@ void load_sensors(){
   char *opel_dir;
   const char *error = NULL;
   int sensor_num;
-
-  opel_dir = getenv("OPEL_DIR");
-
+  //printf("%s\n",getenv("OPEL_DIR"));
+  opel_dir = getenv("OPEL_DIR");  
   if(!opel_dir){
     fprintf(stderr, "No environement variable: OPEL_DIR\n");
     exit(1);
   }
-
+  
   // load the configuration file (json)
   FILE *infile;
   char *buffer;
   long numbytes;
-  char json_file_path[50];
- 
+  char json_file_path[100];
+
   sprintf(json_file_path, "%s/out/sensor-drivers/sensor_config.json",opel_dir);
   infile = fopen(json_file_path, "r");
   if(infile == NULL){
@@ -588,15 +589,16 @@ void load_sensors(){
   }
   fread(buffer,sizeof(char), numbytes, infile);
   fclose(infile);
-
+  
   // Get the root object of the json
   cJSON *root = NULL;
   root = cJSON_Parse(buffer);
+
   if(!root){
     fprintf(stderr, "Error before: [%s]\n", cJSON_GetErrorPtr());
     exit(1);
   }
-  
+ 
   // find the target name and # of sensors
   char *target_name = cJSON_GetObjectItem(root, "target_name")->valuestring;
   sensor_num = cJSON_GetObjectItem(root, "sensor_num")->valueint;
@@ -614,15 +616,16 @@ void load_sensors(){
   device_ops_list = (struct device_ops*)malloc(sensor_num * sizeof(struct device_ops));
 
   // load the dynamic library
-  char library_path[50];
+  char library_path[100];
   sprintf(library_path, "%s/out/sensor-drivers/libsensors.so", opel_dir);
-  printf("the library_path: %s\n", library_path);
+  //printf("the library_path: %s\n", library_path);
+
   void *handle = dlopen(library_path, RTLD_LAZY);
   if(!handle){
     fprintf(stderr, "Error while loading so file: %s\n",error);
     exit(1);
   }
- 
+
   int i;
   for(i=0; i<sensor_num; i++){
     // read the sensor_index from the json
@@ -649,33 +652,42 @@ void load_sensors(){
     // find the functions in the shared objece and set the device ops
     device_ops_list[i].start = dlsym(handle, start_func_name);
     if((error = dlerror()) != NULL){
-      fprintf(stderr, "Error while loading so file: %s\n",error);
+      fprintf(stderr, "Error while reading symbol: %s\n",error);
       exit(1);
     }
     device_ops_list[i].stop = dlsym(handle, stop_func_name);
     if((error = dlerror()) != NULL){
-      fprintf(stderr, "Error while loading so file: %s\n",error);
+      fprintf(stderr, "Error while reading symbol: %s\n",error);
       exit(1);
     }
     device_ops_list[i].get = dlsym(handle, get_func_name);
     if((error = dlerror()) != NULL){
-      fprintf(stderr, "Error while loading so file: %s\n",error);
+      fprintf(stderr, "Error while reading symbol: %s\n",error);
       exit(1);
     }
 
     // call add_sensor() function to add to sensor list
-    addSensor(&device_ops_list[i]); 
+    addSensor(&device_ops_list[i]);
 
   } // End of for loop
 
-  dlclose(handle);
+
+  cJSON_Delete(root);
+  free(buffer);
+
+  /*
+   *  I will not call dlclose(), 
+   *  because until now, sensor driver is used until the program end.
+   *  In later use, when we need to add and remove the sensor driver,
+   *  then, we need to use dlclose() in the proper position.
+   */
+  //dlclose(handle);
  
 }
 
 int main(void)
 {
-
-  
+ 
   load_sensors();
 	sensorThreadInit();
 	initDbus();
