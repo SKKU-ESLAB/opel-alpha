@@ -2,8 +2,8 @@ tags
 cscope.out
 build/
 bin/
+out/
 
-sensor8*
 *.o
 *.so
 
