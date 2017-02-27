@@ -2,17 +2,17 @@
 
 #define TEMP	6
 
-static void TEMP_start(void *data)
+void TEMP_start(void *data)
 {
 	printf("Temperature sensor is start\n");
 }
 
-static void TEMP_stop(void *data)
+void TEMP_stop(void *data)
 {
 	printf("Temperature sensor is terminated\n");
 }
 
-static char* TEMP_get(void *data)
+char* TEMP_get(void *data)
 {
 	static char value_c[20];
 	float value = (float)ADC_Read(TEMP);
