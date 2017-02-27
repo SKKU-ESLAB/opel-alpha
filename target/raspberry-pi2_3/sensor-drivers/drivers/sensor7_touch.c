@@ -1,10 +1,10 @@
 #include "driver_common.h"
 
 #define TOUCH	25			//Digital, wiringPI
-int touch_flag = 0;
+static int touch_flag = 0;
 
 
-void TOUCH_start(void *data)
+static void TOUCH_start(void *data)
 {
 	if (!touch_flag){
 		setupWiringPi();
@@ -15,12 +15,12 @@ void TOUCH_start(void *data)
 	printf("Touch sensor is start\n");
 }
 
-void TOUCH_stop(void *data)
+static void TOUCH_stop(void *data)
 {
 	printf("Touch sensor is terminated\n");
 }
 
-char* TOUCH_get(void *data)
+static char* TOUCH_get(void *data)
 {
 	int value;
 	static char value_c[20];

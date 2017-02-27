@@ -2,36 +2,36 @@
 
 #define VIBRATION	2		//Digital, wiringPI
 
-unsigned char state = 0;
-unsigned char working = 0;
-unsigned char init = 0;
+static unsigned char state = 0;
+static unsigned char working = 0;
+static unsigned char init = 0;
 
 void vib_fuc(){
 	if (working)
 		state++;
 }
 
-void VIBRATION_start(void *data)
+static void VIBRATION_start(void *data)
 {
 	working = 1;
 	
 	if (!init){
 		setupWiringPi();
 		pinMode(VIBRATION, INPUT);
-		wiringPiISR(VIBRATION, INT_EDGE_FALLING, &vib_fuc); //Falling function!!!!!
+		wiringPiISR(VIBRATION, INT_EDGE_FALLING, &vib_fuc); //Falling function!!!!!!!!!!
 		init = 1;
 	}
 
 	printf("Vibration sensor is start\n");
 }
 
-void VIBRATION_stop(void *data)
+static void VIBRATION_stop(void *data)
 {
 	working = 0;
 	printf("Vibration sensor is terminated\n");
 }
 
-char* VIBRATION_get(void *data)
+static char* VIBRATION_get(void *data)
 {
 	static char value_c[20];
 	int value;
