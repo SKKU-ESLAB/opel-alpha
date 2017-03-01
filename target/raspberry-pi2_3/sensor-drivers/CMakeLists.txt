@@ -28,7 +28,8 @@ LINK_DIRECTORIES(
 
 set_target_properties( sensors
 	PROPERTIES
-	LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/out/sensor-drivers")
+	LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/out/sensor-drivers"
+)
 
 add_custom_target(
   make-sensor-driver-dir ALL
