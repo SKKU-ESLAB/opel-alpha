@@ -4,17 +4,17 @@
 #define ACC_Y	1
 #define ACC_Z	2
 
-static void ACC_start(void *data)
+void ACC_start(void *data)
 {
 	printf("ACC sensor is started\n");
 }
 
-static void ACC_stop(void *data)
+void ACC_stop(void *data)
 {
 	printf("ACC sensor is terminated\n");
 }
 
-static char* ACC_get(void *data)
+char* ACC_get(void *data)
 {
 	int i;
 	int val_x, val_y, val_z;
