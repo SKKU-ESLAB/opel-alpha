@@ -4,11 +4,6 @@
 static int button_flag = 0;
 enum jetsonTX1GPIONumber pushButton = gpio38;
 
-void BUTTON_start(void *data);
-void BUTTON_stop(void *data);
-char* BUTTON_get(void *data);
-
-
 void BUTTON_start (void *data)
 {  
   gpioExport(pushButton);

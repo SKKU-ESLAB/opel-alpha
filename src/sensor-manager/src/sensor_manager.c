@@ -555,13 +555,13 @@ void initDbus(){
  *  Before Alpha3, each sensor driver registered its data structures and functions.
  */
 void load_sensors(){
-  char *opel_dir;
+  char *opel_sensor_dir;
   const char *error = NULL;
   int sensor_num;
   //printf("%s\n",getenv("OPEL_DIR"));
-  opel_dir = getenv("OPEL_DIR");  
-  if(!opel_dir){
-    fprintf(stderr, "No environement variable: OPEL_DIR\n");
+  opel_sensor_dir = getenv("OPEL_SENSOR_DRIVER_DIR");  
+  if(!opel_sensor_dir){
+    fprintf(stderr, "No environement variable: OPEL_SENSOR_DRIVER_DIR\n");
     exit(1);
   }
   
@@ -569,9 +569,9 @@ void load_sensors(){
   FILE *infile;
   char *buffer;
   long numbytes;
-  char json_file_path[100];
+  char json_file_path[200];
 
-  sprintf(json_file_path, "%s/out/sensor-drivers/sensor_config.json",opel_dir);
+  sprintf(json_file_path, "%s/sensor_config.json", opel_sensor_dir);
   infile = fopen(json_file_path, "r");
   if(infile == NULL){
     fprintf(stderr, "Cannot read the sensor configuration file");
@@ -616,8 +616,8 @@ void load_sensors(){
   device_ops_list = (struct device_ops*)malloc(sensor_num * sizeof(struct device_ops));
 
   // load the dynamic library
-  char library_path[100];
-  sprintf(library_path, "%s/out/sensor-drivers/libsensors.so", opel_dir);
+  char library_path[200];
+  sprintf(library_path, "%s/libsensors.so", opel_sensor_dir);
   //printf("the library_path: %s\n", library_path);
 
   void *handle = dlopen(library_path, RTLD_LAZY);
