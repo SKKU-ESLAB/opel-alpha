@@ -29,14 +29,14 @@ gchar* strToGcharNonPtr(std::string &_str)
 }
 
 void pid_to_char(unsigned int input, char* output){
-	unsigned int value = input;
-	unsigned int temp;
-	int i;
-	output[5] = '\0'; 
+  unsigned int value = input;
+  unsigned int temp;
+  int i;
+  output[5] = '\0';
 
-	for (i = 4; i >= 0; i--){
-		temp = value % 10; 
-		output[i] = ((char)(temp)) + 65;
-		value = value / 10;
-	}
+  for (i = 4; i >= 0; i--){
+    temp = value % 10; 
+    output[i] = ((char)(temp)) + 65;
+    value = value / 10;
+  }
 }

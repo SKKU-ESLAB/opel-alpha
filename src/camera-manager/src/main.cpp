@@ -23,34 +23,34 @@ void writeXMLconfig(const char *_path_xml);
 static gboolean
 message_cb(GstBus *bus, GstMessage *message, gpointer user_data)
 {
-	GError *err;
-	gchar *debug_info;
+  GError *err;
+  gchar *debug_info;
 
-	switch(GST_MESSAGE_TYPE(message))
-	{
-		case GST_MESSAGE_ERROR:
-			         gst_message_parse_error(message, &err, &debug_info);
-								 OPEL_DBG_ERR("Error Received From Element %s: %s\n",
-								 GST_OBJECT_NAME (message->src), err->message);
-								 OPEL_DBG_ERR("Debugging information: %s\n",
-                     ((debug_info) ? debug_info : "none")); 
-								 g_clear_error(&err);
-								 g_free(debug_info);
-			break;
-		case GST_MESSAGE_WARNING:
-			break;
-		case GST_MESSAGE_EOS:
-			OPEL_DBG_VERB("End-Of-Stream reached. \n");
-			break;
-	}
-	return true;
+  switch(GST_MESSAGE_TYPE(message))
+  {
+    case GST_MESSAGE_ERROR:
+      gst_message_parse_error(message, &err, &debug_info);
+      OPEL_DBG_ERR("Error Received From Element %s: %s\n",
+          GST_OBJECT_NAME (message->src), err->message);
+      OPEL_DBG_ERR("Debugging information: %s\n",
+          ((debug_info) ? debug_info : "none"));
+      g_clear_error(&err);
+      g_free(debug_info);
+      break;
+    case GST_MESSAGE_WARNING:
+      break;
+    case GST_MESSAGE_EOS:
+      OPEL_DBG_VERB("End-Of-Stream reached. \n");
+      break;
+  }
+  return true;
 }
 
 void signalHandler(int signo)
 {
   bool ret;
-	OPEL_DBG_WARN("Signal handler Invoked");
-	OPELGstElementTx1 *tx1 = OPELGstElementTx1::getInstance();
+  OPEL_DBG_WARN("Signal handler Invoked");
+  OPELGstElementTx1 *tx1 = OPELGstElementTx1::getInstance();
   GstElement *pipeline = tx1->getPipeline();
   ret = gst_element_set_state(pipeline, GST_STATE_NULL);
   if(ret == GST_STATE_CHANGE_FAILURE)
@@ -76,24 +76,24 @@ ElementXMLSerialization* openXMLconfig(const char *_path_xml)
   __OPEL_FUNCTION_EXIT__;
     return NULL;
   }
-  
+
   if(xml_file.good())
-    element_property = readXMLconfig(xml_file); 
-  
+    element_property = readXMLconfig(xml_file);
+
   __OPEL_FUNCTION_EXIT__;
   return element_property;
 }
 
 ElementXMLSerialization* readXMLconfig(std::ifstream& _xml_file)
 {
-    assert(!_xml_file.fail());
+  assert(!_xml_file.fail());
   __OPEL_FUNCTION_ENTER__; 
   allocVectorElementProperty();
   ElementXMLSerialization *_element_property_serialization = 
     new ElementXMLSerialization(v_element_property); 
-  
+
   boost::archive::xml_iarchive ia(_xml_file);
-  ia >> boost::serialization::make_nvp("OPEL_TX1_Element_Property", 
+  ia >> boost::serialization::make_nvp("OPEL_TX1_Element_Property",
       (*_element_property_serialization));
   _xml_file.close();
   __OPEL_FUNCTION_EXIT__;
@@ -125,7 +125,7 @@ void writeXMLconfig(const char *_path_xml)
 
 int main(int argc, char** argv)
 {
-  __OPEL_FUNCTION_ENTER__; 
+  __OPEL_FUNCTION_ENTER__;
 
   bool ret;
   GstBus *bus;
@@ -133,8 +133,8 @@ int main(int argc, char** argv)
   DBusConnection *dbus_conn;
   GstElement *_pipeline;
   std::vector<typeElement*> *_type_element_vector = NULL;
-  ElementXMLSerialization *tx1_element_property = NULL; 
-	OPELGlobalVectorRequest *global_vector_request = NULL;
+  ElementXMLSerialization *tx1_element_property = NULL;
+  OPELGlobalVectorRequest *global_vector_request = NULL;
 
   char* opel_config_dir = getenv("OPEL_CONFIG_DIR");
   char str[512] = "";
@@ -151,7 +151,7 @@ int main(int argc, char** argv)
 #endif
 
   gst_init(&argc, &argv);
-  
+
   loop = g_main_loop_new(NULL, false);
   dbus_error_init(&dbus_error);
   dbus_conn = dbus_bus_get(DBUS_BUS_SYSTEM, &dbus_error);
@@ -163,7 +163,7 @@ int main(int argc, char** argv)
     return -1;
   }
   OPELGstElementTx1 *tx1 = OPELGstElementTx1::getInstance();
- 
+
   tx1->setElementPropertyVector(v_element_property);
 
 #if OPEL_LOG_VERBOSE
@@ -186,7 +186,7 @@ int main(int argc, char** argv)
   _type_element_vector = tx1->getTypeElementVector();
   _pipeline = tx1->getPipeline();
 
-//	openCVStaticPipelineMake(tx1, _type_element_vector);					 	
+  //openCVStaticPipelineMake(tx1, _type_element_vector);
   if(dbus_error_is_set(&dbus_error))
   {
     OPEL_DBG_ERR("Error Connecting to the D-bus Daemon");
@@ -202,10 +202,10 @@ int main(int argc, char** argv)
   g_signal_connect(G_OBJECT(bus), "message", G_CALLBACK(message_cb), NULL);
 
   gst_object_unref(GST_OBJECT(bus));
-	
- 	tx1->setIsPlaying(false);
-  
-	if(ret == GST_STATE_CHANGE_FAILURE)
+
+  tx1->setIsPlaying(false);
+
+  if(ret == GST_STATE_CHANGE_FAILURE)
   {
     OPEL_DBG_ERR("Unable to set the pipeline to the playing state. \n");
     goto exit;
@@ -214,13 +214,13 @@ int main(int argc, char** argv)
   dbus_bus_add_match(dbus_conn,
       "type='signal', interface='org.opel.camera.daemon'",
       NULL);
-  dbus_connection_add_filter(dbus_conn, msg_dbus_filter, 
+  dbus_connection_add_filter(dbus_conn, msg_dbus_filter,
       (void*)_type_element_vector, NULL);
   dbus_connection_setup_with_g_main(dbus_conn, NULL);
 
-	//gst_element_set_state(_pipeline, GST_STATE_PLAYING);
- //	tx1->setIsPlaying(true);
-	g_main_loop_run(loop);
+  //gst_element_set_state(_pipeline, GST_STATE_PLAYING);
+  //tx1->setIsPlaying(true);
+  g_main_loop_run(loop);
 
 exit:
   if(tx1_element_property != NULL)
@@ -228,20 +228,20 @@ exit:
   deleteVectorElement(v_element_property);
   if(v_element_property != NULL)
     delete v_element_property;
-	//buggy
-	/*	if(tx1 != NULL)
+  //buggy
+  //if(tx1 != NULL)
     delete tx1;*/
-	if(loop != NULL)
+  if(loop != NULL)
     g_main_loop_unref(loop);
   if(dbus_conn != NULL)
     dbus_connection_unref(dbus_conn);
   if(bus != NULL)
     gst_object_unref(bus);
-	if((global_vector_request = OPELGlobalVectorRequest::getInstance()) != NULL)
-		delete global_vector_request;
-	OPELRawRequest *raw_request = OPELRawRequest::getInstance();
-	if(raw_request != NULL)
-		delete raw_request;
-	__OPEL_FUNCTION_EXIT__;
+  if((global_vector_request = OPELGlobalVectorRequest::getInstance()) != NULL)
+    delete global_vector_request;
+  OPELRawRequest *raw_request = OPELRawRequest::getInstance();
+  if(raw_request != NULL)
+    delete raw_request;
+  __OPEL_FUNCTION_EXIT__;
   return 0;
 }
