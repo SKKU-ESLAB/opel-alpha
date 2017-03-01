@@ -13,6 +13,13 @@
 #include <gst/gst.h>
 #include "OPELdbugLog.h"
 
+static int g_target_type = 0;
+
+typedef enum _targetType{
+  TX1 = 1,
+  RPI2_3,
+}targetType;
+
 typedef enum _elementType{
   kSRC = 0,
   kTEE,
@@ -21,6 +28,7 @@ typedef enum _elementType{
   kENC,
   kMUX,
   kSINK,
+  kPARSE,
 }elementType;
 
 typedef enum _subElementType{
@@ -289,7 +297,7 @@ class ElementProperty{
     std::string element_name;
     std::string element_nickname;
     elementType type;
-    unsigned sub_type;
+    subElementType sub_type;
     unsigned fps;
     unsigned width;
     unsigned height;

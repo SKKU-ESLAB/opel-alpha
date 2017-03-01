@@ -88,8 +88,8 @@ bool OPELRawRequest::defaultOpenCVElementFactory()
 
   this->num_iter = OPEL_NUM_DEFAULT_RAW_ELE;
 
-  typeElement *_conv = findByElementNameNSubType(this->_v_type_element,
-      "nvvidconv", kBGR);
+  typeElement *_conv = findByElementNicknameNSubType(this->_v_type_element,
+      "converter", kBGR);
   typeElement *_queue = findByElementName(this->_v_type_element,
       "queue");
   if(!_conv || !this->app_sink || !_queue)
@@ -131,8 +131,8 @@ bool OPELRawRequest::defaultOpenCVCapFactory()
   gint width = (guint)RAW_480P_WIDTH;
   gint height = (guint)RAW_480P_HEIGHT;
 
-  typeElement *_conv = findByElementNameNSubType(this->_v_fly_type_element,
-      "nvvidconv", kBGR);
+  typeElement *_conv = findByElementNicknameNSubType(this->_v_fly_type_element,
+      "converter", kBGR);
 
   if(!_conv)
   {
@@ -164,8 +164,8 @@ bool OPELRawRequest::defaultOpenCVElementPipelineAdd(GstElement *pipeline)
   bool ret = true;
   typeElement *_queue = findByElementName(this->_v_fly_type_element,
       "queue");
-  typeElement *_conv = findByElementNameNSubType(this->_v_fly_type_element,
-      "nvvidconv", kBGR);
+  typeElement *_conv = findByElementNicknameNSubType(this->_v_fly_type_element,
+      "converter", kBGR);
   typeElement *_app_sink = findByElementName(this->_v_fly_type_element,
       "appsink");
 

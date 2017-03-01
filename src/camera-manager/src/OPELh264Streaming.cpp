@@ -31,11 +31,11 @@ static bool h264StreamingPropSetting(std::vector<typeElement*>* _v_type_element,
     dbusStreamingRequest* _stream_request)
 {
   assert(_v_type_element != NULL && _stream_request != NULL);
-  typeElement *_conv = findByElementName(_v_type_element,
-      "nvvidconv");
-  typeElement *_enc = findByElementName(_v_type_element,
-      "omxh264enc");
-  typeElement *_udp_sink = findByElementName(_v_type_element,
+  typeElement *_conv = findByElementNickname(this->_v_type_element,
+      "converter");
+  typeElement *_enc = findByElementNickname(_v_type_element,
+      "h264encoder");
+  typeElement *_udp_sink = findByElementNickname(_v_type_element,
       "tcpserversink");
   typeElement *_rtph_264pay = findByElementName(_v_type_element,
       "rtph264pay");
@@ -80,11 +80,11 @@ bool OPELH264Streaming::defaultStreamingFactory(void)
 
   typeElement *_queue = findByElementName(this->_v_type_element,
       "queue");
-  typeElement *_conv = findByElementNameNSubType(this->_v_type_element,
-      "nvvidconv", kBGR);
-  typeElement *_enc = findByElementName(this->_v_type_element,
-      "omxh264enc");
-  typeElement *_udp_sink = findByElementName(this->_v_type_element,
+  typeElement *_conv = findByElementNicknameNSubType(this->_v_type_element,
+      "converter", kI420);
+  typeElement *_enc = findByElementNickname(this->_v_type_element,
+      "h264encoder");
+  typeElement *_udp_sink = findByElementNickname(this->_v_type_element,
       "tcpserversink");
 
   //need to copy
@@ -138,10 +138,10 @@ bool OPELH264Streaming::defaultStreamingPipelineAdd(GstElement *pipeline)
 
   typeElement *_queue = findByElementName(this->_v_fly_type_element,
       "queue");
-  typeElement *_conv = findByElementNameNSubType(this->_v_fly_type_element,
-      "nvvidconv", kBGR);
-  typeElement *_enc = findByElementName(this->_v_fly_type_element,
-      "omxh264enc");
+  typeElement *_conv = findByElementNicknameNSubType(this->_v_fly_type_element,
+      "converter", kI420);
+  typeElement *_enc = findByElementNickname(this->_v_fly_type_element,
+      "h264encoder");
   typeElement *_parse = findByElementName(this->_v_fly_type_element,
       "h264parse");
   typeElement *_pay = findByElementName(this->_v_fly_type_element,
@@ -204,10 +204,10 @@ bool OPELH264Streaming::defaultStreamingCapFactory(void)
   __OPEL_FUNCTION_ENTER__;
   char caps_buffer[256];
   char caps_buffer_enc[256];
-  typeElement *_conv = findByElementNameNSubType(this->_v_fly_type_element,
-      "nvvidconv", kBGR);
-  typeElement *_enc = findByElementName(this->_v_fly_type_element, 
-      "omxh264enc");
+  typeElement *_conv = findByElementNicknameNSubType(this->_v_fly_type_element,
+      "converter", kI420);
+  typeElement *_enc = findByElementNickname(this->_v_fly_type_element, 
+      "h264encoder");
 
   if(!_conv || !_enc)
   {
@@ -219,13 +219,22 @@ bool OPELH264Streaming::defaultStreamingCapFactory(void)
   gint width = (guint)STREAMING_720P_WIDTH;
   gint height = (guint)STREAMING_720P_HEIGHT;
 
-  sprintf(caps_buffer, "video/x-raw(memory:NVMM), width=(int){%d}, "
-      "height=(int){%d}", width, height);
+  switch(g_target_type){
+    case TX1:
+      sprintf(caps_buffer, "video/x-raw(memory:NVMM), width=(int){%d}, "
+          "height=(int){%d}", width, height);
+      sprintf(caps_buffer_enc, "video/x-h264, stream-format=(string)byte-stream");
+      break;
+    case RPI2_3:
+      sprintf(caps_buffer, "video/x-raw, width=(int){%d}, "
+          "height=(int){%d}", width, height);
+      sprintf(caps_buffer_enc, "video/x-h264, stream-format=(string)byte-stream");
+      break;
+    default:
+      return false;
+  }
 
   _conv->caps = gst_caps_from_string(caps_buffer);
-
-  sprintf(caps_buffer_enc, "video/x-h264, stream-format=(string)byte-stream");
-
   _enc->caps = gst_caps_from_string(caps_buffer_enc);
 
   if(!_conv->caps || !_enc->caps)

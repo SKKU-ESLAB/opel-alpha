@@ -155,8 +155,11 @@ extern bool typeElementCapAllocator(unsigned eid,
     typeElement **type_element_array, GstCaps *cap);
 typeElement* findByElementName(std::vector<typeElement*> *_v_element, 
     const char *_str);
+typeElement* findByElementNickname(std::vector<typeElement*> *_v_element, 
+    const char *_str);
 typeElement* findByElementNameNSubType(std::vector<typeElement*> *_v_element, 
     const char *_str, unsigned _sub_type);
-
+typeElement* findByElementNicknameNSubType(std::vector<typeElement*> *_v_element, 
+    const char *_str, unsigned _sub_type);
 
 #endif /* OPEL_GST_ELEMENT_H */

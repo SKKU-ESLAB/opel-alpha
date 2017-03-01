@@ -23,7 +23,7 @@
 ##########################################################################
 
 ## Available target boards
-AVAILABLE_TARGET_LIST=("tegraTX1")
+AVAILABLE_TARGET_LIST=("tegraTX1", "raspberry-pi2_3")
 
 ## Functions
 # show_usage(): Show the usage of install script

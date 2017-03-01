@@ -163,6 +163,14 @@ int main(int argc, char** argv)
     return -1;
   }
   OPELGstElementTx1 *tx1 = OPELGstElementTx1::getInstance();
+  
+  char *opel_target_name = getenv("OPEL_TARGET_NAME");
+  if(!strncmp(opel_target_name, "tegraTx1", strlen("tegraTx1")
+    g_target_type = TX1;
+  else if(!strncmp(opel_target_name, "raspberry-pi2_3", strlen("raspberry-pi2_3");
+    g_target_type = RPI2_3;
+  else
+    goto exit;
 
   tx1->setElementPropertyVector(v_element_property);
 

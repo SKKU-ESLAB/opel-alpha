@@ -150,6 +150,9 @@ void printElement(ElementProperty *_element)
     case kSINK:
       std::cout << "****SINK****" << std::endl;
       break;
+    case kPARSE:
+      std::cout << "****PARSE****" << std::endl;
+      break;
     default:
       break;
   }

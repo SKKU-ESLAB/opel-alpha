@@ -57,6 +57,22 @@ typeElement* findByElementName(std::vector<typeElement*> *_v_element,
   return NULL;
 }
 
+typeElement* findByElementNickname(std::vector<typeElement*> *_v_element,
+    const char *_str)
+{
+  assert(_str != NULL && _v_element != NULL);
+  std::string target = charToString(_str);
+  typeElement *iter = NULL;
+  for(int i=0; i < _v_element->size(); i++)
+  {
+    iter = (*_v_element)[i];
+    if(target == *(iter->nickname))
+      return iter;
+  }
+  OPEL_DBG_ERR("Cannot Find Element By Element Nickname");
+  return NULL;
+}
+
 typeElement* findByElementNameNSubType(std::vector<typeElement*> *_v_element, 
     const char *_str, unsigned _sub_type)
 {
@@ -67,6 +83,22 @@ typeElement* findByElementNameNSubType(std::vector<typeElement*> *_v_element,
   {
     iter = (*_v_element)[i];
     if((target == *(iter->name)) && (iter->sub_type == _sub_type)) 
+      return iter;
+  }
+  OPEL_DBG_ERR("Cannot Find Element By Element Name and Sub Type");
+  return NULL;
+}
+
+typeElement* findByElementNicknameNSubType(std::vector<typeElement*> *_v_element, 
+    const char *_str, unsigned _sub_type)
+{
+  assert(_str != NULL && _v_element != NULL);
+  std::string target = charToString(_str);
+  typeElement *iter = NULL;
+  for(int i=0; i < _v_element->size(); i++)
+  {
+    iter = (*_v_element)[i];
+    if((target == *(iter->nickname)) && (iter->sub_type == _sub_type)) 
       return iter;
   }
   OPEL_DBG_ERR("Cannot Find Element By Element Name and Sub Type");

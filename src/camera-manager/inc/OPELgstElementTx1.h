@@ -48,7 +48,7 @@ class OPELGstElementTx1 : public OPELGstElement
     { this->is_playing = _is_playing; }
 
     typeElement* getMainTee(void) const
-    {  return this->main_tee; }
+    { return this->main_tee; }
     void setMainTee(typeElement* _main_tee)
     { this->main_tee = _main_tee; }
 
