@@ -2,6 +2,7 @@
 #define OPEL_CAMERA_PROPERTY_H
 #include <iostream>
 #include <string>
+#include <string.h>
 #include <stdlib.h>
 #include <assert.h>
 #include <vector>
@@ -13,12 +14,13 @@
 #include <gst/gst.h>
 #include "OPELdbugLog.h"
 
-static int g_target_type = 0;
-
 typedef enum _targetType{
-  TX1 = 1,
+  NONE = 0,
+  TX1,
   RPI2_3,
 }targetType;
+
+extern targetType g_target_type;
 
 typedef enum _elementType{
   kSRC = 0,
@@ -69,9 +71,14 @@ class AppSrcProp : public Property
     virtual void setGstObjectProperty(GstElement *element)
     {
       assert(element != NULL);
-      g_object_set(G_OBJECT(element), this->n_emit_signals, this->emit_signals,
-          this->n_drop, this->drop, this->n_max_buffers, this->max_buffers,
-          this->n_wait_on_eos, this->wait_on_eos, NULL);
+      if (g_target_type == TX1)
+        g_object_set(G_OBJECT(element), this->n_emit_signals, this->emit_signals,
+            this->n_drop, this->drop, this->n_max_buffers, this->max_buffers,
+            this->n_wait_on_eos, this->wait_on_eos, NULL);
+      else if (g_target_type == RPI2_3)
+        g_object_set(G_OBJECT(element), this->n_emit_signals, this->emit_signals,
+            this->n_drop, this->drop, this->n_max_buffers, this->max_buffers,
+            NULL);
     }
     static const char *n_emit_signals;
     static const char *n_drop;
@@ -97,8 +104,11 @@ class EncorderProp : public Property
     virtual void setGstObjectProperty(GstElement *element)
     {
       assert(element != NULL);
-      g_object_set(G_OBJECT(element), this->n_quality_level, this->quality_level,
-          this->n_bitrate, this->bitrate, NULL);
+      if (g_target_type == TX1)
+        g_object_set(G_OBJECT(element), this->n_quality_level, this->quality_level,
+            this->n_bitrate, this->bitrate, NULL);
+      else if (g_target_type == RPI2_3)
+        g_object_set(G_OBJECT(element), NULL);
     }
     static const char *n_quality_level;
     static const char *n_bitrate;
@@ -146,8 +156,11 @@ class CameraSrcProp : public Property
     virtual void setGstObjectProperty(GstElement *element)
     {
       assert(element != NULL);
-      g_object_set(G_OBJECT(element), this->n_fpsRange, this->fpsRange.c_str(),
-          NULL); 
+      if (g_target_type == TX1)
+        g_object_set(G_OBJECT(element), this->n_fpsRange, this->fpsRange.c_str(),
+            NULL);
+      else if (g_target_type == RPI2_3)
+        g_object_set(G_OBJECT(element), NULL);
     }
     static const char *n_fpsRange;
     std::string fpsRange;
@@ -183,7 +196,10 @@ class ConvProp : public Property
     virtual void setGstObjectProperty(GstElement *element)
     {
       assert(element != NULL);
-      g_object_set(G_OBJECT(element), this->n_flip_method, this->flip_method, NULL);
+      if (g_target_type == TX1)
+        g_object_set(G_OBJECT(element), this->n_flip_method, this->flip_method, NULL);
+      else if (g_target_type == RPI2_3)
+        g_object_set(G_OBJECT(element), NULL);
     }
     static const char *n_flip_method;
     unsigned flip_method;
@@ -213,15 +229,15 @@ class UDPSinkProp : public Property
     unsigned port;
 };
 
-Property* serializationSubElement(unsigned _sub_type);
-Property* deSerializationSubElement(unsigned _sub_type);
+Property* serializationSubElement(subElementType _sub_type);
+Property* deSerializationSubElement(subElementType _sub_type);
 
 class ElementProperty{
   public:
     ElementProperty();
 
     ElementProperty(elementType _type);
-    ElementProperty(elementType _type, unsigned sub_type, 
+    ElementProperty(elementType _type, subElementType sub_type, 
         const char *_element_name, const char *_element_nickname);
     ~ElementProperty();
 
@@ -243,8 +259,8 @@ class ElementProperty{
     void setHeight(unsigned _height);
     unsigned getHeight(void) const;
 
-    unsigned getSubType(void) const { return this->sub_type; }
-    void setSubType(unsigned _sub_type) { this->sub_type = _sub_type; }
+    subElementType getSubType(void) const { return this->sub_type; }
+    void setSubType(subElementType _sub_type) { this->sub_type = _sub_type; }
 
     friend class boost::serialization::access;
     template<class Archive> void serialize(Archive &ar,

@@ -71,9 +71,13 @@
 		</item>
 		<item class_id_reference="2" object_id="_6">
 			<element_name>omxh264enc</element_name>
-			<element_nickname>h264encoder</element_nickname>
+			<element_nickname>h264enc</element_nickname>
 			<element_type>4</element_type>
-			<element_sub_type>10</element_sub_type>
+			<element_sub_type>4</element_sub_type>
+			<element_property class_id="6" tracking_level="0" version="0">
+				<quality_level>2</quality_level>
+				<bitrate>8000000</bitrate>
+			</element_property>
 		</item>
 		<item class_id_reference="2" object_id="_7">
 			<element_name>jpegenc</element_name>
@@ -165,7 +169,7 @@
 		</item>
     <item class_id_reference="2" object_id="_13">
       <element_name>h264parse</element_name>
-      <element_nickname>h264parse</element_name>
+      <element_nickname>h264parse</element_nickname>
       <element_type>7</element_type>
       <element_sub_type>10</element_sub_type>
     </item>

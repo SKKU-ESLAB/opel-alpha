@@ -210,7 +210,7 @@ std::vector<ElementProperty*>* ElementXMLSerialization::getVElementProperty(void
   return this->_v_element_property;
 }
 
-ElementProperty::ElementProperty(elementType _type, unsigned _sub_type,
+ElementProperty::ElementProperty(elementType _type, subElementType _sub_type,
     const char *_element_name, const char *_element_nickname)
 {
   this->type = _type;
@@ -323,7 +323,7 @@ unsigned ElementProperty::getHeight(void) const
   return this->height;
 }
 
-Property* serializationSubElement(unsigned _sub_type)
+Property* serializationSubElement(subElementType _sub_type)
 {
   switch(_sub_type)
   {
@@ -331,7 +331,7 @@ Property* serializationSubElement(unsigned _sub_type)
   }
   return NULL;
 }
-Property* deSerializationSubElement(unsigned _sub_type)
+Property* deSerializationSubElement(subElementType _sub_type)
 {
   switch(_sub_type)
   {

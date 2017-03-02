@@ -31,6 +31,6 @@
 
 #define TARGET_SRC_IS_CAM 1
 
-#define OPEL_LOG_VERBOSE 0
+#define OPEL_LOG_VERBOSE 1
 
 #endif /*OPEL_CONFIG_H*/

@@ -7,7 +7,7 @@
 		<item_version>0</item_version>
 		<item class_id="2" tracking_level="1" version="0" object_id="_0">
 			<element_name>nvcamerasrc</element_name>
-			<element_nickname>nvcamerasrc</element_nickname>
+			<element_nickname>camerasrc</element_nickname>
 			<element_type>0</element_type>
 			<element_sub_type>0</element_sub_type>
 			<element_property class_id="3" tracking_level="0" version="0">
@@ -53,7 +53,7 @@
 		</item>
 		<item class_id_reference="2" object_id="_4">
 			<element_name>nvvidconv</element_name>
-			<element_nickname>nvvidconv</element_nickname>
+			<element_nickname>converter</element_nickname>
 			<element_type>3</element_type>
 			<element_sub_type>2</element_sub_type>
 			<element_property class_id="5" tracking_level="0" version="0">
@@ -62,7 +62,7 @@
 		</item>
 		<item class_id_reference="2" object_id="_5">
 			<element_name>nvvidconv</element_name>
-			<element_nickname>nvvidconv</element_nickname>
+			<element_nickname>converter</element_nickname>
 			<element_type>3</element_type>
 			<element_sub_type>3</element_sub_type>
 			<element_property>
@@ -71,7 +71,7 @@
 		</item>
 		<item class_id_reference="2" object_id="_6">
 			<element_name>omxh264enc</element_name>
-			<element_nickname>omxh264enc</element_nickname>
+			<element_nickname>h264enc</element_nickname>
 			<element_type>4</element_type>
 			<element_sub_type>4</element_sub_type>
 			<element_property class_id="6" tracking_level="0" version="0">
@@ -81,7 +81,7 @@
 		</item>
 		<item class_id_reference="2" object_id="_7">
 			<element_name>nvjpegenc</element_name>
-			<element_nickname>nvjpegenc</element_nickname>
+			<element_nickname>jpegenc</element_nickname>
 			<element_type>4</element_type>
 			<element_sub_type>5</element_sub_type>
 			<element_property>

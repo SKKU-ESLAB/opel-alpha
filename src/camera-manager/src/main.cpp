@@ -7,6 +7,8 @@
 #include <signal.h>
 #include <unistd.h>
 
+targetType g_target_type = NONE;
+
 const char *path_configuration_camera_FileName = "camera-config.xml";
 
 static GMainLoop *loop;
@@ -137,6 +139,9 @@ int main(int argc, char** argv)
   OPELGlobalVectorRequest *global_vector_request = NULL;
 
   char* opel_config_dir = getenv("OPEL_CONFIG_DIR");
+  if(!opel_config_dir){
+    OPEL_DBG_ERR("cannot read OPEL_CONFIG_DIR\n");
+  }
   char str[512] = "";
   strncpy(str, opel_config_dir, strlen(opel_config_dir));
   strncat(str, "/", strlen("/"));
@@ -165,12 +170,15 @@ int main(int argc, char** argv)
   OPELGstElementTx1 *tx1 = OPELGstElementTx1::getInstance();
   
   char *opel_target_name = getenv("OPEL_TARGET_NAME");
-  if(!strncmp(opel_target_name, "tegraTx1", strlen("tegraTx1")
+  if(!strncmp(opel_target_name, "tegraTX1", strlen("tegraTX1")))
     g_target_type = TX1;
-  else if(!strncmp(opel_target_name, "raspberry-pi2_3", strlen("raspberry-pi2_3");
+  else if(!strncmp(opel_target_name, "raspberry-pi2_3", strlen("raspberry-pi2_3")))
     g_target_type = RPI2_3;
-  else
+  else {
+    OPEL_DBG_ERR("Do not support this target board");
+    OPEL_DBG_ERR(opel_target_name);
     goto exit;
+  }
 
   tx1->setElementPropertyVector(v_element_property);
 
@@ -237,7 +245,7 @@ exit:
   if(v_element_property != NULL)
     delete v_element_property;
   //buggy
-  //if(tx1 != NULL)
+  /*if(tx1 != NULL)
     delete tx1;*/
   if(loop != NULL)
     g_main_loop_unref(loop);

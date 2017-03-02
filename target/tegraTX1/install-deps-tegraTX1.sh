@@ -100,9 +100,15 @@ sudo cp ${OPEL_REPO_DIR}/dep/opel-dbus-config/opel.conf
 
 # Step 8. Install wpa_supplicant, wpa_cli and deletesem
 print_progress 8 "Install wpa_supplicant, wpa_cli and deletesem..."
+
+cd ${OPEL_REPO_DIR}/dep/hostap/wpa_supplicant
+make
+cd ${OPEL_REPO_DIR}/dep/deletesem
+gcc -o deletesem deletesem.c -lpthread
+
 mkdir -p /usr/bin/opel-deps
-sudo cp ${OPEL_REPO_DIR}/dep/wpa/wpa_supplicant /usr/bin/opel-deps/
-sudo cp ${OPEL_REPO_DIR}/dep/wpa/wpa_cli /usr/bin/opel-deps/
+sudo cp ${OPEL_REPO_DIR}/dep/hostap/wpa_supplicant/wpa_supplicant /usr/bin/opel-deps/
+sudo cp ${OPEL_REPO_DIR}/dep/hostap/wpa_supplicant/wpa_cli /usr/bin/opel-deps/
 sudo cp ${OPEL_REPO_DIR}/dep/deletesem/deletesem /usr/bin/opel-deps/
 chmod +x /usr/bin/opel-deps/*
 
@@ -111,11 +117,13 @@ print_progress 9 "Build and install nodejs-4.0.0..."
 git clone https://github.com/nodejs/node ${OPEL_REPO_DIR}/dep/nodejs-4.0.0 \
   -b v4.0.0 --depth=1
 cd ${OPEL_REPO_DIR}/dep/nodejs-4.0.0
+./configure
 make -j4
 sudo make install
 
 # Step 10. Install nan package 
-sudo npm install -g nan
+cd ${OPEL_REPO_DIR}
+npm install nan
 
 WARN_COLO="\033[31;47m"
 INFO_COLO="\033[36m"

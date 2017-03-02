@@ -327,7 +327,7 @@ bool OPELRequestTx1::defaultRecordingCapFactory(void)
   assert(this->_v_type_element != NULL && this->_v_fly_type_element != NULL);
   __OPEL_FUNCTION_ENTER__;
   typeElement *_enc = findByElementNickname(this->_v_fly_type_element,
-      "h264encoder");
+      "h264enc");
   if(_enc == NULL)
   {
     OPEL_DBG_ERR("Get TypeElement Pointer is NULL");
@@ -391,7 +391,7 @@ bool OPELRequestTx1::defaultRecordingPipelineAdd(GstElement *pipeline)
   typeElement *_queue = findByElementName(this->_v_fly_type_element, 
       "queue"); 
   typeElement *_enc = findByElementNickname(this->_v_fly_type_element, 
-      "h264encoder");
+      "h264enc");
   typeElement *_parse = NULL;
   typeElement *_mux = findByElementNickname(this->_v_fly_type_element, 
       "mp4mux"); 
@@ -434,7 +434,7 @@ bool OPELRequestTx1::defaultRecordingPipelineAdd(GstElement *pipeline)
       }
       break;
     case RPI2_3:
-      _parse = findByElementName(this->v_fly_type_element, "h264parse");
+      _parse = findByElementName(this->_v_fly_type_element, "h264parse");
       if(!_parse)
       {
         OPEL_DBG_ERR("Get TypeElement Pointer is NULL");
@@ -509,7 +509,7 @@ bool OPELRequestTx1::defaultRecordingElementFactory(const char *file_path)
 
   std::vector<typeElement*> _v_original_element(OPEL_NUM_DEFAULT_RECORDING_ELE);
   typeElement *_queue = findByElementName(this->_v_type_element, "queue"); 
-  typeElement *_enc = findByElementNickname(this->_v_type_element, "h264encoder");
+  typeElement *_enc = findByElementNickname(this->_v_type_element, "h264enc");
   typeElement *_mux = findByElementNickname(this->_v_type_element, "mp4mux");
   typeElement *_sink = findByElementNicknameNSubType(this->_v_type_element,
       "filesink", kREC_SINK); 
@@ -540,7 +540,7 @@ bool OPELRequestTx1::defaultRecordingElementFactory(const char *file_path)
 
   if(g_target_type == RPI2_3)
   {
-    typeElement _parse = findByElementName(this->_v_type_element, "h264parse");
+    typeElement *_parse = findByElementName(this->_v_type_element, "h264parse");
     if(!_parse)
     {
       OPEL_DBG_ERR("Get TypeElement Pointer is NULL");
@@ -608,7 +608,6 @@ bool OPELRequestTx1::defaultJpegElementFactory(const char* file_path)
   __OPEL_FUNCTION_ENTER__;
 
   this->num_iter = OPEL_NUM_DEFAULT_SNAPSHOT_ELE;
-  if (
   std::vector<typeElement*> _v_original_element(OPEL_NUM_DEFAULT_SNAPSHOT_ELE);
   typeElement *_queue = findByElementName(this->_v_type_element, "queue");
   typeElement *_enc = findByElementNickname(this->_v_type_element, "jpegenc");

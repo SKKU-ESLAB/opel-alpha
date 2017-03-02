@@ -31,10 +31,10 @@ static bool h264StreamingPropSetting(std::vector<typeElement*>* _v_type_element,
     dbusStreamingRequest* _stream_request)
 {
   assert(_v_type_element != NULL && _stream_request != NULL);
-  typeElement *_conv = findByElementNickname(this->_v_type_element,
+  typeElement *_conv = findByElementNickname(_v_type_element,
       "converter");
   typeElement *_enc = findByElementNickname(_v_type_element,
-      "h264encoder");
+      "h264enc");
   typeElement *_udp_sink = findByElementNickname(_v_type_element,
       "tcpserversink");
   typeElement *_rtph_264pay = findByElementName(_v_type_element,
@@ -45,8 +45,9 @@ static bool h264StreamingPropSetting(std::vector<typeElement*>* _v_type_element,
     OPEL_DBG_ERR("Elements are NULL");
     return false;
   }
-  g_object_set(G_OBJECT(_enc->element), "control-rate", (guint)2,
-      "bitrate", (guint)2000000, NULL);
+  if (g_target_type == TX1)
+    g_object_set(G_OBJECT(_enc->element), "control-rate", (guint)2,
+        "bitrate", (guint)2000000, NULL);
   g_object_set(G_OBJECT(_rtph_264pay->element), "pt", (guint)96,
       "config-interval", (guint)1, NULL);
   g_object_set(G_OBJECT(_udp_sink->element), "host",
@@ -81,9 +82,9 @@ bool OPELH264Streaming::defaultStreamingFactory(void)
   typeElement *_queue = findByElementName(this->_v_type_element,
       "queue");
   typeElement *_conv = findByElementNicknameNSubType(this->_v_type_element,
-      "converter", kI420);
+      "converter", kBGR);
   typeElement *_enc = findByElementNickname(this->_v_type_element,
-      "h264encoder");
+      "h264enc");
   typeElement *_udp_sink = findByElementNickname(this->_v_type_element,
       "tcpserversink");
 
@@ -139,9 +140,9 @@ bool OPELH264Streaming::defaultStreamingPipelineAdd(GstElement *pipeline)
   typeElement *_queue = findByElementName(this->_v_fly_type_element,
       "queue");
   typeElement *_conv = findByElementNicknameNSubType(this->_v_fly_type_element,
-      "converter", kI420);
+      "converter", kBGR);
   typeElement *_enc = findByElementNickname(this->_v_fly_type_element,
-      "h264encoder");
+      "h264enc");
   typeElement *_parse = findByElementName(this->_v_fly_type_element,
       "h264parse");
   typeElement *_pay = findByElementName(this->_v_fly_type_element,
@@ -205,9 +206,9 @@ bool OPELH264Streaming::defaultStreamingCapFactory(void)
   char caps_buffer[256];
   char caps_buffer_enc[256];
   typeElement *_conv = findByElementNicknameNSubType(this->_v_fly_type_element,
-      "converter", kI420);
+      "converter", kBGR);
   typeElement *_enc = findByElementNickname(this->_v_fly_type_element, 
-      "h264encoder");
+      "h264enc");
 
   if(!_conv || !_enc)
   {
@@ -228,7 +229,7 @@ bool OPELH264Streaming::defaultStreamingCapFactory(void)
     case RPI2_3:
       sprintf(caps_buffer, "video/x-raw, width=(int){%d}, "
           "height=(int){%d}", width, height);
-      sprintf(caps_buffer_enc, "video/x-h264, stream-format=(string)byte-stream");
+      sprintf(caps_buffer_enc, "video/x-h264");
       break;
     default:
       return false;
@@ -262,7 +263,14 @@ void OPELH264Streaming::defaultStreamingPadLink(GstPad *tee_src_pad)
     return;
   }
   _queue->pad = gst_element_get_static_pad(_queue->element, "sink");
-  gst_pad_link(tee_src_pad, _queue->pad);
+  GstPadLinkReturn ret = gst_pad_link(tee_src_pad, _queue->pad);
+  if(ret != GST_PAD_LINK_OK)
+  {
+    OPEL_DBG_ERR("element link failed, error number: %d", ret);
+    __OPEL_FUNCTION_EXIT__;
+    return false;
+  }
+
   __OPEL_FUNCTION_EXIT__;
 }
 
