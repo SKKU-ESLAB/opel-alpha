@@ -22,6 +22,22 @@ $ git checkout origin/tegraTX1
 $ git checkout origin/alpha3
 ```
 
+### How to Build the Sensor Driver code.
+You can build the sensor driver code for the specific target board.
+The target-dependent code is in the target/ directory.
+```
+ $ cd target/<TARGET_BOARD>/sensor-drivers/
+ $ cmake .
+ $ make
+ $ cd out/sensor-drivers/
+```
+The driver code and specification is in the out/sensor-drivers/ directory.
+You need to copy it to the OPEL sensor driver code directory
+```
+$ cp libsensors.so ${OPEL_DIR}/out/sensor-drivers/
+$ cp sensor_config.json ${OPEL_DIR}/out/sensor-drivers/
+```
+
 ### How to Install Prerequisites
 It is dependent on target device.
 
@@ -47,22 +63,6 @@ $ sudo ./scripts/install.sh --target=tegraTX1
 ```
 
 You need target profile on ```target/TARGET_NAME/profile.env``` before running install script.
-
-### How to Build the Sensor Driver code.
-You can build the sensor driver code for the specific target board.
-The target-dependent code is in the target/ directory.
-```
- $ cd target/<TARGET_BOARD>/sensor-drivers/
- $ cmake .
- $ make
- $ cd out/sensor-drivers/
-```
-The driver code and specification is in the out/sensor-drivers/ directory.
-You need to copy it to the OPEL sensor driver code directory
-```
-$ cp libsensors.so ${OPEL_DIR}/out/sensor-drivers/
-$ cp sensor_config.json ${OPEL_DIR}/out/sensor-drivers/
-```
 
 
 ## Documentation
