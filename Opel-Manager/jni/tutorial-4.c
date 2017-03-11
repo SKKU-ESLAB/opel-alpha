@@ -323,7 +323,9 @@ static void gst_native_init (JNIEnv* env, jobject thiz, jstring addr, jstring st
   const gchar *char_uri1 = (gchar*)(*env)->GetStringUTFChars (env, addr, NULL);
   const gchar *char_uri2 = (gchar*)(*env)->GetStringUTFChars (env, strport, NULL);
 
-  pipeline=g_strjoin ("","tcpclientsrc host=", char_uri1, " port=", char_uri2, " ! gdpdepay ! rtph264depay ! h264parse ! avdec_h264 ! videoconvert ! autovideosink sync=false",NULL);
+  pipeline=g_strjoin ("","tcpclientsrc host=", char_uri1, " port=",
+                      char_uri2, " ! gdpdepay ! rtph264depay ! h264parse ! "
+                              "avdec_h264 ! videoconvert ! autovideosink sync=false",NULL);
 
 
   (*env)->ReleaseStringUTFChars (env, addr, char_uri1);
