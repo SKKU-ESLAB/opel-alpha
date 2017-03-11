@@ -18,145 +18,147 @@ const char *AppSrcProp::n_wait_on_eos = "wait-on-eos";
 
 void setTx1DefaultProperty(void)
 {
-   __OPEL_FUNCTION_ENTER__;
-   std::vector<ElementProperty*> *element_vector = 
-     new std::vector<ElementProperty*>(); 
-   ElementProperty *nv_src = new ElementProperty(kSRC, kCAM, 
-       "nvcamerasrc", "nvcamerasrc");
-   ElementProperty *rtsp_src = new ElementProperty(kSRC, kRTSP, 
-       "rtspsrc", "rtspsrc");
-   ElementProperty *tee = new ElementProperty(kTEE, kNO_PROP, 
-       "tee", "tee");
-   ElementProperty *queue = new ElementProperty(kQUEUE, kNO_PROP, 
-       "queue", "queue");
-   ElementProperty *i420_conv = new ElementProperty(kCONV, kI420, 
-       "nvvidconv", "nvvidconv");
-   ElementProperty *bgr_conv = new ElementProperty(kCONV, kBGR, 
-       "nvvidconv", "nvvidconv");
-   ElementProperty *h264_enc = new ElementProperty(kENC, kH264, 
-       "omxh264enc", "omxh264enc");
-   ElementProperty *jpeg_enc = new ElementProperty(kENC, kNVJPEG, 
-       "nvjpegenc", "nvjpegenc");
-   ElementProperty *mp4_mux = new ElementProperty(kMUX, kMP4, 
-       "mp4mux", "mp4mux");
-   ElementProperty *sink = new ElementProperty(kSINK, kREC_SINK, 
-       "filesink", "filesink");
-   ElementProperty *jpeg_sink = new ElementProperty(kSINK, kJPEG_SINK, 
-       "filesink", "filesink"); 
-   ElementProperty *udp_sink = new ElementProperty(kSINK, kUDP_SINK, 
-       "tcpserversink", "tcpserversink");
-	 ElementProperty *app_sink = new ElementProperty(kSINK, kAPP_SINK,
-			 "appsink", "appsink");
-		
+  __OPEL_FUNCTION_ENTER__;
+  std::vector<ElementProperty*> *element_vector =
+    new std::vector<ElementProperty*>();
+  ElementProperty *nv_src = new ElementProperty(kSRC, kCAM,
+      "nvcamerasrc", "nvcamerasrc");
+  ElementProperty *rtsp_src = new ElementProperty(kSRC, kRTSP,
+      "rtspsrc", "rtspsrc");
+  ElementProperty *tee = new ElementProperty(kTEE, kNO_PROP,
+      "tee", "tee");
+  ElementProperty *queue = new ElementProperty(kQUEUE, kNO_PROP,
+      "queue", "queue");
+  ElementProperty *i420_conv = new ElementProperty(kCONV, kI420,
+      "nvvidconv", "nvvidconv");
+  ElementProperty *bgr_conv = new ElementProperty(kCONV, kBGR,
+      "nvvidconv", "nvvidconv");
+  ElementProperty *h264_enc = new ElementProperty(kENC, kH264,
+      "omxh264enc", "omxh264enc");
+  ElementProperty *jpeg_enc = new ElementProperty(kENC, kNVJPEG,
+      "nvjpegenc", "nvjpegenc");
+  ElementProperty *mp4_mux = new ElementProperty(kMUX, kMP4,
+      "mp4mux", "mp4mux");
+  ElementProperty *sink = new ElementProperty(kSINK, kREC_SINK,
+      "filesink", "filesink");
+  ElementProperty *jpeg_sink = new ElementProperty(kSINK, kJPEG_SINK,
+      "filesink", "filesink"); 
+  ElementProperty *udp_sink = new ElementProperty(kSINK, kUDP_SINK,
+      "tcpserversink", "tcpserversink");
+  ElementProperty *app_sink = new ElementProperty(kSINK, kAPP_SINK,
+      "appsink", "appsink");
 
-	 nv_src->setWidth(1920);
-   nv_src->setHeight(1080);
-   nv_src->setFps(30);
+  nv_src->setWidth(1920);
+  nv_src->setHeight(1080);
+  nv_src->setFps(30);
 
-   rtsp_src->setWidth(1920);
-   rtsp_src->setHeight(1080);
-   rtsp_src->setFps(30);
-   
-   nv_src->camProp->fpsRange = charToString("30.0 30.0");
-   h264_enc->encProp->bitrate = 8000000;
-   h264_enc->encProp->quality_level = 2;
-   i420_conv->conProp->flip_method = 2;
-   
-   char* opel_data_dir = getenv("OPEL_DATA_DIR");
-   char str1[512] = "";
-   strcat(str1, opel_data_dir);
-   strcat(str1, "/hihihi.mp4");
-   sink->fileProp->location = charToString(str1);
-   char str2[512] = "";
-   strcat(str2, opel_data_dir);
-   strcat(str2, "/hihihi.jpeg");
-   jpeg_sink->fileProp->location = charToString(str2);
+  rtsp_src->setWidth(1920);
+  rtsp_src->setHeight(1080);
+  rtsp_src->setFps(30);
 
-	 app_sink->appSrcProp->emit_signals = true;
-	 app_sink->appSrcProp->drop = true;
-	 app_sink->appSrcProp->max_buffers = 1;
-	 app_sink->appSrcProp->wait_on_eos = true;
+  nv_src->camProp->fpsRange = charToString("30.0 30.0");
+  h264_enc->encProp->bitrate = 8000000;
+  h264_enc->encProp->quality_level = 2;
+  i420_conv->conProp->flip_method = 2;
 
-   element_vector->push_back(nv_src);
-   element_vector->push_back(rtsp_src);
-   element_vector->push_back(tee);
-   element_vector->push_back(queue);
-   element_vector->push_back(i420_conv);
-   element_vector->push_back(bgr_conv);
-   element_vector->push_back(h264_enc);
-   element_vector->push_back(jpeg_enc);
-   element_vector->push_back(mp4_mux);
-   element_vector->push_back(sink);
-   element_vector->push_back(jpeg_sink);
-   element_vector->push_back(udp_sink);
- 	 element_vector->push_back(app_sink); 
+  char* opel_data_dir = getenv("OPEL_DATA_DIR");
+  char str1[512] = "";
+  strcat(str1, opel_data_dir);
+  strcat(str1, "/hihihi.mp4");
+  sink->fileProp->location = charToString(str1);
+  char str2[512] = "";
+  strcat(str2, opel_data_dir);
+  strcat(str2, "/hihihi.jpeg");
+  jpeg_sink->fileProp->location = charToString(str2);
 
-	 v_element_property = element_vector;
+  app_sink->appSrcProp->emit_signals = true;
+  app_sink->appSrcProp->drop = true;
+  app_sink->appSrcProp->max_buffers = 1;
+  app_sink->appSrcProp->wait_on_eos = true;
 
-   __OPEL_FUNCTION_EXIT__;
+  element_vector->push_back(nv_src);
+  element_vector->push_back(rtsp_src);
+  element_vector->push_back(tee);
+  element_vector->push_back(queue);
+  element_vector->push_back(i420_conv);
+  element_vector->push_back(bgr_conv);
+  element_vector->push_back(h264_enc);
+  element_vector->push_back(jpeg_enc);
+  element_vector->push_back(mp4_mux);
+  element_vector->push_back(sink);
+  element_vector->push_back(jpeg_sink);
+  element_vector->push_back(udp_sink);
+  element_vector->push_back(app_sink);
+
+  v_element_property = element_vector;
+
+  __OPEL_FUNCTION_EXIT__;
 }
 
 void printProperty(ElementProperty *_element, elementType _type)
 {
-   switch(_type)
-   {
-      case kSRC:
-       //   std::cout << "FPS Range : " << _element->camProp.fpsRange << std::endl;   
-        break;
-      case kTEE: 
-        break;
-      case kQUEUE: 
-        break;
-      case kCONV:
-      //    std::cout << "Flip Method : " << _element->conProp.flip_method << std::endl;   
-        break;
-      case kENC:
-      //    std::cout << "Quality Level : " << _element->encProp.quality_level << std::endl;   
-       //   std::cout << "Bitrates : " << _element->encProp.bitrate << std::endl;   
-        break;
-      case kMUX:
-        break;
-      case kSINK:
-      //    std::cout << "Location : " << _element->fileProp.location << std::endl;   
-        break;
-      default:
-        break;
-   }
+  switch(_type)
+  {
+    case kSRC:
+      //   std::cout << "FPS Range : " << _element->camProp.fpsRange << std::endl;
+      break;
+    case kTEE:
+      break;
+    case kQUEUE:
+      break;
+    case kCONV:
+      //std::cout << "Flip Method : " << _element->conProp.flip_method << std::endl;
+      break;
+    case kENC:
+      //std::cout << "Quality Level : " << _element->encProp.quality_level << std::endl;
+      //std::cout << "Bitrates : " << _element->encProp.bitrate << std::endl;
+      break;
+    case kMUX:
+      break;
+    case kSINK:
+      //std::cout << "Location : " << _element->fileProp.location << std::endl;
+      break;
+    default:
+      break;
+  }
 }
 
-void printElement(ElementProperty *_element) 
+void printElement(ElementProperty *_element)
 {
-   assert(_element != NULL);
-   elementType type_num = _element->getElementType();
-   switch(type_num)
-   {
-      case kSRC:
-        std::cout << "****SRC****" << std::endl; 
-        break;
-      case kTEE: 
-        std::cout << "****TEE****" << std::endl;
-        break;
-      case kQUEUE:
-        std::cout << "****QUEUE****" << std::endl;
-        break;
-      case kCONV:
-        std::cout << "****CONV****" << std::endl;
-        break;
-      case kENC:
-        std::cout << "****ENCORDER****" << std::endl;
-        break;
-      case kMUX:
-        std::cout << "****MUXER****" << std::endl;
-        break;
-      case kSINK:
-        std::cout << "****SINK****" << std::endl;
-        break;
-      default:
-        break;
-   }
-   std::cout << "Element Name : " << _element->getElementName() << std::endl;
-   std::cout << "Element NickName : " << _element->getElementNickName() << std::endl;
-   printProperty(_element, type_num);
+  assert(_element != NULL);
+  elementType type_num = _element->getElementType();
+  switch(type_num)
+  {
+    case kSRC:
+      std::cout << "****SRC****" << std::endl;
+      break;
+    case kTEE: 
+      std::cout << "****TEE****" << std::endl;
+      break;
+    case kQUEUE:
+      std::cout << "****QUEUE****" << std::endl;
+      break;
+    case kCONV:
+      std::cout << "****CONV****" << std::endl;
+      break;
+    case kENC:
+      std::cout << "****ENCORDER****" << std::endl;
+      break;
+    case kMUX:
+      std::cout << "****MUXER****" << std::endl;
+      break;
+    case kSINK:
+      std::cout << "****SINK****" << std::endl;
+      break;
+    case kPARSE:
+      std::cout << "****PARSE****" << std::endl;
+      break;
+    default:
+      break;
+  }
+  std::cout << "Element Name : " << _element->getElementName() << std::endl;
+  std::cout << "Element NickName : " << _element->getElementNickName() << std::endl;
+  printProperty(_element, type_num);
 }
 
 void printVectorElement(std::vector<ElementProperty*> *_v_element_property)
@@ -165,12 +167,12 @@ void printVectorElement(std::vector<ElementProperty*> *_v_element_property)
   std::vector<ElementProperty*> *v_tmp = v_element_property;
   std::vector<ElementProperty*>::iterator iter = (*v_tmp).begin();
   ElementProperty *tmp_element = NULL;
-  
+
   for(iter; iter != (*v_tmp).end(); ++iter)
   {
     tmp_element = *iter;
     if(tmp_element != NULL)
-       printElement(tmp_element); 
+      printElement(tmp_element);
   }
 
 }
@@ -186,7 +188,7 @@ void deleteVectorElement(std::vector<ElementProperty*> *_v_element_property)
   std::vector<ElementProperty*> *v_tmp = v_element_property;
   std::vector<ElementProperty*>::iterator iter = (*v_tmp).begin();
   ElementProperty *tmp_element = NULL;
-  
+
   for(iter; iter != (*v_tmp).end(); ++iter)
   {
     tmp_element = *iter;
@@ -208,7 +210,7 @@ std::vector<ElementProperty*>* ElementXMLSerialization::getVElementProperty(void
   return this->_v_element_property;
 }
 
-ElementProperty::ElementProperty(elementType _type, unsigned _sub_type,
+ElementProperty::ElementProperty(elementType _type, subElementType _sub_type,
     const char *_element_name, const char *_element_nickname)
 {
   this->type = _type;
@@ -225,17 +227,17 @@ ElementProperty::ElementProperty(elementType _type, unsigned _sub_type,
   this->camProp = new CameraSrcProp();
   this->fileProp = new FileSinkProp();
   this->conProp = new ConvProp();
-	this->appSrcProp = new AppSrcProp();
+  this->appSrcProp = new AppSrcProp();
 }
 ElementProperty::ElementProperty(elementType _type)
-{ 
+{
   this->udpProp = new UDPSinkProp();
   this->encProp = new EncorderProp();
   this->rtspProp = new RTSPSrcProp();
   this->camProp = new CameraSrcProp();
   this->fileProp = new FileSinkProp();
   this->conProp = new ConvProp();
-	this->appSrcProp = new AppSrcProp();
+  this->appSrcProp = new AppSrcProp();
   this->type = _type;
 }
 
@@ -247,13 +249,13 @@ ElementProperty::ElementProperty()
   this->camProp = new CameraSrcProp();
   this->fileProp = new FileSinkProp();
   this->conProp = new ConvProp();
-	this->appSrcProp = new AppSrcProp();
+  this->appSrcProp = new AppSrcProp();
 }
 
 ElementProperty::~ElementProperty()
 {
   if(this->udpProp != NULL)
-   delete this->udpProp;
+    delete this->udpProp;
   if(this->encProp != NULL)
     delete this->encProp;
   if(this->rtspProp != NULL)
@@ -264,8 +266,8 @@ ElementProperty::~ElementProperty()
     delete this->fileProp;
   if(this->conProp != NULL)
     delete this->conProp;
-	if(this->appSrcProp != NULL)
-		delete this->appSrcProp;
+  if(this->appSrcProp != NULL)
+    delete this->appSrcProp;
 }
 
 void ElementProperty::setElementName(std::string _element_name)
@@ -321,7 +323,7 @@ unsigned ElementProperty::getHeight(void) const
   return this->height;
 }
 
-Property* serializationSubElement(unsigned _sub_type)
+Property* serializationSubElement(subElementType _sub_type)
 {
   switch(_sub_type)
   {
@@ -329,7 +331,7 @@ Property* serializationSubElement(unsigned _sub_type)
   }
   return NULL;
 }
-Property* deSerializationSubElement(unsigned _sub_type)
+Property* deSerializationSubElement(subElementType _sub_type)
 {
   switch(_sub_type)
   {

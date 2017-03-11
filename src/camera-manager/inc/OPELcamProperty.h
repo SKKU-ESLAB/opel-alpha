@@ -2,6 +2,7 @@
 #define OPEL_CAMERA_PROPERTY_H
 #include <iostream>
 #include <string>
+#include <string.h>
 #include <stdlib.h>
 #include <assert.h>
 #include <vector>
@@ -13,14 +14,23 @@
 #include <gst/gst.h>
 #include "OPELdbugLog.h"
 
+typedef enum _targetType{
+  NONE = 0,
+  TX1,
+  RPI2_3,
+}targetType;
+
+extern targetType g_target_type;
+
 typedef enum _elementType{
-   kSRC = 0,
-   kTEE,
-   kQUEUE,
-   kCONV,
-   kENC,
-   kMUX,
-   kSINK,
+  kSRC = 0,
+  kTEE,
+  kQUEUE,
+  kCONV,
+  kENC,
+  kMUX,
+  kSINK,
+  kPARSE,
 }elementType;
 
 typedef enum _subElementType{
@@ -35,7 +45,7 @@ typedef enum _subElementType{
   kJPEG_SINK,
   kUDP_SINK,
   kNO_PROP,
-	kAPP_SINK,
+  kAPP_SINK,
 }subElementType;
 
 
@@ -47,39 +57,44 @@ class Property
 
 class AppSrcProp : public Property
 {
-	public:
-   	 friend class boost::serialization::access;
-    template<class Archive> void serialize(Archive &ar, 
+  public:
+    friend class boost::serialization::access;
+    template<class Archive> void serialize(Archive &ar,
         const unsigned int version)
     {
       using boost::serialization::make_nvp;
       ar & make_nvp(n_emit_signals, this->emit_signals);
       ar & make_nvp(n_drop, this->drop);
-			ar & make_nvp(n_max_buffers, this->max_buffers);
-			ar & make_nvp(n_wait_on_eos, this->wait_on_eos);
+      ar & make_nvp(n_max_buffers, this->max_buffers);
+      ar & make_nvp(n_wait_on_eos, this->wait_on_eos);
     }
-		virtual void setGstObjectProperty(GstElement *element)
-		{
-			assert(element != NULL);
-			g_object_set(G_OBJECT(element), this->n_emit_signals, this->emit_signals,
-					this->n_drop, this->drop, this->n_max_buffers, this->max_buffers,
-					this->n_wait_on_eos, this->wait_on_eos, NULL);
-		}
-		static const char *n_emit_signals;
-		static const char *n_drop;
-		static const char *n_max_buffers;
-		static const char *n_wait_on_eos;
-		bool emit_signals;
-		bool drop;
-		unsigned max_buffers;
-		bool wait_on_eos;
+    virtual void setGstObjectProperty(GstElement *element)
+    {
+      assert(element != NULL);
+      if (g_target_type == TX1)
+        g_object_set(G_OBJECT(element), this->n_emit_signals, this->emit_signals,
+            this->n_drop, this->drop, this->n_max_buffers, this->max_buffers,
+            this->n_wait_on_eos, this->wait_on_eos, NULL);
+      else if (g_target_type == RPI2_3)
+        g_object_set(G_OBJECT(element), this->n_emit_signals, this->emit_signals,
+            this->n_drop, this->drop, this->n_max_buffers, this->max_buffers,
+            NULL);
+    }
+    static const char *n_emit_signals;
+    static const char *n_drop;
+    static const char *n_max_buffers;
+    static const char *n_wait_on_eos;
+    bool emit_signals;
+    bool drop;
+    unsigned max_buffers;
+    bool wait_on_eos;
 };
 
 class EncorderProp : public Property 
 {
   public:
-     friend class boost::serialization::access;
-    template<class Archive> void serialize(Archive &ar, 
+    friend class boost::serialization::access;
+    template<class Archive> void serialize(Archive &ar,
         const unsigned int version)
     {
       using boost::serialization::make_nvp;
@@ -89,8 +104,11 @@ class EncorderProp : public Property
     virtual void setGstObjectProperty(GstElement *element)
     {
       assert(element != NULL);
-      g_object_set(G_OBJECT(element), this->n_quality_level, this->quality_level, 
-          this->n_bitrate, this->bitrate, NULL);
+      if (g_target_type == TX1)
+        g_object_set(G_OBJECT(element), this->n_quality_level, this->quality_level,
+            this->n_bitrate, this->bitrate, NULL);
+      else if (g_target_type == RPI2_3)
+        g_object_set(G_OBJECT(element), NULL);
     }
     static const char *n_quality_level;
     static const char *n_bitrate;
@@ -101,7 +119,7 @@ class RTSPSrcProp : public Property
 {
   public:
     friend class boost::serialization::access;
-    template<class Archive> void serialize(Archive &ar, 
+    template<class Archive> void serialize(Archive &ar,
         const unsigned int version)
     {
       using boost::serialization::make_nvp;
@@ -113,7 +131,7 @@ class RTSPSrcProp : public Property
     {
       assert(element != NULL);
       if(!(this->location.empty())){
-        g_object_set(G_OBJECT(element), this->n_location, this->location.c_str(), 
+        g_object_set(G_OBJECT(element), this->n_location, this->location.c_str(),
             this->n_user_id, this->user_id.c_str(), this->n_user_pwd, 
             this->user_pw.c_str(), NULL);
       }
@@ -129,7 +147,7 @@ class CameraSrcProp : public Property
 {
   public:
     friend class boost::serialization::access;
-    template<class Archive> void serialize(Archive &ar, 
+    template<class Archive> void serialize(Archive &ar,
         const unsigned int version)
     {
       using boost::serialization::make_nvp;
@@ -138,8 +156,11 @@ class CameraSrcProp : public Property
     virtual void setGstObjectProperty(GstElement *element)
     {
       assert(element != NULL);
-      g_object_set(G_OBJECT(element), this->n_fpsRange, this->fpsRange.c_str(),
-          NULL); 
+      if (g_target_type == TX1)
+        g_object_set(G_OBJECT(element), this->n_fpsRange, this->fpsRange.c_str(),
+            NULL);
+      else if (g_target_type == RPI2_3)
+        g_object_set(G_OBJECT(element), NULL);
     }
     static const char *n_fpsRange;
     std::string fpsRange;
@@ -148,7 +169,7 @@ class FileSinkProp : public Property
 {
   public:
     friend class boost::serialization::access;
-    template<class Archive> void serialize(Archive &ar, 
+    template<class Archive> void serialize(Archive &ar,
         const unsigned int version)
     {
       using boost::serialization::make_nvp;
@@ -157,7 +178,7 @@ class FileSinkProp : public Property
     virtual void setGstObjectProperty(GstElement *element)
     {
       assert(element != NULL);
-      g_object_set(G_OBJECT(element), this->n_location, this->location.c_str(), NULL); 
+      g_object_set(G_OBJECT(element), this->n_location, this->location.c_str(), NULL);
     }
     static const char *n_location;
     std::string location;
@@ -166,7 +187,7 @@ class ConvProp : public Property
 {
   public:
     friend class boost::serialization::access;
-    template<class Archive> void serialize(Archive &ar, 
+    template<class Archive> void serialize(Archive &ar,
         const unsigned int version)
     {
       using boost::serialization::make_nvp;
@@ -175,7 +196,10 @@ class ConvProp : public Property
     virtual void setGstObjectProperty(GstElement *element)
     {
       assert(element != NULL);
-      g_object_set(G_OBJECT(element), this->n_flip_method, this->flip_method, NULL); 
+      if (g_target_type == TX1)
+        g_object_set(G_OBJECT(element), this->n_flip_method, this->flip_method, NULL);
+      else if (g_target_type == RPI2_3)
+        g_object_set(G_OBJECT(element), NULL);
     }
     static const char *n_flip_method;
     unsigned flip_method;
@@ -184,7 +208,7 @@ class UDPSinkProp : public Property
 {
   public:
     friend class boost::serialization::access;
-    template<class Archive> void serialize(Archive &ar, 
+    template<class Archive> void serialize(Archive &ar,
         const unsigned int version)
     {
       using boost::serialization::make_nvp;
@@ -194,10 +218,10 @@ class UDPSinkProp : public Property
     {
       assert(element != NULL);
       if(!(this->host.empty())){
-      g_object_set(G_OBJECT(element), this->n_host, this->host.c_str(),
-          this->n_port, this->port, NULL); 
+        g_object_set(G_OBJECT(element), this->n_host, this->host.c_str(),
+            this->n_port, this->port, NULL); 
       }
-        //Do Nothing
+      //Do Nothing
     }
     static const char *n_host;
     static const char *n_port;
@@ -205,15 +229,15 @@ class UDPSinkProp : public Property
     unsigned port;
 };
 
-Property* serializationSubElement(unsigned _sub_type);
-Property* deSerializationSubElement(unsigned _sub_type);
+Property* serializationSubElement(subElementType _sub_type);
+Property* deSerializationSubElement(subElementType _sub_type);
 
 class ElementProperty{
   public:
     ElementProperty();
 
     ElementProperty(elementType _type);
-    ElementProperty(elementType _type, unsigned sub_type, 
+    ElementProperty(elementType _type, subElementType sub_type, 
         const char *_element_name, const char *_element_nickname);
     ~ElementProperty();
 
@@ -234,19 +258,19 @@ class ElementProperty{
 
     void setHeight(unsigned _height);
     unsigned getHeight(void) const;
-    
-    unsigned getSubType(void) const { return this->sub_type; }
-    void setSubType(unsigned _sub_type) { this->sub_type = _sub_type; } 
+
+    subElementType getSubType(void) const { return this->sub_type; }
+    void setSubType(subElementType _sub_type) { this->sub_type = _sub_type; }
 
     friend class boost::serialization::access;
-    template<class Archive> void serialize(Archive &ar, 
+    template<class Archive> void serialize(Archive &ar,
         const unsigned int version) 
     {
       using boost::serialization::make_nvp;
       ar & make_nvp("element_name", this->element_name);
       ar & make_nvp("element_nickname", this->element_nickname);
       ar & make_nvp("element_type", this->type);
-      ar & make_nvp("element_sub_type", this->sub_type); 
+      ar & make_nvp("element_sub_type", this->sub_type);
       switch(this->type)
       {
         case kSRC:
@@ -261,7 +285,7 @@ class ElementProperty{
         case kQUEUE:
           break;
         case kCONV:
-          ar & make_nvp("element_property", *conProp); 
+          ar & make_nvp("element_property", *conProp);
           break;
         case kENC:
           ar & make_nvp("element_property", *encProp);
@@ -271,7 +295,7 @@ class ElementProperty{
         case kSINK:
           ar & make_nvp("element_property", *fileProp);
           ar & make_nvp("element_property", *udpProp);
-					ar & make_nvp("element_property", *appSrcProp);
+          ar & make_nvp("element_property", *appSrcProp);
           break;
         default:
           break;
@@ -283,13 +307,14 @@ class ElementProperty{
     CameraSrcProp *camProp;
     FileSinkProp *fileProp;
     ConvProp *conProp;
-		AppSrcProp *appSrcProp;
+    AppSrcProp *appSrcProp;
+
   protected:
     std::string element_name;
     std::string element_nickname;
     elementType type;
-    unsigned sub_type;
-    unsigned fps;     
+    subElementType sub_type;
+    unsigned fps;
     unsigned width;
     unsigned height;
 };
@@ -303,6 +328,7 @@ class ElementXMLSerialization{
       using boost::serialization::make_nvp;
       ar & make_nvp("element_vector", (*this->_v_element_property));
     }
+
   public:
     void setVElementProperty(std::vector<ElementProperty*>
         *__v_element_property);
@@ -310,6 +336,7 @@ class ElementXMLSerialization{
     ElementXMLSerialization() {}
     ElementXMLSerialization(std::vector<ElementProperty*> 
         *__v_element_property) : _v_element_property(__v_element_property) {}
+
   private:
     std::vector<ElementProperty*> *_v_element_property;
 };
@@ -322,4 +349,5 @@ void printVectorElement(std::vector<ElementProperty*> *_v_element_property);
 void printElement(ElementProperty *_element); 
 void printProperty(ElementProperty *_element, elementType _type);
 void deleteVectorElement(std::vector<ElementProperty*> *_v_element_property);
+
 #endif /* OPEL_CAMERA_PROPERTY_H */

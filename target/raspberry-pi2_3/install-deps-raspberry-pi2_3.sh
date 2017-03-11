@@ -19,8 +19,8 @@
 # limitations under the License.
 #
 ##########################################################################
-# install-deps-tegraTX1.sh: Script to install dependent packages in
-#                           tegraTX1 target board
+# install-deps-raspberry-pi2_3.sh: Script to install dependent packages in
+#                           raspberry pi 2 or 3 target board
 ##########################################################################
 
 # print_progress(): Print the progress
@@ -45,7 +45,7 @@ sudo apt-get install g++-4.8 wiringpi libdbus-1-dev glib-2.0 libdbus-glib-1-2 \
   libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev git  \
   python-dev python-numpy libjpeg-dev libpng-dev libtiff-dev libjasper-dev    \
   libdc1394-22-dev automake libtool libssl-dev libnl-3-dev libnl-genl-3-dev   \
-  python3 udhcpd libv4l-dev
+  python3 udhcpd libv4l-dev libboost-dev libboost-serialization-dev gstreamer1.0
 
 # Get the absolute path of OPEL repository directory
 OPEL_REPO_DIR=$(dirname "$0")/../..
@@ -100,7 +100,6 @@ sudo cp ${OPEL_REPO_DIR}/dep/opel-dbus-config/opel.conf
 
 # Step 8. Install wpa_supplicant, wpa_cli and deletesem
 print_progress 8 "Install wpa_supplicant, wpa_cli and deletesem..."
-
 cd ${OPEL_REPO_DIR}/dep/hostap/wpa_supplicant
 make
 cd ${OPEL_REPO_DIR}/dep/deletesem
@@ -121,12 +120,13 @@ cd ${OPEL_REPO_DIR}/dep/nodejs-4.0.0
 make -j4
 sudo make install
 
-# Step 10. Install nan package 
+# Step 10. Install nan, node-gyp package 
 cd ${OPEL_REPO_DIR}
 npm install nan
+sudo npm install -g node-gyp
 
 WARN_COLO="\033[31;47m"
 INFO_COLO="\033[36m"
 INIT_COLO="\033[0m"
 
-echo -e "${WARN_COLO}Prerequisites install for TegraTX1 completed${INIT_COLO}"
+echo -e "${WARN_COLO}Prerequisites install for Raspberry-pi2_3 completed${INIT_COLO}"

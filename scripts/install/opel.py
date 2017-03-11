@@ -122,12 +122,11 @@ def on_did_dead_deamon(pid):
 
 def main():
     # Check python version
-    if (sys.version_info[0] < 3) or \
-       (sys.version_info[0] == 3 and sys.version_info[1] < 5):
+    if (sys.version_info[0] < 3):
         log("You are trying to use Python version {}.{}.{}"
             .format(sys.version_info[0], sys.version_info[1],
                     sys.version_info[2]))
-        log("OPEL requires Python 3.5+.")
+        log("OPEL requires Python 3.0+.")
         return
 
     # Check if this is root user 

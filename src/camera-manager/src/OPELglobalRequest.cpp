@@ -1,4 +1,5 @@
 #include "OPELglobalRequest.h"
+
 OPELGlobalVectorRequest *OPELGlobalVectorRequest::global_vector_request = NULL;
 
 OPELGlobalVectorRequest *OPELGlobalVectorRequest::getInstance(void)
@@ -9,9 +10,8 @@ OPELGlobalVectorRequest *OPELGlobalVectorRequest::getInstance(void)
 }
 OPELGlobalVectorRequest::~OPELGlobalVectorRequest()
 {
-  
   if(this->v_request != NULL)
-  {  
+  {
     if(this->v_request->size() != 0)
       OPEL_DBG_WARN("OPEL Global Vector has redundant element");
     delete this->v_request;
@@ -29,25 +29,25 @@ void OPELGlobalVectorRequest::pushRequest(OPELRequestTx1* _request)
 
 OPELRequestTx1* OPELGlobalVectorRequest::getRequestByPid(unsigned _pid)
 {
-   assert(this->v_request != NULL);
-    
-   OPELRequestTx1* iter = NULL;
-   for(int i=0; i < this->v_request->size(); i++)
-   {
-     iter = (*v_request)[i];
-     if(iter->getMsgHandle()->pid == _pid)
+  assert(this->v_request != NULL);
+
+  OPELRequestTx1* iter = NULL;
+  for(int i=0; i < this->v_request->size(); i++)
+  {
+    iter = (*v_request)[i];
+    if(iter->getMsgHandle()->pid == _pid)
       return iter;
-   }
-   return NULL;
+  }
+  return NULL;
 }
 
 void OPELGlobalVectorRequest::deleteRequest(unsigned _pid)
 {
   assert(this->v_request != NULL);
-  
+
   OPELRequestTx1* iter = NULL;
   std::vector<OPELRequestTx1*>::iterator begin = v_request->begin();
- 
+
   for(int i=0; i<this->v_request->size(); i++)
   {
     iter = (*this->v_request)[i];
@@ -59,25 +59,25 @@ void OPELGlobalVectorRequest::deleteRequest(unsigned _pid)
 void OPELGlobalVectorRequest::deleteRequest(OPELRequestTx1 *_request)
 {
   assert(this->v_request != NULL);
-  
+
   OPELRequestTx1* iter = NULL;
   std::vector<OPELRequestTx1*>::iterator begin = v_request->begin();
- 
+
   for(int i=0; i<this->v_request->size(); i++)
   {
     iter = (*this->v_request)[i];
     if(iter == _request)
       v_request->erase(begin+i);
-  } 
+  }
 }
 
 void OPELGlobalVectorRequest::deleteRequest(dbusRequest* _request)
 {
   assert(this->v_request != NULL);
-  
+
   OPELRequestTx1* iter = NULL;
   std::vector<OPELRequestTx1*>::iterator begin = v_request->begin();
- 
+
   for(int i=0; i<this->v_request->size(); i++)
   {
     iter = (*this->v_request)[i];
@@ -88,9 +88,9 @@ void OPELGlobalVectorRequest::deleteRequest(dbusRequest* _request)
 
 bool OPELGlobalVectorRequest::isVectorEntryEmpty(void)
 {
-	assert(this->v_request != NULL);
-	if(this->v_request->size() > 0)
-		return false;
-	else
-		return true;
+  assert(this->v_request != NULL);
+  if(this->v_request->size() > 0)
+    return false;
+  else
+    return true;
 }

@@ -1,5 +1,6 @@
 #ifndef OPEL_COMMON_UTIL_H
 #define OPEL_COMMON_UTIL_H
+
 #include <string>
 #include <gst/gst.h>
 

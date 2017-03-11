@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <iostream>
+#include <stdlib.h>
 static void send_rec_init(DBusConnection *conn, char* file_name)
 {
   printf("init\n");
