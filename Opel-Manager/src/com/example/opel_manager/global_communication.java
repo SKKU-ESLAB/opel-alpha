@@ -276,6 +276,7 @@ public class global_communication {
                 if (rcvJson.equals("")) {
                     continue;
                 }
+                Log.d("BTConnect", "Received message: " + rcvJson);
                 jsonParser jp = new jsonParser(rcvJson);
 
                 String req = jp.getValueByKey("type");
