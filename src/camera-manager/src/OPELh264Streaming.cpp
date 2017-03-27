@@ -268,7 +268,7 @@ void OPELH264Streaming::defaultStreamingPadLink(GstPad *tee_src_pad)
   {
     OPEL_DBG_ERR("element link failed, error number: %d", ret);
     __OPEL_FUNCTION_EXIT__;
-    return false;
+    return;
   }
 
   __OPEL_FUNCTION_EXIT__;
