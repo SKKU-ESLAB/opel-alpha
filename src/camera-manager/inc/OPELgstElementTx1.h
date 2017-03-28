@@ -29,19 +29,19 @@ class OPELGstElementTx1 : public OPELGstElement
 {
   public:
     ~OPELGstElementTx1();
-    static OPELGstElementTx1* getInstance(void);
+    //static OPELGstElementTx1* getInstance(void);
     virtual bool OPELGstElementFactory(void);
     virtual bool OPELGstPipelineMake(void);
     virtual bool OPELGstElementCapFactory(void);
     virtual bool OPELGstElementPropFactory(void);
     virtual void setElementPropertyVector(std::vector<ElementProperty*>
         *__v_element_property);
-
+/*
     GstElement* getPipeline(void)
     { return this->pipeline; }
     void setPipeline(GstElement* _pipeline)
     { this->pipeline = _pipeline; }
-
+*/
     bool getIsPlaying(void) const
     { return this->is_playing; }
     void setIsPlaying(bool _is_playing)
@@ -53,11 +53,12 @@ class OPELGstElementTx1 : public OPELGstElement
     { this->main_tee = _main_tee; }
 
   private:
-    static OPELGstElementTx1 *opel_gst_element_tx1;
+    //static OPELGstElementTx1 *opel_gst_element_tx1;
     bool is_playing;
     typeElement *main_tee;
     OPELGstElementTx1();
-    GstElement *pipeline;
+    //GstElement *pipeline;
+    GstElement *bin;
     GstCaps *src2conv;
 };
 

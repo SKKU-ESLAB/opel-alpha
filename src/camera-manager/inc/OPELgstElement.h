@@ -143,9 +143,28 @@ class OPELGstElement
     std::vector<typeElement*>* getTypeElementVector(void) 
     { return this-> _type_element_vector; }
 
+		static GstElement* getPipeline(void)
+		{ return this->pipeline; }
+		static bool makePipeline(void) {
+		  OPEL_GST_ELEMENT_FACTORY_MAKE(this->pipeline, "pipeline", NULL);
+      //g_object_set(this->pipeline, "message-forward", TRUE, NULL); // TODO: Need??
+    }
+
+		OPELGstElementTx1* getOpelGstElementBin(int camera_num) {
+			if (camera_num == 0 || camera_num == 1)
+				return &(this->opel_gst_element_bin[camera_num]);
+			else
+				return NULL;
+		}
+
+
   protected:
     std::vector<ElementProperty*> *_v_element_property;
     std::vector<typeElement*> *_type_element_vector;
+		static GstElement *pipeline;
+
+	private:
+		static OPELgstElementTx1 opel_gst_element_bin[2];	// 2 -> # of camera source (need to define)
 };
 
 

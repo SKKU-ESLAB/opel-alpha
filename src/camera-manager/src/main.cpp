@@ -167,7 +167,8 @@ int main(int argc, char** argv)
     __OPEL_FUNCTION_EXIT__;
     return -1;
   }
-  OPELGstElementTx1 *tx1 = OPELGstElementTx1::getInstance();
+
+  //OPELGstElementTx1 *tx1 = OPELGstElementTx1::getInstance();
   
   char *opel_target_name = getenv("OPEL_TARGET_NAME");
   if(!strncmp(opel_target_name, "tegraTX1", strlen("tegraTX1")))
@@ -186,18 +187,19 @@ int main(int argc, char** argv)
   printTypeElement(tx1->getTypeElementVector());
 #endif
 
-  ret = tx1->OPELGstElementFactory();
-  if(!ret)
-    goto exit;
-  ret = tx1->OPELGstElementPropFactory();
-  if(!ret)
-    goto exit;
-  ret = tx1->OPELGstElementCapFactory();
-  if(!ret)
-    goto exit;
-  ret = tx1->OPELGstPipelineMake();
-  if(!ret)
-    goto exit;
+	for (int i=0; i<2; i++) {
+    ret = tx1->OPELGstElementFactory();
+    if(!ret)
+      goto exit;
+    ret = tx1->OPELGstElementPropFactory();
+    if(!ret)
+      goto exit;
+    ret = tx1->OPELGstElementCapFactory();
+    if(!ret)
+      goto exit;
+    ret = tx1->OPELGstPipelineMake();
+    if(!ret)
+      goto exit;
  
   _type_element_vector = tx1->getTypeElementVector();
   _pipeline = tx1->getPipeline();

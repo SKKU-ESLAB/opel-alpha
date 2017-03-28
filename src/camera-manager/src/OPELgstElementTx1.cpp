@@ -216,7 +216,8 @@ bool OPELGstElementTx1::OPELGstElementPropFactory(void)
   assert(this->_type_element_vector != NULL);
   __OPEL_FUNCTION_ENTER__;
   gstElementPropFactory(this->_type_element_vector);
-  g_object_set(this->pipeline, "message-forward", TRUE, NULL);
+  //g_object_set(this->pipeline, "message-forward", TRUE, NULL);
+  g_object_set(this->bin, "message-forward", TRUE, NULL);
 
   __OPEL_FUNCTION_EXIT__;
   return true;
@@ -306,7 +307,8 @@ bool OPELGstElementTx1::OPELGstElementFactory(void)
   bool ret = true;
   typeElement *iter = NULL;
 
-  OPEL_GST_ELEMENT_FACTORY_MAKE(this->pipeline, "pipeline", NULL);
+  //OPEL_GST_ELEMENT_FACTORY_MAKE(this->pipeline, "pipeline", NULL);
+  OPEL_GST_ELEMENT_FACTORY_MAKE(this->bin, "bin", NULL);
   ret = gstElementFactory(this->_type_element_vector); 
   if(!ret)
   {
