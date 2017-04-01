@@ -1,6 +1,9 @@
 #include "OPELcommonUtil.h"
 #include "OPELgstElement.h"
 
+////GstElement *OPELGstElement::pipeline = NULL;
+//OPELGstElement *OPELGstElement::opel_gst_element_bin[2];
+
 extern bool typeElementAllocator(const char *name, const char *element_name,
     GstElement **element, int eid, typeElement **type_element_array)
 {
@@ -29,7 +32,23 @@ extern bool typeElementCapAllocator(unsigned eid,
   __OPEL_FUNCTION_EXIT__;
   return true;
 } 
+/*
+GstElement* OPELGstElement::getPipeline(void)
+{ return pipeline; }
 
+bool OPELGstElement::makePipeline(void) {
+  OPEL_GST_ELEMENT_FACTORY_MAKE(pipeline, "pipeline", NULL);
+  //g_object_set(this->pipeline, "message-forward", TRUE, NULL); // TODO: Need??
+}
+*/
+/*
+OPELGstElement* OPELGstElement::getOPELGstElementBin(unsigned camera_num) {
+  if (camera_num == 0 || camera_num == 1)
+    return opel_gst_element_bin[camera_num];
+  else
+    return NULL;
+}
+*/
 OPELGstElement::OPELGstElement()
 {
   this->_type_element_vector = new std::vector<typeElement*>();

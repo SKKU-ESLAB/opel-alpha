@@ -31,10 +31,10 @@ typedef struct{
 }sensorData;
 
 struct device_ops {
-	char name[20];
+	char *name;
 	int status;
-	char valueType[10];
-	char valueName[10];
+	char *valueType;
+	char *valueName;
 	//Data type 배열 추가 
 	void (*start) (void *data);
 	void (*stop) (void *data);

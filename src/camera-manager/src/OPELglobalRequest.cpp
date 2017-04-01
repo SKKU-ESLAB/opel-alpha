@@ -1,13 +1,14 @@
 #include "OPELglobalRequest.h"
 
-OPELGlobalVectorRequest *OPELGlobalVectorRequest::global_vector_request = NULL;
-
+//OPELGlobalVectorRequest *OPELGlobalVectorRequest::global_vector_request = NULL;
+/*
 OPELGlobalVectorRequest *OPELGlobalVectorRequest::getInstance(void)
 {
   if(global_vector_request == NULL)
     global_vector_request = new OPELGlobalVectorRequest();
   return global_vector_request;
 }
+*/
 OPELGlobalVectorRequest::~OPELGlobalVectorRequest()
 {
   if(this->v_request != NULL)

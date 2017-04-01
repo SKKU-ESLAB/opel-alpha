@@ -12,7 +12,7 @@
 
 static const gchar *dbus_interface = "org.opel.camera.daemon";
 
-static const gchar *rec_init_request = "recInit";
+//static const gchar *rec_init_request = "recInit";
 static const gchar *rec_start_request = "recStart";
 static const gchar *rec_stop_request = "recStop";
 
@@ -24,11 +24,15 @@ static const gchar *opencv_stop_request = "openCVStop";
 static const gchar *streaming_start_request = "streamingStart";
 static const gchar *streaming_stop_request = "streamingStop";
 
+static const gchar *sensor_overlay_start_request = "sensorOverlayStart";
+static const gchar *sensor_overlay_stop_request = "sensorOverlayStop";
+
 extern DBusHandlerResult msg_dbus_filter(DBusConnection *conn,
     DBusMessage *msg, void *_type_element_vector);
 
 
-typedef struct _dbusRequest{
+typedef struct _dbusRequest {
+  unsigned camera_num;
   const char* file_path;
   unsigned pid;
   unsigned fps;
@@ -36,13 +40,19 @@ typedef struct _dbusRequest{
   unsigned height;
   unsigned play_seconds;
   bool is_start;
-}dbusRequest;
+} dbusRequest;
 
-typedef struct _dbusStreamingRequest{
+typedef struct _dbusStreamingRequest {
+  unsigned camera_num;
   const char* ip_address;
   unsigned port;
-}dbusStreamingRequest;
+} dbusStreamingRequest;
 
+typedef struct _dbusSensorOverlayRequest {
+  unsigned camera_num;
+  const char* sensor_name;
+  unsigned pid;
+} dbusSensorOverlayRequest;
 
 void closeFile(FILE *_fout);
 unsigned fileWrite(const char *file_path, char *buffer, unsigned size);

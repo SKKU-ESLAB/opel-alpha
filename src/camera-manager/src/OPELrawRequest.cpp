@@ -266,11 +266,15 @@ static GstPadProbeReturn detachCB(GstPad *pad, GstPadProbeInfo *info,
   __OPEL_FUNCTION_ENTER__;
 
   OPELRawRequest *request_handle = NULL;
-  OPELGlobalVectorRequest *v_global_request = OPELGlobalVectorRequest::getInstance();
-  OPELGstElementTx1 *tx1 = OPELGstElementTx1::getInstance();
+  //OPELGlobalVectorRequest *v_global_request = OPELGlobalVectorRequest::getInstance();
+  //OPELGstElementTx1 *tx1 = OPELGstElementTx1::getInstance();
 
   gst_pad_remove_probe(pad, GST_PAD_PROBE_INFO_ID(info));
   request_handle = (OPELRawRequest*)user_data;	
+
+  // Current version support single camera source
+  OPELGstElementTx1 *tx1 = OPELGstElementTx1::getOPELGstElementTx1(0);
+  OPELGlobalVectorRequest *v_global_request = tx1->getGlobalVectorRequest();
 
   std::vector<typeElement*> *v_fly_type_elements =
     request_handle->getFlyTypeElementVector();

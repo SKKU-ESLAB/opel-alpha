@@ -56,6 +56,8 @@ class OPELRecording : public Nan::ObjectWrap{
 		DBusMessage * sendDbusMsg(const char* msg, dbusRequest *dbus_request);
 		DBusMessage * sendStreamingDbusMsg(const char *msg, 
 				dbusStreamingRequest *dbus_request);
+		DBusMessage * sendSensorOverlayDbusMsg(const char* msg,
+				dbusSensorOverlayRequest *dbus_request);
 		bool initDbus();
 
 		DBusConnection* conn;
@@ -70,9 +72,12 @@ class OPELRecording : public Nan::ObjectWrap{
 		static NAN_METHOD(recStop);
 		
 		static NAN_METHOD(jpegStart);
+
 		static NAN_METHOD(streamingStart);
 		static NAN_METHOD(streamingStop);
-	
+
+		static NAN_METHOD(sensorOverlayStart);
+		static NAN_METHOD(sensorOverlayStop);
 
 		static inline Nan::Persistent<v8::Function>& constructor()
 		{

@@ -1,7 +1,10 @@
 #include "OPELgstElementTx1.h"
 #include "OPELcommonUtil.h"
+#include "OPELglobalRequest.h"
 
-OPELGstElementTx1 *OPELGstElementTx1::opel_gst_element_tx1 = NULL; 
+//OPELGstElementTx1 *OPELGstElementTx1::opel_gst_element_tx1 = NULL; 
+OPELGstElementTx1 *OPELGstElementTx1::opel_gst_element_tx1[2]; 
+
 
 void printTypeElement(std::vector<typeElement*> *_type_element_vector)
 {
@@ -61,6 +64,14 @@ void inline setTypeProperty(unsigned _sub_type,
   }
 }
 
+void OPELGstElementTx1::InitInstance(void) {
+  OPELGstElementTx1 *tmp;
+  tmp = opel_gst_element_tx1[0] = new OPELGstElementTx1();
+  tmp->setCameraNum(0);
+  tmp = opel_gst_element_tx1[1] = new OPELGstElementTx1();
+  tmp->setCameraNum(1);
+}
+
 void initializeTypeElement(typeElement *type_element, 
     ElementProperty *element_property)
 {
@@ -87,6 +98,27 @@ void OPELGstElementTx1::setElementPropertyVector(std::vector<ElementProperty*>
     this->_type_element_vector->push_back(tmp);
     tmp = NULL;
   }
+
+  // XXX
+  if (this->camera_num == 1) {
+    typeElement *tmp = (typeElement*)malloc(sizeof(typeElement));
+    ElementProperty *element_prop = new ElementProperty(kSRC, kCAM, "v4l2src", "camerasrc2");
+    //tmp->name = new std::string("v4l2src");
+    //tmp->nickname = new std::string("camerasrc2");
+    //tmp->caps = ;
+    //tmp->element = ;
+    //tmp->pad = ;
+    //tmp->element_prop = new ElementProperty(kSRC, kCAM, "v4l2src", "camerasrc2");;
+    element_prop->setWidth(1280);  // FIXME: Any width and height occur ERROR!! 
+    element_prop->setHeight(720);
+    //tmp->prop = ;
+    //tmp->type = kSRC;
+    //tmp->sub_type = kCAM;
+    tmp->element_prop = element_prop;
+    initializeTypeElement(tmp, tmp->element_prop);
+    this->_type_element_vector->push_back(tmp);
+    tmp = NULL;
+  }
 }
 
 void freeTypeElementMember(typeElement *type_element)
@@ -103,6 +135,7 @@ void freeTypeElementMember(typeElement *type_element)
 OPELGstElementTx1::OPELGstElementTx1()
 {
   this->main_tee = (typeElement*)malloc(sizeof(typeElement));
+  this->v_global_request = new OPELGlobalVectorRequest();
 }
 OPELGstElementTx1::~OPELGstElementTx1()
 {
@@ -116,15 +149,18 @@ OPELGstElementTx1::~OPELGstElementTx1()
 
   if(this->main_tee != NULL)
     free(this->main_tee);
-}
 
+  if(this->v_global_request != NULL)
+    delete this->v_global_request;
+}
+/*
 OPELGstElementTx1 *OPELGstElementTx1::getInstance(void)
 {
   if(opel_gst_element_tx1 == NULL)
     opel_gst_element_tx1 = new OPELGstElementTx1();
   return opel_gst_element_tx1;
 }
-
+*/
 bool OPELGstElementTx1::OPELGstElementCapFactory(void)
 {
   assert(_type_element_vector != NULL);
@@ -136,9 +172,14 @@ bool OPELGstElementTx1::OPELGstElementCapFactory(void)
   typeElement *tee_element = NULL;
 
   bool ret = true;
-
 #if TARGET_SRC_IS_CAM
-  src_element = findByElementNickname(this->_type_element_vector, "camerasrc");
+  if (this->camera_num == 0)
+    src_element = findByElementNickname(this->_type_element_vector, "camerasrc");
+  else if (this->camera_num == 1)
+    src_element = findByElementNickname(this->_type_element_vector, "camerasrc2");
+  else
+    return false;
+
   conv_element = findByElementNicknameNSubType(this->_type_element_vector, "converter",
       kI420);
   tee_element = findByElementName(this->_type_element_vector, "tee");
@@ -167,18 +208,22 @@ bool OPELGstElementTx1::OPELGstElementCapFactory(void)
   /* Poring layer code */
   switch(g_target_type){
     case TX1:
-      sprintf(caps_buffer, "video/x-raw(memory:NVMM), format=(string){I420}, "
-          "width=(int){%d}, height=(int){%d}",
-          prop_element->getWidth(), prop_element->getHeight());
+      if (this->camera_num == 0)
+        sprintf(caps_buffer, "video/x-raw(memory:NVMM)");
+      else if (this->camera_num == 1)
+        sprintf(caps_buffer, "video/x-raw");
+      else
+        return false;
       break;
     case RPI2_3:
-      sprintf(caps_buffer, "video/x-raw, format=(string){I420}, "
-          "width=(int){%d}, height=(int){%d}",
-          prop_element->getWidth(), prop_element->getHeight());
+      sprintf(caps_buffer, "video/x-raw");
       break;
     default:
       return false;
   }
+  sprintf(caps_buffer, "%s, format=(string){I420}, "
+      "width=(int){%d}, height=(int){%d}", caps_buffer,
+      prop_element->getWidth(), prop_element->getHeight());
 
   src_element->caps = gst_caps_from_string(caps_buffer);
   if(src_element->caps == NULL)
@@ -215,8 +260,9 @@ bool OPELGstElementTx1::OPELGstElementPropFactory(void)
 {
   assert(this->_type_element_vector != NULL);
   __OPEL_FUNCTION_ENTER__;
+  g_object_set(G_OBJECT(this->pipeline), "message-forward", TRUE, NULL);
   gstElementPropFactory(this->_type_element_vector);
-  g_object_set(this->pipeline, "message-forward", TRUE, NULL);
+  ////g_object_set(this->bin, "message-forward", TRUE, NULL);
 
   __OPEL_FUNCTION_EXIT__;
   return true;
@@ -233,8 +279,15 @@ bool OPELGstElementTx1::OPELGstPipelineMake(void)
 
   typeElement* tee =
     findByElementName(this->_type_element_vector, "tee");
-  typeElement* cam_src =
-    findByElementNickname(this->_type_element_vector, "camerasrc");
+
+  typeElement* cam_src;
+  if (this->camera_num == 0)
+    cam_src = findByElementNickname(this->_type_element_vector, "camerasrc");
+  else if (this->camera_num == 1)
+    cam_src = findByElementNickname(this->_type_element_vector, "camerasrc2");
+  else
+    return false;
+
   typeElement* conv =
     findByElementNicknameNSubType(this->_type_element_vector, "converter", kI420);
   typeElement* queue =
@@ -253,8 +306,11 @@ bool OPELGstElementTx1::OPELGstPipelineMake(void)
   std::cout <<"find name : " <<  *(conv->name) << " sub_type : " << conv->sub_type << std::endl;
 #endif
 
+  if (this->camera_num == 1)
+    g_object_set(G_OBJECT(conv->element), "flip-method", 0, NULL);
+
   gst_bin_add_many(GST_BIN(this->pipeline), cam_src->element, this->main_tee->element,
-      queue->element, conv->element, tee->element, NULL);
+      queue->element, conv->element, tee->element, this->t_overlay, this->t_conv, NULL);
 
   ret = gst_element_link_filtered(cam_src->element, this->main_tee->element, cam_src->caps);
   if(!ret)
@@ -264,7 +320,7 @@ bool OPELGstElementTx1::OPELGstPipelineMake(void)
     return false;
   }
 
-  ret = gst_element_link_many(this->main_tee->element, queue->element, conv->element, NULL);
+  ret = gst_element_link_many(queue->element, conv->element, this->t_overlay, this->t_conv, NULL);
   if(!ret)
   {
     OPEL_DBG_ERR("Gst Element Link filtered Failed");
@@ -272,7 +328,7 @@ bool OPELGstElementTx1::OPELGstPipelineMake(void)
     return false;
   }
 
-  ret = gst_element_link_filtered(conv->element, tee->element, conv->caps);
+  ret = gst_element_link_filtered(this->t_conv, tee->element, conv->caps);
   if(!ret)
   {
     OPEL_DBG_ERR("Gst Element Link filtered Failed");
@@ -288,7 +344,7 @@ bool OPELGstElementTx1::OPELGstPipelineMake(void)
   queue_sink_pad = gst_element_get_static_pad(queue->element, "sink");
 
   ret = gst_pad_link (tee_src_pad, queue_sink_pad);
-  if(!ret)
+  if(ret != GST_PAD_LINK_OK)
   {
     OPEL_DBG_ERR("Tee queue link failed");
     __OPEL_FUNCTION_EXIT__;  
@@ -307,6 +363,7 @@ bool OPELGstElementTx1::OPELGstElementFactory(void)
   typeElement *iter = NULL;
 
   OPEL_GST_ELEMENT_FACTORY_MAKE(this->pipeline, "pipeline", NULL);
+  //OPEL_GST_ELEMENT_FACTORY_MAKE(this->bin, "bin", NULL);
   ret = gstElementFactory(this->_type_element_vector); 
   if(!ret)
   {
@@ -316,6 +373,13 @@ bool OPELGstElementTx1::OPELGstElementFactory(void)
   }
   //Main Branch
   OPEL_GST_ELEMENT_FACTORY_MAKE(this->main_tee->element, "tee", NULL);
+
+  // For the text overlay
+  OPEL_GST_ELEMENT_FACTORY_MAKE(this->t_overlay, "textoverlay", NULL);
+  if (g_target_type == TX1)
+    OPEL_GST_ELEMENT_FACTORY_MAKE(this->t_conv, "nvvidconv", NULL);
+  else if (g_target_type == RPI2_3)
+    OPEL_GST_ELEMENT_FACTORY_MAKE(this->t_conv, "videoconvert", NULL);
 
   __OPEL_FUNCTION_EXIT__;
   return true;
