@@ -439,17 +439,19 @@ static sensorManagerEventGet(DBusConnection *connection, DBusMessage *message, v
 	//////////////////////////////////////////////////
 	//printf("sensord data : %s \n", sl->sensor_data_ori);
 
-	//printf("test3\n");
 	reply = dbus_message_new_method_return(message);
-	if (reply == NULL)
+	if (reply == NULL){
 		printf("Reply Null Error!\n");
+  }
 
-	dbus_message_append_args(reply,
+
+  dbus_message_append_args(reply,
 		DBUS_TYPE_STRING, &sensor_value,
 		DBUS_TYPE_STRING, &(sl->dev->valueType),
 		DBUS_TYPE_STRING, &(sl->dev->valueName),
 		DBUS_TYPE_INVALID);
 
+  //printf("Send reply message\n");
 	dbus_connection_send(connection, reply, NULL);
 
 	return DBUS_HANDLER_RESULT_HANDLED;
@@ -643,7 +645,11 @@ void load_sensors(){
           || !stop_func_name || !get_func_name){
         fprintf(stderr, "error while reading the sensor configuration\n");
     }
-   
+  
+    device_ops_list[i].name = (char*) malloc( 20*sizeof(char));
+    device_ops_list[i].valueType = (char*) malloc( 20*sizeof(char));
+    device_ops_list[i].valueName = (char*) malloc( 20*sizeof(char));
+
     // set the name, value type, value name of the device ops
     strcpy(device_ops_list[i].name, sensor_name);
     strcpy(device_ops_list[i].valueType, value_type);

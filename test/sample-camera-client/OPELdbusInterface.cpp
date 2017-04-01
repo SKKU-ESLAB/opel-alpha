@@ -10,11 +10,55 @@
 #include <sys/types.h>
 #include <iostream>
 #include <stdlib.h>
+static void send_sensor_overlay(DBusConnection *conn)
+{
+  printf("Sensor overlay start\n");
+  DBusMessage *message;
+  message = dbus_message_new_signal("/org/opel/camera/daemon", "org.opel.camera.daemon", "sensorOverlayStart");
+  char sensor[8] = "BUTTON";
+  unsigned camera_num = 0;
+  printf("Camera Number : ");
+  scanf("%u", &camera_num);
+  unsigned pid = getpid();
+  char *sensor_name = sensor;
+
+  dbus_message_append_args(message,
+      DBUS_TYPE_UINT64, &camera_num,
+      DBUS_TYPE_STRING, &sensor_name,
+      DBUS_TYPE_UINT64, &pid,
+      DBUS_TYPE_INVALID);
+
+  dbus_connection_send (conn, message, NULL);
+  dbus_message_unref(message);
+}
+
+static void send_sensor_overlay_stop(DBusConnection *conn)
+{
+  printf("Sensor overlay stop\n");
+  DBusMessage *message;
+  message = dbus_message_new_signal("/org/opel/camera/daemon", "org.opel.camera.daemon", "sensorOverlayStop");
+  char sensor[8] = "BUTTON";
+  unsigned camera_num = 0;
+  printf("Camera Number : ");
+  scanf("%u", &camera_num);
+  unsigned pid = getpid();
+  char *sensor_name = sensor;
+
+  dbus_message_append_args(message,
+      DBUS_TYPE_UINT64, &camera_num,
+      DBUS_TYPE_STRING, &sensor_name,
+      DBUS_TYPE_UINT64, &pid,
+      DBUS_TYPE_INVALID);
+
+  dbus_connection_send (conn, message, NULL);
+  dbus_message_unref(message);
+}
+
 static void send_rec_init(DBusConnection *conn, char* file_name)
 {
-  printf("init\n");
+  printf("Recording Start\n");
   DBusMessage *message;
-  message = dbus_message_new_signal("/org/opel/camera/daemon", "org.opel.camera.daemon", "recInit");
+  message = dbus_message_new_signal("/org/opel/camera/daemon", "org.opel.camera.daemon", "recStart");
   char* opel_data_dir = getenv("OPEL_DATA_DIR");
 	char str[256] = "";
   strcat(str, opel_data_dir);
@@ -26,9 +70,14 @@ static void send_rec_init(DBusConnection *conn, char* file_name)
 	unsigned fps = 30;
 	unsigned width = 1920;
 	unsigned height = 1080;
-	unsigned play_seconds = 10;
+	unsigned play_seconds = 20;
+
+  unsigned camera_num = 0;
+  printf("Camera Number : ");
+  scanf("%d", &camera_num);
 
 	dbus_message_append_args(message, 
+      DBUS_TYPE_UINT64, &camera_num,
 			DBUS_TYPE_STRING, &file_path,
 			DBUS_TYPE_UINT64, &pid,
 			DBUS_TYPE_UINT64, &fps, 
@@ -58,7 +107,13 @@ static void send_rec_start(DBusConnection *conn, char* file_name)
 	unsigned height = 1080;
 	unsigned pid = getpid();
 	printf("pid : %d\n", pid);
+
+  unsigned camera_num = 0;
+  printf("Camera Number : ");
+  scanf("%d", &camera_num);
+
 	dbus_message_append_args(message, 
+      DBUS_TYPE_UINT64, &camera_num,
 			DBUS_TYPE_STRING, &file_path,
 			DBUS_TYPE_UINT64, &pid,
 			DBUS_TYPE_UINT64, &width,
@@ -73,8 +128,14 @@ static void send_rec_term(DBusConnection *conn)
   printf("termination\n");
   DBusMessage *message;
   message = dbus_message_new_signal(dbus_path, dbus_interface, opencv_start_request);
+
 	unsigned pid = getpid();
+  unsigned camera_num = 0;
+  printf("Camera Number : ");
+
+  scanf("%d", &camera_num);
 	dbus_message_append_args(message,
+      DBUS_TYPE_UINT64, &camera_num,
 			DBUS_TYPE_UINT64, &pid,
 			DBUS_TYPE_INVALID);
   dbus_connection_send (conn, message, NULL);
@@ -86,9 +147,16 @@ static void send_stream_start(DBusConnection *conn)
 	printf("streaming start");
 	DBusMessage *message;
 	message = dbus_message_new_signal(dbus_path, dbus_interface, streaming_start_request);
-	const char *ip_addr = "127.0.0.1";
+	//const char *ip_addr = "127.0.0.1";
+	const char *ip_addr = "192.168.0.2";
 	unsigned port = 5000;
+
+  unsigned camera_num = 0;
+  printf("Camera Number : ");
+  scanf("%d", &camera_num);
+
 	dbus_message_append_args(message,
+      DBUS_TYPE_UINT64, &camera_num,
 			DBUS_TYPE_STRING, &ip_addr,
 			DBUS_TYPE_UINT64, &port,
 			DBUS_TYPE_INVALID);
@@ -139,6 +207,10 @@ int main(int argc, char** argv)
 		 send_stream_start(conn);
 	 else if(num == 4)
 		 send_stream_stop(conn);
+   else if(num == 5)
+     send_sensor_overlay(conn);
+	 else if(num == 6)
+		 send_sensor_overlay_stop(conn);
 	 else
 		 break;
  }

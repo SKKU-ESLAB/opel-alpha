@@ -50,6 +50,10 @@ static bool h264StreamingPropSetting(std::vector<typeElement*>* _v_type_element,
         "bitrate", (guint)2000000, NULL);
   g_object_set(G_OBJECT(_rtph_264pay->element), "pt", (guint)96,
       "config-interval", (guint)1, NULL);
+_stream_request->ip_address;
+_stream_request->port;
+OPEL_DBG_LOG("%s %u", _stream_request->ip_address);
+OPEL_DBG_LOG("%u",  _stream_request->port);
   g_object_set(G_OBJECT(_udp_sink->element), "host",
       _stream_request->ip_address, "port",
       _stream_request->port, "sync",
@@ -57,6 +61,7 @@ static bool h264StreamingPropSetting(std::vector<typeElement*>* _v_type_element,
 
   return true;
 }
+
 OPELH264Streaming *OPELH264Streaming::getInstance(void)
 {
   if(opel_h264_streaming == NULL)
@@ -117,10 +122,12 @@ bool OPELH264Streaming::defaultStreamingFactory(void)
   (*this->_v_fly_type_element)[0] = _new_queue;
   (*this->_v_fly_type_element)[1] = _new_conv;
   (*this->_v_fly_type_element)[2] = _new_enc;
-  (*this->_v_fly_type_element)[3] = _h264_parse;
-  (*this->_v_fly_type_element)[4] = _rtph_264_pay;
-  (*this->_v_fly_type_element)[5] = _gdppay;
-  (*this->_v_fly_type_element)[6] = _new_udp_sink;
+  (*this->_v_fly_type_element)[3] = _new_udp_sink;
+  (*this->_v_fly_type_element)[4] = _h264_parse;
+  (*this->_v_fly_type_element)[5] = _rtph_264_pay;
+  (*this->_v_fly_type_element)[6] = _gdppay;
+  //(*this->_v_fly_type_element)[6] = _new_udp_sink;  // FIXME: above 3 elements have no nickname -> occur ERROR!
+                                                      //          when using findByElementNickname()
 
   gstElementFactory(this->_v_fly_type_element);
 
@@ -298,9 +305,12 @@ bool streamingStart(std::vector<typeElement*> *_type_element_v,
 
   request_handle->setTypeElementVector(_type_element_v);
 
-  OPELGstElementTx1 *tx1 = OPELGstElementTx1::getInstance();
+  //OPELGstElementTx1 *tx1 = OPELGstElementTx1::getInstance();
+  ////OPELGstElementTx1 *tx1 = OPELGstElementTx1::getOPELGstElementTx1(0);;
+  OPELGstElementTx1 *tx1 = request_handle->getOPELGstElementTx1();
 
   GstElement *pipeline = tx1->getPipeline();
+  ////GstElement *bin = tx1->getBin();
 
 
   request_handle->defaultStreamingFactory();
@@ -328,12 +338,15 @@ bool streamingStart(std::vector<typeElement*> *_type_element_v,
 
   request_handle->defaultStreamingCapFactory();
   request_handle->defaultStreamingPipelineAdd(pipeline);
+  ////request_handle->defaultStreamingPipelineAdd(bin);
   request_handle->defaultStreamingPadLink(request_handle->getSrcPad());
 
   if(!(tx1->getIsPlaying()))
   {
     ret = gst_element_set_state(tx1->getPipeline(), GST_STATE_READY);
     ret = gst_element_set_state(tx1->getPipeline(), GST_STATE_PLAYING);
+    ////ret = gst_element_set_state(tx1->getBin(), GST_STATE_READY);
+    ////ret = gst_element_set_state(tx1->getBin(), GST_STATE_PLAYING);
     tx1->setIsPlaying(true);
   }
   else
@@ -350,7 +363,8 @@ static GstPadProbeReturn detachStreamingCB(GstPad *pad, GstPadProbeInfo *info,
   __OPEL_FUNCTION_ENTER__;
 
   OPELH264Streaming *request_handle = NULL;
-  OPELGstElementTx1 *tx1 = OPELGstElementTx1::getInstance();
+  //OPELGstElementTx1 *tx1 = OPELGstElementTx1::getInstance();
+  OPELGstElementTx1 *tx1 = OPELGstElementTx1::getOPELGstElementTx1(0);;
   gst_pad_remove_probe(pad, GST_PAD_PROBE_INFO_ID(info));
   request_handle = (OPELH264Streaming*)user_data;
 

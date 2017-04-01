@@ -25,6 +25,6 @@ faceDetectionApi.faceDetection(count, function(err, numberOfFace) {
     }
 
     console.log("Start recording...");
-    recObj.RecordingStart(filePath, playSeconds, handler);
+    recObj.RecordingStart(0, filePath, playSeconds, handler);
   }
 });

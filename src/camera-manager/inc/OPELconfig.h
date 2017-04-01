@@ -33,4 +33,7 @@
 
 #define OPEL_LOG_VERBOSE 1
 
+/* For multi camera source version */
+#define OPEL_CAMERA_NUM 2
+
 #endif /*OPEL_CONFIG_H*/

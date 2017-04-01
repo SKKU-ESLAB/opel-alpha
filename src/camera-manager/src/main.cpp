@@ -52,12 +52,16 @@ void signalHandler(int signo)
 {
   bool ret;
   OPEL_DBG_WARN("Signal handler Invoked");
-  OPELGstElementTx1 *tx1 = OPELGstElementTx1::getInstance();
-  GstElement *pipeline = tx1->getPipeline();
-  ret = gst_element_set_state(pipeline, GST_STATE_NULL);
-  if(ret == GST_STATE_CHANGE_FAILURE)
-  {
-    OPEL_DBG_ERR("Unable to set the pipeline to the null state. \n");
+  //OPELGstElementTx1 *tx1 = OPELGstElementTx1::getInstance();
+  //GstElement *pipeline = tx1->getPipeline();
+  for (unsigned camera_num = 0; camera_num < OPEL_CAMERA_NUM; camera_num++) {
+    OPELGstElementTx1 *tx1 = OPELGstElementTx1::getOPELGstElementTx1(camera_num);
+    GstElement *pipeline = tx1->getPipeline();
+    ret = gst_element_set_state(pipeline, GST_STATE_NULL);
+    if(ret == GST_STATE_CHANGE_FAILURE)
+    {
+      OPEL_DBG_ERR("Unable to set the pipeline to the null state. \n");
+    }
   }
   if(loop && g_main_loop_is_running(loop))
     g_main_loop_quit(loop);
@@ -181,13 +185,26 @@ int main(int argc, char** argv)
     goto exit;
   }
 
+/*
   tx1->setElementPropertyVector(v_element_property);
 
 #if OPEL_LOG_VERBOSE
   printTypeElement(tx1->getTypeElementVector());
 #endif
+*/
 
-	for (int i=0; i<2; i++) {
+  ////OPELGstElement::makePipeline();
+  OPELGstElementTx1::InitInstance();
+  ////_pipeline = OPELGstElement::getPipeline();
+
+	for (unsigned camera_num=0; camera_num<2; camera_num++) {
+    OPELGstElementTx1 *tx1 = OPELGstElementTx1::getOPELGstElementTx1(camera_num);
+    tx1->setElementPropertyVector(v_element_property);
+
+#if OPEL_LOG_VERBOSE
+  printTypeElement(tx1->getTypeElementVector());
+#endif
+
     ret = tx1->OPELGstElementFactory();
     if(!ret)
       goto exit;
@@ -201,8 +218,16 @@ int main(int argc, char** argv)
     if(!ret)
       goto exit;
  
-  _type_element_vector = tx1->getTypeElementVector();
-  _pipeline = tx1->getPipeline();
+    _type_element_vector = tx1->getTypeElementVector();
+
+    tx1->setIsPlaying(false);
+
+    bus = gst_pipeline_get_bus(GST_PIPELINE(tx1->getPipeline()));
+    gst_bus_add_signal_watch(bus);
+    g_signal_connect(G_OBJECT(bus), "message", G_CALLBACK(message_cb), NULL);
+
+    gst_object_unref(GST_OBJECT(bus));
+  }
 
   //openCVStaticPipelineMake(tx1, _type_element_vector);
   if(dbus_error_is_set(&dbus_error))
@@ -214,21 +239,21 @@ int main(int argc, char** argv)
 
   signal(SIGINT, signalHandler);
 
-
+/*
   bus = gst_pipeline_get_bus(GST_PIPELINE(_pipeline));
   gst_bus_add_signal_watch(bus);
   g_signal_connect(G_OBJECT(bus), "message", G_CALLBACK(message_cb), NULL);
 
   gst_object_unref(GST_OBJECT(bus));
-
-  tx1->setIsPlaying(false);
-
+*/
+  //tx1->setIsPlaying(false);
+/*
   if(ret == GST_STATE_CHANGE_FAILURE)
   {
     OPEL_DBG_ERR("Unable to set the pipeline to the playing state. \n");
     goto exit;
   }
-
+*/
   dbus_bus_add_match(dbus_conn,
       "type='signal', interface='org.opel.camera.daemon'",
       NULL);
@@ -255,8 +280,8 @@ exit:
     dbus_connection_unref(dbus_conn);
   if(bus != NULL)
     gst_object_unref(bus);
-  if((global_vector_request = OPELGlobalVectorRequest::getInstance()) != NULL)
-    delete global_vector_request;
+  //if((global_vector_request = OPELGlobalVectorRequest::getInstance()) != NULL)
+  //  delete global_vector_request;
   OPELRawRequest *raw_request = OPELRawRequest::getInstance();
   if(raw_request != NULL)
     delete raw_request;

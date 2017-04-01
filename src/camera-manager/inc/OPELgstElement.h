@@ -67,6 +67,7 @@ typedef struct {
   unsigned sub_type;
 } typeElement;
 
+class OPELGstElementTx1;
 
 class OPELRequest {
   public:
@@ -116,6 +117,11 @@ class OPELRequest {
     void setStreamingRequest(dbusStreamingRequest* _streaming_handle)
     { this->streaming_handle = _streaming_handle; }
 
+    OPELGstElementTx1* getOPELGstElementTx1(void)
+    { return this->opel_gst_element_tx1; }
+    void setOPELGstElementTx1(OPELGstElementTx1 *_opel_gst_element_tx1)
+    { this->opel_gst_element_tx1 = _opel_gst_element_tx1; }
+
   protected:
     std::vector<typeElement*> *_v_type_element;
     std::vector<typeElement*> *_v_fly_type_element;
@@ -126,6 +132,8 @@ class OPELRequest {
     unsigned num_iter;
     DBusMessage *reply;
     DBusConnection *conn;
+
+    OPELGstElementTx1 *opel_gst_element_tx1;
 };
 
 
@@ -143,28 +151,28 @@ class OPELGstElement
     std::vector<typeElement*>* getTypeElementVector(void) 
     { return this-> _type_element_vector; }
 
-		static GstElement* getPipeline(void)
-		{ return this->pipeline; }
-		static bool makePipeline(void) {
-		  OPEL_GST_ELEMENT_FACTORY_MAKE(this->pipeline, "pipeline", NULL);
+		////static GstElement* getPipeline(void);
+		//{ return pipeline; }
+		////static bool makePipeline(void);
+    //{
+		//  OPEL_GST_ELEMENT_FACTORY_MAKE(pipeline, "pipeline", NULL);
       //g_object_set(this->pipeline, "message-forward", TRUE, NULL); // TODO: Need??
-    }
+    //}
 
-		OPELGstElementTx1* getOpelGstElementBin(int camera_num) {
+		//static OPELGstElement* getOPELGstElementBin(unsigned camera_num);
+    /*{
 			if (camera_num == 0 || camera_num == 1)
-				return &(this->opel_gst_element_bin[camera_num]);
+				return opel_gst_element_bin[camera_num];
 			else
 				return NULL;
-		}
+		}*/
 
 
   protected:
     std::vector<ElementProperty*> *_v_element_property;
     std::vector<typeElement*> *_type_element_vector;
-		static GstElement *pipeline;
-
-	private:
-		static OPELgstElementTx1 opel_gst_element_bin[2];	// 2 -> # of camera source (need to define)
+		////static GstElement *pipeline;
+		//static OPELGstElement* opel_gst_element_bin[2];	// 2 -> # of camera source (need to define)
 };
 
 
