@@ -355,13 +355,12 @@ void DbusManager::sendTerminationToCameraManager(){
 		dbus_error_free(&err);
 		return ;
 	}
-	else{
+	/*else{
 		DBusMessage* msg;
 		msg = dbus_message_new_signal(interface_address, path_address, "recStop");
 		dbus_connection_send(conn, msg, NULL);
 		dbus_message_unref(msg);
-
-	}
+	}*/
 }
 
 
