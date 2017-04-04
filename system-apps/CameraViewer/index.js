@@ -21,12 +21,12 @@ var d;
 // streamObj.start(int n, function(err, data); n != 0 : finite Number of Frame n == 0 : Infinite Number of Frame 
 // streamObj.stop(); //aborting
 
-streamObj.streamingStart("192.168.49.1", 5000);
+streamObj.streamingStart(0, "192.168.49.1", 5000);
 
 
-nil.onTermination(function(){
+appApi.onTermination(function(){
 			console.log('<onTermination Called');
-			streamObj.streamingStop();
+			streamObj.streamingStop(0);
 		});
 
 

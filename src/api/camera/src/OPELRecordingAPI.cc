@@ -243,6 +243,7 @@ NAN_METHOD(OPELRecording::streamingStart)
     return;
   }
   dbus_request = new dbusStreamingRequest();
+	dbus_request->camera_num = camera_num;
   dbus_request->ip_address = ip_address;
   dbus_request->port = port;
   message = recObj->sendStreamingDbusMsg(streaming_start_request, dbus_request);
@@ -252,14 +253,26 @@ NAN_METHOD(OPELRecording::streamingStart)
 NAN_METHOD(OPELRecording::streamingStop)
 {
   OPELRecording *recObj = Nan::ObjectWrap::Unwrap<OPELRecording>(info.This());
+	DBusMessage* message;
+  dbusStreamingRequest *dbus_request;
+	unsigned camera_num;
+  if(!info[0]->IsNumber())
+  {
+    Nan::ThrowTypeError("First parameter should be Camera Number");
+    return;
+  }
+  camera_num = Nan::To<int>(info[0]).FromJust();  
+
   if(!(recObj->initDbus()))
   {
     Nan::ThrowError("D-Bus Initiailization Failed\n");
     return;
   }
-  DBusMessage* message;
-  message = dbus_message_new_signal(dbus_path, dbus_interface, streaming_stop_request);
-  dbus_connection_send(recObj->conn, message, NULL);
+	dbus_request = new dbusStreamingRequest();
+	dbus_request->camera_num = camera_num;
+	message = recObj->sendStreamingDbusMsg(streaming_stop_request, dbus_request);
+  //message = dbus_message_new_signal(dbus_path, dbus_interface, streaming_stop_request);
+  //dbus_connection_send(recObj->conn, message, NULL);
 }
 
 
@@ -385,7 +398,7 @@ NAN_MODULE_INIT(OPELRecording::Init)
   SetPrototypeMethod(tpl, "SnapshotStart", jpegStart);
 
   SetPrototypeMethod(tpl, "streamingStart", streamingStart);
-  SetPrototypeMethod(tpl, "streamingStart", streamingStart);
+  SetPrototypeMethod(tpl, "streamingStop", streamingStop);
 
   SetPrototypeMethod(tpl, "SensorOverlayStart", sensorOverlayStart);
   SetPrototypeMethod(tpl, "SensorOverlayStop", sensorOverlayStop);
