@@ -5,9 +5,11 @@
       'sources': [
         'nil.cc',
         'nil_dbus_connection.cc',
-		'nil_dbus.cc',
-		'nil_request.cc',
-		'nil.h'
+		    'nil_dbus.cc',
+		    'nil_request.cc',
+		    'nil.h',
+        'cJSON.h',
+        'cJSON.c'
        ],
       'libraries': [
         '<!@(pkg-config glib-2.0 --libs)',

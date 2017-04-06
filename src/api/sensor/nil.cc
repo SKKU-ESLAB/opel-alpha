@@ -16,6 +16,7 @@
 #include <sys/time.h>
 
 #include "nil.h"
+#include "cJSON.h"
 
 #define MAX_STRING_LENTGH	256
 #define MAX_DATA_LENGTH		20
@@ -28,6 +29,8 @@ static DBusConnection *opelCon = NULL; //Only 1 connection
 static struct timeval time_to_delay; //임시 변수, event register시 약간의 시간 차를 두기 위해 사용.
 requestList *rList;
 pid_t pid;
+int sensor_num;
+char **sensor_list;
 
 int check_sensor_name(const char* name){
 	int i;
@@ -548,6 +551,41 @@ void Get(const FunctionCallbackInfo<Value>& args) {
 	//Refer this : http://luismreis.github.io/node-bindings-guide/docs/returning.html
 	//About return value from Native to Java	
 }
+
+void GetSensorlist(const FunctionCallbackInfo<Value>& args) {
+	Isolate* isolate = Isolate::GetCurrent();
+	HandleScope scope(isolate);
+
+  //------------------- Argument check-----------------------------//
+	if (args.Length() != 0) {
+		isolate->ThrowException(Exception::TypeError(
+				String::NewFromUtf8(isolate,
+				"Invalid Use : no arguments expected.")));
+		return ;
+	}
+
+  // ----------------------------//
+  Local<Object> obj = Object::New(isolate);
+  // Set sensor num
+  obj->Set(String::NewFromUtf8(isolate,"sensorNum"), 
+            Integer::New(isolate, sensor_num)); 
+
+  // Set sensor name
+  int i;
+  for(i=0; i<sensor_num; i++){
+    char sensor_index[10];
+    sprintf(sensor_index, "sensor%d", i+1);
+
+    obj->Set(String::NewFromUtf8(isolate, sensor_index),
+              String::NewFromUtf8(isolate, sensor_list[i])); 
+  
+	}
+
+  // return the object
+  args.GetReturnValue().Set(obj);
+
+}
+
 void Update(const FunctionCallbackInfo<Value>& args){
   Isolate* isolate = Isolate::GetCurrent();
 	HandleScope scope(isolate);
@@ -771,43 +809,71 @@ void nativeInterfaceLayerInit(){
 
 void read_sensorlist()
 {
-	char *opelConfigDir, sensorFile[1024], buf[100];
-	int i,len,line = 0;
-	FILE* fp;
+  char *opel_sensor_dir;
+  const char *error = NULL;
 
-	// Find the directory where sensor list file is
-	opelConfigDir = getenv("OPEL_CONFIG_DIR");
-	sprintf(sensorFile, "%s%s", opelConfigDir, "/SENSOR_LIST");
-	
-	// Read the sensor list file written by user
-	fp = fopen(sensorFile, "r");
-	if(fp == NULL){
-		perror("Error opening file 'SENSOR LIST'");
-		exit(1);
-	}
-	
-	while(1){
-		if( fgets(buf, 100, fp) == NULL)
-			break;
-		line++;
-	}
-	// Alloc sensor_list
-	SENSOR_NUM = line;
-	SUPPORT_LIST = (char**) malloc(line * sizeof(char*));
-	
-	fseek(fp,0,SEEK_SET);
-	
-	for(i=0;i<line;i++){
-		fgets(buf, 100, fp);
-		len = strlen(buf);
-		buf[len-1]='\0';
-	
-		SUPPORT_LIST[i] = (char*) malloc( len * sizeof(char));
-		sprintf(SUPPORT_LIST[i], "%s", buf);	
-	}
 
-	fclose(fp);
+  opel_sensor_dir = getenv("OPEL_SENSOR_DRIVER_DIR");
+  if(!opel_sensor_dir){
+    fprintf(stderr,"No environment variable: OPEL_SENSOR_DRIVER_DIR\n");
+    exit(1);
+  }
+  
+  //load the configuration file (json)
+  FILE *infile;
+  char *buffer;
+  long numbytes;
+  char json_file_path[200];
+  
+  sprintf(json_file_path, "%s/sensor_config.json", opel_sensor_dir);
+  infile = fopen(json_file_path, "r");
+  if(infile == NULL){
+    fprintf(stderr, "Cannot read the sensor configuration file");
+    exit(1);
+  }
+  fseek(infile, 0L, SEEK_END);
+  numbytes = ftell(infile);
+  fseek(infile, 0L, SEEK_SET);
 
+  buffer = (char*) calloc(numbytes, sizeof(char));
+  if(buffer == NULL)
+  {
+    fprintf(stderr,"error while allocating buffer!");
+    exit(1);
+  }
+  fread(buffer,sizeof(char), numbytes, infile);
+  fclose(infile);
+  
+  // Get the root object of the json
+  cJSON *root = NULL;
+  root = cJSON_Parse(buffer);
+
+  if(!root){
+    fprintf(stderr, "Error before: [%s]\n", cJSON_GetErrorPtr());
+    exit(1);
+  }
+  // find the target name and # of sensors
+  char *target_name = cJSON_GetObjectItem(root, "target_name")->valuestring;
+  sensor_num = cJSON_GetObjectItem(root, "sensor_num")->valueint;
+  sensor_list = (char**) malloc(sensor_num * sizeof(char*));
+  int i;
+  for(i=0; i<sensor_num; i++){
+    char sensor_index[10];
+    sprintf(sensor_index, "sensor%d", i+1);
+    cJSON *sensor_object = cJSON_GetObjectItem(root, sensor_index);
+
+    sensor_list[i] = (char*) malloc(30 * sizeof(char));
+    
+    char* sensor_name = cJSON_GetObjectItem(sensor_object,"name")->valuestring;
+    if(!sensor_name){
+      fprintf(stderr, "error while reading the sensor configuration (json)\n");
+    }
+    // add to the sensor_list
+    strcpy(sensor_list[i], sensor_name);
+    printf("sensor %d: %s", i+1, sensor_list[i]);
+  }  
+  
+  
 }
 
 void init(Handle<Object> exports) {
@@ -821,6 +887,7 @@ void init(Handle<Object> exports) {
 	//Isolate* isolate = Isolate::GetCurrent();
   
 	// 4.0.0
+  NODE_SET_METHOD(exports, "GetSensorlist", GetSensorlist);
 	NODE_SET_METHOD(exports, "Get", Get);
   NODE_SET_METHOD(exports, "On", On);
   NODE_SET_METHOD(exports, "EventRegister", On);
