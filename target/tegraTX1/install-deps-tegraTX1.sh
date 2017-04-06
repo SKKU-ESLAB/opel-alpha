@@ -63,6 +63,9 @@ cd ${OPEL_REPO_DIR}/dep/bluez-4.101
   --localstatedir=/var --libexecdir=/lib 
 make 
 sudo make install
+# Unmask and restart bleutooth daemon
+sudo systemctl unmask bluetooth
+sudo service bluetooth start
 
 # Step 3. Set udhcpd config
 print_progress 3 "Set udhcpd config..."
@@ -110,11 +113,11 @@ make
 cd ${OPEL_REPO_DIR}/dep/deletesem
 gcc -o deletesem deletesem.c -lpthread
 
-mkdir -p /usr/bin/opel-deps
+sudo mkdir -p /usr/bin/opel-deps
 sudo cp ${OPEL_REPO_DIR}/dep/hostap/wpa_supplicant/wpa_supplicant /usr/bin/opel-deps/
 sudo cp ${OPEL_REPO_DIR}/dep/hostap/wpa_supplicant/wpa_cli /usr/bin/opel-deps/
 sudo cp ${OPEL_REPO_DIR}/dep/deletesem/deletesem /usr/bin/opel-deps/
-chmod +x /usr/bin/opel-deps/*
+sudo chmod +x /usr/bin/opel-deps/*
 
 # Step 9. Build and install nodejs-4.0.0
 print_progress 9 "Build and install nodejs-4.0.0..."
