@@ -89,7 +89,7 @@
 /* #undef HAVE_LIBHISTORY */
 
 /* Have compression library */
-/* #undef HAVE_LIBLZMA */
+#define HAVE_LIBLZMA 1
 
 /* Define if pthread library is there (-lpthread) */
 #define HAVE_LIBPTHREAD /**/
@@ -107,7 +107,7 @@
 #define HAVE_LOCALTIME 1
 
 /* Define to 1 if you have the <lzma.h> header file. */
-/* #undef HAVE_LZMA_H */
+#define HAVE_LZMA_H 1
 
 /* Define to 1 if you have the <malloc.h> header file. */
 #define HAVE_MALLOC_H 1

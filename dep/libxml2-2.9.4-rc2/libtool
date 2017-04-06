@@ -1,6 +1,6 @@
 #! /bin/bash
 # Generated automatically by config.status (libxml2) 2.9.4
-# Libtool was configured on host tegra-ubuntu:
+# Libtool was configured on host tegra-ubuntu1:
 # NOTE: Changes made to this file will be lost: look at ltmain.sh.
 
 # Provide generalized library-building support services.
@@ -285,7 +285,7 @@ hardcode_into_libs=yes
 sys_lib_search_path_spec="/usr/lib/gcc/aarch64-linux-gnu/5 /usr/lib/aarch64-linux-gnu /usr/lib /lib/aarch64-linux-gnu /lib "
 
 # Detected run-time system search path for libraries.
-sys_lib_dlsearch_path_spec="/lib /usr/lib /lib/aarch64-linux-gnu /usr/lib/aarch64-linux-gnu /usr/lib/aarch64-linux-gnu/tegra-egl /usr/lib/aarch64-linux-gnu/tegra /usr/lib/aarch64-linux-gnu/libfakeroot /usr/local/lib /usr/lib/aarch64-linux-gnu/tegra /usr/local/lib /var/lib/snapd/lib/gl "
+sys_lib_dlsearch_path_spec="/lib /usr/lib /lib/aarch64-linux-gnu /usr/lib/aarch64-linux-gnu /usr/lib/aarch64-linux-gnu/tegra-egl /usr/lib/aarch64-linux-gnu/tegra /usr/local/cuda-8.0/targets/aarch64-linux/lib /usr/lib/aarch64-linux-gnu/libfakeroot /usr/local/lib /usr/lib/aarch64-linux-gnu/tegra /var/lib/snapd/lib/gl "
 
 # Explicit LT_SYS_LIBRARY_PATH set during ./configure time.
 configure_time_lt_sys_library_path=""
