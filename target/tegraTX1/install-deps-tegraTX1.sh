@@ -47,7 +47,8 @@ sudo apt-get install g++-4.8 libdbus-1-dev glib-2.0 libdbus-glib-1-2 \
   libdc1394-22-dev automake libtool libssl-dev libnl-3-dev libnl-genl-3-dev   \
   python3 udhcpd libv4l-dev libboost-serialization-dev libgstreamer1.0-dev    \
   libgstreamer-plugins-good1.0-dev libgstreamer-plugins-base1.0-dev           \
-  libgstreamer-plugins-bad1.0-dev
+  libgstreamer-plugins-bad1.0-dev gstreamer1.0-plugins-base                   \
+  gstreamer1.0-plugins-good gstreamer1.0-plugins-bad
 
 # Get the absolute path of OPEL repository directory
 OPEL_REPO_DIR=$(dirname "$0")/../..
@@ -63,6 +64,9 @@ cd ${OPEL_REPO_DIR}/dep/bluez-4.101
   --localstatedir=/var --libexecdir=/lib 
 make 
 sudo make install
+# Unmask and restart bleutooth daemon
+sudo systemctl unmask bluetooth
+sudo service bluetooth start
 
 # Step 3. Set udhcpd config
 print_progress 3 "Set udhcpd config..."
@@ -110,11 +114,11 @@ make
 cd ${OPEL_REPO_DIR}/dep/deletesem
 gcc -o deletesem deletesem.c -lpthread
 
-mkdir -p /usr/bin/opel-deps
+sudo mkdir -p /usr/bin/opel-deps
 sudo cp ${OPEL_REPO_DIR}/dep/hostap/wpa_supplicant/wpa_supplicant /usr/bin/opel-deps/
 sudo cp ${OPEL_REPO_DIR}/dep/hostap/wpa_supplicant/wpa_cli /usr/bin/opel-deps/
 sudo cp ${OPEL_REPO_DIR}/dep/deletesem/deletesem /usr/bin/opel-deps/
-chmod +x /usr/bin/opel-deps/*
+sudo chmod +x /usr/bin/opel-deps/*
 
 # Step 9. Build and install nodejs-4.0.0
 print_progress 9 "Build and install nodejs-4.0.0..."
