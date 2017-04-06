@@ -437,7 +437,7 @@ Copyright (C) 2012 Free Software Foundation, Inc.
 This config.status script is free software; the Free Software Foundation
 gives unlimited permission to copy, distribute and modify it."
 
-ac_pwd='/home/ubuntu/opel-alpha/dep/libxml2-2.9.4-rc2'
+ac_pwd='/home/redcarrottt/opel-beta1/dep/libxml2-2.9.4-rc2'
 srcdir='.'
 INSTALL='/usr/bin/install -c'
 MKDIR_P='/bin/mkdir -p'
@@ -679,7 +679,7 @@ finish_cmds='PATH="\$PATH:/sbin" ldconfig -n $libdir'
 finish_eval=''
 hardcode_into_libs='yes'
 sys_lib_search_path_spec='/usr/lib/gcc/aarch64-linux-gnu/5 /usr/lib/aarch64-linux-gnu /usr/lib /lib/aarch64-linux-gnu /lib '
-configure_time_dlsearch_path='/lib /usr/lib /lib/aarch64-linux-gnu /usr/lib/aarch64-linux-gnu /usr/lib/aarch64-linux-gnu/tegra-egl /usr/lib/aarch64-linux-gnu/tegra /usr/local/cuda-8.0/targets/aarch64-linux/lib /usr/lib/aarch64-linux-gnu/libfakeroot /usr/local/lib /usr/lib/aarch64-linux-gnu/tegra /var/lib/snapd/lib/gl '
+configure_time_dlsearch_path='/lib /usr/lib /lib/aarch64-linux-gnu /usr/lib/aarch64-linux-gnu /usr/lib/aarch64-linux-gnu/tegra-egl /usr/lib/aarch64-linux-gnu/tegra /usr/lib/aarch64-linux-gnu/libfakeroot /usr/local/lib /usr/lib/aarch64-linux-gnu/tegra /var/lib/snapd/lib/gl '
 configure_time_lt_sys_library_path=''
 hardcode_action='immediate'
 enable_dlopen='unknown'
@@ -1013,12 +1013,12 @@ S["mkdir_p"]="$(MKDIR_P)"
 S["MKDIR_P"]="/bin/mkdir -p"
 S["INSTALL_STRIP_PROGRAM"]="$(install_sh) -c -s"
 S["STRIP"]="strip"
-S["install_sh"]="${SHELL} /home/ubuntu/opel-alpha/dep/libxml2-2.9.4-rc2/install-sh"
-S["MAKEINFO"]="${SHELL} /home/ubuntu/opel-alpha/dep/libxml2-2.9.4-rc2/missing makeinfo"
-S["AUTOHEADER"]="${SHELL} /home/ubuntu/opel-alpha/dep/libxml2-2.9.4-rc2/missing autoheader"
-S["AUTOMAKE"]="${SHELL} /home/ubuntu/opel-alpha/dep/libxml2-2.9.4-rc2/missing automake-1.15"
-S["AUTOCONF"]="${SHELL} /home/ubuntu/opel-alpha/dep/libxml2-2.9.4-rc2/missing autoconf"
-S["ACLOCAL"]="${SHELL} /home/ubuntu/opel-alpha/dep/libxml2-2.9.4-rc2/missing aclocal-1.15"
+S["install_sh"]="${SHELL} /home/redcarrottt/opel-beta1/dep/libxml2-2.9.4-rc2/install-sh"
+S["MAKEINFO"]="${SHELL} /home/redcarrottt/opel-beta1/dep/libxml2-2.9.4-rc2/missing makeinfo"
+S["AUTOHEADER"]="${SHELL} /home/redcarrottt/opel-beta1/dep/libxml2-2.9.4-rc2/missing autoheader"
+S["AUTOMAKE"]="${SHELL} /home/redcarrottt/opel-beta1/dep/libxml2-2.9.4-rc2/missing automake-1.15"
+S["AUTOCONF"]="${SHELL} /home/redcarrottt/opel-beta1/dep/libxml2-2.9.4-rc2/missing autoconf"
+S["ACLOCAL"]="${SHELL} /home/redcarrottt/opel-beta1/dep/libxml2-2.9.4-rc2/missing aclocal-1.15"
 S["VERSION"]="2.9.4"
 S["PACKAGE"]="libxml2"
 S["CYGPATH_W"]="echo"
