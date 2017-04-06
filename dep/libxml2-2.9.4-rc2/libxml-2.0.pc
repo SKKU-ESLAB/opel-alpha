@@ -9,5 +9,5 @@ Version: 2.9.4
 Description: libXML library version2.
 Requires:
 Libs: -L${libdir} -lxml2
-Libs.private:   -lz   -lm  
+Libs.private:   -lz -llzma  -lm  
 Cflags: -I${includedir}/libxml2 

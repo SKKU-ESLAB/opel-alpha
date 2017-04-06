@@ -59,8 +59,18 @@ parser.lo: parser.c /usr/include/stdc-predef.h libxml.h config.h \
  /usr/include/aarch64-linux-gnu/bits/environments.h \
  /usr/include/aarch64-linux-gnu/bits/confname.h /usr/include/getopt.h \
  /usr/include/aarch64-linux-gnu/bits/unistd.h /usr/include/zlib.h \
- /usr/include/aarch64-linux-gnu/zconf.h buf.h enc.h \
- include/libxml/xpath.h elfgcchack.h
+ /usr/include/aarch64-linux-gnu/zconf.h /usr/include/lzma.h \
+ /usr/include/inttypes.h \
+ /usr/lib/gcc/aarch64-linux-gnu/5/include/stdint.h /usr/include/stdint.h \
+ /usr/include/aarch64-linux-gnu/bits/wchar.h /usr/include/lzma/version.h \
+ /usr/include/lzma/base.h /usr/include/lzma/vli.h \
+ /usr/include/lzma/check.h /usr/include/lzma/filter.h \
+ /usr/include/lzma/bcj.h /usr/include/lzma/delta.h \
+ /usr/include/lzma/lzma.h /usr/include/lzma/container.h \
+ /usr/include/lzma/stream_flags.h /usr/include/lzma/block.h \
+ /usr/include/lzma/index.h /usr/include/lzma/index_hash.h \
+ /usr/include/lzma/hardware.h buf.h enc.h include/libxml/xpath.h \
+ elfgcchack.h
 
 /usr/include/stdc-predef.h:
 
@@ -257,6 +267,44 @@ include/libxml/relaxng.h:
 /usr/include/zlib.h:
 
 /usr/include/aarch64-linux-gnu/zconf.h:
+
+/usr/include/lzma.h:
+
+/usr/include/inttypes.h:
+
+/usr/lib/gcc/aarch64-linux-gnu/5/include/stdint.h:
+
+/usr/include/stdint.h:
+
+/usr/include/aarch64-linux-gnu/bits/wchar.h:
+
+/usr/include/lzma/version.h:
+
+/usr/include/lzma/base.h:
+
+/usr/include/lzma/vli.h:
+
+/usr/include/lzma/check.h:
+
+/usr/include/lzma/filter.h:
+
+/usr/include/lzma/bcj.h:
+
+/usr/include/lzma/delta.h:
+
+/usr/include/lzma/lzma.h:
+
+/usr/include/lzma/container.h:
+
+/usr/include/lzma/stream_flags.h:
+
+/usr/include/lzma/block.h:
+
+/usr/include/lzma/index.h:
+
+/usr/include/lzma/index_hash.h:
+
+/usr/include/lzma/hardware.h:
 
 buf.h:
 
