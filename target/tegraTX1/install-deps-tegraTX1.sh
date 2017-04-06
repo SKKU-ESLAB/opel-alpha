@@ -47,7 +47,8 @@ sudo apt-get install g++-4.8 libdbus-1-dev glib-2.0 libdbus-glib-1-2 \
   libdc1394-22-dev automake libtool libssl-dev libnl-3-dev libnl-genl-3-dev   \
   python3 udhcpd libv4l-dev libboost-serialization-dev libgstreamer1.0-dev    \
   libgstreamer-plugins-good1.0-dev libgstreamer-plugins-base1.0-dev           \
-  libgstreamer-plugins-bad1.0-dev
+  libgstreamer-plugins-bad1.0-dev gstreamer1.0-plugins-base                   \
+  gstreamer1.0-plugins-good gstreamer1.0-plugins-bad
 
 # Get the absolute path of OPEL repository directory
 OPEL_REPO_DIR=$(dirname "$0")/../..
