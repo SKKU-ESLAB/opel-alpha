@@ -54,8 +54,6 @@ typedef struct request {
 	int data; //Data
 } RequestData;
 
-
-
 typedef struct _requestList{
 	int rq_num;						//Request number
 	int type;						//Request Type, SENSOR_MANAGER//CAMERA_MANAGER
@@ -67,15 +65,8 @@ typedef struct _requestList{
 static char nilPath[100];
 static char nilInterface[100];
 
-//static Persistent<Function> callback;
-static int SENSOR_NUM;
-static char** SUPPORT_LIST;
 //
 //------------------------------------------------------------------------------------//
-
-
-
-#endif  
 
 void read_sensorlist();
 void delete_sensorlist();
@@ -94,3 +85,5 @@ requestList * newRequest(requestList *rList);
 requestList * getRequest(requestList *rList, int rq_num);
 DBusHandlerResult sensorGetRepeatedly(DBusConnection *connection, DBusMessage *message, void *iface_user_data);
 DBusHandlerResult sensorEventNotify(DBusConnection *connection, DBusMessage *message, void *iface_user_data);
+
+#endif  

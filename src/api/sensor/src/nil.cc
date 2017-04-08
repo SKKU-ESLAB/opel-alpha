@@ -17,6 +17,7 @@
 
 #include "nil.h"
 #include "cJSON.h"
+#include "sensfw_log.h"
 
 #define MAX_STRING_LENTGH	256
 #define MAX_DATA_LENGTH		20
@@ -35,13 +36,10 @@ char **sensor_list;
 int check_sensor_name(const char* name){
 	int i;
 
-	for (i = 0; ; i++){
-		if (!strcmp(name, SUPPORT_LIST[i]))
+	for (i = 0; sensor_num; i++){
+		if (!strcmp(name, sensor_list[i]))
 			return i;
-		else if (!strcmp("END", SUPPORT_LIST[i]))
-			break;
 	}
-
 	return -1;
 }
 int parsingString(char* string, char* value){
@@ -198,6 +196,7 @@ void parsingToReturn(const FunctionCallbackInfo<Value>& args, char* in_value, ch
 // 2. On (Notify)
 DBusHandlerResult sensorGetRepeatedly(DBusConnection *connection, DBusMessage *message, void *iface_user_data){
 	Isolate *isolate = Isolate::GetCurrent();
+  HandleScope scope(isolate);
   int rq_num;
 	char* sensorValue;
 	char* valueType;
@@ -232,6 +231,8 @@ DBusHandlerResult sensorGetRepeatedly(DBusConnection *connection, DBusMessage *m
 }
 DBusHandlerResult sensorEventNotify(DBusConnection *connection, DBusMessage *message, void *iface_user_data){
   Isolate *isolate = Isolate::GetCurrent();
+  HandleScope scope(isolate);
+
   int rq_num;
 	requestList* rl;
 	TryCatch try_catch(isolate);
@@ -240,31 +241,28 @@ DBusHandlerResult sensorEventNotify(DBusConnection *connection, DBusMessage *mes
 	dbus_error_init(&err);
 
 	//printRequset(rList);
-
 	dbus_message_get_args(message, &err,
 		DBUS_TYPE_INT32, &rq_num,
 		DBUS_TYPE_INVALID);
 
 	if (dbus_error_is_set(&err))
 	{
-		printf("Notify Error get data: %s", err.message);
+		printf("Notify Error get data: %s\n", err.message);
 		dbus_error_free(&err);
 	}
 
-	printf("[NIL] Event Notify rq_num : %d", rq_num);
+	printf("[NIL] Event Notify rq_num : %d\n", rq_num);
 
 	rl = getRequest(rList, rq_num);
 
-	//Persistent<Function> cb = rl->callback;
 	Local<Function> fn = Local<Function>::New(isolate, rl->callback);
 	fn->Call(isolate->GetCurrentContext()->Global(), 0, NULL);
 
-	//rl->callback->Call(isolate->GetCurrentContext()->Global(), 0, NULL);
 	if (try_catch.HasCaught()) {
 		//node::FatalException(try_catch);
 		Local<Value> exception = try_catch.Exception();
 		String::Utf8Value exception_str(exception);
-		printf("Exception: %s\n", *exception_str);
+		printf("Exception! %s\n", *exception_str);
 	}
 
 	return DBUS_HANDLER_RESULT_HANDLED;
@@ -298,7 +296,6 @@ int wait_delay(){
 // 2. Get
 void On(const FunctionCallbackInfo<Value>& args) {
   Isolate* isolate = Isolate::GetCurrent();
-	//Isolate* isolate = args.GetIsolate();
   HandleScope scope(isolate);
 
 	requestList* rl;
@@ -311,10 +308,8 @@ void On(const FunctionCallbackInfo<Value>& args) {
 	int handle_type = 0;
 	const char* handle_type_s;
 	int sensing_level = 0; //현재는 사용하지 않음.
-
 	
 	wait_delay(); //Perform wait.
-
 
 	/*
 	Receive Args
@@ -349,12 +344,12 @@ void On(const FunctionCallbackInfo<Value>& args) {
 	std::string name_c = std::string(*param0);
 	sensor_name = name_c.c_str();
 
-	if (check_sensor_name(sensor_name) == -1){
-		isolate->ThrowException(Exception::TypeError(
-								String::NewFromUtf8(isolate, 
-										"This sensor is not supported sensor\n")));
-		return ;
-	}
+  if (check_sensor_name(sensor_name) == -1){
+    isolate->ThrowException(Exception::TypeError(
+          String::NewFromUtf8(isolate, 
+            "This sensor is not supported sensor\n")));
+    return ;
+  }
 	//
 	//----------------------------------------------------------------//
 
@@ -395,24 +390,10 @@ void On(const FunctionCallbackInfo<Value>& args) {
 	//----------------------------------------------------------------//
 	//			2. Request Creation (For function callback)
 	rl = newRequest(rList);
-	//rl->callback = callback(isolate, Persistent<Function>::New(Local<Function>::Cast(args[3])));
-	  //rl->callback = Persistent<Function> cb(isolate, arg0);
-	//rl->callback = Persistent<Function>(isolate, arg0);
 
 	Local<Function> cb = Local<Function>::Cast(args[3]);
-
-
   rl->callback.Reset(isolate, cb);	
-	//rl->callback.Reset(isolate,args[3].As<Function>());
-	
-	//rl->callback.Reset(isolate, Local<Function>::New(isolate,arg0));
-  //rl->callback.Reset(isolate, Persistent<Function>(isolate, arg0));
-
-	
-	
-	
 	rl->type = SENSOR_REQUEST;
-	
 	pid = (unsigned int)getpid();
 	rq_num = rl->rq_num;
 	//
@@ -448,6 +429,7 @@ void On(const FunctionCallbackInfo<Value>& args) {
   args.GetReturnValue().Set(rq_num);
 }
 void Get(const FunctionCallbackInfo<Value>& args) {
+  __ENTER__;
   const char* sensorName;
 	char* sensorValue;
 	char* valueType;
@@ -458,7 +440,7 @@ void Get(const FunctionCallbackInfo<Value>& args) {
 	DBusMessage* msg;
 	DBusMessage* reply;
 	DBusError error;
-	
+
   //------------------- Argument check-----------------------------//
 	if (args.Length() != 1) {
 		isolate->ThrowException(Exception::TypeError(
@@ -472,8 +454,6 @@ void Get(const FunctionCallbackInfo<Value>& args) {
 		return ;
 	}
 	//----------------------------------------------------------------//
-	
-	
 	//--------------------- Sensor Name Check -------------------------//
 	// 서포트 리스트와 비교해서, 지원하는 센서인지 체크
 	//
@@ -486,9 +466,8 @@ void Get(const FunctionCallbackInfo<Value>& args) {
 								String::NewFromUtf8(isolate,"This sensor is not supported!")));
 		return ;
 	}
-	//
 	//----------------------------------------------------------------//
-	
+
 
 	//-------------------- DBus Message Initilizing -----------------// 
 	//
@@ -502,7 +481,7 @@ void Get(const FunctionCallbackInfo<Value>& args) {
 								String::NewFromUtf8(isolate,"Fail to create message")));
 		return ;
 	}
-
+printf("after\n");
 	dbus_message_append_args(msg,
 		DBUS_TYPE_STRING, &sensorName,
 		DBUS_TYPE_INVALID);
@@ -519,7 +498,6 @@ void Get(const FunctionCallbackInfo<Value>& args) {
 		opelCon = dbus_bus_get(DBUS_BUS_SYSTEM, &error);
 	}
 	
-	//printf("Send Message \n");
 	reply = dbus_connection_send_with_reply_and_block(opelCon, msg, 500, &error); // Timeout 500 milli seconds
 
 	if (reply == NULL){
@@ -527,8 +505,6 @@ void Get(const FunctionCallbackInfo<Value>& args) {
 		printf("Error : %s\n", error.message);
 	}
 	dbus_error_free(&error);
-	//printf("Got  Reply Message \n");
-
 	dbus_message_unref(msg);
 	//
 	//----------------------------------------------------------------//
@@ -543,7 +519,7 @@ void Get(const FunctionCallbackInfo<Value>& args) {
 		DBUS_TYPE_INVALID);
 
 	dbus_message_unref(reply);
-	//printf("receive : %d \n", sensorValue);
+
 	//
 	//----------------------------------------------------------------//
 
@@ -773,15 +749,6 @@ void all_request_unregister(){
 	printf("[NIL] send All_UNREGISTER message to %s | %s\n", SM_PATH, SM_INTERFACE);
 }
 
-void delete_sensorlist()
-{
-	int i;
-
-	for(i=0;i<SENSOR_NUM;i++){
-		free(SUPPORT_LIST[i]);
-	}
-	free(SUPPORT_LIST);
-}
 
 void exit_handler(void){
 	all_request_unregister();
@@ -791,7 +758,6 @@ void sigint_handler(int signo)
 {
 	//Perform unregister
 	all_request_unregister();
-	delete_sensorlist();
 	signal(SIGINT, SIG_DFL);
 	//Sig call
 	kill(getpid(), SIGINT);
