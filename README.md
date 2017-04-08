@@ -8,18 +8,26 @@ $ git clone https://github.com/sinban04/opel-alpha
 $ cd opel-alpha
 ```
 
-### How to Switch to Target Device's Branch
+### How to Make new branch with Target Device's Branch
 * Alpha 1(Raspberry Pi 2 or Raspberry Pi 3)
 ```
-$ git checkout origin/raspberry-pi2_3
+$ git checkout origin/raspberry-pi2_3 -b raspberry-pi2_3
 ```
 * Alpha 2(Nvidia TX1)
 ```
-$ git checkout origin/tegraTX1
+$ git checkout origin/tegraTX1 -b tegraTX1
 ```
 * Alpha 3
 ```
-$ git checkout origin/alpha3
+$ git checkout origin/alpha3 -b alpha3
+```
+* Alpha 4
+```
+$ git checkout origin/alpha4-dahlia -b alpha4-dahlia
+```
+* Beta 1
+```
+$ git checkout origin/beta1-estrella -b beta1-estrella
 ```
 
 ### How to Build the Sensor Driver code.
