@@ -9,7 +9,8 @@
 		    'nil_request.cc',
 		    'nil.h',
         'cJSON.h',
-        'cJSON.c'
+        'cJSON.c',
+        'sensfw_log.h'
        ],
       'libraries': [
         '<!@(pkg-config glib-2.0 --libs)',
