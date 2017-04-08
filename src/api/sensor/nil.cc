@@ -398,18 +398,13 @@ void On(const FunctionCallbackInfo<Value>& args) {
 	//rl->callback = callback(isolate, Persistent<Function>::New(Local<Function>::Cast(args[3])));
 	  //rl->callback = Persistent<Function> cb(isolate, arg0);
 	//rl->callback = Persistent<Function>(isolate, arg0);
-
 	Local<Function> cb = Local<Function>::Cast(args[3]);
-
 
   rl->callback.Reset(isolate, cb);	
 	//rl->callback.Reset(isolate,args[3].As<Function>());
 	
 	//rl->callback.Reset(isolate, Local<Function>::New(isolate,arg0));
   //rl->callback.Reset(isolate, Persistent<Function>(isolate, arg0));
-
-	
-	
 	
 	rl->type = SENSOR_REQUEST;
 	
