@@ -52,6 +52,7 @@ bool cmfw_open(cmfw_port_e port)
 		bt_open( CMFW_CONTROL_PORT );
 		bt_open( CMFW_RFS_PORT );
 	}
+  wfd_open(CMFW_DEFAULT_PORT);
 	return (bt_open(port) >= 0);
 }
 

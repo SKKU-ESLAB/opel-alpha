@@ -37,7 +37,6 @@ void wfd_init()
 		wfd_port_nums[i] = 10001+i;
 		cmfw_log("wfd_port:%d-%d", i, wfd_port_nums[i]);
 	}
-	wfd_sock[CMFW_DEFAULT_PORT] = wfd_open(CMFW_DEFAULT_PORT);
 	/*
 	for(i=0; i<DEFINED_NUM_PORTS; i++){
 		cmfw_log("Open Try: %d", (cmfw_port_e)i);
@@ -48,6 +47,12 @@ void wfd_init()
 	
 	cmfw_log("Wifi direct init done");
 	__EXIT__;
+}
+
+int __wfd_open(cmfw_port_e port);
+int wfd_open(cmfw_port_e port) {
+	int ret = wfd_sock[port] = __wfd_open(port);
+  return ret;
 }
 
 void wfd_on(cmfw_port_e port)
@@ -99,7 +104,7 @@ bool wfd_is_on()
 	__EXIT__;
 }
 
-int wfd_open(cmfw_port_e port)
+int __wfd_open(cmfw_port_e port)
 {
 	int res = WFD_ERR_NONE, listen_fd;
 	struct sockaddr_in saddr;
