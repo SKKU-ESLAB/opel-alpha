@@ -631,6 +631,13 @@ bool CommManager::response_Dbus_FaceRecognition(char* json){
 	return true;
 }
 
+bool CommManager::response_Dbus_MsgToSensorViewer(char* json){
+	pthread_mutex_lock(&lock);
+	sendMsg(json);
+	pthread_mutex_unlock(&lock);
+	
+	return true;
+}
 
 int CommManager::getIpAddress (const char * ifr_n, char out[]) {  
    int sockfd; 

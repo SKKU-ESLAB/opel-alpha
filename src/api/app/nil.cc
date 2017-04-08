@@ -1446,7 +1446,62 @@ void faceRecognitionWithNoti(const FunctionCallbackInfo<Value>& args) {
   return;
 }
 
+void sendMsgToSensorViewer(const FunctionCallbackInfo<Value>& args) {
+  Isolate* isolate = Isolate::GetCurrent();
+  HandleScope scope(isolate);
 
+  const char* jsonData;
+
+  DBusMessage* msg;
+  DBusError err;
+
+  dbus_int32_t pid;
+  dbus_int32_t noti = 0;
+  //----------------------------------------------------------------//
+  //						1. Argument Check
+  if ((args.Length() != 1) ||	!args[0]->IsString() ) {
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "Invalid Use : 1 arguments expected [SensorData obj]")));
+    return;
+  }
+
+  v8::String::Utf8Value param1(args[0]->ToString());
+  std::string name_c = std::string(*param1);
+  jsonData = name_c.c_str();
+
+  //
+  //----------------------------------------------------------------//
+
+
+  //----------------------------------------------------------------//
+  //			2. Request Creation (For function callback)
+
+
+  pid = (unsigned int)getpid();
+
+  //
+  //----------------------------------------------------------------//
+
+
+  //----------------------------------------------------------------//
+  //				3. Send Message (Request struct) 
+  //				Send message with reply or not
+  dbus_error_init(&err);
+  msg = dbus_message_new_signal(SAM_INTERFACE, SAM_PATH, "sendMsgToSensorViewer");
+
+  dbus_message_append_args(msg,
+      DBUS_TYPE_STRING, &jsonData,
+      DBUS_TYPE_INVALID);
+
+  /* Send the signal */
+  dbus_connection_send(opelCon, msg, NULL);
+  dbus_message_unref(msg);
+
+  printf("[NIL] sendMsgToSensorViewer to Manager>>  %s\n", jsonData);
+  //
+  //----------------------------------------------------------------//
+
+  return;
+}
 
 void init(Handle<Object> exports) {
   Isolate* isolate = Isolate::GetCurrent();
@@ -1495,13 +1550,13 @@ void init(Handle<Object> exports) {
       FunctionTemplate::New(isolate, onTermination)->GetFunction());
 
 
-  //------------------------cloud service-----------------------------------------
+  //------------------------cloud service---------------------------------------
   exports->Set(getV8String(isolate, "faceRecognitionWithNoti"),
       FunctionTemplate::New(isolate, faceRecognitionWithNoti)->GetFunction());
 
-
+  //------------------------sensor viewer---------------------------------------
+  exports->Set(getV8String(isolate, "sendMsgToSensorViewer"),
+      FunctionTemplate::New(isolate, sendMsgToSensorViewer)->GetFunction());
 }
-
-
 
 NODE_MODULE(nil, init)
