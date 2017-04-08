@@ -104,7 +104,7 @@ sudo make install
 
 # Step 7. Copy dbus config file
 print_progress 7 "Copy dbus config file for OPEL..."
-sudo cp ${OPEL_REPO_DIR}/dep/opel-dbus-config/opel.conf
+sudo cp ${OPEL_REPO_DIR}/dep/opel-dbus-config/opel.conf /etc/dbus-1/system.d/opel.conf
 
 # Step 8. Install wpa_supplicant, wpa_cli and deletesem
 print_progress 8 "Install wpa_supplicant, wpa_cli and deletesem..."
