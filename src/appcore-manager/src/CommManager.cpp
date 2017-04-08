@@ -47,14 +47,17 @@ static const char *INTF_NAME = "Opel Manager";
 static sdp_session_t *session_priv;
 static CommManager* instance;
 CommManager::CommManager(){
-
-	cmfw_init();
+  initialize();
 	makeConnection();
 	char* opelAppsDir;
 	opelAppsDir = getenv("OPEL_APPS_DIR");
 
 	sprintf(mUserAppsPath, "%s%s", opelAppsDir, "/user/");
 
+}
+
+void CommManager::initialize(){
+	cmfw_init();
 }
 
 void CommManager::closeConnection(){
@@ -651,6 +654,6 @@ int CommManager::getIpAddress (const char * ifr_n, char out[]) {
 
 }	
 
-bool CommManager::wfdOn(void){
+bool CommManager::wfdOn(void) {
 	return cmfw_wfd_on(CMFW_DEFAULT_PORT);
 }

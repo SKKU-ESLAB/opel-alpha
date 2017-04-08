@@ -196,10 +196,10 @@ void onEventConfigSetting(JsonString inJS) {
 
 void onCommandRunNativeCameraViewer(JsonString inJS) {
   // Run native camera viwer app
+  while (false == cm->wfdOn()) {
+    sleep(1);
+  }
   if (pidOfCameraViewer == 0) {
-    while (false == cm->wfdOn()) {
-      sleep(1);
-    }
     pidOfCameraViewer = asManager.runNativeJSApp(1);
   }
 }
@@ -227,6 +227,8 @@ void onEventAndroidTerminate(JsonString inJS) {
   // Terminate Android OPEL Manager Event
   printf("Android activity backed or pause\n");
   cm->closeConnection();
+
+  cm->initialize();
   cm->makeConnection();
 }
 

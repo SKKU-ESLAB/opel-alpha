@@ -106,6 +106,7 @@ public:
 //	void HandleDeleteApp();
 //	void HandleKillApp();
 
+  void initialize();
 	void closeConnection();
 	bool makeConnection();
 
@@ -127,7 +128,6 @@ public:
 	bool response_Dbus_FaceRecognition(char* json);
 
 	bool wfdOn(void);
-
 
 };
 
