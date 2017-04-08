@@ -430,15 +430,6 @@ public class MainActivity extends Activity implements WifiDirectStateListener {
                 String appID = list.allApplicationList.get(position).getAppId();
                 String appName = list.allApplicationList.get(position).getTitle();
                 globalData.getInstance().getCommManager().requestStart(appID, appName);
-
-
-                // [MORE] SEND running msg to appManager
-		
-				
-				/*list.allApplicationList.get(position).setTypeToRunning(); // Do this job at socket listener handling
-				opelManagerGlobalData.getInstance().getmAllAppList().addRunningApplicationList(list.allApplicationList.get(position));*/
-
-
             }
 
             //Running application

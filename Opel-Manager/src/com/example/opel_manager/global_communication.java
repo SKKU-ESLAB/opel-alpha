@@ -59,6 +59,7 @@ public class global_communication {
 
     private static final String NIL_TERMINATION = "1100";
     private static final String NIL_CONFIGURATION = "1101";
+    private static final String NIL_MSG_TO_SENSOR_VIEWER = "1102";
 
     private static final String TAG = "OPEL";
 
@@ -215,6 +216,15 @@ public class global_communication {
         myClientTask.start();
     }
 
+    private sensorView mRegisteredSensorView = null;
+    public void registerSensorView(sensorView sview) {
+        this.mRegisteredSensorView = sview;
+    }
+
+    public void unregisterSensorView() {
+        this.mRegisteredSensorView = null;
+    }
+
     class CommunicationHandler extends Thread {
         Handler handler;
         boolean sch;
@@ -320,6 +330,10 @@ public class global_communication {
                     globalData.getInstance().getAppList().getAppInAllList(appID).setTerminationJson(jp.getJsonData());
 
                     Log.d("OPEL", "NIL_TERMINATION :: " + jp.getJsonData());
+                } else if (req.equals(NIL_MSG_TO_SENSOR_VIEWER)) {
+                    onMsgToSensorViewer(rcvJson);
+
+                    Log.d("OPEL", "NIL_MSG_TO_SENSOR_VIEWER :: " + jp.getJsonData());
                 } else if (req.equals(CONFIG_REGISTER)) {
 
                     handleRegisterConfig(jp);
@@ -346,16 +360,21 @@ public class global_communication {
                 }
             }
 
-
-            if (socket != null && socket.isConnected()) try {
-                socket.close();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+            if (socket != null && socket.isConnected()) {
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
             }
-
             handle_disconnected();
+        }
 
+        void onMsgToSensorViewer(String message) {
+            if(mRegisteredSensorView != null) {
+                mRegisteredSensorView.onMsgToSensorViewer(message);
+            }
         }
 
 
