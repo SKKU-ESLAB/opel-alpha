@@ -285,10 +285,25 @@ static DBusHandlerResult rcvFaceRecognition(DBusConnection *connection, DBusMess
 	return DBUS_HANDLER_RESULT_HANDLED;
 }
 
+static DBusHandlerResult rcvMsgToSensorViewer(DBusConnection *connection, DBusMessage *message, void *iface_user_data){
+
+	char* inputJsonData;
+
+	char* appId;
+
+	dbus_message_get_args(message, NULL, DBUS_TYPE_STRING, &inputJsonData, DBUS_TYPE_INVALID);
+
+	if(CommManager::getInstance()->response_Dbus_MsgToSensorViewer(inputJsonData)) {
+		printf("[DbusManager] SendConfig Success >> json : %s\n", inputJsonData);
+	} else {
+		printf("[DbusManager] SendConfig Fail >> json : %s\n", inputJsonData);
+	}
+
+	return DBUS_HANDLER_RESULT_HANDLED;
+}	
+
 static DBusHandlerResult dbus_response(DBusConnection *connection, DBusMessage *message, void *user_data)
 {	
-
-
 	//NIL -> Android
 	if (dbus_message_is_signal(message, OPEL_BUS_NAME, "sendNotiPage")){
     	printf("[DbusManager] rcv NotiPage from sendNotiPage function\n");		
@@ -317,6 +332,10 @@ static DBusHandlerResult dbus_response(DBusConnection *connection, DBusMessage *
 	else if (dbus_message_is_signal(message, OPEL_BUS_NAME, "face_recognition")){
 			printf("[DbusManager] rcv face_recognition from NIL\n");
 			return rcvFaceRecognition(connection, message, user_data);
+	}
+	else if (dbus_message_is_signal(message, OPEL_BUS_NAME, "sendMsgToSensorViewer")){
+			printf("[DbusManager] rcv sendMsgToSensorViewer from NIL\n");
+			return rcvMsgToSensorViewer(connection, message, user_data);
 	}
 
 	else{
