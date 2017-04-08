@@ -454,8 +454,6 @@ void Get(const FunctionCallbackInfo<Value>& args) {
 		return ;
 	}
 	//----------------------------------------------------------------//
-
-
 	//--------------------- Sensor Name Check -------------------------//
 	// 서포트 리스트와 비교해서, 지원하는 센서인지 체크
 	//
@@ -473,7 +471,6 @@ void Get(const FunctionCallbackInfo<Value>& args) {
 
 	//-------------------- DBus Message Initilizing -----------------// 
 	//
-
 	msg = dbus_message_new_method_call("org.opel.sensorManager", // target for the method call
 		"/", // object to call on
 		"org.opel.sensorManager", // interface to call on
@@ -484,7 +481,7 @@ void Get(const FunctionCallbackInfo<Value>& args) {
 								String::NewFromUtf8(isolate,"Fail to create message")));
 		return ;
 	}
-
+printf("after\n");
 	dbus_message_append_args(msg,
 		DBUS_TYPE_STRING, &sensorName,
 		DBUS_TYPE_INVALID);
@@ -501,7 +498,6 @@ void Get(const FunctionCallbackInfo<Value>& args) {
 		opelCon = dbus_bus_get(DBUS_BUS_SYSTEM, &error);
 	}
 	
-
 	reply = dbus_connection_send_with_reply_and_block(opelCon, msg, 500, &error); // Timeout 500 milli seconds
 
 	if (reply == NULL){
