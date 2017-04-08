@@ -198,9 +198,6 @@ public class rpiviewer extends Activity implements SurfaceHolder.Callback,
                 position +
                 " duration: " + duration + " uri: " + mediaUri);
 
-        // Start with disabled buttons, until native code is initialized
-        this.findViewById(R.id.button_capture).setEnabled(false);
-        this.findViewById(R.id.button_record).setEnabled(false);
     }
 
     // Initialize Gstreamer connection
@@ -310,15 +307,6 @@ public class rpiviewer extends Activity implements SurfaceHolder.Callback,
         } else {
             nativePause();
         }
-
-        // Re-enable buttons, now that GStreamer is initialized
-        final Activity activity = this;
-        runOnUiThread(new Runnable() {
-            public void run() {
-                activity.findViewById(R.id.button_capture).setEnabled(true);
-                activity.findViewById(R.id.button_record).setEnabled(true);
-            }
-        });
     }
 
     static {
@@ -445,7 +433,6 @@ class TCPStreaming extends Thread {
                 }
 //                connect();
                 // Forward to GStreamer RPI Viewer
-                Log.d("rpiviewer", "TCPStreaming.run()");
                 mListener.onWidiReady();
 
                 if (tcpSocket == null || tcpSocket.isConnected() == false)
