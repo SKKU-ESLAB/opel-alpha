@@ -10,11 +10,62 @@
 #include <sys/types.h>
 #include <iostream>
 #include <stdlib.h>
+
+static void send_event_rec_start(DBusConnection *conn, char *file_name)
+{
+  printf("Event recording start\n");
+  DBusMessage *message;
+  message = dbus_message_new_signal("/org/opel/camera/daemon", "org.opel.camera.daemon", event_rec_start_request);
+
+  char* opel_data_dir = getenv("OPEL_DATA_DIR");
+  char str[256] = "";
+  strcat(str, opel_data_dir);
+  strcat(str, "/");
+	strcat(str, file_name);
+	const char *file_path = str;
+	printf("file_path : %s\n", str);
+
+  unsigned camera_num = 0;
+  printf("Camera Number : ");
+  scanf("%u", &camera_num);
+  unsigned play_seconds = 5;
+
+  dbus_message_append_args(message,
+      DBUS_TYPE_UINT64, &camera_num,
+      DBUS_TYPE_STRING, &file_path,
+      DBUS_TYPE_UINT64, &play_seconds,
+      DBUS_TYPE_INVALID);
+
+  dbus_connection_send (conn, message, NULL);
+  dbus_message_unref(message);
+}
+
+
+static void send_delay_streaming_start(DBusConnection *conn)
+{
+  printf("Delay streaming start\n");
+  DBusMessage *message;
+  message = dbus_message_new_signal("/org/opel/camera/daemon", "org.opel.camera.daemon", delay_streaming_start_request);
+  char sensor[8] = "BUTTON";
+  unsigned camera_num = 0;
+  printf("Camera Number : ");
+  scanf("%u", &camera_num);
+  unsigned delay = 10;
+
+  dbus_message_append_args(message,
+      DBUS_TYPE_UINT64, &camera_num,
+      DBUS_TYPE_UINT64, &delay,
+      DBUS_TYPE_INVALID);
+
+  dbus_connection_send (conn, message, NULL);
+  dbus_message_unref(message);
+}
+
 static void send_sensor_overlay(DBusConnection *conn)
 {
   printf("Sensor overlay start\n");
   DBusMessage *message;
-  message = dbus_message_new_signal("/org/opel/camera/daemon", "org.opel.camera.daemon", "sensorOverlayStart");
+  message = dbus_message_new_signal("/org/opel/camera/daemon", "org.opel.camera.daemon", sensor_overlay_start_request);
   char sensor[8] = "BUTTON";
   unsigned camera_num = 0;
   printf("Camera Number : ");
@@ -36,7 +87,7 @@ static void send_sensor_overlay_stop(DBusConnection *conn)
 {
   printf("Sensor overlay stop\n");
   DBusMessage *message;
-  message = dbus_message_new_signal("/org/opel/camera/daemon", "org.opel.camera.daemon", "sensorOverlayStop");
+  message = dbus_message_new_signal("/org/opel/camera/daemon", "org.opel.camera.daemon", sensor_overlay_stop_request);
   char sensor[8] = "BUTTON";
   unsigned camera_num = 0;
   printf("Camera Number : ");
@@ -211,6 +262,10 @@ int main(int argc, char** argv)
      send_sensor_overlay(conn);
 	 else if(num == 6)
 		 send_sensor_overlay_stop(conn);
+	 else if(num == 7)
+		 send_delay_streaming_start(conn);
+	 else if(num == 8)
+		 send_event_rec_start(conn, argv[1]);
 	 else
 		 break;
  }

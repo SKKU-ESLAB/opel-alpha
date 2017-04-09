@@ -20,6 +20,12 @@ static const char *streaming_stop_request = "streamingStop";
 static const char *sensor_overlay_start_request = "sensorOverlayStart";
 static const char *sensor_overlay_stop_request = "sensorOverlayStop";
 
+static const char *delay_streaming_start_request = "delayStreamingStart";
+static const char *delay_streaming_stop_request = "delayStreamingStop";
+static const char *event_rec_start_request = "eventRecStart";
+static const char *event_rec_stop_request = "eventRecStop";
+
+
 typedef struct _dbusRequest {
   unsigned camera_num;
   std::string file_path;
@@ -41,5 +47,17 @@ typedef struct _dbusSensorOverlayRequest {
   std::string sensor_name;
   unsigned pid;
 } dbusSensorOverlayRequest;
+
+typedef struct _dbusInitDelayRequest {
+	unsigned camera_num;
+	unsigned delay;
+} dbusInitDelayRequest;
+
+typedef struct _dbusEventRecRequest {
+	unsigned camera_num;
+	std::string file_path;
+	unsigned play_seconds;
+} dbusEventRecRequest;
+
 
 #endif /* OPEL_DBUS_INTERFACE */

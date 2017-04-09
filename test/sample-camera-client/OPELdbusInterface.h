@@ -18,6 +18,15 @@ static const gchar *opencv_stop_request = "openCVStop";
 static const gchar *streaming_start_request = "streamingStart";
 static const gchar *streaming_stop_request = "streamingStop";
 
+static const gchar *sensor_overlay_start_request = "sensorOverlayStart";
+static const gchar *sensor_overlay_stop_request = "sensorOverlayStop";
+
+static const gchar *delay_streaming_start_request = "delayStreamingStart";
+static const gchar *delay_streaming_stop_request = "delayStreamingStop";
+static const gchar *event_rec_start_request = "eventRecStart";
+static const gchar *event_rec_stop_request = "eventRecStop";
+
+
 typedef struct _dbusReques{
   unsigned camera_num;
   std::string file_path;

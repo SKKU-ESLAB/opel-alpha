@@ -6,7 +6,8 @@
 class OPELH264Streaming : public OPELRequest
 {
   public:
-    static OPELH264Streaming* getInstance(void);
+    //static OPELH264Streaming* getInstance(void);
+    OPELH264Streaming();
     ~OPELH264Streaming();
     virtual bool defaultRecordingElementFactory(const char *file_path)
     {return false;}
@@ -36,8 +37,7 @@ class OPELH264Streaming : public OPELRequest
     { return this->is_streaming_run; }
 
   private:
-    static OPELH264Streaming *opel_h264_streaming;
-    OPELH264Streaming();
+    //static OPELH264Streaming *opel_h264_streaming;
     bool is_streaming_run;
 };
 

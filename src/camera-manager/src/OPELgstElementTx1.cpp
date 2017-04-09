@@ -1,6 +1,7 @@
 #include "OPELgstElementTx1.h"
 #include "OPELcommonUtil.h"
 #include "OPELglobalRequest.h"
+#include "OPELh264Streaming.h"
 
 //OPELGstElementTx1 *OPELGstElementTx1::opel_gst_element_tx1 = NULL; 
 OPELGstElementTx1 *OPELGstElementTx1::opel_gst_element_tx1[2]; 
@@ -64,12 +65,75 @@ void inline setTypeProperty(unsigned _sub_type,
   }
 }
 
+OPELEventRecRequest::OPELEventRecRequest() {
+
+}
+
+OPELEventRecRequest::~OPELEventRecRequest() {
+
+}
+
+bool OPELEventRecRequest::pipelineMake() {
+	__OPEL_FUNCTION_ENTER__;
+
+  GstElement *tcpsrc, *queue2, *gdpdepay, *rtph264depay, *h264parse, *mp4mux, *filesink;
+  std::vector<GstElement*> *element_vector = new std::vector<GstElement*>;
+
+	// Element Factory
+	OPEL_GST_ELEMENT_FACTORY_MAKE(this->pipeline, "pipeline", NULL);
+	OPEL_GST_ELEMENT_FACTORY_MAKE(tcpsrc, "tcpclientsrc", NULL);
+	OPEL_GST_ELEMENT_FACTORY_MAKE(queue2, "queue2", NULL);
+	OPEL_GST_ELEMENT_FACTORY_MAKE(gdpdepay, "gdpdepay", NULL);
+	OPEL_GST_ELEMENT_FACTORY_MAKE(rtph264depay, "rtph264depay", NULL);
+	OPEL_GST_ELEMENT_FACTORY_MAKE(h264parse, "h264parse", NULL);
+	OPEL_GST_ELEMENT_FACTORY_MAKE(mp4mux, "mp4mux", NULL);
+	OPEL_GST_ELEMENT_FACTORY_MAKE(filesink, "filesink", NULL);
+
+	// Element Property
+	g_object_set(G_OBJECT(tcpsrc), "host", "127.0.0.1",
+			"port", this->port, NULL);
+	g_object_set(G_OBJECT(filesink), "location", this->file_path, NULL);
+
+  element_vector->push_back(tcpsrc);
+  element_vector->push_back(queue2);
+  element_vector->push_back(gdpdepay);
+  element_vector->push_back(rtph264depay);
+  element_vector->push_back(h264parse);
+  element_vector->push_back(mp4mux);
+  element_vector->push_back(filesink);
+
+  this->_element_vector = element_vector;
+
+
+	// Pipeline Add
+	gst_bin_add_many(GST_BIN(this->pipeline), tcpsrc, queue2, gdpdepay, rtph264depay,
+			h264parse, mp4mux, filesink, NULL);
+	gst_element_link_many(tcpsrc, queue2, gdpdepay, rtph264depay, h264parse, mp4mux,
+      filesink, NULL);
+	
+	__OPEL_FUNCTION_EXIT__;
+	return true;
+}
+
 void OPELGstElementTx1::InitInstance(void) {
   OPELGstElementTx1 *tmp;
   tmp = opel_gst_element_tx1[0] = new OPELGstElementTx1();
   tmp->setCameraNum(0);
   tmp = opel_gst_element_tx1[1] = new OPELGstElementTx1();
   tmp->setCameraNum(1);
+
+}
+
+OPELH264Streaming* OPELGstElementTx1::getStreamingRequest(void) {
+	if (this->streaming_request == NULL)
+		this->streaming_request = new OPELH264Streaming();
+	return this->streaming_request;
+}
+
+OPELH264Streaming* OPELGstElementTx1::getDelayRequest(void) {
+	if (this->delay_request == NULL)
+		this->delay_request = new OPELH264Streaming();
+	return this->delay_request;
 }
 
 void initializeTypeElement(typeElement *type_element, 
@@ -136,6 +200,8 @@ OPELGstElementTx1::OPELGstElementTx1()
 {
   this->main_tee = (typeElement*)malloc(sizeof(typeElement));
   this->v_global_request = new OPELGlobalVectorRequest();
+  this->streaming_request = NULL;
+	this->delay_request = NULL;
 }
 OPELGstElementTx1::~OPELGstElementTx1()
 {
@@ -170,6 +236,7 @@ bool OPELGstElementTx1::OPELGstElementCapFactory(void)
   typeElement *conv_element = NULL;
   ElementProperty *prop_element = NULL;
   typeElement *tee_element = NULL;
+  typeElement *enc_element = NULL;
 
   bool ret = true;
 #if TARGET_SRC_IS_CAM
@@ -183,6 +250,7 @@ bool OPELGstElementTx1::OPELGstElementCapFactory(void)
   conv_element = findByElementNicknameNSubType(this->_type_element_vector, "converter",
       kI420);
   tee_element = findByElementName(this->_type_element_vector, "tee");
+  enc_element = findByElementNickname(this->_type_element_vector, "h264enc");
 
   if(!src_element || !conv_element)
   {
@@ -250,6 +318,10 @@ bool OPELGstElementTx1::OPELGstElementCapFactory(void)
     __OPEL_FUNCTION_EXIT__;
     return false;
   }
+
+  enc_element->caps = gst_caps_new_simple("video/x-h264",
+      "stream-format", G_TYPE_STRING, "avc", NULL);
+  
 #endif /* TARGET_SRC_IS_CAM */
 
   __OPEL_FUNCTION_EXIT__;
@@ -264,6 +336,25 @@ bool OPELGstElementTx1::OPELGstElementPropFactory(void)
   gstElementPropFactory(this->_type_element_vector);
   ////g_object_set(this->bin, "message-forward", TRUE, NULL);
 
+	g_object_set(G_OBJECT(this->c_overlay),
+			"time-format", "%Y.%m.%d. %H:%M:%S",
+			"font-desc", "Sans, 20",
+			"halignment", 2,
+			"shaded-background", true,
+			NULL);
+
+	g_object_set(G_OBJECT(this->t_overlay),
+			"font-desc", "Sans, 15",
+			"shaded-background", true,
+			NULL);
+
+  typeElement* _enc = 
+    findByElementNickname(this->_type_element_vector, "h264enc");
+
+  if (g_target_type == TX1)
+    g_object_set(G_OBJECT(_enc->element), "control-rate", (guint)2,
+        "bitrate", (guint)2000000, NULL);
+
   __OPEL_FUNCTION_EXIT__;
   return true;
 }
@@ -277,8 +368,8 @@ bool OPELGstElementTx1::OPELGstPipelineMake(void)
   GstPad *queue_sink_pad = NULL;
   gboolean ret = false;
 
-  typeElement* tee =
-    findByElementName(this->_type_element_vector, "tee");
+  //typeElement* tee =
+  //  findByElementName(this->_type_element_vector, "tee");
 
   typeElement* cam_src;
   if (this->camera_num == 0)
@@ -293,7 +384,11 @@ bool OPELGstElementTx1::OPELGstPipelineMake(void)
   typeElement* queue =
     findByElementName(this->_type_element_vector, "queue");
 
-  if(!tee || !cam_src || !conv || !queue || !this->main_tee)
+  typeElement* enc = 
+    findByElementNickname(this->_type_element_vector, "h264enc");
+
+  //if(!tee || !cam_src || !conv || !queue || !this->main_tee)
+  if(!cam_src || !conv || !queue || !this->main_tee)
   {
     OPEL_DBG_ERR("Elements are NULL Erorr");
     __OPEL_FUNCTION_EXIT__;
@@ -301,7 +396,7 @@ bool OPELGstElementTx1::OPELGstPipelineMake(void)
   }
 
 #if OPEL_LOG_VERBOSE
-  std::cout <<"find name : " <<  *(tee->name) << " sub_type : " << tee->sub_type << std::endl;
+//  std::cout <<"find name : " <<  *(tee->name) << " sub_type : " << tee->sub_type << std::endl;
   std::cout <<"find name : " <<  *(cam_src->name) << " sub_type : " << cam_src->sub_type << std::endl;
   std::cout <<"find name : " <<  *(conv->name) << " sub_type : " << conv->sub_type << std::endl;
 #endif
@@ -309,8 +404,10 @@ bool OPELGstElementTx1::OPELGstPipelineMake(void)
   if (this->camera_num == 1)
     g_object_set(G_OBJECT(conv->element), "flip-method", 0, NULL);
 
-  gst_bin_add_many(GST_BIN(this->pipeline), cam_src->element, this->main_tee->element,
-      queue->element, conv->element, tee->element, this->t_overlay, this->t_conv, NULL);
+  gst_bin_add_many(GST_BIN(this->pipeline), cam_src->element,this->main_tee->element,
+      //queue->element, conv->element, tee->element, this->c_overlay, this->t_overlay,
+      queue->element, conv->element, this->c_overlay, this->t_overlay, enc->element,
+      this->t_conv, this->raw_tee, this->raw_queue, this->h264_tee, NULL);
 
   ret = gst_element_link_filtered(cam_src->element, this->main_tee->element, cam_src->caps);
   if(!ret)
@@ -320,7 +417,9 @@ bool OPELGstElementTx1::OPELGstPipelineMake(void)
     return false;
   }
 
-  ret = gst_element_link_many(queue->element, conv->element, this->t_overlay, this->t_conv, NULL);
+  ret = gst_element_link_many(queue->element, conv->element, this->c_overlay,
+      this->t_overlay, this->t_conv, this->raw_tee, this->raw_queue, enc->element,
+      NULL);
   if(!ret)
   {
     OPEL_DBG_ERR("Gst Element Link filtered Failed");
@@ -328,6 +427,14 @@ bool OPELGstElementTx1::OPELGstPipelineMake(void)
     return false;
   }
 
+   ret = gst_element_link_filtered(enc->element, this->h264_tee, enc->caps);
+  if(!ret)
+  {
+    OPEL_DBG_ERR("Gst Element Link filtered Failed");
+    __OPEL_FUNCTION_EXIT__;  
+    return false;
+  }
+/*
   ret = gst_element_link_filtered(this->t_conv, tee->element, conv->caps);
   if(!ret)
   {
@@ -335,7 +442,7 @@ bool OPELGstElementTx1::OPELGstPipelineMake(void)
     __OPEL_FUNCTION_EXIT__;  
     return false;
   }
-
+*/
   tee_src_pad_templ = gst_element_class_get_pad_template(
       GST_ELEMENT_GET_CLASS (this->main_tee->element), "src_%u");
   tee_src_pad = gst_element_request_pad(this->main_tee->element, tee_src_pad_templ,
@@ -375,11 +482,15 @@ bool OPELGstElementTx1::OPELGstElementFactory(void)
   OPEL_GST_ELEMENT_FACTORY_MAKE(this->main_tee->element, "tee", NULL);
 
   // For the text overlay
+	OPEL_GST_ELEMENT_FACTORY_MAKE(this->c_overlay, "clockoverlay", NULL);
   OPEL_GST_ELEMENT_FACTORY_MAKE(this->t_overlay, "textoverlay", NULL);
   if (g_target_type == TX1)
     OPEL_GST_ELEMENT_FACTORY_MAKE(this->t_conv, "nvvidconv", NULL);
   else if (g_target_type == RPI2_3)
     OPEL_GST_ELEMENT_FACTORY_MAKE(this->t_conv, "videoconvert", NULL);
+  OPEL_GST_ELEMENT_FACTORY_MAKE(this->raw_tee, "tee", NULL);
+  OPEL_GST_ELEMENT_FACTORY_MAKE(this->h264_tee, "tee", NULL);
+  OPEL_GST_ELEMENT_FACTORY_MAKE(this->raw_queue, "queue", NULL);
 
   __OPEL_FUNCTION_EXIT__;
   return true;
@@ -390,6 +501,7 @@ bool OPELRequestTx1::defaultRecordingCapFactory(void)
 {
   assert(this->_v_type_element != NULL && this->_v_fly_type_element != NULL);
   __OPEL_FUNCTION_ENTER__;
+/*
   typeElement *_enc = findByElementNickname(this->_v_fly_type_element,
       "h264enc");
   if(_enc == NULL)
@@ -410,6 +522,7 @@ bool OPELRequestTx1::defaultRecordingCapFactory(void)
     default:
       return false;
   }
+*/
 
   __OPEL_FUNCTION_EXIT__;
   return true;
@@ -454,15 +567,16 @@ bool OPELRequestTx1::defaultRecordingPipelineAdd(GstElement *pipeline)
       "tee"); 
   typeElement *_queue = findByElementName(this->_v_fly_type_element, 
       "queue"); 
-  typeElement *_enc = findByElementNickname(this->_v_fly_type_element, 
-      "h264enc");
+  //typeElement *_enc = findByElementNickname(this->_v_fly_type_element, 
+  //    "h264enc");
   typeElement *_parse = NULL;
   typeElement *_mux = findByElementNickname(this->_v_fly_type_element, 
       "mp4mux"); 
   typeElement *_sink = findByElementNicknameNSubType(this->_v_fly_type_element,
       "filesink", kREC_SINK); 
 
-  if(!_tee || !_queue || !_enc || !_mux || !_sink)
+  //if(!_tee || !_queue || !_enc || !_mux || !_sink)
+  if(!_tee || !_queue || !_mux || !_sink)
   {
     OPEL_DBG_ERR("Get TypeElement Pointer is NULL");
     __OPEL_FUNCTION_EXIT__;
@@ -471,8 +585,21 @@ bool OPELRequestTx1::defaultRecordingPipelineAdd(GstElement *pipeline)
 
   switch(g_target_type){
     case TX1:
-      gst_bin_add_many(GST_BIN(pipeline), _queue->element, _enc->element,
+      GstElement *parse;
+      OPEL_GST_ELEMENT_FACTORY_MAKE(parse,"h264parse",NULL);
+      //gst_bin_add_many(GST_BIN(pipeline), _queue->element, _enc->element,
+      gst_bin_add_many(GST_BIN(pipeline), _queue->element, parse,
           _mux->element, _sink->element, NULL);
+      ret = gst_element_link_many(_queue->element, parse, _mux->element,
+          _sink->element, NULL);
+      if(!ret)
+      {
+        OPEL_DBG_ERR("Gst Element Link Many Failed");
+        __OPEL_FUNCTION_EXIT__;  
+        return ret;
+      }
+      
+      /*
       ret = gst_element_link_many(_queue->element, _enc->element, NULL);
       if(!ret)
       {
@@ -496,6 +623,7 @@ bool OPELRequestTx1::defaultRecordingPipelineAdd(GstElement *pipeline)
         __OPEL_FUNCTION_EXIT__;  
         return ret;
       }
+      */
       break;
     case RPI2_3:
       _parse = findByElementName(this->_v_fly_type_element, "h264parse");
@@ -506,9 +634,11 @@ bool OPELRequestTx1::defaultRecordingPipelineAdd(GstElement *pipeline)
         return false;
       }
       
-      gst_bin_add_many(GST_BIN(pipeline), _queue->element, _enc->element,
+      //gst_bin_add_many(GST_BIN(pipeline), _queue->element, _enc->element,
+      gst_bin_add_many(GST_BIN(pipeline), _queue->element,
           _parse->element, _mux->element, _sink->element, NULL);
-      ret = gst_element_link_many(_queue->element, _enc->element,
+      //ret = gst_element_link_many(_queue->element, _enc->element,
+      ret = gst_element_link_many(_queue->element,
           _parse->element, _mux->element, _sink->element, NULL);
       if(!ret)
       {
@@ -539,6 +669,7 @@ void gstElementPropFactory(std::vector<typeElement*> *_type_element_vector)
     if(iter->prop != NULL)
       iter->prop->setGstObjectProperty(iter->element);
   }
+
 }
 
 bool gstElementFactory(std::vector<typeElement*>
@@ -573,12 +704,13 @@ bool OPELRequestTx1::defaultRecordingElementFactory(const char *file_path)
 
   std::vector<typeElement*> _v_original_element(OPEL_NUM_DEFAULT_RECORDING_ELE);
   typeElement *_queue = findByElementName(this->_v_type_element, "queue"); 
-  typeElement *_enc = findByElementNickname(this->_v_type_element, "h264enc");
+  //typeElement *_enc = findByElementNickname(this->_v_type_element, "h264enc");
   typeElement *_mux = findByElementNickname(this->_v_type_element, "mp4mux");
   typeElement *_sink = findByElementNicknameNSubType(this->_v_type_element,
       "filesink", kREC_SINK); 
 
-  if(!_queue || !_enc || !_mux || !_sink)
+  //if(!_queue || !_enc || !_mux || !_sink)
+  if(!_queue || !_mux || !_sink)
   {
     OPEL_DBG_ERR("Get TypeElement Pointer is NULL");
     __OPEL_FUNCTION_EXIT__;
@@ -588,9 +720,9 @@ bool OPELRequestTx1::defaultRecordingElementFactory(const char *file_path)
   ((FileSinkProp*)_sink->prop)->location = file_path;
 
   _v_original_element[0] = _queue;
-  _v_original_element[1] = _enc;
-  _v_original_element[2] = _mux;
-  _v_original_element[3] = _sink;
+  //_v_original_element[1] = _enc;
+  _v_original_element[1] = _mux;
+  _v_original_element[2] = _sink;
   //On The Fly Element
 
   for(int i=0; i<OPEL_NUM_DEFAULT_RECORDING_ELE; i++)

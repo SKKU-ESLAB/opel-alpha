@@ -1,6 +1,6 @@
 #include "OPELh264Streaming.h"
 
-OPELH264Streaming *OPELH264Streaming::opel_h264_streaming = NULL;
+//OPELH264Streaming *OPELH264Streaming::opel_h264_streaming = NULL;
 
 static void setH264Parse(typeElement *element)
 {
@@ -31,25 +31,30 @@ static bool h264StreamingPropSetting(std::vector<typeElement*>* _v_type_element,
     dbusStreamingRequest* _stream_request)
 {
   assert(_v_type_element != NULL && _stream_request != NULL);
-  typeElement *_conv = findByElementNickname(_v_type_element,
-      "converter");
-  typeElement *_enc = findByElementNickname(_v_type_element,
-      "h264enc");
+  //typeElement *_conv = findByElementNickname(_v_type_element,
+  //    "converter");
+  //typeElement *_enc = findByElementNickname(_v_type_element,
+  //    "h264enc");
   typeElement *_udp_sink = findByElementNickname(_v_type_element,
       "tcpserversink");
   typeElement *_rtph_264pay = findByElementName(_v_type_element,
       "rtph264pay");
 
-  if(!_conv || !_enc || !_udp_sink || !_rtph_264pay)
+  typeElement *_queue = findByElementName(_v_type_element, "queue");
+
+  //if(!_conv || !_enc || !_udp_sink || !_rtph_264pay)
+  if(!_udp_sink || !_rtph_264pay || !_queue)
   {
     OPEL_DBG_ERR("Elements are NULL");
     return false;
   }
+  /*
   if (g_target_type == TX1)
     g_object_set(G_OBJECT(_enc->element), "control-rate", (guint)2,
         "bitrate", (guint)2000000, NULL);
   g_object_set(G_OBJECT(_rtph_264pay->element), "pt", (guint)96,
       "config-interval", (guint)1, NULL);
+  */
 _stream_request->ip_address;
 _stream_request->port;
 OPEL_DBG_LOG("%s %u", _stream_request->ip_address);
@@ -59,16 +64,22 @@ OPEL_DBG_LOG("%u",  _stream_request->port);
       _stream_request->port, "sync",
       FALSE, NULL);
 
+  if (_stream_request->delay != 0) {
+    OPEL_DBG_LOG("delay : %u", _stream_request->delay);
+    g_object_set(G_OBJECT(_queue->element), "min-threshold-time", (unsigned long long)_stream_request->delay*1000000000,
+        "max-size-buffers", 0, "max-size-time", 0, "max-size-bytes", 0, NULL);
+  }
+
   return true;
 }
-
+/*
 OPELH264Streaming *OPELH264Streaming::getInstance(void)
 {
   if(opel_h264_streaming == NULL)
     opel_h264_streaming = new OPELH264Streaming();
   return opel_h264_streaming;
 }
-
+*/
 OPELH264Streaming::OPELH264Streaming()
 {
   this->_v_fly_type_element =
@@ -86,10 +97,10 @@ bool OPELH264Streaming::defaultStreamingFactory(void)
 
   typeElement *_queue = findByElementName(this->_v_type_element,
       "queue");
-  typeElement *_conv = findByElementNicknameNSubType(this->_v_type_element,
-      "converter", kBGR);
-  typeElement *_enc = findByElementNickname(this->_v_type_element,
-      "h264enc");
+  //typeElement *_conv = findByElementNicknameNSubType(this->_v_type_element,
+  //    "converter", kBGR);
+  //typeElement *_enc = findByElementNickname(this->_v_type_element,
+  //    "h264enc");
   typeElement *_udp_sink = findByElementNickname(this->_v_type_element,
       "tcpserversink");
 
@@ -98,13 +109,13 @@ bool OPELH264Streaming::defaultStreamingFactory(void)
   _new_queue->element_prop = _queue->element_prop;
   initializeTypeElement(_new_queue, _new_queue->element_prop);
 
-  typeElement *_new_conv = (typeElement*)malloc(sizeof(typeElement));
-  _new_conv->element_prop = _conv->element_prop;
-  initializeTypeElement(_new_conv, _new_conv->element_prop);
+  //typeElement *_new_conv = (typeElement*)malloc(sizeof(typeElement));
+  //_new_conv->element_prop = _conv->element_prop;
+  //initializeTypeElement(_new_conv, _new_conv->element_prop);
 
-  typeElement *_new_enc  = (typeElement*)malloc(sizeof(typeElement));
-  _new_enc->element_prop = _enc->element_prop;
-  initializeTypeElement(_new_enc, _new_enc->element_prop);
+  //typeElement *_new_enc  = (typeElement*)malloc(sizeof(typeElement));
+  //_new_enc->element_prop = _enc->element_prop;
+  //initializeTypeElement(_new_enc, _new_enc->element_prop);
 
   typeElement *_new_udp_sink = (typeElement*)malloc(sizeof(typeElement));
   _new_udp_sink->element_prop = _udp_sink->element_prop;
@@ -120,18 +131,20 @@ bool OPELH264Streaming::defaultStreamingFactory(void)
   setgdpPay(_gdppay);
 
   (*this->_v_fly_type_element)[0] = _new_queue;
-  (*this->_v_fly_type_element)[1] = _new_conv;
-  (*this->_v_fly_type_element)[2] = _new_enc;
-  (*this->_v_fly_type_element)[3] = _new_udp_sink;
-  (*this->_v_fly_type_element)[4] = _h264_parse;
-  (*this->_v_fly_type_element)[5] = _rtph_264_pay;
-  (*this->_v_fly_type_element)[6] = _gdppay;
+  //(*this->_v_fly_type_element)[1] = _new_conv;
+  //(*this->_v_fly_type_element)[2] = _new_enc;
+  (*this->_v_fly_type_element)[1] = _new_udp_sink;
+  (*this->_v_fly_type_element)[2] = _h264_parse;
+  (*this->_v_fly_type_element)[3] = _rtph_264_pay;
+  (*this->_v_fly_type_element)[4] = _gdppay;
   //(*this->_v_fly_type_element)[6] = _new_udp_sink;  // FIXME: above 3 elements have no nickname -> occur ERROR!
                                                       //          when using findByElementNickname()
-
+OPEL_DBG_LOG("HAYUN");
   gstElementFactory(this->_v_fly_type_element);
+  OPEL_DBG_LOG("HAYUN");
 
   h264StreamingPropSetting(this->_v_fly_type_element, this->streaming_handle);
+  OPEL_DBG_LOG("HAYUN");
 
   __OPEL_FUNCTION_EXIT__;
   return true;
@@ -146,10 +159,10 @@ bool OPELH264Streaming::defaultStreamingPipelineAdd(GstElement *pipeline)
 
   typeElement *_queue = findByElementName(this->_v_fly_type_element,
       "queue");
-  typeElement *_conv = findByElementNicknameNSubType(this->_v_fly_type_element,
-      "converter", kBGR);
-  typeElement *_enc = findByElementNickname(this->_v_fly_type_element,
-      "h264enc");
+  //typeElement *_conv = findByElementNicknameNSubType(this->_v_fly_type_element,
+  //    "converter", kBGR);
+  //typeElement *_enc = findByElementNickname(this->_v_fly_type_element,
+  //    "h264enc");
   typeElement *_parse = findByElementName(this->_v_fly_type_element,
       "h264parse");
   typeElement *_pay = findByElementName(this->_v_fly_type_element,
@@ -158,13 +171,14 @@ bool OPELH264Streaming::defaultStreamingPipelineAdd(GstElement *pipeline)
       "gdppay");
   typeElement *_udp_sink = findByElementName(this->_v_fly_type_element,
       "tcpserversink");
-  if(!_queue || !_conv || !_enc || !_parse || !_pay || !_udp_sink || !_gdppay)
+  //if(!_queue || !_conv || !_enc || !_parse || !_pay || !_udp_sink || !_gdppay)
+  if(!_queue || !_parse || !_pay || !_udp_sink || !_gdppay)
   {
     OPEL_DBG_ERR("elements are NULL");
     __OPEL_FUNCTION_EXIT__;
     return false;
   }
-
+/*
   gst_bin_add_many(GST_BIN(pipeline), _queue->element, _conv->element,
       _enc->element, _parse->element, _pay->element, _gdppay->element,
       _udp_sink->element, NULL);
@@ -201,7 +215,20 @@ bool OPELH264Streaming::defaultStreamingPipelineAdd(GstElement *pipeline)
     __OPEL_FUNCTION_EXIT__;
     return false;
   }
+*/
+  gst_bin_add_many(GST_BIN(pipeline), _queue->element,
+      _parse->element, _pay->element, _gdppay->element,
+      _udp_sink->element, NULL);
 
+  
+  ret = gst_element_link_many(_queue->element, _parse->element, _pay->element,
+      _gdppay->element, _udp_sink->element, NULL);
+  if(!ret)
+  {
+    OPEL_DBG_ERR("element link many failed");
+    __OPEL_FUNCTION_EXIT__;
+    return false;
+  }
   __OPEL_FUNCTION_EXIT__;
   return true; 
 }
@@ -210,8 +237,10 @@ bool OPELH264Streaming::defaultStreamingCapFactory(void)
 {
   assert(this->_v_type_element != NULL && this->_v_fly_type_element != NULL);
   __OPEL_FUNCTION_ENTER__;
+
+/*
   char caps_buffer[256];
-  char caps_buffer_enc[256];
+  char caps_buffer_enc[256]
   typeElement *_conv = findByElementNicknameNSubType(this->_v_fly_type_element,
       "converter", kBGR);
   typeElement *_enc = findByElementNickname(this->_v_fly_type_element, 
@@ -251,7 +280,7 @@ bool OPELH264Streaming::defaultStreamingCapFactory(void)
     __OPEL_FUNCTION_EXIT__;
     return false;
   }
-
+*/
   __OPEL_FUNCTION_EXIT__;
   return true;
 }
@@ -316,37 +345,38 @@ bool streamingStart(std::vector<typeElement*> *_type_element_v,
   request_handle->defaultStreamingFactory();
   _fly_type_element_v = request_handle->getFlyTypeElementVector();
 
-  typeElement *tee = findByElementName(_type_element_v, "tee");
+  //typeElement *tee = findByElementName(_type_element_v, "tee");
+  GstElement *h264_tee = tx1->getH264Tee();
   typeElement *queue = findByElementName(_fly_type_element_v, "queue");
 
-  if(!tee || !queue)
+  //if(!tee || !queue)
+  if(!h264_tee || !queue)
   {
     OPEL_DBG_ERR("Get TypeElement Pointer is NULL");
     __OPEL_FUNCTION_EXIT__;
     return NULL;
   }
 
-  templ = gst_element_class_get_pad_template(GST_ELEMENT_GET_CLASS(tee->element), "src_%u");
-  src_pad = gst_element_request_pad(tee->element, templ, NULL, NULL);
-
+  //templ = gst_element_class_get_pad_template(GST_ELEMENT_GET_CLASS(tee->element), "src_%u");
+  //src_pad = gst_element_request_pad(tee->element, templ, NULL, NULL);
+  templ = gst_element_class_get_pad_template(GST_ELEMENT_GET_CLASS(h264_tee), "src_%u");
+  src_pad = gst_element_request_pad(h264_tee, templ, NULL, NULL);
+  
   request_handle->setSrcPad(src_pad);
 
   //#if OPEL_LOG_VERBOSE
-  OPEL_DBG_VERB("Obtained request pad %s for %s", gst_pad_get_name(templ),
-      tee->name->c_str());
+  //OPEL_DBG_VERB("Obtained request pad %s for %s", gst_pad_get_name(templ),
+  //    tee->name->c_str());
   //#endif
-
+  
   request_handle->defaultStreamingCapFactory();
   request_handle->defaultStreamingPipelineAdd(pipeline);
-  ////request_handle->defaultStreamingPipelineAdd(bin);
   request_handle->defaultStreamingPadLink(request_handle->getSrcPad());
 
   if(!(tx1->getIsPlaying()))
   {
     ret = gst_element_set_state(tx1->getPipeline(), GST_STATE_READY);
     ret = gst_element_set_state(tx1->getPipeline(), GST_STATE_PLAYING);
-    ////ret = gst_element_set_state(tx1->getBin(), GST_STATE_READY);
-    ////ret = gst_element_set_state(tx1->getBin(), GST_STATE_PLAYING);
     tx1->setIsPlaying(true);
   }
   else
