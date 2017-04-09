@@ -16,6 +16,8 @@
 #include <sys/time.h>
 
 #include "nil.h"
+#include "cJSON.h"
+#include "sensfw_log.h"
 
 #define MAX_STRING_LENTGH	256
 #define MAX_DATA_LENGTH		20
@@ -28,17 +30,16 @@ static DBusConnection *opelCon = NULL; //Only 1 connection
 static struct timeval time_to_delay; //임시 변수, event register시 약간의 시간 차를 두기 위해 사용.
 requestList *rList;
 pid_t pid;
+int sensor_num;
+char **sensor_list;
 
 int check_sensor_name(const char* name){
 	int i;
 
-	for (i = 0; ; i++){
-		if (!strcmp(name, SUPPORT_LIST[i]))
+	for (i = 0; sensor_num; i++){
+		if (!strcmp(name, sensor_list[i]))
 			return i;
-		else if (!strcmp("END", SUPPORT_LIST[i]))
-			break;
 	}
-
 	return -1;
 }
 int parsingString(char* string, char* value){
@@ -195,6 +196,7 @@ void parsingToReturn(const FunctionCallbackInfo<Value>& args, char* in_value, ch
 // 2. On (Notify)
 DBusHandlerResult sensorGetRepeatedly(DBusConnection *connection, DBusMessage *message, void *iface_user_data){
 	Isolate *isolate = Isolate::GetCurrent();
+  HandleScope scope(isolate);
   int rq_num;
 	char* sensorValue;
 	char* valueType;
@@ -229,6 +231,8 @@ DBusHandlerResult sensorGetRepeatedly(DBusConnection *connection, DBusMessage *m
 }
 DBusHandlerResult sensorEventNotify(DBusConnection *connection, DBusMessage *message, void *iface_user_data){
   Isolate *isolate = Isolate::GetCurrent();
+  HandleScope scope(isolate);
+
   int rq_num;
 	requestList* rl;
 	TryCatch try_catch(isolate);
@@ -237,31 +241,28 @@ DBusHandlerResult sensorEventNotify(DBusConnection *connection, DBusMessage *mes
 	dbus_error_init(&err);
 
 	//printRequset(rList);
-
 	dbus_message_get_args(message, &err,
 		DBUS_TYPE_INT32, &rq_num,
 		DBUS_TYPE_INVALID);
 
 	if (dbus_error_is_set(&err))
 	{
-		printf("Notify Error get data: %s", err.message);
+		printf("Notify Error get data: %s\n", err.message);
 		dbus_error_free(&err);
 	}
 
-	printf("[NIL] Event Notify rq_num : %d", rq_num);
+	printf("[NIL] Event Notify rq_num : %d\n", rq_num);
 
 	rl = getRequest(rList, rq_num);
 
-	//Persistent<Function> cb = rl->callback;
 	Local<Function> fn = Local<Function>::New(isolate, rl->callback);
 	fn->Call(isolate->GetCurrentContext()->Global(), 0, NULL);
 
-	//rl->callback->Call(isolate->GetCurrentContext()->Global(), 0, NULL);
 	if (try_catch.HasCaught()) {
 		//node::FatalException(try_catch);
 		Local<Value> exception = try_catch.Exception();
 		String::Utf8Value exception_str(exception);
-		printf("Exception: %s\n", *exception_str);
+		printf("Exception! %s\n", *exception_str);
 	}
 
 	return DBUS_HANDLER_RESULT_HANDLED;
@@ -295,7 +296,6 @@ int wait_delay(){
 // 2. Get
 void On(const FunctionCallbackInfo<Value>& args) {
   Isolate* isolate = Isolate::GetCurrent();
-	//Isolate* isolate = args.GetIsolate();
   HandleScope scope(isolate);
 
 	requestList* rl;
@@ -308,10 +308,8 @@ void On(const FunctionCallbackInfo<Value>& args) {
 	int handle_type = 0;
 	const char* handle_type_s;
 	int sensing_level = 0; //현재는 사용하지 않음.
-
 	
 	wait_delay(); //Perform wait.
-
 
 	/*
 	Receive Args
@@ -346,12 +344,12 @@ void On(const FunctionCallbackInfo<Value>& args) {
 	std::string name_c = std::string(*param0);
 	sensor_name = name_c.c_str();
 
-	if (check_sensor_name(sensor_name) == -1){
-		isolate->ThrowException(Exception::TypeError(
-								String::NewFromUtf8(isolate, 
-										"This sensor is not supported sensor\n")));
-		return ;
-	}
+  if (check_sensor_name(sensor_name) == -1){
+    isolate->ThrowException(Exception::TypeError(
+          String::NewFromUtf8(isolate, 
+            "This sensor is not supported sensor\n")));
+    return ;
+  }
 	//
 	//----------------------------------------------------------------//
 
@@ -392,24 +390,10 @@ void On(const FunctionCallbackInfo<Value>& args) {
 	//----------------------------------------------------------------//
 	//			2. Request Creation (For function callback)
 	rl = newRequest(rList);
-	//rl->callback = callback(isolate, Persistent<Function>::New(Local<Function>::Cast(args[3])));
-	  //rl->callback = Persistent<Function> cb(isolate, arg0);
-	//rl->callback = Persistent<Function>(isolate, arg0);
 
 	Local<Function> cb = Local<Function>::Cast(args[3]);
-
-
   rl->callback.Reset(isolate, cb);	
-	//rl->callback.Reset(isolate,args[3].As<Function>());
-	
-	//rl->callback.Reset(isolate, Local<Function>::New(isolate,arg0));
-  //rl->callback.Reset(isolate, Persistent<Function>(isolate, arg0));
-
-	
-	
-	
 	rl->type = SENSOR_REQUEST;
-	
 	pid = (unsigned int)getpid();
 	rq_num = rl->rq_num;
 	//
@@ -445,6 +429,7 @@ void On(const FunctionCallbackInfo<Value>& args) {
   args.GetReturnValue().Set(rq_num);
 }
 void Get(const FunctionCallbackInfo<Value>& args) {
+  __ENTER__;
   const char* sensorName;
 	char* sensorValue;
 	char* valueType;
@@ -455,7 +440,7 @@ void Get(const FunctionCallbackInfo<Value>& args) {
 	DBusMessage* msg;
 	DBusMessage* reply;
 	DBusError error;
-	
+
   //------------------- Argument check-----------------------------//
 	if (args.Length() != 1) {
 		isolate->ThrowException(Exception::TypeError(
@@ -469,8 +454,6 @@ void Get(const FunctionCallbackInfo<Value>& args) {
 		return ;
 	}
 	//----------------------------------------------------------------//
-	
-	
 	//--------------------- Sensor Name Check -------------------------//
 	// 서포트 리스트와 비교해서, 지원하는 센서인지 체크
 	//
@@ -483,9 +466,8 @@ void Get(const FunctionCallbackInfo<Value>& args) {
 								String::NewFromUtf8(isolate,"This sensor is not supported!")));
 		return ;
 	}
-	//
 	//----------------------------------------------------------------//
-	
+
 
 	//-------------------- DBus Message Initilizing -----------------// 
 	//
@@ -499,7 +481,7 @@ void Get(const FunctionCallbackInfo<Value>& args) {
 								String::NewFromUtf8(isolate,"Fail to create message")));
 		return ;
 	}
-
+printf("after\n");
 	dbus_message_append_args(msg,
 		DBUS_TYPE_STRING, &sensorName,
 		DBUS_TYPE_INVALID);
@@ -516,7 +498,6 @@ void Get(const FunctionCallbackInfo<Value>& args) {
 		opelCon = dbus_bus_get(DBUS_BUS_SYSTEM, &error);
 	}
 	
-	//printf("Send Message \n");
 	reply = dbus_connection_send_with_reply_and_block(opelCon, msg, 500, &error); // Timeout 500 milli seconds
 
 	if (reply == NULL){
@@ -524,8 +505,6 @@ void Get(const FunctionCallbackInfo<Value>& args) {
 		printf("Error : %s\n", error.message);
 	}
 	dbus_error_free(&error);
-	//printf("Got  Reply Message \n");
-
 	dbus_message_unref(msg);
 	//
 	//----------------------------------------------------------------//
@@ -540,7 +519,7 @@ void Get(const FunctionCallbackInfo<Value>& args) {
 		DBUS_TYPE_INVALID);
 
 	dbus_message_unref(reply);
-	//printf("receive : %d \n", sensorValue);
+
 	//
 	//----------------------------------------------------------------//
 
@@ -548,6 +527,41 @@ void Get(const FunctionCallbackInfo<Value>& args) {
 	//Refer this : http://luismreis.github.io/node-bindings-guide/docs/returning.html
 	//About return value from Native to Java	
 }
+
+void GetSensorlist(const FunctionCallbackInfo<Value>& args) {
+	Isolate* isolate = Isolate::GetCurrent();
+	HandleScope scope(isolate);
+
+  //------------------- Argument check-----------------------------//
+	if (args.Length() != 0) {
+		isolate->ThrowException(Exception::TypeError(
+				String::NewFromUtf8(isolate,
+				"Invalid Use : no arguments expected.")));
+		return ;
+	}
+
+  // ----------------------------//
+  Local<Object> obj = Object::New(isolate);
+  // Set sensor num
+  obj->Set(String::NewFromUtf8(isolate,"sensorNum"), 
+            Integer::New(isolate, sensor_num)); 
+
+  // Set sensor name
+  int i;
+  for(i=0; i<sensor_num; i++){
+    char sensor_index[10];
+    sprintf(sensor_index, "sensor%d", i+1);
+
+    obj->Set(String::NewFromUtf8(isolate, sensor_index),
+              String::NewFromUtf8(isolate, sensor_list[i])); 
+  
+	}
+
+  // return the object
+  args.GetReturnValue().Set(obj);
+
+}
+
 void Update(const FunctionCallbackInfo<Value>& args){
   Isolate* isolate = Isolate::GetCurrent();
 	HandleScope scope(isolate);
@@ -735,15 +749,6 @@ void all_request_unregister(){
 	printf("[NIL] send All_UNREGISTER message to %s | %s\n", SM_PATH, SM_INTERFACE);
 }
 
-void delete_sensorlist()
-{
-	int i;
-
-	for(i=0;i<SENSOR_NUM;i++){
-		free(SUPPORT_LIST[i]);
-	}
-	free(SUPPORT_LIST);
-}
 
 void exit_handler(void){
 	all_request_unregister();
@@ -753,7 +758,6 @@ void sigint_handler(int signo)
 {
 	//Perform unregister
 	all_request_unregister();
-	delete_sensorlist();
 	signal(SIGINT, SIG_DFL);
 	//Sig call
 	kill(getpid(), SIGINT);
@@ -771,43 +775,71 @@ void nativeInterfaceLayerInit(){
 
 void read_sensorlist()
 {
-	char *opelConfigDir, sensorFile[1024], buf[100];
-	int i,len,line = 0;
-	FILE* fp;
+  char *opel_sensor_dir;
+  const char *error = NULL;
 
-	// Find the directory where sensor list file is
-	opelConfigDir = getenv("OPEL_CONFIG_DIR");
-	sprintf(sensorFile, "%s%s", opelConfigDir, "/SENSOR_LIST");
-	
-	// Read the sensor list file written by user
-	fp = fopen(sensorFile, "r");
-	if(fp == NULL){
-		perror("Error opening file 'SENSOR LIST'");
-		exit(1);
-	}
-	
-	while(1){
-		if( fgets(buf, 100, fp) == NULL)
-			break;
-		line++;
-	}
-	// Alloc sensor_list
-	SENSOR_NUM = line;
-	SUPPORT_LIST = (char**) malloc(line * sizeof(char*));
-	
-	fseek(fp,0,SEEK_SET);
-	
-	for(i=0;i<line;i++){
-		fgets(buf, 100, fp);
-		len = strlen(buf);
-		buf[len-1]='\0';
-	
-		SUPPORT_LIST[i] = (char*) malloc( len * sizeof(char));
-		sprintf(SUPPORT_LIST[i], "%s", buf);	
-	}
 
-	fclose(fp);
+  opel_sensor_dir = getenv("OPEL_SENSOR_DRIVER_DIR");
+  if(!opel_sensor_dir){
+    fprintf(stderr,"No environment variable: OPEL_SENSOR_DRIVER_DIR\n");
+    exit(1);
+  }
+  
+  //load the configuration file (json)
+  FILE *infile;
+  char *buffer;
+  long numbytes;
+  char json_file_path[200];
+  
+  sprintf(json_file_path, "%s/sensor_config.json", opel_sensor_dir);
+  infile = fopen(json_file_path, "r");
+  if(infile == NULL){
+    fprintf(stderr, "Cannot read the sensor configuration file");
+    exit(1);
+  }
+  fseek(infile, 0L, SEEK_END);
+  numbytes = ftell(infile);
+  fseek(infile, 0L, SEEK_SET);
 
+  buffer = (char*) calloc(numbytes, sizeof(char));
+  if(buffer == NULL)
+  {
+    fprintf(stderr,"error while allocating buffer!");
+    exit(1);
+  }
+  fread(buffer,sizeof(char), numbytes, infile);
+  fclose(infile);
+  
+  // Get the root object of the json
+  cJSON *root = NULL;
+  root = cJSON_Parse(buffer);
+
+  if(!root){
+    fprintf(stderr, "Error before: [%s]\n", cJSON_GetErrorPtr());
+    exit(1);
+  }
+  // find the target name and # of sensors
+  char *target_name = cJSON_GetObjectItem(root, "target_name")->valuestring;
+  sensor_num = cJSON_GetObjectItem(root, "sensor_num")->valueint;
+  sensor_list = (char**) malloc(sensor_num * sizeof(char*));
+  int i;
+  for(i=0; i<sensor_num; i++){
+    char sensor_index[10];
+    sprintf(sensor_index, "sensor%d", i+1);
+    cJSON *sensor_object = cJSON_GetObjectItem(root, sensor_index);
+
+    sensor_list[i] = (char*) malloc(30 * sizeof(char));
+    
+    char* sensor_name = cJSON_GetObjectItem(sensor_object,"name")->valuestring;
+    if(!sensor_name){
+      fprintf(stderr, "error while reading the sensor configuration (json)\n");
+    }
+    // add to the sensor_list
+    strcpy(sensor_list[i], sensor_name);
+    printf("sensor %d: %s", i+1, sensor_list[i]);
+  }  
+  
+  
 }
 
 void init(Handle<Object> exports) {
@@ -821,6 +853,7 @@ void init(Handle<Object> exports) {
 	//Isolate* isolate = Isolate::GetCurrent();
   
 	// 4.0.0
+  NODE_SET_METHOD(exports, "GetSensorlist", GetSensorlist);
 	NODE_SET_METHOD(exports, "Get", Get);
   NODE_SET_METHOD(exports, "On", On);
   NODE_SET_METHOD(exports, "EventRegister", On);

@@ -1,39 +1,52 @@
 var opel_api_dir = process.env.OPEL_BIN_DIR + "/api/";
-var commApi = require(opel_api_dir + "communication-api");
+var appApi = require(opel_api_dir + "app-api");
 var sensorApi = require(opel_api_dir + "sensor-api");
-var isViewReady = 0;
+var NIL_MSG_TO_SENSOR_VIEWER = "1102";
 
-function mainCb(str, stat) {
-	console.log("Incoming Message:" + str + "(" +  str.length + ")");
-
-	if(str == "Connected") {
-		isViewReady = 1;
-  } else {
-		isViewReady = 0;
-  }
+// Get sensor list and size
+var sensorList = sensorApi.GetSensorlist();
+var sensorNum = sensorList.sensorNum;
+var sensorData = {
+  "BUTTON": -1,
+  "ACC": -1,
+  "MOTION": -1,
+  "SOUND": -1,
+  "LIGHT": -1,
+  "VIBRATION": -1,
+  "TEMP": -1
+};
+var i = 0;
+for(i=0; i<sensorNum; i++){
+  var sensorIndex = 'sensor' + (i+1);
+  sensorData[sensorList[sensorIndex]] = 0;
 }
 
-commApi.OpenChannel("Sensor Interface", mainCb);
-
+// Report sensor data periodically
 var repeat = setInterval(function() {
-		if(isViewReady == 1){
-			var tch = sensorApi.Get("BUTTON");
-			var acc = sensorApi.Get("ACC");
-			var mot = sensorApi.Get("MOTION");
-			var snd = sensorApi.Get("SOUND");
-			var lit = sensorApi.Get("LIGHT");
-			var vib = sensorApi.Get("VIBRATION");
-			var tmp = sensorApi.Get("TEMP");
+  sensorData.BUTTON =
+    (sensorData.BUTTON >= 0) ? sensorApi.Get("BUTTON").BUTTON : -1;
+  sensorData.ACC =
+    (sensorData.ACC >= 0) ? sensorApi.Get("ACC").Z : -1;
+  sensorData.MOTION =
+    (sensorData.MOTION >= 0) ? sensorApi.Get("MOTION").MOTION : -1;
+  sensorData.SOUND =
+    (sensorData.SOUND >= 0) ? sensorApi.Get("SOUND").SOUND : -1;
+  sensorData.LIGHT =
+    (sensorData.LIGHT >= 0) ? sensorApi.Get("LIGHT").LIGHT : -1;
+  sensorData.VIBRATION =
+    (sensorData.VIBRATION >= 0) ? sensorApi.Get("VIBRATION").VIBRATION : -1;
+  sensorData.TEMP =
+    (sensorData.TEMP >= 0) ? sensorApi.Get("TEMP").TEMP : -1;
 
-      var str = "{\"Touch\":\"" + tch.BUTTON
-        + "\",\"Accelerometer\":\"" + acc.Z
-        + "\",\"Motion\":\"" + mot.MOTION
-        + "\",\"Sound\":\"" + snd.SOUND
-        + "\",\"Light\":\"" + lit.LIGHT
-        + "\",\"Vibration\":\"" + vib.VIBRATION
-        + "\",\"Temperature\":\"" + tmp.TEMP
-        + "\"}";
-			commApi.SendMsg(str);
-			console.log("Sent\n");
-    }
+  var str = "{\"type\":\"" + NIL_MSG_TO_SENSOR_VIEWER
+    + "\",\"Touch\":\"" + sensorData.BUTTON
+    + "\",\"Accelerometer\":\"" + sensorData.ACC
+    + "\",\"Motion\":\"" + sensorData.MOTION
+    + "\",\"Sound\":\"" + sensorData.SOUND
+    + "\",\"Light\":\"" + sensorData.LIGHT
+    + "\",\"Vibration\":\"" + sensorData.VIBRATION
+    + "\",\"Temperature\":\"" + sensorData.TEMP
+    + "\"}";
+  appApi.sendMsgToSensorViewer(str);
+  console.log("Sent\n");
 }, 500);

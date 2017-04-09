@@ -71,6 +71,7 @@
 
 #define NIL_TERMINATION			"1100"
 #define NIL_CONFIGURATION		"1101"
+//#define NIL_MSG_TO_SENSOR_VIEWER "1102"
 
 #define FileAck      51		/* file upload acknowledge */
  	
@@ -106,6 +107,7 @@ public:
 //	void HandleDeleteApp();
 //	void HandleKillApp();
 
+  void initialize();
 	void closeConnection();
 	bool makeConnection();
 
@@ -124,14 +126,10 @@ public:
 	bool response_Dbus_SendConfig(char* json);
 	void responseUpdateFileManager(JsonString js);
 	void responseRequestFilefromFileManager(JsonString js);
+  bool response_Dbus_MsgToSensorViewer(char* json);
 	bool response_Dbus_FaceRecognition(char* json);
 
 	bool wfdOn(void);
 
-
 };
-
-
-
 #endif
-

@@ -51,18 +51,27 @@ xmlIO.lo: xmlIO.c /usr/include/stdc-predef.h libxml.h config.h \
  /usr/include/limits.h /usr/include/aarch64-linux-gnu/bits/posix1_lim.h \
  /usr/include/aarch64-linux-gnu/bits/local_lim.h \
  /usr/include/linux/limits.h \
- /usr/include/aarch64-linux-gnu/bits/posix2_lim.h \
- include/libxml/xmlmemory.h include/libxml/threads.h \
- include/libxml/globals.h include/libxml/parser.h include/libxml/tree.h \
- include/libxml/xmlstring.h include/libxml/xmlregexp.h \
- include/libxml/dict.h include/libxml/hash.h include/libxml/valid.h \
- include/libxml/xmlerror.h include/libxml/list.h \
+ /usr/include/aarch64-linux-gnu/bits/posix2_lim.h /usr/include/lzma.h \
+ /usr/include/inttypes.h \
+ /usr/lib/gcc/aarch64-linux-gnu/5/include/stdint.h /usr/include/stdint.h \
+ /usr/include/aarch64-linux-gnu/bits/wchar.h /usr/include/lzma/version.h \
+ /usr/include/lzma/base.h /usr/include/lzma/vli.h \
+ /usr/include/lzma/check.h /usr/include/lzma/filter.h \
+ /usr/include/lzma/bcj.h /usr/include/lzma/delta.h \
+ /usr/include/lzma/lzma.h /usr/include/lzma/container.h \
+ /usr/include/lzma/stream_flags.h /usr/include/lzma/block.h \
+ /usr/include/lzma/index.h /usr/include/lzma/index_hash.h \
+ /usr/include/lzma/hardware.h include/libxml/xmlmemory.h \
+ include/libxml/threads.h include/libxml/globals.h \
+ include/libxml/parser.h include/libxml/tree.h include/libxml/xmlstring.h \
+ include/libxml/xmlregexp.h include/libxml/dict.h include/libxml/hash.h \
+ include/libxml/valid.h include/libxml/xmlerror.h include/libxml/list.h \
  include/libxml/xmlautomata.h include/libxml/entities.h \
  include/libxml/encoding.h /usr/include/iconv.h include/libxml/xmlIO.h \
  include/libxml/SAX.h include/libxml/xlink.h include/libxml/SAX2.h \
  include/libxml/parserInternals.h include/libxml/HTMLparser.h \
  include/libxml/chvalid.h include/libxml/uri.h include/libxml/nanohttp.h \
- include/libxml/nanoftp.h include/libxml/catalog.h buf.h enc.h \
+ include/libxml/nanoftp.h include/libxml/catalog.h buf.h enc.h xzlib.h \
  elfgcchack.h
 
 /usr/include/stdc-predef.h:
@@ -213,6 +222,44 @@ include/libxml/xmlexports.h:
 
 /usr/include/aarch64-linux-gnu/bits/posix2_lim.h:
 
+/usr/include/lzma.h:
+
+/usr/include/inttypes.h:
+
+/usr/lib/gcc/aarch64-linux-gnu/5/include/stdint.h:
+
+/usr/include/stdint.h:
+
+/usr/include/aarch64-linux-gnu/bits/wchar.h:
+
+/usr/include/lzma/version.h:
+
+/usr/include/lzma/base.h:
+
+/usr/include/lzma/vli.h:
+
+/usr/include/lzma/check.h:
+
+/usr/include/lzma/filter.h:
+
+/usr/include/lzma/bcj.h:
+
+/usr/include/lzma/delta.h:
+
+/usr/include/lzma/lzma.h:
+
+/usr/include/lzma/container.h:
+
+/usr/include/lzma/stream_flags.h:
+
+/usr/include/lzma/block.h:
+
+/usr/include/lzma/index.h:
+
+/usr/include/lzma/index_hash.h:
+
+/usr/include/lzma/hardware.h:
+
 include/libxml/xmlmemory.h:
 
 include/libxml/threads.h:
@@ -270,5 +317,7 @@ include/libxml/catalog.h:
 buf.h:
 
 enc.h:
+
+xzlib.h:
 
 elfgcchack.h:

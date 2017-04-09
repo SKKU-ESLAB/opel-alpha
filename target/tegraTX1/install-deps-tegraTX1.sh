@@ -40,12 +40,15 @@ print_progress() {
 # Step 1. Install packages by apt-get
 print_progress 1 "Install dependent packages..."
 sudo apt-get update
-sudo apt-get install g++-4.8 wiringpi libdbus-1-dev glib-2.0 libdbus-glib-1-2 \
+sudo apt-get install g++-4.8 libdbus-1-dev glib-2.0 libdbus-glib-1-2 \
   libdbus-glib-1-2-dbg libdbus-glib-1-dev zip sqlite3 libsqlite3-dev cmake    \
   libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev git  \
   python-dev python-numpy libjpeg-dev libpng-dev libtiff-dev libjasper-dev    \
   libdc1394-22-dev automake libtool libssl-dev libnl-3-dev libnl-genl-3-dev   \
-  python3 udhcpd libv4l-dev
+  python3 udhcpd libv4l-dev libboost-serialization-dev libgstreamer1.0-dev    \
+  libgstreamer-plugins-good1.0-dev libgstreamer-plugins-base1.0-dev           \
+  libgstreamer-plugins-bad1.0-dev gstreamer1.0-plugins-base                   \
+  gstreamer1.0-plugins-good gstreamer1.0-plugins-bad
 
 # Get the absolute path of OPEL repository directory
 OPEL_REPO_DIR=$(dirname "$0")/../..
@@ -61,6 +64,9 @@ cd ${OPEL_REPO_DIR}/dep/bluez-4.101
   --localstatedir=/var --libexecdir=/lib 
 make 
 sudo make install
+# Unmask and restart bleutooth daemon
+sudo systemctl unmask bluetooth
+sudo service bluetooth start
 
 # Step 3. Set udhcpd config
 print_progress 3 "Set udhcpd config..."
@@ -77,6 +83,8 @@ sudo make install
 print_progress 5 "Build and install opencv-3.0.0..."
 cd /usr/include/linux
 sudo ln -s ../libv4l1-videodev.h videodev.h
+sudo ln -s /usr/lib/aarch64-linux-gnu/dbus-1.0/include/dbus/dbus-arch-deps.h /usr/include/dbus-1.0/dbus/
+
 cd ${OPEL_REPO_DIR}/dep/opencv-3.0.0
 mkdir build
 cd build
@@ -96,7 +104,7 @@ sudo make install
 
 # Step 7. Copy dbus config file
 print_progress 7 "Copy dbus config file for OPEL..."
-sudo cp ${OPEL_REPO_DIR}/dep/opel-dbus-config/opel.conf
+sudo cp ${OPEL_REPO_DIR}/dep/opel-dbus-config/opel.conf /etc/dbus-1/system.d/opel.conf
 
 # Step 8. Install wpa_supplicant, wpa_cli and deletesem
 print_progress 8 "Install wpa_supplicant, wpa_cli and deletesem..."
@@ -106,11 +114,11 @@ make
 cd ${OPEL_REPO_DIR}/dep/deletesem
 gcc -o deletesem deletesem.c -lpthread
 
-mkdir -p /usr/bin/opel-deps
+sudo mkdir -p /usr/bin/opel-deps
 sudo cp ${OPEL_REPO_DIR}/dep/hostap/wpa_supplicant/wpa_supplicant /usr/bin/opel-deps/
 sudo cp ${OPEL_REPO_DIR}/dep/hostap/wpa_supplicant/wpa_cli /usr/bin/opel-deps/
 sudo cp ${OPEL_REPO_DIR}/dep/deletesem/deletesem /usr/bin/opel-deps/
-chmod +x /usr/bin/opel-deps/*
+sudo chmod +x /usr/bin/opel-deps/*
 
 # Step 9. Build and install nodejs-4.0.0
 print_progress 9 "Build and install nodejs-4.0.0..."
@@ -120,6 +128,8 @@ cd ${OPEL_REPO_DIR}/dep/nodejs-4.0.0
 ./configure
 make -j4
 sudo make install
+
+sudo npm install -g node-gyp
 
 # Step 10. Install nan package 
 cd ${OPEL_REPO_DIR}
