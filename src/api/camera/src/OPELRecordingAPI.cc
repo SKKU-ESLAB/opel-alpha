@@ -54,6 +54,35 @@ DBusMessage* OPELRecording::sendSensorOverlayDbusMsg(const char* msg,
   return message;
 }
 
+DBusMessage* OPELRecording::sendDelayStreamingDbusMsg(const char* msg,
+    dbusInitDelayRequest *dbus_request)
+{
+  assert(msg != NULL && dbus_request != NULL);
+  DBusMessage* message;
+  message = dbus_message_new_signal(dbus_path, dbus_interface, msg);
+  dbus_message_append_args(message,
+      DBUS_TYPE_UINT64, &(dbus_request->camera_num),
+      DBUS_TYPE_UINT64, &(dbus_request->delay),
+      DBUS_TYPE_INVALID);
+  dbus_connection_send(conn, message, NULL);
+  return message;
+}
+
+DBusMessage* OPELRecording::sendEventRecDbusMsg(const char* msg,
+    dbusEventRecRequest *dbus_request)
+{
+  assert(msg != NULL && dbus_request != NULL);
+  DBusMessage* message;
+  message = dbus_message_new_signal(dbus_path, dbus_interface, msg);
+  dbus_message_append_args(message,
+      DBUS_TYPE_UINT64, &(dbus_request->camera_num),
+      DBUS_TYPE_STRING, &(dbus_request->file_path),
+      DBUS_TYPE_UINT64, &(dbus_request->play_seconds),
+      DBUS_TYPE_INVALID);
+  dbus_connection_send(conn, message, NULL);
+  return message;
+}
+
 void OPELrecordingAsync::Execute()
 {
   assert(this->conn != NULL && this->msg != NULL);
@@ -358,6 +387,125 @@ NAN_METHOD(OPELRecording::sensorOverlayStop)
   dbus_message_unref(message);
 }
 
+NAN_METHOD(OPELRecording::delayStreamingStart)
+{
+  OPELRecording *recObj = Nan::ObjectWrap::Unwrap<OPELRecording>(info.This());
+  DBusMessage* message;
+  std::string ip_address;
+  dbusInitDelayRequest *dbus_request;
+  unsigned camera_num;
+  unsigned delay;
+  if(!info[0]->IsNumber())
+  {
+    Nan::ThrowTypeError("First parameter should be Camera Number");
+    return;
+  }
+  if(!info[1]->IsNumber())
+  {
+    Nan::ThrowTypeError("Second Parameter should be a Delay Time");
+    return;
+  }
+  camera_num = Nan::To<int>(info[0]).FromJust();  
+  delay = Nan::To<int>(info[1]).FromJust();  
+  
+  if(!(recObj->initDbus()))
+  {
+    Nan::ThrowError("D-Bus Initiailization Failed\n");
+    return;
+  }
+  dbus_request = new dbusInitDelayRequest();
+  dbus_request->camera_num = camera_num;
+  dbus_request->delay = delay;
+  message = recObj->sendDelayStreamingDbusMsg(delay_streaming_start_request, dbus_request);
+}
+
+NAN_METHOD(OPELRecording::delayStreamingStop)
+{
+  OPELRecording *recObj = Nan::ObjectWrap::Unwrap<OPELRecording>(info.This());
+  DBusMessage* message;
+  std::string ip_address;
+  dbusInitDelayRequest *dbus_request;
+  unsigned camera_num;
+  if(!info[0]->IsNumber())
+  {
+    Nan::ThrowTypeError("First parameter should be Camera Number");
+    return;
+  }
+  camera_num = Nan::To<int>(info[0]).FromJust();
+  
+  if(!(recObj->initDbus()))
+  {
+    Nan::ThrowError("D-Bus Initiailization Failed\n");
+    return;
+  }
+  dbus_request = new dbusInitDelayRequest();
+  dbus_request->camera_num = camera_num;
+  message = recObj->sendDelayStreamingDbusMsg(delay_streaming_stop_request, dbus_request);
+}
+
+NAN_METHOD(OPELRecording::eventRecStart)
+{
+  OPELRecording *recObj = Nan::ObjectWrap::Unwrap<OPELRecording>(info.This());
+  DBusMessage* message;
+  std::string file_path;
+  dbusEventRecRequest *dbus_request;
+  unsigned camera_num;
+  unsigned play_seconds;
+  if(!info[0]->IsNumber())
+  {
+    Nan::ThrowTypeError("First parameter should be Camera Number");
+    return;
+  }
+  if(!info[1]->IsString())
+  {
+    Nan::ThrowTypeError("Second Parameter Should be File Path");
+    return;
+  }
+  if(!info[2]->IsNumber())
+  {
+    Nan::ThrowTypeError("Third Parameter should be Play Seconds");
+    return;
+  }
+  v8::String::Utf8Value param1(info[1]->ToString());
+  file_path = std::string(*param1);
+  camera_num = Nan::To<int>(info[0]).FromJust();  
+  play_seconds = Nan::To<int>(info[2]).FromJust();  
+  
+  if(!(recObj->initDbus()))
+  {
+    Nan::ThrowError("D-Bus Initiailization Failed\n");
+    return;
+  }
+  dbus_request = new dbusEventRecRequest();
+  dbus_request->camera_num = camera_num;
+  dbus_request->file_path = file_path;
+  dbus_request->play_seconds = play_seconds;
+  message = recObj->sendEventRecDbusMsg(event_rec_start_request, dbus_request);
+}
+
+NAN_METHOD(OPELRecording::eventRecStop)
+{
+  OPELRecording *recObj = Nan::ObjectWrap::Unwrap<OPELRecording>(info.This());
+  DBusMessage* message;
+  dbusEventRecRequest *dbus_request;
+  unsigned camera_num;
+  if(!info[0]->IsNumber())
+  {
+    Nan::ThrowTypeError("First parameter should be Camera Number");
+    return;
+  }
+  camera_num = Nan::To<int>(info[0]).FromJust();  
+  
+  if(!(recObj->initDbus()))
+  {
+    Nan::ThrowError("D-Bus Initiailization Failed\n");
+    return;
+  }
+  dbus_request = new dbusEventRecRequest();
+  dbus_request->camera_num = camera_num;
+  message = recObj->sendEventRecDbusMsg(event_rec_stop_request, dbus_request);
+}
+
 bool OPELRecording::initDbus()
 {
   dbus_error_init(&err);
@@ -392,16 +540,21 @@ NAN_MODULE_INIT(OPELRecording::Init)
   tpl->SetClassName(Nan::New("OPELRecording").ToLocalChecked());
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
-  SetPrototypeMethod(tpl, "RecordingStart", recStart);
-  SetPrototypeMethod(tpl, "RecordingStop", recStop);
+  SetPrototypeMethod(tpl, "recordingStart", recStart);
+  SetPrototypeMethod(tpl, "recordingStop", recStop);
 
-  SetPrototypeMethod(tpl, "SnapshotStart", jpegStart);
+  SetPrototypeMethod(tpl, "snapshot", jpegStart);
 
   SetPrototypeMethod(tpl, "streamingStart", streamingStart);
   SetPrototypeMethod(tpl, "streamingStop", streamingStop);
 
-  SetPrototypeMethod(tpl, "SensorOverlayStart", sensorOverlayStart);
-  SetPrototypeMethod(tpl, "SensorOverlayStop", sensorOverlayStop);
+  SetPrototypeMethod(tpl, "sensorOverlayStart", sensorOverlayStart);
+  SetPrototypeMethod(tpl, "sensorOverlayStop", sensorOverlayStop);
+
+  SetPrototypeMethod(tpl, "delayStreamingStart", delayStreamingStart);
+  SetPrototypeMethod(tpl, "delayStreamingStop", delayStreamingStop);
+  SetPrototypeMethod(tpl, "eventRecStart", eventRecStart);
+  SetPrototypeMethod(tpl, "eventRecStop", eventRecStop);
 
   constructor().Reset(Nan::GetFunction(tpl).ToLocalChecked());
   Nan::Set(target, Nan::New("OPELRecording").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());

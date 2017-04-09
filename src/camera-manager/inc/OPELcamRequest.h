@@ -27,6 +27,11 @@ static const gchar *streaming_stop_request = "streamingStop";
 static const gchar *sensor_overlay_start_request = "sensorOverlayStart";
 static const gchar *sensor_overlay_stop_request = "sensorOverlayStop";
 
+static const gchar *delay_streaming_start_request = "delayStreamingStart";
+static const gchar *delay_streaming_stop_request = "delayStreamingStop";
+static const gchar *event_rec_start_request = "eventRecStart";
+static const gchar *event_rec_stop_request = "eventRecStop";
+
 extern DBusHandlerResult msg_dbus_filter(DBusConnection *conn,
     DBusMessage *msg, void *_type_element_vector);
 
@@ -46,6 +51,7 @@ typedef struct _dbusStreamingRequest {
   unsigned camera_num;
   const char* ip_address;
   unsigned port;
+  unsigned delay;
 } dbusStreamingRequest;
 
 typedef struct _dbusSensorOverlayRequest {
@@ -53,6 +59,17 @@ typedef struct _dbusSensorOverlayRequest {
   const char* sensor_name;
   unsigned pid;
 } dbusSensorOverlayRequest;
+
+typedef struct _dbusInitDelayRequest {
+	unsigned camera_num;
+	unsigned delay;
+} dbusInitDelayRequest;
+
+typedef struct _dbusEventRecRequest {
+	unsigned camera_num;
+	const char* file_path;
+	unsigned play_seconds;
+} dbusEventRecRequest;
 
 void closeFile(FILE *_fout);
 unsigned fileWrite(const char *file_path, char *buffer, unsigned size);

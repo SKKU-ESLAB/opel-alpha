@@ -307,23 +307,27 @@ static OPELRequestTx1 *snapshotInit(std::vector<typeElement*> *_type_element_v,
   request_handle->defaultJpegElementFactory(request_handle->getMsgHandle()->file_path);
   _fly_type_element_v = request_handle->getFlyTypeElementVector();
 
-  typeElement *tee = findByElementName(_type_element_v, "tee");
+  //typeElement *tee = findByElementName(_type_element_v, "tee");
+  GstElement *raw_tee = tx1->getRawTee();
   typeElement *queue = findByElementName(_fly_type_element_v, "queue");
 
   if(!tee || !queue)
+  if(!raw_tee || !queue)
   {
     OPEL_DBG_ERR("Get TypeElement Pointer is NULL"); 
     __OPEL_FUNCTION_EXIT__;
     return NULL;
   }
 
-  templ = gst_element_class_get_pad_template(GST_ELEMENT_GET_CLASS(tee->element), "src_%u");
-  src_pad = gst_element_request_pad(tee->element, templ, NULL, NULL);
-
+  //templ = gst_element_class_get_pad_template(GST_ELEMENT_GET_CLASS(tee->element), "src_%u");
+  //src_pad = gst_element_request_pad(tee->element, templ, NULL, NULL);
+  templ = gst_element_class_get_pad_template(GST_ELEMENT_GET_CLASS(raw_tee), "src_%u");
+  src_pad = gst_element_request_pad(raw_tee, templ, NULL, NULL);
+  
   request_handle->setSrcPad(src_pad);
 
-  OPEL_DBG_VERB("Obtained request pad %s for %s", gst_pad_get_name(templ),
-      tee->name->c_str());
+  //OPEL_DBG_VERB("Obtained request pad %s for %s", gst_pad_get_name(templ),
+  //    tee->name->c_str());
 
   request_handle->defaultJpegCapFactory();
   request_handle->defaultJpegElementPipelineAdd(pipeline);
@@ -361,32 +365,41 @@ static OPELRequestTx1 *recordingInit(std::vector<typeElement*> *_type_element_v,
   request_handle->defaultRecordingElementFactory(request_handle->getMsgHandle()->file_path);
   _fly_type_element_v = request_handle->getFlyTypeElementVector();
 
-  typeElement *tee = findByElementName(_type_element_v, "tee");
+  //typeElement *tee = findByElementName(_type_element_v, "tee");
+  GstElement *h264_tee = tx1->getH264Tee();
   typeElement *queue = findByElementName(_fly_type_element_v, "queue");
 
-  if(!tee || !queue)
+  //if(!tee || !queue)
+  if(!h264_tee || !queue)
   {
     OPEL_DBG_ERR("Get TypeElement Pointer is NULL");
     __OPEL_FUNCTION_EXIT__;
     return NULL;
   }
 
-  templ = gst_element_class_get_pad_template(GST_ELEMENT_GET_CLASS(tee->element), "src_%u");
-  src_pad = gst_element_request_pad(tee->element, templ, NULL, NULL);
-
+  //templ = gst_element_class_get_pad_template(GST_ELEMENT_GET_CLASS(tee->element), "src_%u");
+  //src_pad = gst_element_request_pad(tee->element, templ, NULL, NULL);
+  templ = gst_element_class_get_pad_template(GST_ELEMENT_GET_CLASS(h264_tee), "src_%u");
+  src_pad = gst_element_request_pad(h264_tee, templ, NULL, NULL);
+  
   request_handle->setSrcPad(src_pad);
 
   OPEL_DBG_LOG("Obtained request pad %s for %s", gst_pad_get_name(templ),
-      tee->name->c_str());
+      "tee");
 
   request_handle->defaultRecordingCapFactory();
   request_handle->defaultRecordingPipelineAdd(pipeline);
 
 
-  // OPEL_DBG_LOG(gst_element_get_name(GST_ELEMENT_PARENT(tee->element)));
-  // OPEL_DBG_LOG(gst_element_get_name(GST_ELEMENT_PARENT(queue->element)));
+  OPEL_DBG_LOG(gst_element_get_name(h264_tee));
+  OPEL_DBG_LOG(gst_element_get_name(queue->element));
 
   queue->pad = gst_element_get_static_pad(queue->element, "sink");
+  
+  OPEL_DBG_LOG("%" GST_PTR_FORMAT, gst_pad_get_allowed_caps(src_pad));
+OPEL_DBG_LOG("%", GST_PTR_FORMAT, gst_pad_get_allowed_caps(queue->pad));
+
+  
   GstPadLinkReturn ret;
   ret = gst_pad_link(request_handle->getSrcPad(), queue->pad);
   if (ret != GST_PAD_LINK_OK)
@@ -706,6 +719,174 @@ static DBusHandlerResult sensorOverlayStop(DBusConnection *conn, DBusMessage *ms
   return DBUS_HANDLER_RESULT_HANDLED;
 }
 
+static DBusHandlerResult delayStreamingStart(DBusConnection *conn, DBusMessage *msg)
+{
+	__OPEL_FUNCTION_ENTER__;
+	OPELGstElementTx1 *tx1;
+
+	OPEL_DBG_LOG("Get Delay Streaming Start Request");
+	dbusInitDelayRequest *msg_handle = (dbusInitDelayRequest*)malloc(sizeof(dbusInitDelayRequest));
+
+	dbus_message_get_args(msg, NULL,
+			DBUS_TYPE_UINT64, &(msg_handle->camera_num),
+			DBUS_TYPE_UINT64, &(msg_handle->delay),
+			DBUS_TYPE_INVALID);
+
+	OPEL_DBG_VERB("Camera Number : %u", msg_handle->camera_num);
+	OPEL_DBG_VERB("Delay : %u", msg_handle->delay);
+
+	tx1 = OPELGstElementTx1::getOPELGstElementTx1(msg_handle->camera_num);
+	tx1->setDelay(msg_handle->delay);
+	OPELH264Streaming *request_handle = tx1->getDelayRequest();
+
+	dbusStreamingRequest *stream_msg_handle = (dbusStreamingRequest*)malloc(sizeof(dbusStreamingRequest));
+	stream_msg_handle->camera_num = msg_handle->camera_num;
+	stream_msg_handle->ip_address = "127.0.0.1";
+	stream_msg_handle->port = msg_handle->camera_num + 3000;	// TODO
+	stream_msg_handle->delay = msg_handle->delay;
+
+	request_handle->setStreamingRequest(stream_msg_handle);
+	request_handle->setOPELGstElementTx1(tx1);
+
+  if(request_handle->getIsStreamingRun())
+  {
+    OPEL_DBG_VERB("Already Streaming Service is Running");
+    return DBUS_HANDLER_RESULT_HANDLED;
+  }
+  else
+  {
+    OPEL_DBG_VERB("Start Streaming Service");
+    request_handle->setIsStreamingRun(true);
+    streamingStart(tx1->getTypeElementVector(), request_handle);
+  }
+	
+	__OPEL_FUNCTION_EXIT__;
+	return DBUS_HANDLER_RESULT_HANDLED;
+}
+
+static DBusHandlerResult delayStreamingStop(DBusConnection *conn, DBusMessage *msg)
+{
+	__OPEL_FUNCTION_ENTER__;
+  OPEL_DBG_WARN("Get Delay Streaming Stop Request");
+  OPELGstElementTx1 *tx1;
+  dbusStreamingRequest *msg_handle = new dbusStreamingRequest;
+  dbus_message_get_args(msg, NULL,
+      DBUS_TYPE_UINT64, &(msg_handle->camera_num),
+      DBUS_TYPE_INVALID);
+  
+  OPEL_DBG_VERB("Camera Number : %d", msg_handle->camera_num);
+  
+  tx1 = OPELGstElementTx1::getOPELGstElementTx1(msg_handle->camera_num);
+  
+  OPELH264Streaming *request_handle = tx1->getDelayRequest();
+  request_handle->setStreamingRequest(msg_handle);
+  //// HAYUN: TODO:
+  request_handle->setOPELGstElementTx1(tx1);
+  if(request_handle->getIsStreamingRun())
+  {
+    OPEL_DBG_VERB("Stop the Streaming Service");
+    // unlink them
+    request_handle->detachedStreaming();
+    request_handle->setIsStreamingRun(false);
+  }
+  else
+  {
+    OPEL_DBG_VERB("Already Stop the Streaming Service");
+    return DBUS_HANDLER_RESULT_HANDLED;
+  }
+
+	__OPEL_FUNCTION_EXIT__;
+	return DBUS_HANDLER_RESULT_HANDLED;
+}
+
+
+static GstPadProbeReturn event_rec_probe_cb(GstPad *pad, GstPadProbeInfo *info,
+    gpointer user_data)
+{
+  assert(user_data != NULL);
+  __OPEL_FUNCTION_ENTER__;
+  OPELEventRecRequest *event_rec_request = (OPELEventRecRequest*)user_data;
+	std::vector<GstElement*> *element_vector = event_rec_request->getElementVector();
+  GstElement *pipeline = event_rec_request->getPipeline();
+
+  gst_pad_remove_probe(pad, GST_PAD_PROBE_INFO_ID(info));
+
+  gst_element_set_state(pipeline, GST_STATE_NULL);
+  //gst_bin_remove_many(GST_BIN(pipeline), (*element_vector)[0], (*element_vector)[1],
+  //    (*element_vector)[2], (*element_vector)[3], (*element_vector)[4], (*element_vector)[5], NULL);
+  gst_object_unref(pipeline);
+  delete element_vector;
+  delete event_rec_request;
+
+  __OPEL_FUNCTION_EXIT__;
+  return GST_PAD_PROBE_OK;
+}
+
+
+gboolean eventRecRequestCallback(gpointer _event_rec_request)
+{
+  assert(_event_rec_request != NULL);
+  __OPEL_FUNCTION_ENTER__;
+	OPELEventRecRequest *event_rec_request = (OPELEventRecRequest*)_event_rec_request;
+	std::vector<GstElement*> *element_vector = event_rec_request->getElementVector();
+	GstPad *sinkpad = gst_element_get_static_pad((*element_vector)[1], "sink");
+  GstElement *pipeline = event_rec_request->getPipeline();
+
+	//gst_pad_add_probe(sinkpad, GST_PAD_PROBE_TYPE_BLOCK_DOWNSTREAM,
+	//		event_rec_probe_cb, (void*)event_rec_request, NULL);
+
+  gst_pad_send_event(sinkpad, gst_event_new_eos());
+  gst_object_unref(sinkpad);
+
+	__OPEL_FUNCTION_EXIT__;
+  return false;
+}
+
+
+static DBusHandlerResult eventRecStart(DBusConnection *conn, DBusMessage *msg)
+{
+	__OPEL_FUNCTION_ENTER__;
+	OPELGstElementTx1 *tx1;
+	const char* file_path;
+
+	OPEL_DBG_LOG("Get Recording Start with Delay Request");
+	dbusEventRecRequest *msg_handle = (dbusEventRecRequest*)malloc(sizeof(dbusEventRecRequest));
+
+	dbus_message_get_args(msg, NULL,
+			DBUS_TYPE_UINT64, &(msg_handle->camera_num),
+			DBUS_TYPE_STRING, &file_path,
+			DBUS_TYPE_UINT64, &(msg_handle->play_seconds),
+			DBUS_TYPE_INVALID);
+	msg_handle->file_path = file_path;
+	
+	OPEL_DBG_VERB("Camera Number : %u", msg_handle->camera_num);
+	OPEL_DBG_VERB("File Path : %s", msg_handle->file_path);
+	OPEL_DBG_VERB("Playing Time : %usec", msg_handle->play_seconds);
+	
+	tx1 = OPELGstElementTx1::getOPELGstElementTx1(msg_handle->camera_num);
+
+  OPELEventRecRequest *request_handle = new OPELEventRecRequest(msg_handle->camera_num+3000,
+      msg_handle->file_path, msg_handle->play_seconds);
+  
+  request_handle->pipelineMake();
+
+	gst_element_set_state(request_handle->getPipeline(), GST_STATE_READY);
+	gst_element_set_state(request_handle->getPipeline(), GST_STATE_PLAYING);
+
+	g_timeout_add_seconds(request_handle->getPlaySeconds(), eventRecRequestCallback,(void*)request_handle); 
+  
+	__OPEL_FUNCTION_EXIT__;
+	return DBUS_HANDLER_RESULT_HANDLED;
+}
+
+static DBusHandlerResult eventRecStop(DBusConnection *conn, DBusMessage *msg)
+{
+	__OPEL_FUNCTION_ENTER__;
+
+	__OPEL_FUNCTION_EXIT__;
+	return DBUS_HANDLER_RESULT_HANDLED;
+}
+
 DBusHandlerResult msg_dbus_filter(DBusConnection *conn, 
     DBusMessage *msg, void *_type_element_vector)
 {
@@ -713,8 +894,6 @@ DBusHandlerResult msg_dbus_filter(DBusConnection *conn,
 
   bool ret;
 
-
-        
   if(dbus_message_is_signal(msg, dbus_interface, rec_start_request))
     return recStart(conn, msg);
   else if(dbus_message_is_signal(msg, dbus_interface, rec_stop_request))
@@ -773,11 +952,13 @@ DBusHandlerResult msg_dbus_filter(DBusConnection *conn,
     OPEL_DBG_VERB("Camera Number : %d", msg_handle->camera_num);
     OPEL_DBG_VERB("IP Address : %s", msg_handle->ip_address);
     OPEL_DBG_VERB("Port Number : %d", msg_handle->port);
+    msg_handle->delay = 0;
 
     tx1 = OPELGstElementTx1::getOPELGstElementTx1(msg_handle->camera_num);
 
     ////OPELH264Streaming *request_handle = new OPELH264Streaming();
-    OPELH264Streaming *request_handle = OPELH264Streaming::getInstance();
+    //OPELH264Streaming *request_handle = OPELH264Streaming::getInstance();
+		OPELH264Streaming *request_handle = tx1->getStreamingRequest();
     request_handle->setStreamingRequest(msg_handle);
     //// HAYUN: TODO:
     request_handle->setOPELGstElementTx1(tx1);
@@ -799,7 +980,20 @@ DBusHandlerResult msg_dbus_filter(DBusConnection *conn,
   {
     OPEL_DBG_WARN("Get Streaming Stop Request");
     OPELGstElementTx1 *tx1;
-    OPELH264Streaming *request_handle = OPELH264Streaming::getInstance();
+    dbusStreamingRequest *msg_handle = new dbusStreamingRequest;
+    dbus_message_get_args(msg, NULL,
+        DBUS_TYPE_UINT64, &(msg_handle->camera_num),
+        DBUS_TYPE_INVALID);
+
+    OPEL_DBG_VERB("Camera Number : %d", msg_handle->camera_num);
+
+    tx1 = OPELGstElementTx1::getOPELGstElementTx1(msg_handle->camera_num);
+
+    //OPELH264Streaming *request_handle = OPELH264Streaming::getInstance();
+		OPELH264Streaming *request_handle = tx1->getStreamingRequest();
+    request_handle->setStreamingRequest(msg_handle);
+    //// HAYUN: TODO:
+    request_handle->setOPELGstElementTx1(tx1);
     if(request_handle->getIsStreamingRun())
     {
       OPEL_DBG_VERB("Stop the Streaming Service");
@@ -817,6 +1011,14 @@ DBusHandlerResult msg_dbus_filter(DBusConnection *conn,
     return sensorOverlayStart(conn, msg);
   else if(dbus_message_is_signal(msg, dbus_interface, sensor_overlay_stop_request))
     return sensorOverlayStop(conn, msg);
+	else if(dbus_message_is_signal(msg, dbus_interface, delay_streaming_start_request))
+		return delayStreamingStart(conn, msg);
+	else if(dbus_message_is_signal(msg, dbus_interface, delay_streaming_stop_request))
+		return delayStreamingStop(conn, msg);
+	else if(dbus_message_is_signal(msg, dbus_interface, event_rec_start_request))
+		return eventRecStart(conn, msg);
+	else if(dbus_message_is_signal(msg, dbus_interface, event_rec_stop_request))
+		return eventRecStop(conn, msg);
 
   __OPEL_FUNCTION_EXIT__;
   return DBUS_HANDLER_RESULT_HANDLED;
