@@ -3,7 +3,7 @@
 <boost_serialization signature="serialization::archive" version="14">
 <OPEL_TX1_Element_Property class_id="0" tracking_level="0" version="0">
 	<element_vector class_id="1" tracking_level="0" version="0">
-		<count>13</count>
+		<count>14</count>
 		<item_version>0</item_version>
 		<item class_id="2" tracking_level="1" version="0" object_id="_0">
 			<element_name>nvcamerasrc</element_name>
@@ -167,6 +167,12 @@
 				<wait-on-eos>1</wait-on-eos>
 			</element_property>
 		</item>
+    <item class_id_reference="2" object_id="_13">
+      <element_name>h264parse</element_name>
+      <element_nickname>h264parse</element_nickname>
+      <element_type>7</element_type>
+      <element_sub_type>10</element_sub_type>
+    </item>
 	</element_vector>
 </OPEL_TX1_Element_Property>
 </boost_serialization>

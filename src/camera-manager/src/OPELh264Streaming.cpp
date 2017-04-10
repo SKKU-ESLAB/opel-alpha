@@ -139,12 +139,9 @@ bool OPELH264Streaming::defaultStreamingFactory(void)
   (*this->_v_fly_type_element)[4] = _gdppay;
   //(*this->_v_fly_type_element)[6] = _new_udp_sink;  // FIXME: above 3 elements have no nickname -> occur ERROR!
                                                       //          when using findByElementNickname()
-OPEL_DBG_LOG("HAYUN");
   gstElementFactory(this->_v_fly_type_element);
-  OPEL_DBG_LOG("HAYUN");
 
   h264StreamingPropSetting(this->_v_fly_type_element, this->streaming_handle);
-  OPEL_DBG_LOG("HAYUN");
 
   __OPEL_FUNCTION_EXIT__;
   return true;
@@ -363,6 +360,7 @@ bool streamingStart(std::vector<typeElement*> *_type_element_v,
   src_pad = gst_element_request_pad(h264_tee, templ, NULL, NULL);
   
   request_handle->setSrcPad(src_pad);
+  request_handle->setSrcTee(h264_tee);
 
   //#if OPEL_LOG_VERBOSE
   //OPEL_DBG_VERB("Obtained request pad %s for %s", gst_pad_get_name(templ),
@@ -404,6 +402,7 @@ static GstPadProbeReturn detachStreamingCB(GstPad *pad, GstPadProbeInfo *info,
   std::vector<typeElement*> *v_fly_type_elements =
     request_handle->getFlyTypeElementVector();
 
+/*
   typeElement *_tee = findByElementName(_v_type_element,
       "tee");
   if(!_tee)
@@ -411,6 +410,7 @@ static GstPadProbeReturn detachStreamingCB(GstPad *pad, GstPadProbeInfo *info,
     OPEL_DBG_ERR("tee is NULL");
     return GST_PAD_PROBE_OK;
   }
+*/
   for(int i=0; i<OPEL_NUM_DEFAULT_STREAMING_ELE; i++)
   {
     std::cout << "Removed Elements : " << (*v_fly_type_elements)[i]->name->c_str()
@@ -419,7 +419,7 @@ static GstPadProbeReturn detachStreamingCB(GstPad *pad, GstPadProbeInfo *info,
     gst_bin_remove(GST_BIN(tx1->getPipeline()), (*v_fly_type_elements)[i]->element);
     delete (*v_fly_type_elements)[i];
   }
-  gst_element_release_request_pad(_tee->element,
+  gst_element_release_request_pad(request_handle->getSrcTee(),
       request_handle->getSrcPad());
 
   request_handle->setIsStreamingRun(false);

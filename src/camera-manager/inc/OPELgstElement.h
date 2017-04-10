@@ -92,6 +92,10 @@ class OPELRequest {
     { this->src_pad = _src_pad; }
     GstPad* getSrcPad(void) const
     { return this->src_pad; }
+    void setSrcTee(GstElement *_src_tee)
+    { this->src_tee = _src_tee; }
+    GstElement* getSrcTee(void) const
+    { return this->src_tee; }
 
     dbusRequest *getMsgHandle(void) const
     { return this->msg_handle; }
@@ -126,6 +130,7 @@ class OPELRequest {
     std::vector<typeElement*> *_v_type_element;
     std::vector<typeElement*> *_v_fly_type_element;
     GstPad *src_pad;
+    GstElement *src_tee;
     GstPadTemplate *src_templ;
     dbusRequest *msg_handle;
     dbusStreamingRequest *streaming_handle;

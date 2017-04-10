@@ -569,89 +569,57 @@ bool OPELRequestTx1::defaultRecordingPipelineAdd(GstElement *pipeline)
       "queue"); 
   //typeElement *_enc = findByElementNickname(this->_v_fly_type_element, 
   //    "h264enc");
-  typeElement *_parse = NULL;
+  typeElement *_parse = findByElementName(this->_v_fly_type_element,
+      "h264parse");
   typeElement *_mux = findByElementNickname(this->_v_fly_type_element, 
       "mp4mux"); 
   typeElement *_sink = findByElementNicknameNSubType(this->_v_fly_type_element,
       "filesink", kREC_SINK); 
 
   //if(!_tee || !_queue || !_enc || !_mux || !_sink)
-  if(!_tee || !_queue || !_mux || !_sink)
+  if(!_tee || !_queue || !_parse || !_mux || !_sink)
   {
     OPEL_DBG_ERR("Get TypeElement Pointer is NULL");
     __OPEL_FUNCTION_EXIT__;
     return false;
   }
 
-  switch(g_target_type){
-    case TX1:
-      GstElement *parse;
-      OPEL_GST_ELEMENT_FACTORY_MAKE(parse,"h264parse",NULL);
-      //gst_bin_add_many(GST_BIN(pipeline), _queue->element, _enc->element,
-      gst_bin_add_many(GST_BIN(pipeline), _queue->element, parse,
-          _mux->element, _sink->element, NULL);
-      ret = gst_element_link_many(_queue->element, parse, _mux->element,
-          _sink->element, NULL);
-      if(!ret)
-      {
-        OPEL_DBG_ERR("Gst Element Link Many Failed");
-        __OPEL_FUNCTION_EXIT__;  
-        return ret;
-      }
-      
-      /*
-      ret = gst_element_link_many(_queue->element, _enc->element, NULL);
-      if(!ret)
-      {
-        OPEL_DBG_ERR("Gst Element Link Many Failed");
-        __OPEL_FUNCTION_EXIT__;  
-        return ret;
-      }
-
-      ret = gst_element_link_filtered(_enc->element, _mux->element, _enc->caps);
-      if(!ret)
-      {
-        OPEL_DBG_ERR("Gst Element Link Filtered Failed");
-        __OPEL_FUNCTION_EXIT__;  
-        return ret;
-      }
-
-      ret = gst_element_link(_mux->element, _sink->element); 
-      if(!ret)
-      {
-        OPEL_DBG_ERR("Gst Element Link Failed");
-        __OPEL_FUNCTION_EXIT__;  
-        return ret;
-      }
-      */
-      break;
-    case RPI2_3:
-      _parse = findByElementName(this->_v_fly_type_element, "h264parse");
-      if(!_parse)
-      {
-        OPEL_DBG_ERR("Get TypeElement Pointer is NULL");
-        __OPEL_FUNCTION_EXIT__;
-        return false;
-      }
-      
-      //gst_bin_add_many(GST_BIN(pipeline), _queue->element, _enc->element,
-      gst_bin_add_many(GST_BIN(pipeline), _queue->element,
-          _parse->element, _mux->element, _sink->element, NULL);
-      //ret = gst_element_link_many(_queue->element, _enc->element,
-      ret = gst_element_link_many(_queue->element,
-          _parse->element, _mux->element, _sink->element, NULL);
-      if(!ret)
-      {
-        OPEL_DBG_ERR("Gst Element Link Many Failed");
-        __OPEL_FUNCTION_EXIT__;  
-        return ret;
-      }
-      break;
-    default:
-      OPEL_DBG_ERR("Target Type is not valid");
-      __OPEL_FUNCTION_EXIT__;  
-      return false;
+  gst_bin_add_many(GST_BIN(pipeline), _queue->element, _parse->element,
+      _mux->element, _sink->element, NULL);
+  ret = gst_element_link_many(_queue->element, _parse->element, _mux->element,
+      _sink->element, NULL);
+  if(!ret)
+  {
+    OPEL_DBG_ERR("Gst Element Link Many Failed");
+    __OPEL_FUNCTION_EXIT__;  
+    return ret;
   }
+  
+  /*
+  ret = gst_element_link_many(_queue->element, _enc->element, NULL);
+  if(!ret)
+  {
+    OPEL_DBG_ERR("Gst Element Link Many Failed");
+    __OPEL_FUNCTION_EXIT__;  
+    return ret;
+  }
+
+  ret = gst_element_link_filtered(_enc->element, _mux->element, _enc->caps);
+  if(!ret)
+  {
+    OPEL_DBG_ERR("Gst Element Link Filtered Failed");
+    __OPEL_FUNCTION_EXIT__;  
+    return ret;
+  }
+
+  ret = gst_element_link(_mux->element, _sink->element); 
+  if(!ret)
+  {
+    OPEL_DBG_ERR("Gst Element Link Failed");
+    __OPEL_FUNCTION_EXIT__;  
+    return ret;
+  }
+  */
 
   __OPEL_FUNCTION_EXIT__;
   return ret;
@@ -689,28 +657,28 @@ bool gstElementFactory(std::vector<typeElement*>
 
   return true;
 }
+
 bool OPELRequestTx1::defaultRecordingElementFactory(const char *file_path)
 {
   assert(this->_v_type_element != NULL && this->_v_fly_type_element != NULL);
   __OPEL_FUNCTION_ENTER__;
   
   this->num_iter = OPEL_NUM_DEFAULT_RECORDING_ELE;
-  if(g_target_type == RPI2_3)
-    this->num_iter += 1;
 
 #if OPEL_LOG_VERBOSE
   std::cout << "File Path : " << file_path << std::endl;
 #endif
 
   std::vector<typeElement*> _v_original_element(OPEL_NUM_DEFAULT_RECORDING_ELE);
-  typeElement *_queue = findByElementName(this->_v_type_element, "queue"); 
+  typeElement *_queue = findByElementName(this->_v_type_element, "queue");
   //typeElement *_enc = findByElementNickname(this->_v_type_element, "h264enc");
+  typeElement *_parse = findByElementName(this->_v_type_element, "h264parse");
   typeElement *_mux = findByElementNickname(this->_v_type_element, "mp4mux");
   typeElement *_sink = findByElementNicknameNSubType(this->_v_type_element,
-      "filesink", kREC_SINK); 
+      "filesink", kREC_SINK);
 
   //if(!_queue || !_enc || !_mux || !_sink)
-  if(!_queue || !_mux || !_sink)
+  if(!_queue || !_parse || !_mux || !_sink)
   {
     OPEL_DBG_ERR("Get TypeElement Pointer is NULL");
     __OPEL_FUNCTION_EXIT__;
@@ -721,8 +689,9 @@ bool OPELRequestTx1::defaultRecordingElementFactory(const char *file_path)
 
   _v_original_element[0] = _queue;
   //_v_original_element[1] = _enc;
-  _v_original_element[1] = _mux;
-  _v_original_element[2] = _sink;
+  _v_original_element[1] = _parse;
+  _v_original_element[2] = _mux;
+  _v_original_element[3] = _sink;
   //On The Fly Element
 
   for(int i=0; i<OPEL_NUM_DEFAULT_RECORDING_ELE; i++)
@@ -733,7 +702,7 @@ bool OPELRequestTx1::defaultRecordingElementFactory(const char *file_path)
     this->_v_fly_type_element->push_back(tmp);
     tmp = NULL;
   }
-
+/*
   if(g_target_type == RPI2_3)
   {
     typeElement *_parse = findByElementName(this->_v_type_element, "h264parse");
@@ -750,7 +719,7 @@ bool OPELRequestTx1::defaultRecordingElementFactory(const char *file_path)
     this->_v_fly_type_element->push_back(tmp);
     tmp = NULL;
   }
-
+*/
   gstElementFactory(this->_v_fly_type_element);
 
   gstElementPropFactory(this->_v_fly_type_element);
