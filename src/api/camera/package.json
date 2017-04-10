@@ -1,0 +1,15 @@
+{
+  "name": "OPELRecording",
+  "version": "0.0.1",
+  "description": "OPELRecording API Set Test",
+  "main": "OPELRecording.js",
+  "private": true,
+  "dependencies": {
+    "bindings": "~1.2.1",
+    "nan": "^2.0.0"
+  },
+  "scripts": {
+    "test": "node OPELRecording.js"
+  },
+  "gypfile": true
+}

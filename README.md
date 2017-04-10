@@ -3,6 +3,7 @@
 # OPEL: Open Platform Event Logger (Alpha Version)
 ## Quick Start
 ### How to Get the Source Code
+
 ```
 $ git clone https://github.com/sinban04/opel-alpha
 $ cd opel-alpha
@@ -44,6 +45,7 @@ You need to copy it to the OPEL sensor driver code directory
 ```
 $ cp libsensors.so ${OPEL_DIR}/out/sensor-drivers/
 $ cp sensor_config.json ${OPEL_DIR}/out/sensor-drivers/
+
 ```
 
 ### How to Install Prerequisites
@@ -71,7 +73,6 @@ $ sudo ./scripts/install.sh --target=tegraTX1
 ```
 
 You need target profile on ```target/TARGET_NAME/profile.env``` before running install script.
-
 
 ## Documentation
 * [Getting Started](https://github.com/sinban04/opel-alpha/wiki/Getting-Started)
