@@ -28,7 +28,7 @@ setInterval(function(){
 				cnt++;
         var opel_data_dir = process.env.OPEL_DATA_DIR;
 				var fileName = opel_data_dir + '/quickCam' + cnt + '.jpeg';
-				recordingObj.SnapshotStart(0, fileName);
+				recordingObj.snapshot(0, fileName);
 				var notiPage = appApi.makeEventPage("Snapshot Saved");
 				notiPage = appApi.addEventText(notiPage, "Quick Cam Snapshot");
 				notiPage = appApi.addEventImg(notiPage, fileName);
