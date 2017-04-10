@@ -105,13 +105,16 @@ void checkRemainRequest(void)
     OPELGstElementTx1 *tx1 = OPELGstElementTx1::getOPELGstElementTx1(camera_num);
     OPELGlobalVectorRequest *v_global_request = tx1->getGlobalVectorRequest();
 
-    if(v_global_request->isVectorEntryEmpty()){
-      OPEL_DBG_VERB("Request is Empty Set is Playing false");
-      tx1->setIsPlaying(false);
-    }
-    else{
+    if(!v_global_request->isVectorEntryEmpty() ||
+        tx1->getStreamingRequest()->getIsStreamingRun() ||
+        tx1->getDelayRequest()->getIsStreamingRun()){
       OPEL_DBG_VERB("Request is not Empty Set playing true");
       tx1->setIsPlaying(true);
+    }
+
+    else{
+      OPEL_DBG_VERB("Request is Empty Set is Playing false");
+      tx1->setIsPlaying(false);
     }
   }
 
@@ -188,8 +191,6 @@ static GstPadProbeReturn event_probe_cb(GstPad *pad, GstPadProbeInfo *info,
   */
   gst_pad_remove_probe(pad, GST_PAD_PROBE_INFO_ID(info));
 
-  ////pipeline = (OPELGstElementTx1::getInstance())->getPipeline();
-  ////pipeline = OPELGstElement::getPipeline();
   request_elements = (OPELRequestTx1*)user_data;
 
   pipeline = request_elements->getOPELGstElementTx1()->getPipeline();
@@ -197,14 +198,14 @@ static GstPadProbeReturn event_probe_cb(GstPad *pad, GstPadProbeInfo *info,
   std::vector<typeElement*> *v_fly_type_elements =
       request_elements->getFlyTypeElementVector();
 
-  typeElement *tee = findByElementName(request_elements->getTypeElementVector(),
-      "tee");
+  //typeElement *tee = findByElementName(request_elements->getTypeElementVector(),
+  //    "tee");
   typeElement *queue = findByElementName(request_elements->getFlyTypeElementVector(),
       "queue");
 
-  if(!tee || !queue)
+  if(!queue)
   {
-    OPEL_DBG_ERR("Tee & Queue Element is NULL");
+    OPEL_DBG_ERR("Queue Element is NULL");
     return GST_PAD_PROBE_DROP;
   };
 
@@ -217,7 +218,7 @@ static GstPadProbeReturn event_probe_cb(GstPad *pad, GstPadProbeInfo *info,
     gst_bin_remove(GST_BIN(pipeline), (*v_fly_type_elements)[i]->element);
   }
 
-  gst_element_release_request_pad(tee->element, request_elements->getSrcPad());
+  gst_element_release_request_pad(request_elements->getSrcTee(), request_elements->getSrcPad());
   //sendReply(request_elements->getDBusConnection(),
   //    request_elements->getDBusMessage(), true);
 
@@ -311,7 +312,7 @@ static OPELRequestTx1 *snapshotInit(std::vector<typeElement*> *_type_element_v,
   GstElement *raw_tee = tx1->getRawTee();
   typeElement *queue = findByElementName(_fly_type_element_v, "queue");
 
-  if(!tee || !queue)
+  //if(!tee || !queue)
   if(!raw_tee || !queue)
   {
     OPEL_DBG_ERR("Get TypeElement Pointer is NULL"); 
@@ -325,6 +326,7 @@ static OPELRequestTx1 *snapshotInit(std::vector<typeElement*> *_type_element_v,
   src_pad = gst_element_request_pad(raw_tee, templ, NULL, NULL);
   
   request_handle->setSrcPad(src_pad);
+  request_handle->setSrcTee(raw_tee);
 
   //OPEL_DBG_VERB("Obtained request pad %s for %s", gst_pad_get_name(templ),
   //    tee->name->c_str());
@@ -383,6 +385,7 @@ static OPELRequestTx1 *recordingInit(std::vector<typeElement*> *_type_element_v,
   src_pad = gst_element_request_pad(h264_tee, templ, NULL, NULL);
   
   request_handle->setSrcPad(src_pad);
+  request_handle->setSrcTee(h264_tee);
 
   OPEL_DBG_LOG("Obtained request pad %s for %s", gst_pad_get_name(templ),
       "tee");
@@ -418,8 +421,7 @@ static DBusHandlerResult snapshotStart(DBusConnection *conn, DBusMessage *msg)
   int ret;
 
   dbusRequest *msg_handle = (dbusRequest*)malloc(sizeof(dbusRequest));
-  OPELRequestTx1 *request_handle = new OPELRequestTx1(); 
-  //OPELGlobalVectorRequest *v_global_request = OPELGlobalVectorRequest::getInstance();
+  OPELRequestTx1 *request_handle = new OPELRequestTx1();
 
   dbus_message_get_args(msg, NULL,
       DBUS_TYPE_UINT64, &(msg_handle->camera_num),
@@ -445,8 +447,6 @@ static DBusHandlerResult snapshotStart(DBusConnection *conn, DBusMessage *msg)
   request_handle->setDBusMessage(msg);
   request_handle->setOPELGstElementTx1(tx1);
 
-  //request_elements = snapshotInit((std::vector<typeElement*>*)_type_element_vector,
-  //    request_handle);
   request_handle = snapshotInit(tx1->getTypeElementVector(), request_handle);
   if(!request_handle)
   {
@@ -553,7 +553,6 @@ static DBusHandlerResult recStop(DBusConnection *conn, DBusMessage *msg)
   OPEL_DBG_VERB("Get Recording Stop Request");
   OPELGstElementTx1 *tx1;
   unsigned request_pid;
-  //OPELGlobalVectorRequest *v_global_request = OPELGlobalVectorRequest::getInstance();
   //dbus_message_get_args(msg, NULL, DBUS_TYPE_UINT64, &request_pid);
   // FIXME: Just for working (need to receive a camera number) => Maybe fixed? Must Check!!
   unsigned camera_num;
@@ -647,8 +646,6 @@ static DBusHandlerResult recStart(DBusConnection *conn, DBusMessage *msg)
     OPEL_DBG_WARN("Get Recording not started");
     ret = gst_element_set_state(tx1->getPipeline(), GST_STATE_READY);
     ret = gst_element_set_state(tx1->getPipeline(), GST_STATE_PLAYING);
-    ////ret = gst_element_set_state(tx1->getBin(), GST_STATE_READY);
-    ////ret = gst_element_set_state(tx1->getBin(), GST_STATE_PLAYING);
     tx1->setIsPlaying(true);
   }
   else{
