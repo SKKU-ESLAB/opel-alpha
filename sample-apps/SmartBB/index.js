@@ -11,7 +11,7 @@ var opel_data_dir = process.env.OPEL_DATA_DIR;
 faceDetectionApi.faceDetection(count, function(err, numberOfFace) {
   if(numberOfFace > 0) {
     // Face Detection Event Handling
-    var filePath = opel_data_dir + "BB[12345].mp4";
+    var filePath = opel_data_dir + "/BB[12345].mp4";
     var playSeconds = 10;
     var handler = function(err) {
       console.log("Face Detection Event: " + filePath);
@@ -25,6 +25,6 @@ faceDetectionApi.faceDetection(count, function(err, numberOfFace) {
     }
 
     console.log("Start recording...");
-    recObj.RecordingStart(0, filePath, playSeconds, handler);
+    recObj.recordingStart(0, filePath, playSeconds, handler);
   }
 });
