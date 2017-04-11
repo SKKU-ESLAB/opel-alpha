@@ -112,13 +112,11 @@ bool AppStatusManager::runNewApplication(JsonString js, char* _filePath ){
 		char appPath[128] = {'\0',};
 		char dirLastPath[128] = {'\0',};
 
+
 		strncpy(appID, js.findValue("appID").c_str(), 128);
 		strncpy(appName, js.findValue("appName").c_str(), 128);
 
-		strncpy(dirLastPath, js.findValue("appPath").c_str(), 128);
-		getcwd(appPath, 128);
-
-		strncat(appPath, dirLastPath+1, strlen(dirLastPath)-1);
+		strncpy(appPath, js.findValue("dirPath").c_str(), 128);
 
 		printf("[AppStatusManager] Fork & Run App id %s name %s pid %d path %s\n",
         appID, appName, pid, appPath);		
