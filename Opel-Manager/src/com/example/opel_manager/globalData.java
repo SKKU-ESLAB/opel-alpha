@@ -2,7 +2,6 @@ package com.example.opel_manager;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -507,7 +506,8 @@ class global_appList {
 
 	public void removeAllApplicationList(application icon) {
 		for(int i=0; i<allApplicationList.size(); i++){
-			if (allApplicationList.get(i).getAppId().equals(icon.getAppId())){
+			if (allApplicationList.get(i).getAppId()
+					== icon.getAppId()){
 				allApplicationList.remove(i);
 			}
 		}
@@ -523,7 +523,7 @@ class global_appList {
 
 		for (int i = 0; i < allApplicationList.size(); i++) {
 			application tmpApp = allApplicationList.get(i);
-			if (tmpApp.getAppId().equals(appId)) {
+			if (tmpApp.getAppId() == Integer.parseInt(appId)) {
 				return tmpApp;
 			}
 		}
@@ -536,7 +536,7 @@ class global_appList {
 
 class application {
 
-	String appId;
+	int appId;
 	String title;
 
 	Bitmap image;
@@ -547,7 +547,7 @@ class application {
 
 	public application(String appID, String title, Bitmap image, int type) {
 		super();
-		this.appId = appID;
+		this.appId = Integer.parseInt(appID);
 		this.image = image;
 		this.title = title;
 		this.type = type;
@@ -556,11 +556,11 @@ class application {
 		this.jsonStringForTermincation = "N/A";
 	}
 
-	public String getAppId() {
+	public int getAppId() {
 		return appId;
 	}
 
-	public void setAppId(String appId) {
+	public void setAppId(int appId) {
 		this.appId = appId;
 	}
 

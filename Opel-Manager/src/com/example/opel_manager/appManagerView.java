@@ -252,7 +252,8 @@ class appListAdapter extends BaseAdapter implements OnClickListener{
 				continue;
 			}
 			else{
-				arr.add(new ListApp( tmpApp.getAppId(), tmpApp.getTitle(), tmpApp.getImage(),tmpApp.getType())  );
+				arr.add(new ListApp( "" + tmpApp.getAppId(), tmpApp.getTitle(),
+						tmpApp.getImage(),tmpApp.getType())  );
 			}
 		}
 
