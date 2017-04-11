@@ -197,7 +197,7 @@ int main(int argc, char** argv)
   OPELGstElementTx1::InitInstance();
   ////_pipeline = OPELGstElement::getPipeline();
 
-	for (unsigned camera_num=0; camera_num<2; camera_num++) {
+	for (unsigned camera_num=0; camera_num<OPEL_CAMERA_NUM; camera_num++) {
     OPELGstElementTx1 *tx1 = OPELGstElementTx1::getOPELGstElementTx1(camera_num);
     tx1->setElementPropertyVector(v_element_property);
 

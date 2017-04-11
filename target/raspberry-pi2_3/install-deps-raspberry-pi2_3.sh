@@ -125,6 +125,14 @@ cd ${OPEL_REPO_DIR}
 npm install nan
 sudo npm install -g node-gyp
 
+# Step 11. Install Gstreamer RPI camera source element
+cd ${OPEL_REPO_DIR}/dep
+git clone https://github.com/thaytan/gst-rpicamsrc.git
+cd gst-rpicamsrc
+./autogen.sh --prefix=/usr --libdir=/usr/lib/arm-linux-gnueabihf/
+make
+sudo make install
+
 WARN_COLO="\033[31;47m"
 INFO_COLO="\033[36m"
 INIT_COLO="\033[0m"

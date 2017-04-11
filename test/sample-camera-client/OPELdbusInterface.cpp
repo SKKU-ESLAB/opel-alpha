@@ -205,6 +205,7 @@ static void send_stream_start(DBusConnection *conn)
   unsigned camera_num = 0;
   printf("Camera Number : ");
   scanf("%d", &camera_num);
+  port += camera_num;
 
 	dbus_message_append_args(message,
       DBUS_TYPE_UINT64, &camera_num,

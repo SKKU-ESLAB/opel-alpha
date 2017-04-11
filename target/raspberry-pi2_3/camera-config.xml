@@ -6,7 +6,7 @@
 		<count>14</count>
 		<item_version>0</item_version>
 		<item class_id="2" tracking_level="1" version="0" object_id="_0">
-			<element_name>v4l2src</element_name>
+			<element_name>rpicamsrc</element_name>
 			<element_nickname>camerasrc</element_nickname>
 			<element_type>0</element_type>
 			<element_sub_type>0</element_sub_type>
