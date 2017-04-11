@@ -282,6 +282,10 @@ bool OPELGstElementTx1::OPELGstElementCapFactory(void)
         sprintf(caps_buffer, "video/x-raw");
       else
         return false;
+
+      sprintf(caps_buffer, "%s, format=(string){I420}, "
+          "width=(int){%d}, height=(int){%d}", caps_buffer,
+          prop_element->getWidth(), prop_element->getHeight());
       break;
     case RPI2_3:
       sprintf(caps_buffer, "video/x-raw");
@@ -289,9 +293,6 @@ bool OPELGstElementTx1::OPELGstElementCapFactory(void)
     default:
       return false;
   }
-  sprintf(caps_buffer, "%s, format=(string){I420}, "
-      "width=(int){%d}, height=(int){%d}", caps_buffer,
-      prop_element->getWidth(), prop_element->getHeight());
 
   src_element->caps = gst_caps_from_string(caps_buffer);
   if(src_element->caps == NULL)
@@ -319,8 +320,12 @@ bool OPELGstElementTx1::OPELGstElementCapFactory(void)
     return false;
   }
 
+if(g_target_type == TX1) {
   enc_element->caps = gst_caps_new_simple("video/x-h264",
       "stream-format", G_TYPE_STRING, "avc", NULL);
+} else if (g_target_type == RPI2_3) {
+  enc_element->caps = gst_caps_new_simple("video/x-h264",NULL);
+}
   
 #endif /* TARGET_SRC_IS_CAM */
 
@@ -374,8 +379,10 @@ bool OPELGstElementTx1::OPELGstPipelineMake(void)
   typeElement* cam_src;
   if (this->camera_num == 0)
     cam_src = findByElementNickname(this->_type_element_vector, "camerasrc");
-  else if (this->camera_num == 1)
+  else if (this->camera_num == 1) {
     cam_src = findByElementNickname(this->_type_element_vector, "camerasrc2");
+    g_object_set(G_OBJECT(cam_src->element), "device", "/dev/video1", NULL);	// TODO: device name
+  }
   else
     return false;
 
