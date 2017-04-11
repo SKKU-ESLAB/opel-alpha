@@ -427,7 +427,8 @@ public class MainActivity extends Activity implements WifiDirectStateListener {
             //Installed application
             else if (list.allApplicationList.get(position).getType() == 0) {        //Run application if it is not running
 
-                String appID = list.allApplicationList.get(position).getAppId();
+                String appID = "" + list.allApplicationList.get(position)
+                        .getAppId();
                 String appName = list.allApplicationList.get(position).getTitle();
                 globalData.getInstance().getCommManager().requestStart(appID, appName);
             }
@@ -444,7 +445,8 @@ public class MainActivity extends Activity implements WifiDirectStateListener {
 
                     Bundle extras = new Bundle();
                     extras.putString("title", list.allApplicationList.get(position).getTitle());
-                    extras.putString("appID", list.allApplicationList.get(position).getAppId());
+                    extras.putString("appID", "" + list.allApplicationList.get
+                            (position).getAppId());
                     extras.putString("jsonData", list.allApplicationList.get(position).getConfigJson());
 
                     intent.putExtras(extras);
@@ -475,7 +477,9 @@ public class MainActivity extends Activity implements WifiDirectStateListener {
                             public void onClick(DialogInterface dialog, int id) {
                                 // Action for 'Yes' Button
 
-                                globalData.getInstance().getCommManager().requestTermination(list.allApplicationList.get(tmp).getAppId());
+                                globalData.getInstance().getCommManager()
+                                        .requestTermination("" + list
+                                                .allApplicationList.get(tmp).getAppId());
                                 Log.d("OPEL", "Request to kill ");
                             }
                         }).setNegativeButton("No",
