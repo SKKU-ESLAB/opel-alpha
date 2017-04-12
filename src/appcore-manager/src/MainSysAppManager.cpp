@@ -173,6 +173,10 @@ void onCommandUpdateAppInfo(JsonString inJS) {
   }
   js.addItem("IP_ADDR__a", addr);
 
+	char* dataDir;
+	dataDir = getenv("OPEL_DATA_DIR");
+  js.addItem("OPEL_DATA_DIR", dataDir);
+
   printf("[MAIN] 3: %s\n", js.getJsonData().c_str());
 
   cm->responseUpdatePkgList(js.getJsonData().c_str());
