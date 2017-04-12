@@ -1,0 +1,4 @@
+test/test_run_tests-test-poll-closesocket.o: test/test-poll-closesocket.c \
+ /usr/include/stdc-predef.h
+
+/usr/include/stdc-predef.h:
