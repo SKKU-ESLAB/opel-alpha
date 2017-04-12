@@ -29,11 +29,6 @@ public class fileManagerView extends Activity{
 	static ListAdapter_fileManager ca;
 	ArrayList<ListItem_fileManager> arr;
 
-	/////////////////////////////////////////////////////////////
-	// Please edit here before you use this app!
-	final String homePath = "/home/redcarrottt/opel-alpha/data";
-	/////////////////////////////////////////////////////////////
-
 	String curPath;
 
 	protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +52,7 @@ public class fileManagerView extends Activity{
 
 		actionBar.setDisplayUseLogoEnabled(true);
 
-		curPath = homePath;
+		curPath = globalData.getInstance().getOpelDataDir();
 		globalData.getInstance().getCommManager().requestUpdateFileManager(curPath);
 
 		FFmpegNativeHelper.init();

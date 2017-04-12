@@ -105,6 +105,17 @@ public class globalData {
 	public void setOpelStoragePath(File f) {
 		this.opelDirectory = f;
 	}
+
+	private String mOpelDataDir;
+
+	public String getOpelDataDir() {
+		return this.mOpelDataDir;
+	}
+
+	public void setOpelDataDir(String opelDataDir) {
+		this.mOpelDataDir = opelDataDir;
+	}
+
 	public File getOpelStoragePath() {
 		return opelDirectory;
 	}
