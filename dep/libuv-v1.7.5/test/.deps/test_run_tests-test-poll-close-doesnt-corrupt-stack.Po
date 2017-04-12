@@ -1,4 +1,0 @@
-test/test_run_tests-test-poll-close-doesnt-corrupt-stack.o: \
- test/test-poll-close-doesnt-corrupt-stack.c /usr/include/stdc-predef.h
-
-/usr/include/stdc-predef.h:
