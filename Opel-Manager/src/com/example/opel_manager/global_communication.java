@@ -439,6 +439,11 @@ public class global_communication {
                     continue;
                 }
 
+                if (ret[0].equals("OPEL_DATA_DIR")) {
+                    globalData.getInstance().setOpelDataDir(ret[1]);
+                    continue;
+                }
+
                 // [MORE] If the icon img file doesn't exist, need to request to OPEL device
                 Bitmap bitmap = null;
 
