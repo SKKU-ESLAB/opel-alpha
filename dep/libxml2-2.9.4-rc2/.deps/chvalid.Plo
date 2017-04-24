@@ -1,19 +1,18 @@
 chvalid.lo: chvalid.c /usr/include/stdc-predef.h libxml.h config.h \
  include/libxml/xmlversion.h include/libxml/xmlexports.h \
  /usr/include/stdio.h /usr/include/features.h \
- /usr/include/aarch64-linux-gnu/sys/cdefs.h \
- /usr/include/aarch64-linux-gnu/bits/wordsize.h \
- /usr/include/aarch64-linux-gnu/gnu/stubs.h \
- /usr/include/aarch64-linux-gnu/gnu/stubs-lp64.h \
- /usr/lib/gcc/aarch64-linux-gnu/5/include/stddef.h \
- /usr/include/aarch64-linux-gnu/bits/types.h \
- /usr/include/aarch64-linux-gnu/bits/typesizes.h /usr/include/libio.h \
+ /usr/include/arm-linux-gnueabihf/sys/cdefs.h \
+ /usr/include/arm-linux-gnueabihf/bits/wordsize.h \
+ /usr/include/arm-linux-gnueabihf/gnu/stubs.h \
+ /usr/include/arm-linux-gnueabihf/gnu/stubs-hard.h \
+ /usr/lib/gcc/arm-linux-gnueabihf/4.9/include/stddef.h \
+ /usr/include/arm-linux-gnueabihf/bits/types.h \
+ /usr/include/arm-linux-gnueabihf/bits/typesizes.h /usr/include/libio.h \
  /usr/include/_G_config.h /usr/include/wchar.h \
- /usr/lib/gcc/aarch64-linux-gnu/5/include/stdarg.h \
- /usr/include/aarch64-linux-gnu/bits/stdio_lim.h \
- /usr/include/aarch64-linux-gnu/bits/sys_errlist.h \
- /usr/include/aarch64-linux-gnu/bits/stdio.h \
- /usr/include/aarch64-linux-gnu/bits/stdio2.h include/libxml/chvalid.h \
+ /usr/lib/gcc/arm-linux-gnueabihf/4.9/include/stdarg.h \
+ /usr/include/arm-linux-gnueabihf/bits/stdio_lim.h \
+ /usr/include/arm-linux-gnueabihf/bits/sys_errlist.h \
+ /usr/include/arm-linux-gnueabihf/bits/stdio.h include/libxml/chvalid.h \
  include/libxml/xmlstring.h elfgcchack.h
 
 /usr/include/stdc-predef.h:
@@ -30,19 +29,19 @@ include/libxml/xmlexports.h:
 
 /usr/include/features.h:
 
-/usr/include/aarch64-linux-gnu/sys/cdefs.h:
+/usr/include/arm-linux-gnueabihf/sys/cdefs.h:
 
-/usr/include/aarch64-linux-gnu/bits/wordsize.h:
+/usr/include/arm-linux-gnueabihf/bits/wordsize.h:
 
-/usr/include/aarch64-linux-gnu/gnu/stubs.h:
+/usr/include/arm-linux-gnueabihf/gnu/stubs.h:
 
-/usr/include/aarch64-linux-gnu/gnu/stubs-lp64.h:
+/usr/include/arm-linux-gnueabihf/gnu/stubs-hard.h:
 
-/usr/lib/gcc/aarch64-linux-gnu/5/include/stddef.h:
+/usr/lib/gcc/arm-linux-gnueabihf/4.9/include/stddef.h:
 
-/usr/include/aarch64-linux-gnu/bits/types.h:
+/usr/include/arm-linux-gnueabihf/bits/types.h:
 
-/usr/include/aarch64-linux-gnu/bits/typesizes.h:
+/usr/include/arm-linux-gnueabihf/bits/typesizes.h:
 
 /usr/include/libio.h:
 
@@ -50,15 +49,13 @@ include/libxml/xmlexports.h:
 
 /usr/include/wchar.h:
 
-/usr/lib/gcc/aarch64-linux-gnu/5/include/stdarg.h:
+/usr/lib/gcc/arm-linux-gnueabihf/4.9/include/stdarg.h:
 
-/usr/include/aarch64-linux-gnu/bits/stdio_lim.h:
+/usr/include/arm-linux-gnueabihf/bits/stdio_lim.h:
 
-/usr/include/aarch64-linux-gnu/bits/sys_errlist.h:
+/usr/include/arm-linux-gnueabihf/bits/sys_errlist.h:
 
-/usr/include/aarch64-linux-gnu/bits/stdio.h:
-
-/usr/include/aarch64-linux-gnu/bits/stdio2.h:
+/usr/include/arm-linux-gnueabihf/bits/stdio.h:
 
 include/libxml/chvalid.h:
 

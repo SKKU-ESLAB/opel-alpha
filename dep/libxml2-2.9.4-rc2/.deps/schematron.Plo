@@ -1,52 +1,49 @@
 schematron.lo: schematron.c /usr/include/stdc-predef.h libxml.h config.h \
  include/libxml/xmlversion.h include/libxml/xmlexports.h \
  /usr/include/stdio.h /usr/include/features.h \
- /usr/include/aarch64-linux-gnu/sys/cdefs.h \
- /usr/include/aarch64-linux-gnu/bits/wordsize.h \
- /usr/include/aarch64-linux-gnu/gnu/stubs.h \
- /usr/include/aarch64-linux-gnu/gnu/stubs-lp64.h \
- /usr/lib/gcc/aarch64-linux-gnu/5/include/stddef.h \
- /usr/include/aarch64-linux-gnu/bits/types.h \
- /usr/include/aarch64-linux-gnu/bits/typesizes.h /usr/include/libio.h \
+ /usr/include/arm-linux-gnueabihf/sys/cdefs.h \
+ /usr/include/arm-linux-gnueabihf/bits/wordsize.h \
+ /usr/include/arm-linux-gnueabihf/gnu/stubs.h \
+ /usr/include/arm-linux-gnueabihf/gnu/stubs-hard.h \
+ /usr/lib/gcc/arm-linux-gnueabihf/4.9/include/stddef.h \
+ /usr/include/arm-linux-gnueabihf/bits/types.h \
+ /usr/include/arm-linux-gnueabihf/bits/typesizes.h /usr/include/libio.h \
  /usr/include/_G_config.h /usr/include/wchar.h \
- /usr/lib/gcc/aarch64-linux-gnu/5/include/stdarg.h \
- /usr/include/aarch64-linux-gnu/bits/stdio_lim.h \
- /usr/include/aarch64-linux-gnu/bits/sys_errlist.h \
- /usr/include/aarch64-linux-gnu/bits/stdio.h \
- /usr/include/aarch64-linux-gnu/bits/stdio2.h /usr/include/string.h \
- /usr/include/xlocale.h /usr/include/aarch64-linux-gnu/bits/string.h \
- /usr/include/aarch64-linux-gnu/bits/string2.h /usr/include/stdlib.h \
- /usr/include/aarch64-linux-gnu/bits/string3.h include/libxml/parser.h \
- include/libxml/tree.h \
- /usr/lib/gcc/aarch64-linux-gnu/5/include-fixed/limits.h \
- /usr/lib/gcc/aarch64-linux-gnu/5/include-fixed/syslimits.h \
- /usr/include/limits.h /usr/include/aarch64-linux-gnu/bits/posix1_lim.h \
- /usr/include/aarch64-linux-gnu/bits/local_lim.h \
+ /usr/lib/gcc/arm-linux-gnueabihf/4.9/include/stdarg.h \
+ /usr/include/arm-linux-gnueabihf/bits/stdio_lim.h \
+ /usr/include/arm-linux-gnueabihf/bits/sys_errlist.h \
+ /usr/include/arm-linux-gnueabihf/bits/stdio.h /usr/include/string.h \
+ /usr/include/xlocale.h /usr/include/arm-linux-gnueabihf/bits/string.h \
+ /usr/include/arm-linux-gnueabihf/bits/string2.h /usr/include/stdlib.h \
+ include/libxml/parser.h include/libxml/tree.h \
+ /usr/lib/gcc/arm-linux-gnueabihf/4.9/include-fixed/limits.h \
+ /usr/lib/gcc/arm-linux-gnueabihf/4.9/include-fixed/syslimits.h \
+ /usr/include/limits.h /usr/include/arm-linux-gnueabihf/bits/posix1_lim.h \
+ /usr/include/arm-linux-gnueabihf/bits/local_lim.h \
  /usr/include/linux/limits.h \
- /usr/include/aarch64-linux-gnu/bits/posix2_lim.h \
+ /usr/include/arm-linux-gnueabihf/bits/posix2_lim.h \
  include/libxml/xmlstring.h include/libxml/xmlregexp.h \
  include/libxml/dict.h include/libxml/hash.h include/libxml/valid.h \
  include/libxml/xmlerror.h include/libxml/list.h \
  include/libxml/xmlautomata.h include/libxml/entities.h \
  include/libxml/encoding.h /usr/include/iconv.h include/libxml/xmlIO.h \
  include/libxml/globals.h include/libxml/SAX.h \
- /usr/include/aarch64-linux-gnu/bits/waitflags.h \
- /usr/include/aarch64-linux-gnu/bits/waitstatus.h /usr/include/endian.h \
- /usr/include/aarch64-linux-gnu/bits/endian.h \
- /usr/include/aarch64-linux-gnu/bits/byteswap.h \
- /usr/include/aarch64-linux-gnu/bits/byteswap-16.h \
- /usr/include/aarch64-linux-gnu/sys/types.h /usr/include/time.h \
- /usr/include/aarch64-linux-gnu/sys/select.h \
- /usr/include/aarch64-linux-gnu/bits/select.h \
- /usr/include/aarch64-linux-gnu/bits/sigset.h \
- /usr/include/aarch64-linux-gnu/bits/time.h \
- /usr/include/aarch64-linux-gnu/bits/select2.h \
- /usr/include/aarch64-linux-gnu/sys/sysmacros.h \
- /usr/include/aarch64-linux-gnu/bits/pthreadtypes.h /usr/include/alloca.h \
- /usr/include/aarch64-linux-gnu/bits/stdlib-bsearch.h \
- /usr/include/aarch64-linux-gnu/bits/stdlib-float.h \
- /usr/include/aarch64-linux-gnu/bits/stdlib.h include/libxml/xlink.h \
- include/libxml/SAX2.h include/libxml/xmlmemory.h \
+ /usr/include/arm-linux-gnueabihf/bits/waitflags.h \
+ /usr/include/arm-linux-gnueabihf/bits/waitstatus.h /usr/include/endian.h \
+ /usr/include/arm-linux-gnueabihf/bits/endian.h \
+ /usr/include/arm-linux-gnueabihf/bits/byteswap.h \
+ /usr/include/arm-linux-gnueabihf/bits/byteswap-16.h \
+ /usr/include/arm-linux-gnueabihf/sys/types.h /usr/include/time.h \
+ /usr/include/arm-linux-gnueabihf/sys/select.h \
+ /usr/include/arm-linux-gnueabihf/bits/select.h \
+ /usr/include/arm-linux-gnueabihf/bits/sigset.h \
+ /usr/include/arm-linux-gnueabihf/bits/time.h \
+ /usr/include/arm-linux-gnueabihf/sys/sysmacros.h \
+ /usr/include/arm-linux-gnueabihf/bits/pthreadtypes.h \
+ /usr/include/alloca.h \
+ /usr/include/arm-linux-gnueabihf/bits/stdlib-bsearch.h \
+ /usr/include/arm-linux-gnueabihf/bits/stdlib-float.h \
+ include/libxml/xlink.h include/libxml/SAX2.h include/libxml/xmlmemory.h \
  include/libxml/threads.h include/libxml/uri.h include/libxml/xpath.h \
  include/libxml/xpathInternals.h include/libxml/pattern.h \
  include/libxml/schematron.h elfgcchack.h
@@ -65,19 +62,19 @@ include/libxml/xmlexports.h:
 
 /usr/include/features.h:
 
-/usr/include/aarch64-linux-gnu/sys/cdefs.h:
+/usr/include/arm-linux-gnueabihf/sys/cdefs.h:
 
-/usr/include/aarch64-linux-gnu/bits/wordsize.h:
+/usr/include/arm-linux-gnueabihf/bits/wordsize.h:
 
-/usr/include/aarch64-linux-gnu/gnu/stubs.h:
+/usr/include/arm-linux-gnueabihf/gnu/stubs.h:
 
-/usr/include/aarch64-linux-gnu/gnu/stubs-lp64.h:
+/usr/include/arm-linux-gnueabihf/gnu/stubs-hard.h:
 
-/usr/lib/gcc/aarch64-linux-gnu/5/include/stddef.h:
+/usr/lib/gcc/arm-linux-gnueabihf/4.9/include/stddef.h:
 
-/usr/include/aarch64-linux-gnu/bits/types.h:
+/usr/include/arm-linux-gnueabihf/bits/types.h:
 
-/usr/include/aarch64-linux-gnu/bits/typesizes.h:
+/usr/include/arm-linux-gnueabihf/bits/typesizes.h:
 
 /usr/include/libio.h:
 
@@ -85,45 +82,41 @@ include/libxml/xmlexports.h:
 
 /usr/include/wchar.h:
 
-/usr/lib/gcc/aarch64-linux-gnu/5/include/stdarg.h:
+/usr/lib/gcc/arm-linux-gnueabihf/4.9/include/stdarg.h:
 
-/usr/include/aarch64-linux-gnu/bits/stdio_lim.h:
+/usr/include/arm-linux-gnueabihf/bits/stdio_lim.h:
 
-/usr/include/aarch64-linux-gnu/bits/sys_errlist.h:
+/usr/include/arm-linux-gnueabihf/bits/sys_errlist.h:
 
-/usr/include/aarch64-linux-gnu/bits/stdio.h:
-
-/usr/include/aarch64-linux-gnu/bits/stdio2.h:
+/usr/include/arm-linux-gnueabihf/bits/stdio.h:
 
 /usr/include/string.h:
 
 /usr/include/xlocale.h:
 
-/usr/include/aarch64-linux-gnu/bits/string.h:
+/usr/include/arm-linux-gnueabihf/bits/string.h:
 
-/usr/include/aarch64-linux-gnu/bits/string2.h:
+/usr/include/arm-linux-gnueabihf/bits/string2.h:
 
 /usr/include/stdlib.h:
-
-/usr/include/aarch64-linux-gnu/bits/string3.h:
 
 include/libxml/parser.h:
 
 include/libxml/tree.h:
 
-/usr/lib/gcc/aarch64-linux-gnu/5/include-fixed/limits.h:
+/usr/lib/gcc/arm-linux-gnueabihf/4.9/include-fixed/limits.h:
 
-/usr/lib/gcc/aarch64-linux-gnu/5/include-fixed/syslimits.h:
+/usr/lib/gcc/arm-linux-gnueabihf/4.9/include-fixed/syslimits.h:
 
 /usr/include/limits.h:
 
-/usr/include/aarch64-linux-gnu/bits/posix1_lim.h:
+/usr/include/arm-linux-gnueabihf/bits/posix1_lim.h:
 
-/usr/include/aarch64-linux-gnu/bits/local_lim.h:
+/usr/include/arm-linux-gnueabihf/bits/local_lim.h:
 
 /usr/include/linux/limits.h:
 
-/usr/include/aarch64-linux-gnu/bits/posix2_lim.h:
+/usr/include/arm-linux-gnueabihf/bits/posix2_lim.h:
 
 include/libxml/xmlstring.h:
 
@@ -153,43 +146,39 @@ include/libxml/globals.h:
 
 include/libxml/SAX.h:
 
-/usr/include/aarch64-linux-gnu/bits/waitflags.h:
+/usr/include/arm-linux-gnueabihf/bits/waitflags.h:
 
-/usr/include/aarch64-linux-gnu/bits/waitstatus.h:
+/usr/include/arm-linux-gnueabihf/bits/waitstatus.h:
 
 /usr/include/endian.h:
 
-/usr/include/aarch64-linux-gnu/bits/endian.h:
+/usr/include/arm-linux-gnueabihf/bits/endian.h:
 
-/usr/include/aarch64-linux-gnu/bits/byteswap.h:
+/usr/include/arm-linux-gnueabihf/bits/byteswap.h:
 
-/usr/include/aarch64-linux-gnu/bits/byteswap-16.h:
+/usr/include/arm-linux-gnueabihf/bits/byteswap-16.h:
 
-/usr/include/aarch64-linux-gnu/sys/types.h:
+/usr/include/arm-linux-gnueabihf/sys/types.h:
 
 /usr/include/time.h:
 
-/usr/include/aarch64-linux-gnu/sys/select.h:
+/usr/include/arm-linux-gnueabihf/sys/select.h:
 
-/usr/include/aarch64-linux-gnu/bits/select.h:
+/usr/include/arm-linux-gnueabihf/bits/select.h:
 
-/usr/include/aarch64-linux-gnu/bits/sigset.h:
+/usr/include/arm-linux-gnueabihf/bits/sigset.h:
 
-/usr/include/aarch64-linux-gnu/bits/time.h:
+/usr/include/arm-linux-gnueabihf/bits/time.h:
 
-/usr/include/aarch64-linux-gnu/bits/select2.h:
+/usr/include/arm-linux-gnueabihf/sys/sysmacros.h:
 
-/usr/include/aarch64-linux-gnu/sys/sysmacros.h:
-
-/usr/include/aarch64-linux-gnu/bits/pthreadtypes.h:
+/usr/include/arm-linux-gnueabihf/bits/pthreadtypes.h:
 
 /usr/include/alloca.h:
 
-/usr/include/aarch64-linux-gnu/bits/stdlib-bsearch.h:
+/usr/include/arm-linux-gnueabihf/bits/stdlib-bsearch.h:
 
-/usr/include/aarch64-linux-gnu/bits/stdlib-float.h:
-
-/usr/include/aarch64-linux-gnu/bits/stdlib.h:
+/usr/include/arm-linux-gnueabihf/bits/stdlib-float.h:
 
 include/libxml/xlink.h:
 
