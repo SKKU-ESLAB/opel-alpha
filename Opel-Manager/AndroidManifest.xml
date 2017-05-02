@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.opel_manager"
+    package="com.opel.opel_manager"
     android:versionCode="1"
     android:versionName="1.0">
 
@@ -30,7 +30,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".MainActivity"
+            android:name="com.opel.opel_manager.view.MainActivity"
             android:label="@string/app_name"
             android:theme="@android:style/Theme.NoTitleBar">
 
@@ -42,38 +42,28 @@
 
         </activity>
         <activity
-            android:name="com.gst_sdk_tutorials.rpi_control.rpiviewer"
+            android:name=".view.CameraViewerActivity"
             android:label="@string/app_name"
-            android:theme="@android:style/Theme.NoTitleBar">
-            <!--
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-            -->
+            android:theme="@android:style/Theme.NoTitleBar"
+            android:screenOrientation="landscape">
         </activity>
-        <activity android:name=".settingView" />
-        <activity android:name=".appMarketView" />
-        <activity android:name=".setting_subView" />
-        <activity android:name=".notificationView" />
-        <activity android:name=".appManagerView" />
-        <activity android:name=".configurationView" />
-        <activity android:name=".cameraStreamingView" />
-        <activity android:name=".sensorView" />
-        <activity android:name=".fileManagerView" />
-        <activity android:name=".eventLoggerView" />
+        <activity android:name="com.opel.opel_manager.view.SettingActivity" />
+        <activity android:name="com.opel.opel_manager.view.AppMarketActivity" />
+        <activity android:name="com.opel.opel_manager.view.SettingSubActivity" />
+        <activity android:name="com.opel.opel_manager.view.RemoteNotiUIActivity" />
+        <activity android:name="com.opel.opel_manager.view.AppManagerActivity" />
+        <activity android:name="com.opel.opel_manager.view.RemoteConfigUIActivity" />
+        <activity android:name="com.opel.opel_manager.view.SensorViewerActivity" />
+        <activity android:name="com.opel.opel_manager.view.FileManagerActivity" />
+        <activity android:name="com.opel.opel_manager.view.EventLoggerActivity" />
 
         <service
-            android:name=".MqttBroadCastService"
+            android:name=".controller.mqtt.MQTTBroadCastService"
             android:enabled="true"
             android:exported="true" />
 
-        <activity
-            android:name=".splashView"
-            android:label="@string/title_activity_splash_viewer"></activity>
-        <activity android:name="selectiveconnection.DeviceListActivity"
-            android:theme="@android:style/Theme.DeviceDefault.Dialog"></activity>
+        <activity android:name=".view.DeviceListActivity"
+                  android:theme="@android:style/Theme.DeviceDefault.Dialog"></activity>
     </application>
 
 </manifest>
