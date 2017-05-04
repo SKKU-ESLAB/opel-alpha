@@ -8,7 +8,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
-import com.opel.opel_manager.controller.selectiveconnection.OPELCommFW;
+import com.opel.cmfw.controller.CommController;
 import com.opel.opel_manager.model.OPELApplication;
 import com.opel.opel_manager.view.AppMarketActivity;
 import com.opel.opel_manager.view.SensorViewerActivity;
@@ -21,9 +21,9 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.UUID;
 
-public class CommManager {
+public class OPELDevice {
 
-    public OPELCommFW mCMFW;
+    public CommController mCMFW;
 
     BluetoothSocket mBluetoothSocket;
 
@@ -83,7 +83,7 @@ public class CommManager {
         Log.d(TAG, "Disconnected");
         stat = COMM_DISCONNECTED;
         myClientTask.Cancel();
-        int port = OPELCommFW.CMFW_DEFAULT_PORT;
+        int port = CommController.CMFW_DEFAULT_PORT;
         mCMFW.close(port);
         handler.obtainMessage(COMM_DISCONNECTED).sendToTarget();
     }
@@ -91,7 +91,7 @@ public class CommManager {
     private void connect_failed() {
         stat = COMM_DISCONNECTED;
         myClientTask.Cancel();
-        int port = OPELCommFW.CMFW_DEFAULT_PORT;
+        int port = CommController.CMFW_DEFAULT_PORT;
         mCMFW.close(port);
         handler.obtainMessage(COMM_CONNECT_FAILED).sendToTarget();
     }
@@ -103,7 +103,7 @@ public class CommManager {
         requestUpdateAppInfomation();
 
         //Temporal bug fix
-        //GlobalContext.get().getCommManager().requestRunNativeJSAppSensorViewer(); // [CHECK]
+        //OPELContext.get().getCommController().requestRunNativeJSAppSensorViewer(); // [CHECK]
     }
 
     private void handle_connecting() {
@@ -119,7 +119,7 @@ public class CommManager {
         handler.obtainMessage(COMM_ALREADY_CONNECTING).sendToTarget();
     }
 
-    public CommManager() {
+    public OPELDevice() {
         stat = COMM_DISCONNECTED;
         mBluetoothSocket = null;
         myClientTask = null;
@@ -152,7 +152,7 @@ public class CommManager {
     }
 
     public void setOpelCommunicator() {
-        mCMFW = new OPELCommFW(GlobalContext.get().getWifiP2pManager(), GlobalContext.get().getChannel());
+        mCMFW = new CommController(OPELContext.get().getWifiP2pManager(), OPELContext.get().getChannel());
     }
 
     public void setHandler(Handler handler) {
@@ -196,7 +196,7 @@ public class CommManager {
     }
 
     public void Connect() {
-        int port = OPELCommFW.CMFW_DEFAULT_PORT;
+        int port = CommController.CMFW_DEFAULT_PORT;
         if (stat != COMM_DISCONNECTED) {
             Log.d(TAG, "duplicated connect");
             return;
@@ -281,7 +281,7 @@ public class CommManager {
         public void run() throws NullPointerException {
 
             sch = true;
-            int port = OPELCommFW.CMFW_DEFAULT_PORT;
+            int port = CommController.CMFW_DEFAULT_PORT;
 			/* Bluetooth Connection */
             if (mCMFW.connect(port) == false) {
                 connect_failed();
@@ -310,10 +310,10 @@ public class CommManager {
                 } else if (req.equals(DELETEAPP)) {
                     handleUninstall(jp);
                 } else if (req.equals(UPDATEAPPINFO)) {
-                    if (GlobalContext.get().getIsLoading() == false) {
+                    if (OPELContext.get().getIsLoading() == false) {
 
                         handleUpdateAppInfomation(jp);
-                        GlobalContext.get().setIsLoading(true);
+                        OPELContext.get().setIsLoading(true);
 
 						/*while(!MainActivity.mainLoadingProgDialog.isShowing()) {
 							MainActivity.mainLoadingProgDialog.dismiss();
@@ -331,7 +331,7 @@ public class CommManager {
                 } else if (req.equals(NIL_TERMINATION)) {
 
                     String appID = jp.getValueByKey("appID");
-                    GlobalContext.get().getAppList().getAppInAllList(appID).setTerminationJson(jp.getJsonData());
+                    OPELContext.get().getAppList().getApp(appID).setTerminationJson(jp.getJsonData());
 
                     Log.d("OPEL", "NIL_TERMINATION :: " + jp.getJsonData());
                 } else if (req.equals(NIL_MSG_TO_SENSOR_VIEWER)) {
@@ -387,7 +387,7 @@ public class CommManager {
             // appList.installApplication(app);
 
 //				Move to mBluetoothSocket listener when the opk file is sent completely
-/*						applicationList list = GlobalContext.getmAllAppList();
+/*						applicationList list = OPELContext.getmAllAppList();
 			list.add(new OPELApplication("1",  title, BitmapFactory.decodeResource(getResources(), R.drawable.app), 1));
 			MainActivity.updateDisplayItem();
 */
@@ -395,11 +395,11 @@ public class CommManager {
             String appID = jp.getValueByKey("appID");
             String appName = jp.getValueByKey("appName");
 
-            String fName = rcvFile(GlobalContext.get().getIconDirectoryPath(), jp);
+            String fName = rcvFile(OPELContext.get().getIconDirectoryPath(), jp);
             if (fName.equals("")) return;
 
             Bitmap bitmap = null;
-            File f = new File(GlobalContext.get().getIconDirectoryPath(), fName);
+            File f = new File(OPELContext.get().getIconDirectoryPath(), fName);
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inPreferredConfig = Bitmap.Config.ARGB_8888;
 
@@ -409,7 +409,7 @@ public class CommManager {
                 e.printStackTrace();
             }
 
-            GlobalContext.get().getAppList().installApplication(new OPELApplication(appID, appName, bitmap, 0));
+            OPELContext.get().getAppList().installApplication(new OPELApplication(appID, appName, bitmap, 0));
 
             //AppMarketActivity release
             AppMarketActivity.marketProgDialog.dismiss();
@@ -439,12 +439,12 @@ public class CommManager {
                     continue;
                 }
                 if (ret[0].equals("IP_ADDR__a")) {
-                    GlobalContext.get().setDeviceIP(ret[1]);
+                    OPELContext.get().setDeviceIP(ret[1]);
                     continue;
                 }
 
                 if (ret[0].equals("OPEL_DATA_DIR")) {
-                    GlobalContext.get().setOpelDataDir(ret[1]);
+                    OPELContext.get().setOpelDataDir(ret[1]);
                     continue;
                 }
 
@@ -452,7 +452,7 @@ public class CommManager {
                 Bitmap bitmap = null;
 
                 String fileName = ret[0].substring(0, ret[0].length() - 2) + ".icon";
-                File f = new File(GlobalContext.get().getIconDirectoryPath(), fileName);
+                File f = new File(OPELContext.get().getIconDirectoryPath(), fileName);
 
                 BitmapFactory.Options options = new BitmapFactory.Options();
                 options.inPreferredConfig = Bitmap.Config.ARGB_8888;
@@ -466,7 +466,7 @@ public class CommManager {
                 String appID = ret[0].substring(0, ret[0].length() - 2);
                 int type = Integer.parseInt(ret[0].substring(ret[0].length() - 1, ret[0].length()));
 
-                GlobalContext.get().getAppList().add(new OPELApplication(appID, ret[1], bitmap, type));
+                OPELContext.get().getAppList().add(new OPELApplication(appID, ret[1], bitmap, type));
             }
 
             updateMainUIThread(UPDATE_UI);
@@ -475,14 +475,14 @@ public class CommManager {
         void handleUninstall(JSONParser jp) {
             String appID = jp.getValueByKey("appID");
 
-            OPELApplication deleteTargetApp = GlobalContext.get().getAppList().getAppInAllList(appID);
+            OPELApplication deleteTargetApp = OPELContext.get().getAppList().getApp(appID);
 
             //Remove the item of app list
-            GlobalContext.get().getAppList().uninstallApplication(deleteTargetApp);
+            OPELContext.get().getAppList().uninstallApplication(deleteTargetApp);
 
             //Remove the icon file
             String fileName = appID + ".icon";
-            File f = new File(GlobalContext.get().getIconDirectoryPath(), fileName);
+            File f = new File(OPELContext.get().getIconDirectoryPath(), fileName);
             f.delete();
 
             updateMainUIThread(UPDATE_UI);
@@ -493,16 +493,16 @@ public class CommManager {
         void handleStart(JSONParser jp) {
 
             String appID = jp.getValueByKey("appID");
-            GlobalContext.get().getAppList().getAppInAllList(appID).setTypeToRunning();
+            OPELContext.get().getAppList().getApp(appID).setTypeToRunning();
             updateMainUIThread(UPDATE_UI);
-            updateMainUIThread(UPDATE_TOAST, "Run OPELApplication : " + GlobalContext.get().getAppList().getAppInAllList(appID).getTitle());
+            updateMainUIThread(UPDATE_TOAST, "Run OPELApplication : " + OPELContext.get().getAppList().getApp(appID).getTitle());
         }
 
         //{type:EXIXAPP, appID:id, .....}
         void handleTermination(JSONParser jp) {
             Log.d("OPEL", "handTermination > json : " + jp.getJsonData());
             String appID = jp.getValueByKey("appID");
-            GlobalContext.get().getAppList().getAppInAllList(appID).setTypeToInstalled();
+            OPELContext.get().getAppList().getApp(appID).setTypeToInstalled();
             updateMainUIThread(UPDATE_UI);
 
             //set termination js to N/A
@@ -511,12 +511,12 @@ public class CommManager {
         void handleRegisterConfig(JSONParser jp) {
 
             String appID = jp.getValueByKey("appID");
-            GlobalContext.get().getAppList().getAppInAllList(appID).setConfigJson(jp.getJsonData());
+            OPELContext.get().getAppList().getApp(appID).setConfigJson(jp.getJsonData());
         }
 
         void handleEventWithNoti(JSONParser jp) {
 
-            GlobalContext.get().getEventList().addEvent(jp.getValueByKey
+            OPELContext.get().getEventList().addEvent(jp.getValueByKey
                     ("appID"), jp.getValueByKey("appTitle"), jp.getValueByKey
                     ("description"), jp.getValueByKey("dateTime"), jp.getJsonData());
 
@@ -526,7 +526,7 @@ public class CommManager {
 
         void handleEventWithoutNoti(JSONParser jp) {
 
-            GlobalContext.get().getEventList().addEvent(jp.getValueByKey
+            OPELContext.get().getEventList().addEvent(jp.getValueByKey
                     ("appID"), jp.getValueByKey("appTitle"), jp.getValueByKey
                     ("description"), jp.getValueByKey("dateTime"), jp.getJsonData());
             updateMainUIThread(UPDATE_UI);
@@ -534,7 +534,7 @@ public class CommManager {
 
         String handleNotiPreLoadImg(JSONParser jp) {
 
-            return rcvFile(GlobalContext.get().getRUIStoragePath(), jp);
+            return rcvFile(OPELContext.get().getRUIStoragePath(), jp);
 
         }
 
@@ -557,7 +557,7 @@ public class CommManager {
         }
 
         String handleRequestFileManager_requestFile_Preload(JSONParser jp) {
-            return rcvFile(GlobalContext.get().getRemoteStorageStoragePath(), jp);
+            return rcvFile(OPELContext.get().getRemoteStorageStoragePath(), jp);
         }
 
         void handleCloudService(JSONParser jp) {
@@ -566,7 +566,7 @@ public class CommManager {
             BufferedInputStream bis;
             try {
 
-                File fd = new File(GlobalContext.get().getCloudStoragePath(), jp.getValueByKey("img"));
+                File fd = new File(OPELContext.get().getCloudStoragePath(), jp.getValueByKey("img"));
                 bis = new BufferedInputStream(new FileInputStream(fd));
                 fileSize = (int) fd.length();
                 int len;
@@ -593,7 +593,7 @@ public class CommManager {
                     res[metadata.length + j] = data[j];
                 }
 
-                GlobalContext.get().getMQTTManager().mqttSendFile("opel/img", res);
+                OPELContext.get().getMQTTManager().mqttSendFile("opel/img", res);
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -606,11 +606,11 @@ public class CommManager {
 
 
         String handleCloudService_File_Preload(JSONParser jp) {
-            return rcvFile(GlobalContext.get().getCloudStoragePath(), jp);
+            return rcvFile(OPELContext.get().getCloudStoragePath(), jp);
         }
 
         public String rcvMsg() {
-            int port = OPELCommFW.CMFW_DEFAULT_PORT;
+            int port = CommController.CMFW_DEFAULT_PORT;
             byte[] buf = new byte[4096];
             String msg;
             int res = mCMFW.cmfw_recv_msg(port, buf, 4096);
@@ -626,7 +626,7 @@ public class CommManager {
         }
 
         public String rcvFile(File destDir, JSONParser jp) {
-            int port = OPELCommFW.CMFW_DEFAULT_PORT;
+            int port = CommController.CMFW_DEFAULT_PORT;
             String name = "";
             String size = "";
 
@@ -713,7 +713,7 @@ public class CommManager {
 
     public void requestTermination(String appID) {
 
-        String terminationJson = GlobalContext.get().getAppList().getAppInAllList(appID).getTerminationJson();
+        String terminationJson = OPELContext.get().getAppList().getApp(appID).getTerminationJson();
         JSONParser jp = new JSONParser(terminationJson);
         Log.d("OPEL", "REQ Termination json : " + terminationJson);
 
@@ -817,7 +817,7 @@ public class CommManager {
     }
 
     public void sendMsg(String msg) {
-        int port = OPELCommFW.CMFW_DEFAULT_PORT;
+        int port = CommController.CMFW_DEFAULT_PORT;
 
         Log.d("SendMsg", msg);
 
@@ -832,7 +832,7 @@ public class CommManager {
     //Send the file on dowload folder
     public void sendDownloadFile(String fileName) {
 
-        int port = OPELCommFW.CMFW_DEFAULT_PORT;
+        int port = CommController.CMFW_DEFAULT_PORT;
         String fileSize = "";
         BufferedInputStream bis;
 

@@ -22,7 +22,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.opel.opel_manager.controller.GlobalContext;
+import com.opel.opel_manager.controller.OPELContext;
 import com.opel.opel_manager.R;
 import com.opel.opel_manager.model.OPELApplication;
 
@@ -111,7 +111,8 @@ public class AppManagerActivity extends Activity {
 							new DialogInterface.OnClickListener() {
 								public void onClick(DialogInterface dialog,	int id) {
 									// Action for 'Yes' Button									
-									GlobalContext.get().getCommManager().requestUninstall(item.getAppID());
+									OPELContext.getCommController().requestUninstall(item
+											.getAppID());
 								}
 							})
 					.setNegativeButton("No",
@@ -246,7 +247,7 @@ class AppListAdapter extends BaseAdapter implements OnClickListener{
 	public ArrayList<ListApp> updateItemList(){
 		ArrayList<ListApp> arr = new ArrayList<ListApp>();
 
-		ArrayList<OPELApplication> appArray = GlobalContext.get().getAppList().getList();
+		ArrayList<OPELApplication> appArray = OPELContext.getAppList().getList();
 
 		for (int i = 0; i < appArray.size(); i++) {
 			OPELApplication tmpApp = appArray.get(i);
@@ -262,10 +263,6 @@ class AppListAdapter extends BaseAdapter implements OnClickListener{
 		return arr;
 	}
 }
-
-
-
-
 
 class ListApp {
 

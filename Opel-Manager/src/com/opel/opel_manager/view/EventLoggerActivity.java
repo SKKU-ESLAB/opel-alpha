@@ -23,8 +23,8 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.opel.opel_manager.controller.GlobalContext;
 import com.opel.opel_manager.R;
+import com.opel.opel_manager.controller.OPELContext;
 import com.opel.opel_manager.model.OPELApplication;
 import com.opel.opel_manager.model.OPELEvent;
 
@@ -75,7 +75,7 @@ public class EventLoggerActivity extends Activity{
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(com.opel.opel_manager.R.menu.eventlogger_actionbar, menu);
+		getMenuInflater().inflate(com.opel.opel_manager.R.menu.menu_event_logger, menu);
 		return true;
 	}
 
@@ -93,7 +93,7 @@ public class EventLoggerActivity extends Activity{
 				AlertDialog.Builder ab = new AlertDialog.Builder(EventLoggerActivity.this);
 				ab.setTitle("OPELApplication Filtering");
 
-				ArrayList <OPELApplication> apList = GlobalContext.get().getAppList().getList();
+				ArrayList <OPELApplication> apList = OPELContext.getAppList().getList();
 				
 		/*		String[] strItems = { "Alert Item 1", "Alert Item 2", "Alert Item 3" };
 
@@ -137,7 +137,7 @@ public class EventLoggerActivity extends Activity{
 
 			case com.opel.opel_manager.R.id.action_filter_clear:
 
-				GlobalContext.get().getEventList().eventAllClear();
+				OPELContext.getEventList().eventAllClear();
 				EventLoggerActivity.updateDisplay();
 				return true;
 
@@ -182,7 +182,7 @@ public class EventLoggerActivity extends Activity{
 							new DialogInterface.OnClickListener() {
 								public void onClick(DialogInterface dialog,	int id) {
 									// Action for 'Yes' Button
-									GlobalContext.get().getEventList().deleteEvent(item.getEventID());
+									OPELContext.getEventList().deleteEvent(item.getEventID());
 									EventLoggerActivity.updateDisplay();
 								}
 							})
@@ -198,7 +198,7 @@ public class EventLoggerActivity extends Activity{
 			AlertDialog alert = alt_bld.create();
 
 			alert.setTitle(item.getEventAppName());
-			Drawable d = new BitmapDrawable(getResources(), GlobalContext.get().getAppList().getAppInAllList(item.getEventAppID()).getImage());
+			Drawable d = new BitmapDrawable(getResources(), OPELContext.getAppList().getApp(item.getEventAppID()).getImage());
 			alert.setIcon(d);
 			alert.show();
 
@@ -284,7 +284,7 @@ class EventLoggerAdapter extends BaseAdapter implements OnClickListener{
 			}
 
 			ImageView iv = (ImageView) convertView.findViewById(R.id.imageView11);
-			iv.setImageBitmap( GlobalContext.get().getAppList().getAppInAllList(arr.get(pos).getEventAppID()).getImage() );
+			iv.setImageBitmap( OPELContext.getAppList().getApp(arr.get(pos).getEventAppID()).getImage() );
 
 
 		}
@@ -319,7 +319,7 @@ class EventLoggerAdapter extends BaseAdapter implements OnClickListener{
 	//get app infomation from global list and transfer to ListApp format
 	public ArrayList<OPELEvent> updateItemList(){
 
-		return GlobalContext.get().getEventList().getCurEventArrayList();
+		return OPELContext.getEventList().getCurEventArrayList();
 	}
 }
 

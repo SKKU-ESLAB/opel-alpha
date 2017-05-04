@@ -28,7 +28,7 @@ import java.util.Date;
 /**
  * Created by ES Lab on 2016-06-15.
  */
-public class MQTTManager {
+public class MQTTController {
     private MQTTDataReceiver dataReceiver;
     private IntentFilter intentCFilter;
     private MQTTPublisher mPublisher;
@@ -37,7 +37,7 @@ public class MQTTManager {
 
     Handler handler;
 
-    public MQTTManager(){
+    public MQTTController(){
 
     }
 
@@ -183,7 +183,7 @@ public class MQTTManager {
                         Log.d("OPEL", "[MQTT Listener -> the data from cloud server is not correct : " + jp.getJsonData());
                     }
                    String appID = String.valueOf(Integer.parseInt(img.substring(0, 5)));
-                   OPELApplication ap = GlobalContext.get().getAppList().getAppInAllList(appID);
+                   OPELApplication ap = OPELContext.get().getAppList().getApp(appID);
 
                     String appTitle = ap.getTitle();
 
@@ -207,7 +207,7 @@ public class MQTTManager {
                     sendJson.addJsonKeyValue("text", txt);
                     sendJson.addJsonKeyValue("img", img);
 
-                    GlobalContext.get().getEventList().addEvent(sendJson.getValueByKey("appID"), sendJson.getValueByKey("appTitle"), sendJson.getValueByKey("description"), sendJson.getValueByKey("dateTime"), sendJson.getJsonData());
+                    OPELContext.get().getEventList().addEvent(sendJson.getValueByKey("appID"), sendJson.getValueByKey("appTitle"), sendJson.getValueByKey("description"), sendJson.getValueByKey("dateTime"), sendJson.getJsonData());
                     updateMainUIThread(MAKE_NOTI, sendJson.getJsonData() );
                     updateMainUIThread(UPDATE_UI);
 

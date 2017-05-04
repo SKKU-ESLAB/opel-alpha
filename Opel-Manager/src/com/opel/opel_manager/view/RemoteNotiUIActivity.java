@@ -19,169 +19,175 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 
 import com.opel.opel_manager.R;
-import com.opel.opel_manager.controller.GlobalContext;
 import com.opel.opel_manager.controller.JSONParser;
+import com.opel.opel_manager.controller.OPELContext;
 import com.opel.opel_manager.model.OPELApplication;
 
 import java.io.File;
 import java.io.FileInputStream;
 
-public class RemoteNotiUIActivity extends Activity{
-	private Context mContext;
-	private LinearLayout mLayout;
-	private String checkNoti;
+public class RemoteNotiUIActivity extends Activity {
+    private Context mContext;
+    private LinearLayout mLayout;
+    private String checkNoti;
 
-	protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
 
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_remote_noti_ui);
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_remote_noti_ui);
 
-		Bundle extras = getIntent().getExtras();
-		int id = extras.getInt("notificationId");
+        Bundle extras = getIntent().getExtras();
+        int id = extras.getInt("notificationId");
 
-		String jsonString=extras.getString("jsonData");
-		checkNoti=extras.getString("checkNoti");
-
-
-		JSONParser jp = new JSONParser(jsonString);
-
-		String appId = jp.getValueByKey("appID");
-
-		OPELApplication targetApp = GlobalContext.get().getAppList().getAppInAllList(appId);
+        String jsonString = extras.getString("jsonData");
+        checkNoti = extras.getString("checkNoti");
 
 
-		try {
-			ActionBar actionBar = getActionBar();
-			actionBar.setTitle(targetApp.getTitle());
-			actionBar.setDisplayHomeAsUpEnabled(true);
+        JSONParser jp = new JSONParser(jsonString);
 
-			Drawable dr = new BitmapDrawable(getResources(), GlobalContext.get().getAppList().getAppInAllList(appId).getImage());
-			actionBar.setIcon( dr );
-			actionBar.setDisplayUseLogoEnabled(true);
+        String appId = jp.getValueByKey("appID");
 
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+        OPELApplication targetApp = OPELContext.getAppList().getApp
+                (appId);
 
 
-		mContext = this;
-		mLayout = (LinearLayout)findViewById(R.id.dynamicLayout);
+        try {
+            ActionBar actionBar = getActionBar();
+            actionBar.setTitle(targetApp.getTitle());
+            actionBar.setDisplayHomeAsUpEnabled(true);
 
-		String isNoti = jp.getValueByKey("isNoti");
-		while(jp.hasMoreValue()){
-			String ret[] = new String[2];
-			ret=jp.getNextKeyValue();
+            Drawable dr = new BitmapDrawable(getResources(), OPELContext
+                    .getAppList().getApp(appId).getImage());
+            actionBar.setIcon(dr);
+            actionBar.setDisplayUseLogoEnabled(true);
 
-			if(ret[0].equals("text")){
-				TextView tview = new TextView(this);
-				tview.setText(ret[1]);
-				tview.setTextSize(20);
-				tview.setTextColor(Color.WHITE);
-				tview.setGravity(Gravity.CENTER);
-
-				LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT);
-				lp.gravity = Gravity.CENTER;
-				lp.setMargins(60, 20, 60, 20);
-
-				tview.setLayoutParams(lp);
-				mLayout.addView(tview);
-
-			}
-
-			else if(ret[0].equals("img")){
-
-				try {
-					ImageView iv = new ImageView(mContext);
-					FileInputStream is;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
 
-					if(isNoti.equals("2") ){
-						is = new FileInputStream(new File(GlobalContext.get().getCloudStoragePath(), ret[1]));
-					}
-					else {
-						is = new FileInputStream(new File(GlobalContext.get().getRUIStoragePath(), ret[1]));
+        mContext = this;
+        mLayout = (LinearLayout) findViewById(R.id.dynamicLayout);
 
-					}
-					iv.setImageDrawable(Drawable.createFromStream(is, ret[1]));
+        String isNoti = jp.getValueByKey("isNoti");
+        while (jp.hasMoreValue()) {
+            String ret[] = new String[2];
+            ret = jp.getNextKeyValue();
 
-					LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.MATCH_PARENT);
-					lp.gravity = Gravity.CENTER;
-					lp.setMargins(0,0,0,0);
+            if (ret[0].equals("text")) {
+                TextView tview = new TextView(this);
+                tview.setText(ret[1]);
+                tview.setTextSize(20);
+                tview.setTextColor(Color.WHITE);
+                tview.setGravity(Gravity.CENTER);
 
-					DisplayMetrics metrics = new DisplayMetrics();
-					WindowManager windowManager = (WindowManager) getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
-					windowManager.getDefaultDisplay().getMetrics(metrics);
-					lp.width = metrics.widthPixels;
-					lp.height = metrics.heightPixels;
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams
+                        (LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+                lp.gravity = Gravity.CENTER;
+                lp.setMargins(60, 20, 60, 20);
 
-					iv.setLayoutParams(lp);
-					mLayout.addView(iv);
+                tview.setLayoutParams(lp);
+                mLayout.addView(tview);
 
-					is.close();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
+            } else if (ret[0].equals("img")) {
 
-			else if(ret[0].equals("dateTime")){
-				TextView tview = new TextView(this);
-				tview.setText(ret[1]);
-				tview.setTextSize(20);
-				tview.setTextColor(Color.RED);
-				tview.setGravity(Gravity.CENTER);
+                try {
+                    ImageView iv = new ImageView(mContext);
+                    FileInputStream is;
 
-				LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT);
-				lp.gravity = Gravity.CENTER;
-				lp.setMargins(60, 20, 60, 20);
-				tview.setLayoutParams(lp);
-				mLayout.addView(tview);
-			}
 
-			else if(ret[0].equals("description")){
-				TextView tview = new TextView(this);
-				tview.setText(ret[1]);
-				tview.setTextSize(20);
-				tview.setTextColor(Color.RED);
-				tview.setGravity(Gravity.CENTER);
-				LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT);
-				lp.gravity = Gravity.CENTER;
-				lp.setMargins(60, 20, 60, 20);
-				tview.setLayoutParams(lp);
-				mLayout.addView(tview);
-			}
+                    if (isNoti.equals("2")) {
+                        is = new FileInputStream(new File(OPELContext
+                                .getSettings().getCloudStoragePath(), ret[1]));
+                    } else {
+                        is = new FileInputStream(new File(OPELContext
+                                .getSettings().getRUIStoragePath(), ret[1]));
 
-			else{
-			//Do Nothing [appID, appName, etc]
-			}
+                    }
+                    iv.setImageDrawable(Drawable.createFromStream(is, ret[1]));
 
-		}
+                    LinearLayout.LayoutParams lp = new LinearLayout
+                            .LayoutParams(LayoutParams.MATCH_PARENT,
+                            LayoutParams.MATCH_PARENT);
+                    lp.gravity = Gravity.CENTER;
+                    lp.setMargins(0, 0, 0, 0);
 
-		NotificationManager nm =  (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-		nm.cancel(id);
+                    DisplayMetrics metrics = new DisplayMetrics();
+                    WindowManager windowManager = (WindowManager)
+                            getApplicationContext().getSystemService(Context
+                                    .WINDOW_SERVICE);
+                    windowManager.getDefaultDisplay().getMetrics(metrics);
+                    lp.width = metrics.widthPixels;
+                    lp.height = metrics.heightPixels;
 
-	}
+                    iv.setLayoutParams(lp);
+                    mLayout.addView(iv);
 
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case android.R.id.home:
-				this.finish();
+                    is.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else if (ret[0].equals("dateTime")) {
+                TextView tview = new TextView(this);
+                tview.setText(ret[1]);
+                tview.setTextSize(20);
+                tview.setTextColor(Color.RED);
+                tview.setGravity(Gravity.CENTER);
 
-				if(checkNoti.equals("1")){
-					Intent intent = new Intent(RemoteNotiUIActivity.this, EventLoggerActivity.class);
-					startActivity(intent);
-				}
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams
+                        (LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+                lp.gravity = Gravity.CENTER;
+                lp.setMargins(60, 20, 60, 20);
+                tview.setLayoutParams(lp);
+                mLayout.addView(tview);
+            } else if (ret[0].equals("description")) {
+                TextView tview = new TextView(this);
+                tview.setText(ret[1]);
+                tview.setTextSize(20);
+                tview.setTextColor(Color.RED);
+                tview.setGravity(Gravity.CENTER);
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams
+                        (LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+                lp.gravity = Gravity.CENTER;
+                lp.setMargins(60, 20, 60, 20);
+                tview.setLayoutParams(lp);
+                mLayout.addView(tview);
+            } else {
+                //Do Nothing [appID, appName, etc]
+            }
 
-				return true;
-			default:
-				return super.onOptionsItemSelected(item);
-		}
-	}
-	public void onBackPressed() {
-		this.finish();
-		if(checkNoti.equals("1") || checkNoti.equals("2")  ){
-			Intent intent = new Intent(RemoteNotiUIActivity.this, EventLoggerActivity.class);
-			startActivity(intent);
-		}
+        }
 
-	}
+        NotificationManager nm = (NotificationManager) getSystemService
+                (Context.NOTIFICATION_SERVICE);
+        nm.cancel(id);
+
+    }
+
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                this.finish();
+
+                if (checkNoti.equals("1")) {
+                    Intent intent = new Intent(RemoteNotiUIActivity.this,
+                            EventLoggerActivity.class);
+                    startActivity(intent);
+                }
+
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    public void onBackPressed() {
+        this.finish();
+        if (checkNoti.equals("1") || checkNoti.equals("2")) {
+            Intent intent = new Intent(RemoteNotiUIActivity.this,
+                    EventLoggerActivity.class);
+            startActivity(intent);
+        }
+
+    }
 }

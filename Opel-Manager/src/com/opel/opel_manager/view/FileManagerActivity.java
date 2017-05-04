@@ -19,7 +19,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.opel.opel_manager.R;
-import com.opel.opel_manager.controller.GlobalContext;
+import com.opel.opel_manager.controller.OPELContext;
 import com.opel.opel_manager.controller.JSONParser;
 
 import java.io.File;
@@ -60,9 +60,8 @@ public class FileManagerActivity extends Activity {
 
         actionBar.setDisplayUseLogoEnabled(true);
 
-        curPath = GlobalContext.get().getOpelDataDir();
-        GlobalContext.get().getCommManager().requestUpdateFileManager
-                (curPath);
+        curPath = OPELContext.getSettings().getOpelDataDir();
+        OPELContext.getCommController().requestUpdateFileManager(curPath);
 
         FFmpegNativeHelper.init();
 
@@ -80,12 +79,12 @@ public class FileManagerActivity extends Activity {
 
             if (item.getType().equals("DIR")) {
                 curPath = curPath + "/" + item.getFileName();
-                GlobalContext.get().getCommManager()
-                        .requestUpdateFileManager(curPath);
+                OPELContext.getCommController().requestUpdateFileManager
+                        (curPath);
             } else {
                 String requestFilePath = curPath + "/" + item.getFileName();
 
-                File files = new File(GlobalContext.get()
+                File files = new File(OPELContext.getSettings()
                         .getRemoteStorageStoragePath(), transformOfFilename
                         (requestFilePath));
 
@@ -96,13 +95,13 @@ public class FileManagerActivity extends Activity {
                     jp.addJsonKeyValue("type", "DuplicatedFile");
                     jp.addJsonKeyValue("filename", transformOfFilename
                             (requestFilePath));
-                    jp.addJsonKeyValue("originpath", GlobalContext
-                            .get().getRemoteStorageStoragePath() + "/" +
+                    jp.addJsonKeyValue("originpath", OPELContext.getSettings()
+                            .getRemoteStorageStoragePath() + "/" +
                             transformOfFilename(requestFilePath)); //???????
 
                     runSharingFile(getApplicationContext(), jp);
                 } else {
-                    GlobalContext.get().getCommManager()
+                    OPELContext.get().getCommManager()
                             .requestFilebyFileManager(requestFilePath, 1);
                 }
             }
@@ -122,12 +121,12 @@ public class FileManagerActivity extends Activity {
 
             if (item.getType().equals("DIR")) {
                 curPath = curPath + "/" + item.getFileName();
-                GlobalContext.get().getCommManager()
-                        .requestUpdateFileManager(curPath);
+                OPELContext.getCommController().requestUpdateFileManager
+                        (curPath);
             } else {
                 String requestFilePath = curPath + "/" + item.getFileName();
 
-                File files = new File(GlobalContext.get()
+                File files = new File(OPELContext.getSettings()
                         .getRemoteStorageStoragePath(), transformOfFilename
                         (requestFilePath));
 
@@ -138,13 +137,13 @@ public class FileManagerActivity extends Activity {
                     jp.addJsonKeyValue("type", "DuplicatedFile");
                     jp.addJsonKeyValue("filename", transformOfFilename
                             (requestFilePath));
-                    jp.addJsonKeyValue("originpath", GlobalContext
-                            .get().getRemoteStorageStoragePath() + "/" +
+                    jp.addJsonKeyValue("originpath", OPELContext.getSettings()
+                            .getRemoteStorageStoragePath() + "/" +
                             transformOfFilename(requestFilePath)); //??
 
                     runRequestedFile(getApplicationContext(), jp);
                 } else {
-                    GlobalContext.get().getCommManager()
+                    OPELContext.getCommController()
                             .requestFilebyFileManager(requestFilePath, 0);
                 }
             }
@@ -226,18 +225,20 @@ public class FileManagerActivity extends Activity {
 
             if (jp.getValueByKey("type").equals("DuplicatedFile")) {
                 originFileName = jp.getValueByKey("filename");
-                to = new File(GlobalContext.get()
-                        .getRemoteStorageStoragePath(), originFileName);
+                to = new File(OPELContext.getSettings()
+                        .getRemoteStorageStoragePath()
+                        , originFileName);
             } else {
                 String fileName = jp.getValueByKey("filename");
                 String originPath = jp.getValueByKey("originpath");
 
                 originFileName = transformOfFilename(originPath);
 
-                File from = new File(GlobalContext.get()
+                File from = new File(OPELContext.getSettings()
                         .getRemoteStorageStoragePath(), fileName);
-                to = new File(GlobalContext.get()
-                        .getRemoteStorageStoragePath(), originFileName);
+                to = new File(OPELContext.getSettings()
+                        .getRemoteStorageStoragePath()
+                        , originFileName);
 
                 from.renameTo(to);
             }
@@ -309,18 +310,20 @@ public class FileManagerActivity extends Activity {
 
             if (jp.getValueByKey("type").equals("DuplicatedFile")) {
                 originFileName = jp.getValueByKey("filename");
-                to = new File(GlobalContext.get()
-                        .getRemoteStorageStoragePath(), originFileName);
+                to = new File(OPELContext.getSettings()
+                        .getRemoteStorageStoragePath()
+                        , originFileName);
             } else {
                 String fileName = jp.getValueByKey("filename");
                 String originPath = jp.getValueByKey("originpath");
 
                 originFileName = transformOfFilename(originPath);
 
-                File from = new File(GlobalContext.get()
+                File from = new File(OPELContext.getSettings()
                         .getRemoteStorageStoragePath(), fileName);
-                to = new File(GlobalContext.get()
-                        .getRemoteStorageStoragePath(), originFileName);
+                to = new File(OPELContext.getSettings()
+                        .getRemoteStorageStoragePath()
+                        , originFileName);
 
                 from.renameTo(to);
             }
@@ -330,7 +333,7 @@ public class FileManagerActivity extends Activity {
                     1, fileStr.length());
 
 			/*
-			Intent intentShareFile = new Intent(Intent.ACTION_SEND);
+            Intent intentShareFile = new Intent(Intent.ACTION_SEND);
 			intentShareFile.setType("OPELApplication/*");
 			intentShareFile.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://"
 			+ fileStr));
@@ -358,14 +361,16 @@ public class FileManagerActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        registerReceiver(GlobalContext.get().getWifiReceiver(),
-                GlobalContext.get().getIntentFilter());
+        // TODO
+        registerReceiver(OPELContext.get().getWifiReceiver(), OPELContext.get
+                ().getIntentFilter());
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        unregisterReceiver(GlobalContext.get().getWifiReceiver());
+        // TODO
+        unregisterReceiver(OPELContext.get().getWifiReceiver());
     }
 }
 
@@ -443,18 +448,27 @@ class ListAdapter_fileManager extends BaseAdapter implements OnClickListener {
             TextView ci_content_text = (TextView) convertView.findViewById(R
                     .id.tv_subTitle);
             ci_content_text.setText(arr.get(pos).getTime());
-            TextView ci_status_text = (TextView) convertView.findViewById(R.id.tv_status);
+            TextView ci_status_text = (TextView) convertView.findViewById(R
+                    .id.tv_status);
             ci_status_text.setText(arr.get(pos).getSize() + "Byte");
 
-            ImageView iv = (ImageView) convertView.findViewById(R.id.imageView11);
+            ImageView iv = (ImageView) convertView.findViewById(R.id
+                    .imageView11);
 
             if (arr.get(pos).getType().equals("DIR"))
                 iv.setImageResource(R.drawable.fm_folder);
 
-            else if (arr.get(pos).getType().equals("REG") && (arr.get(pos).getFileName().endsWith("jpg") || arr.get(pos).getFileName().endsWith("png") || arr.get(pos).getFileName().endsWith("jpeg")))// ADD MORE FILE TYPE
+            else if (arr.get(pos).getType().equals("REG") && (arr.get(pos)
+                    .getFileName().endsWith("jpg") || arr.get(pos)
+                    .getFileName().endsWith("png") || arr.get(pos)
+                    .getFileName().endsWith("jpeg")))// ADD MORE FILE TYPE
                 iv.setImageResource(R.drawable.fm_img);
 
-            else if (arr.get(pos).getType().equals("REG") && (arr.get(pos).getFileName().endsWith("avi") || arr.get(pos).getFileName().endsWith("wmv") || arr.get(pos).getFileName().endsWith("mjpg") || arr.get(pos).getFileName().endsWith("mjpeg")))// ADD MORE FILE TYPE
+            else if (arr.get(pos).getType().equals("REG") && (arr.get(pos)
+                    .getFileName().endsWith("avi") || arr.get(pos)
+                    .getFileName().endsWith("wmv") || arr.get(pos)
+                    .getFileName().endsWith("mjpg") || arr.get(pos)
+                    .getFileName().endsWith("mjpeg")))// ADD MORE FILE TYPE
                 iv.setImageResource(R.drawable.fm_video);
 
             else if (arr.get(pos).getType().equals("REG"))
@@ -495,7 +509,8 @@ class ListItem_fileManager {
 
     }
 
-    public ListItem_fileManager(String fileName, String type, String size, String time) {
+    public ListItem_fileManager(String fileName, String type, String size,
+                                String time) {
         this.fileName = fileName;
         this.type = type;
         this.size = size;

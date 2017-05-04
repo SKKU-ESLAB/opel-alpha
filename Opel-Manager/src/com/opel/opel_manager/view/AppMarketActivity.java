@@ -20,7 +20,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
-import com.opel.opel_manager.controller.GlobalContext;
+import com.opel.opel_manager.controller.OPELContext;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -45,15 +45,6 @@ public class AppMarketActivity extends Activity{
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(com.opel.opel_manager.R.layout.template_webview);
-		/*
-		File external_storage = Environment.getExternalStorageDirectory();
-		File opel_dir = new File(external_storage, "OPEL");
-		opel_dir.mkdir();
-		
-		appPackagePath = opel_dir.getAbsolutePath();
-		*/
-
-		//appPackagePath = GlobalContext.get().getStoragePath();
 
 		manager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
 
@@ -64,7 +55,6 @@ public class AppMarketActivity extends Activity{
 		mWebView.setWebViewClient(new webViewClient());
 
 		requestQueue = new ArrayList<String>();
-		//apkInstall(new File("/storage/emulated/0/Download/abcd.apk"));
 
 		AppManagerActivity.updateDisplay();
 	}
@@ -74,7 +64,8 @@ public class AppMarketActivity extends Activity{
 
 			Log.d("OPEL",url);
 			//STANDALONE APP Type
-			if(url.endsWith("opk") && GlobalContext.get().getCommManager().isConnected() ){
+			if(url.endsWith("opk") && OPELContext.getCommController()
+					.isConnected() ){
 
 				marketProgDialog = new ProgressDialog( AppMarketActivity.this );
 				marketProgDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
@@ -109,7 +100,7 @@ public class AppMarketActivity extends Activity{
 				request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
 				// save the file in the "Downloads" folder of SDCARD
 				//request.setDestinationInExternalPublicDir(appPackagePath, fileName);
-				//request.setDestinationInExternalFilesDir(getApplicationContext(), GlobalContext.get().getStoragePath(), fileName);
+				//request.setDestinationInExternalFilesDir(getApplicationContext(), OPELContext.get().getStoragePath(), fileName);
 
 				// get download service and enqueue file
 				downloadID = manager.enqueue(request);
@@ -120,7 +111,8 @@ public class AppMarketActivity extends Activity{
 				requestQueue.add(fileName);
 
 			}
-			else if(url.endsWith("opk") && !GlobalContext.get().getCommManager().isConnected() ){
+			else if(url.endsWith("opk") && !OPELContext.getCommController()
+					.isConnected() ){
 				Toast.makeText(getApplicationContext(),  "Need to connect with OPEL" , 0).show();
 			}
 			else{
@@ -133,14 +125,16 @@ public class AppMarketActivity extends Activity{
 	protected void onResume(){
 		super.onResume();
 		//IntentFilter intentFilter = new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
-		registerReceiver(GlobalContext.get().getWifiReceiver(), GlobalContext.get().getIntentFilter());
+		// TODO
+		registerReceiver(OPELContext.get().getWifiReceiver(), OPELContext.get().getIntentFilter());
 	}
 
 
 	protected void onPause(){
 		super.onPause();
 		//if(requestQueue.isEmpty())
-		unregisterReceiver(GlobalContext.get().getWifiReceiver());
+		// TODO
+		unregisterReceiver(OPELContext.get().getWifiReceiver());
 	}
 
 
@@ -180,7 +174,8 @@ public class AppMarketActivity extends Activity{
 							}
 
 							public void run(){
-								GlobalContext.get().getCommManager().requestInstall(filename);
+								OPELContext.getCommController().requestInstall
+										(filename);
 							}
 						}
 
@@ -214,10 +209,6 @@ public class AppMarketActivity extends Activity{
 
 	//For Companion type//
 	public void apkInstall(File apkfile){
-		//Call this function
-		//File apkfile = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/(占쏙옙占쏙옙占싱몌옙).apk");
-		//apkInstall(apkfile);
-
 		Uri apkUri = Uri.fromFile(apkfile);
 		try {
 			Intent packageinstaller = new Intent(Intent.ACTION_VIEW);

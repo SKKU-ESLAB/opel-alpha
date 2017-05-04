@@ -1,4 +1,4 @@
-package com.opel.opel_manager.controller.selectiveconnection;
+package com.opel.cmfw.controller;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -14,7 +14,7 @@ import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 import android.util.Log;
 
-import com.opel.opel_manager.controller.GlobalContext;
+import com.opel.opel_manager.controller.OPELContext;
 
 /**
  * Created by eslab on 2016-05-16.
@@ -34,9 +34,9 @@ public class WifiDirectBroadcastReceiver extends BroadcastReceiver {
 
     public boolean removing = false;
 
-    private WifiDirectStateListener mStateListener = null;
+    private CommControllerListener mStateListener = null;
 
-    public void setStateListener(WifiDirectStateListener stateListener) {
+    public void setStateListener(CommControllerListener stateListener) {
         this.mStateListener = stateListener;
     }
 
@@ -54,7 +54,7 @@ public class WifiDirectBroadcastReceiver extends BroadcastReceiver {
                 WifiP2pConfig config = new WifiP2pConfig();
 
                 for(WifiP2pDevice device : peers.getDeviceList()){
-                    if(device.deviceName.equals(OPELCommFW.getTargetWfdName())) {
+                    if(device.deviceName.equals(CommController.getTargetWfdName())) {
                         Log.d("BReceiver", "Found device connecting...");
                         opelDevice = device;
                         if(opelDevice.status != WifiP2pDevice.AVAILABLE)
@@ -134,8 +134,8 @@ public class WifiDirectBroadcastReceiver extends BroadcastReceiver {
 
                 if (networkInfo.isConnected()) {
                     WifiP2pGroup p2pGroup = (WifiP2pGroup)intent.getParcelableExtra(WifiP2pManager.EXTRA_WIFI_P2P_GROUP);
-                    if(p2pGroup.getOwner().deviceName != null && p2pGroup.getOwner().deviceName.equals(OPELCommFW.getTargetWfdName())) {
-                        Log.d("Breceiver", "Connected:" + Integer.toString(GlobalContext.get().getCommManager().mCMFW.wfd_in_use));
+                    if(p2pGroup.getOwner().deviceName != null && p2pGroup.getOwner().deviceName.equals(CommController.getTargetWfdName())) {
+                        Log.d("Breceiver", "Connected:" + Integer.toString(OPELContext.get().getCommManager().mCMFW.wfd_in_use));
 
                         opelDevice = p2pGroup.getOwner();
                         connection = true;
@@ -143,8 +143,8 @@ public class WifiDirectBroadcastReceiver extends BroadcastReceiver {
                         if(this.mStateListener != null)
                             this.mStateListener.onWifiDirectStateChanged(true);
 
-                        if (isConnected() && GlobalContext.get().getCommManager().mCMFW.wfd_in_use == 0)
-                            GlobalContext.get().getCommManager().mCMFW.cmfw_wfd_off();
+                        if (isConnected() && OPELContext.get().getCommManager().mCMFW.wfd_in_use == 0)
+                            OPELContext.get().getCommManager().mCMFW.cmfw_wfd_off();
                     }
                 } else if (networkInfo.isConnectedOrConnecting()) {
                     Log.d("Breceiver", "Connecting");

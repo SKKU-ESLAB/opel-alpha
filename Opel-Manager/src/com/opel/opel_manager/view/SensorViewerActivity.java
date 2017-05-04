@@ -14,7 +14,7 @@ import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 import com.opel.opel_manager.R;
-import com.opel.opel_manager.controller.GlobalContext;
+import com.opel.opel_manager.controller.OPELContext;
 import com.opel.opel_manager.controller.JSONParser;
 
 public class SensorViewerActivity extends Activity {
@@ -143,8 +143,8 @@ public class SensorViewerActivity extends Activity {
 
 	public void onResume() {
 		super.onResume();
-		GlobalContext.get().getCommManager().registerSensorView(this);
-		GlobalContext.get().getCommManager().requestRunNativeJSAppSensorViewer();
+		OPELContext.getCommController().registerSensorView(this);
+		OPELContext.getCommController().requestRunNativeJSAppSensorViewer();
 
 		mTimer2 = new Runnable() {
 			@Override
@@ -184,8 +184,8 @@ public class SensorViewerActivity extends Activity {
 	}
 	public void onPause() {
 		super.onPause();
-		GlobalContext.get().getCommManager().unregisterSensorView();
-		GlobalContext.get().getCommManager().requestTermNativeJSAppSensorViewer();
+		OPELContext.getCommController().unregisterSensorView();
+		OPELContext.getCommController().requestTermNativeJSAppSensorViewer();
 		mHandler.removeCallbacks(mTimer2);
 		this.mIsUIReady = false;
 	}

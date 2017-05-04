@@ -12,13 +12,10 @@ import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -39,15 +36,13 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.opel.cmfw.controller.CommController;
+import com.opel.cmfw.controller.CommControllerListener;
+import com.opel.cmfw.view.BluetoothDeviceSettingActivity;
 import com.opel.opel_manager.R;
-import com.opel.opel_manager.controller.CommManager;
-import com.opel.opel_manager.controller.GlobalContext;
+import com.opel.opel_manager.controller.OPELDevice;
+import com.opel.opel_manager.controller.OPELContext;
 import com.opel.opel_manager.controller.JSONParser;
-import com.opel.opel_manager.controller.selectiveconnection.OPELCommFW;
-import com.opel.opel_manager.controller.selectiveconnection
-        .WifiDirectBroadcastReceiver;
-import com.opel.opel_manager.controller.selectiveconnection
-        .WifiDirectStateListener;
 import com.opel.opel_manager.model.OPELAppList;
 import com.opel.opel_manager.model.OPELApplication;
 
@@ -55,189 +50,63 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Set;
 
-public class MainActivity extends Activity implements WifiDirectStateListener {
+import static com.opel.opel_manager.controller.OPELContext.getAppList;
+
+public class MainActivity extends Activity implements CommControllerListener {
+
     // IconGridView
     private GridView mIconGridView;
     private IconListAdapter mIconListAdapter;
-    private IntentFilter mWifiP2PIntentFilter;
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent
-            data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == 1) {
-            if (resultCode == RESULT_CANCELED) {
-                Toast.makeText(this, "블루투스 권한 획득 실패", Toast.LENGTH_SHORT);
-                finish();
-            } else {
-                BluetoothAdapter bluetoothAdapter = BluetoothAdapter
-                        .getDefaultAdapter();
-
-                Set<BluetoothDevice> bds = bluetoothAdapter.getBondedDevices();
-                boolean found = false;
-                if (bds.size() > 0) {
-                    for (BluetoothDevice tmpDevice : bds) {
-                        if (tmpDevice.getName().contains(OPELCommFW
-                                .getTargetBtName())) {
-                            found = true;
-                            break;
-                        }
-                    }
-                }
-
-                if (!found) {
-                    Intent serverIntent = new Intent(this, DeviceListActivity
-                            .class);
-                    startActivityForResult(serverIntent, 2);
-                }
-            }
-        } else if (requestCode == 2) {
-            if (resultCode == Activity.RESULT_OK) {
-                try {
-                    Log.d("OPEL", "Pairing request done");
-                    String address = data.getExtras().getString
-                            (DeviceListActivity.EXTRA_DEVICE_ADDRESS);
-
-                    if (address.length() > 1)
-                        GlobalContext.get().getCommManager().Connect();
-                } catch (RuntimeException e) {
-                    e.printStackTrace();
-                }
-            } else {
-                Toast.makeText(this, "Failed pairing operation", Toast
-                        .LENGTH_SHORT).show();
-            }
-        }
-    }
-
-    public void onRequestPermissionsResult(int requestCode, String
-            permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case 1:
-                if (grantResults.length > 0 && grantResults[0] ==
-                        PackageManager.PERMISSION_GRANTED) {
-
-                } else {
-                    Toast.makeText(this, "권한 획득 실패", Toast.LENGTH_SHORT).show();
-                    this.finish();
-                }
-                break;
-            case 2:
-                if (grantResults.length > 0 && grantResults[0] ==
-                        PackageManager.PERMISSION_GRANTED) {
-
-                } else {
-                    Toast.makeText(this, "권한 획득 실패", Toast.LENGTH_SHORT).show();
-                    this.finish();
-                }
-        }
-    }
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Initialize UI Layout
         setContentView(R.layout.activity_main);
 
-        boolean bluetoothDeviceFound = false;
+        // Check Permission
+        this.checkStoragePermission();
 
-        if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) !=
-                PackageManager.PERMISSION_GRANTED) {
-            Log.d("OPEL", "Requesting Permission");
+        // TODO: Launch BluetoothDeviceSettingActivity for setting communication devices.
 
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                Toast.makeText(this, "앱 실행을 위해서는 저장소 권한을 설정해야 합니다.", Toast
-                        .LENGTH_SHORT).show();
-                ActivityCompat.requestPermissions(this, new String[]{Manifest
-                        .permission.READ_EXTERNAL_STORAGE, Manifest
-                        .permission.WRITE_EXTERNAL_STORAGE}, 1);
-            } else {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest
-                        .permission.READ_EXTERNAL_STORAGE, Manifest
-                        .permission.WRITE_EXTERNAL_STORAGE}, 1);
-            }
-        } else {
-            Log.d("OPEL", "Permission granted");
-        }
 
-        if (checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest
-                    .permission.ACCESS_COARSE_LOCATION}, 2);
-
-        } else {
-            if (BluetoothAdapter.getDefaultAdapter() == null) {
-                Toast.makeText(this, "Bluetooth를 지원해야 합니다.", Toast
-                        .LENGTH_SHORT).show();
-            } else if (!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
-                Intent enable_bt_intent = new Intent(BluetoothAdapter
-                        .ACTION_REQUEST_ENABLE);
-                startActivityForResult(enable_bt_intent, 1);
-            } else {
-                BluetoothAdapter ba = BluetoothAdapter.getDefaultAdapter();
-
-                Set<BluetoothDevice> bds = ba.getBondedDevices();
-
-                if (bds.size() > 0) {
-                    for (BluetoothDevice tmpDevice : bds) {
-                        if (tmpDevice.getName().contains(OPELCommFW
-                                .getTargetBtName())) {
-                            bluetoothDeviceFound = true;
-                            break;
-                        }
-                    }
-                }
-
-                if (!bluetoothDeviceFound) {
-                    Intent serverIntent = new Intent(this, DeviceListActivity
-                            .class);
-                    startActivityForResult(serverIntent, 2);
-                }
-            }
-        }
-
-        mWifiP2PIntentFilter = new IntentFilter();
-        mWifiP2PIntentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
-        mWifiP2PIntentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
-        mWifiP2PIntentFilter.addAction(WifiP2pManager
-                .WIFI_P2P_CONNECTION_CHANGED_ACTION);
-        mWifiP2PIntentFilter.addAction(WifiP2pManager
-                .WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
-
+        // TODO: move to Settings
+        // Initialize storage space
         initStorageWorkspace();
 
-        if (!GlobalContext.get().isInit()) {
+        // TODO: move to MainController
+        // Initialize "only once on launch"
+        if (!OPELContext.getManagerState().isInit()) {
+            // Add native applications to AppList
+            // TODO: move to AppList
+            OPELContext.getAppList().addNativeAppList(this.getResources());
 
-            getNativeAppList();
-            GlobalContext.get().getEventList().open(getApplicationContext());
-            GlobalContext.get().initComplete();
-            WifiP2pManager manager = (WifiP2pManager) getSystemService
-                    (WIFI_P2P_SERVICE);
-            WifiP2pManager.Channel channel = manager.initialize(this,
-                    getMainLooper(), null);
-            GlobalContext.get().setWifiP2pManager(manager);
-            GlobalContext.get().setWifiChannel(channel);
-            GlobalContext.get().setIntentFilter(mWifiP2PIntentFilter);
+            // Restore EventList
+            // TODO: move to EventList
+            OPELContext.getEventList().open(getApplicationContext());
+
+            OPELContext.getManagerState().initComplete();
         }
 
+        // Initialize UI Contents
         //Create IconListAdapter
         mIconGridView = (GridView) findViewById(R.id.iconGridView);
-        OPELAppList list = GlobalContext.get().getAppList();
+        OPELAppList list = getAppList();
         mIconListAdapter = new IconListAdapter(this, R.layout
                 .template_gridview_icon_main, list.getList());
         mIconGridView.setAdapter(mIconListAdapter);
         mIconGridView.setOnItemClickListener(mItemClickListener);
         mIconGridView.setOnItemLongClickListener(mItemLongClickListener);
 
-        //Request sensor, camera hw setting info [MORE]
-        GlobalContext.get().getCommManager().setOpelCommunicator();
-        GlobalContext.get().setWifiReceiver(new WifiDirectBroadcastReceiver
-                (GlobalContext.get().getWifiP2pManager(), GlobalContext.get()
-                        .getChannel()));
-        GlobalContext.get().getCommManager().setHandler(mHandler);
+        // TODO: Initialize OPELDevice
+        OPELContext.getCommController().setOpelCommunicator();
 
+        // TODO: convert Handler code to CommControllerListener
+        OPELContext.getCommController().setHandler(mHandler);
+
+        // TODO: convert to CommControllerListener's event
         if (bluetoothDeviceFound) {
-            GlobalContext.get().getCommManager().Connect();
+            OPELContext.getCommController().Connect();
         }
 
         // Add radio button callbacks
@@ -253,20 +122,50 @@ public class MainActivity extends Activity implements WifiDirectStateListener {
                     Toast.makeText(getApplicationContext(), "Target board: "
                             + "RPi2(Raspberry Pi 2)", Toast.LENGTH_SHORT)
                             .show();
-                    OPELCommFW.setTargetRPi2();
+                    CommController.setTargetRPi2();
                 } else {
                     Toast.makeText(getApplicationContext(), "Target board: "
                             + "TX1(Nvidia TX1)", Toast.LENGTH_SHORT).show();
-                    OPELCommFW.setTargetTX1();
+                    CommController.setTargetTX1();
                 }
             }
         });
 
         // Add Wi-fi direct state listener
-        GlobalContext.get().getWifiReceiver().setStateListener(this);
+        // TODO
+        OPELContext.get().getWifiReceiver().setStateListener(this);
     }
 
-    // WifiDirectStateListener
+    private void checkStoragePermission() {
+        // Check storage read/write permission
+        if (this.checkSelfPermission(Manifest.permission
+                .READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            Log.d("OPEL", "Requesting Permission");
+
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                Toast.makeText(this, "Storage permission is required to run "
+                        + "OPEL Manager.", Toast.LENGTH_SHORT).show();
+            }
+            ActivityCompat.requestPermissions(this, new String[]{Manifest
+                    .permission.READ_EXTERNAL_STORAGE, Manifest.permission
+                    .WRITE_EXTERNAL_STORAGE}, 1);
+        } else {
+            Log.d("OPEL", "Permission granted");
+        }
+    }
+
+    public void onRequestPermissionsResult(int requestCode, String
+            permissions[], int[] grantResults) {
+        if (grantResults.length <= 0 || grantResults[0] != PackageManager
+                .PERMISSION_GRANTED) {
+            Toast.makeText(this, "Failed to be granted", Toast.LENGTH_LONG)
+                    .show();
+            this.finish();
+        }
+    }
+
+    // CommControllerListener
     @Override
     public void onWifiDirectStateChanged(boolean isOn) {
         this.setIndicatorWFD(isOn);
@@ -280,17 +179,19 @@ public class MainActivity extends Activity implements WifiDirectStateListener {
     protected void onPause() {
         super.onPause();
         this.updateDisplayItem();
-        unregisterReceiver(GlobalContext.get().getWifiReceiver());
+        // TODO
     }
 
     protected void onResume() {
         super.onResume();
         this.updateDisplayItem();
-        registerReceiver(GlobalContext.get().getWifiReceiver(), mWifiP2PIntentFilter);
+        // TODO
+
     }
 
     protected void onDestroy() {
-        GlobalContext.get().exitApp();
+        // TODO
+        OPELContext.get().exitApp();
         super.onDestroy();
     }
 
@@ -306,15 +207,15 @@ public class MainActivity extends Activity implements WifiDirectStateListener {
                                 long arg3) {
             AlertDialog.Builder alertDlg = new AlertDialog.Builder
                     (MainActivity.this);
-            OPELAppList appList = GlobalContext.get().getAppList();
-            CommManager commManager = GlobalContext.get().getCommManager();
+            OPELAppList appList = getAppList();
+            OPELDevice opelDevice = OPELContext.getCommController();
 
             // Native Menu Handling
-            if (appList.getList().get(position).getType() == -1) {
-                // [Native] App Manager
-                if (appList.getList().get(position).getTitle().equals("App " +
-                        "" + "Manager")) {
-                    if (commManager.isDisconnected()) {
+            int appType = appList.getList().get(position).getType();
+            String appTitle = appList.getList().get(position).getTitle();
+            if (appType == -1) {
+                if (appTitle.compareTo("App Manager") == 0) {
+                    if (opelDevice.isDisconnected()) {
                         Toast.makeText(getApplicationContext(),
                                 "Disconnected" + " to OPEL", Toast
                                         .LENGTH_SHORT).show();
@@ -322,13 +223,8 @@ public class MainActivity extends Activity implements WifiDirectStateListener {
                     Intent intent = new Intent(MainActivity.this,
                             AppManagerActivity.class);
                     startActivity(intent);
-                }
-
-                // [Native] App Market
-                else if (appList.getList().get(position).getTitle().equals
-                        ("App " +
-                        "" + "Market")) {
-                    if (commManager.isDisconnected()) {
+                } else if (appTitle.compareTo("App Market") == 0) {
+                    if (opelDevice.isDisconnected()) {
                         Toast.makeText(getApplicationContext(),
                                 "Disconnected" + " to OPEL", Toast
                                         .LENGTH_SHORT).show();
@@ -336,12 +232,8 @@ public class MainActivity extends Activity implements WifiDirectStateListener {
                     Intent intent = new Intent(MainActivity.this,
                             AppMarketActivity.class);
                     startActivity(intent);
-                }
-
-                // [Native] Connect
-                else if (appList.getList().get(position).getTitle().equals
-                        ("Connect")) {
-                    if (commManager.isDisconnected()) {
+                } else if (appTitle.compareTo("Connect") == 0) {
+                    if (opelDevice.isDisconnected()) {
                         boolean found = false;
                         BluetoothAdapter ba = BluetoothAdapter
                                 .getDefaultAdapter();
@@ -350,7 +242,7 @@ public class MainActivity extends Activity implements WifiDirectStateListener {
 
                         if (bds.size() > 0) {
                             for (BluetoothDevice tmpDevice : bds) {
-                                if (tmpDevice.getName().contains(OPELCommFW
+                                if (tmpDevice.getName().contains(CommController
                                         .getTargetBtName())) {
                                     found = true;
                                     break;
@@ -360,20 +252,16 @@ public class MainActivity extends Activity implements WifiDirectStateListener {
 
                         if (!found) {
                             Intent serverIntent = new Intent(MainActivity
-                                    .this, DeviceListActivity.class);
+                                    .this, BluetoothDeviceSettingActivity.class);
                             startActivityForResult(serverIntent, 2);
                         } else {
-                            GlobalContext.get().getCommManager().Connect();
+                            OPELContext.getCommController().Connect();
                         }
                     } else
                         Toast.makeText(getApplicationContext(), "Not " +
                                 "disconnected", Toast.LENGTH_SHORT).show();
-                }
-
-                // [Native] FileManager
-                else if (appList.getList().get(position).getTitle().equals
-                        ("File" + " Manager")) {
-                    if (commManager.isDisconnected()) {
+                } else if (appTitle.compareTo("File Manager") == 0) {
+                    if (opelDevice.isDisconnected()) {
                         Toast.makeText(getApplicationContext(),
                                 "Disconnected" + " to OPEL", Toast
                                         .LENGTH_SHORT).show();
@@ -384,12 +272,8 @@ public class MainActivity extends Activity implements WifiDirectStateListener {
                             FileManagerActivity.class);
                     startActivity(intent);
 
-                }
-
-                // [Native] Recording
-                else if (appList.getList().get(position).getTitle().equals
-                        ("Camera")) {
-                    if (commManager.isDisconnected()) {
+                } else if (appTitle.compareTo("Camera") == 0) {
+                    if (opelDevice.isDisconnected()) {
                         Toast.makeText(getApplicationContext(),
                                 "Disconnected" + " to OPEL", Toast
                                         .LENGTH_SHORT).show();
@@ -398,12 +282,8 @@ public class MainActivity extends Activity implements WifiDirectStateListener {
                             CameraViewerActivity.class);
                     startActivity(intent);
 
-                }
-
-                // [Native] Sensor
-                else if (appList.getList().get(position).getTitle().equals
-                        ("Sensor")) {
-                    if (commManager.isDisconnected()) {
+                } else if (appTitle.compareTo("Sensor") == 0) {
+                    if (opelDevice.isDisconnected()) {
                         Toast.makeText(getApplicationContext(),
                                 "Disconnected" + " to OPEL", Toast
                                         .LENGTH_SHORT).show();
@@ -411,33 +291,20 @@ public class MainActivity extends Activity implements WifiDirectStateListener {
                     Intent intent = new Intent(MainActivity.this,
                             SensorViewerActivity.class);
                     startActivity(intent);
-                }
-
-                // [Native] Sensor
-                else if (appList.getList().get(position).getTitle().equals
-                        ("Event Logger")) {
+                } else if (appTitle.compareTo("Event Logger") == 0) {
 
                     Intent intent = new Intent(MainActivity.this,
                             EventLoggerActivity.class);
                     startActivity(intent);
                 }
-            }
-
-
-            //Installed OPELApplication
-            else if (appList.getList().get(position).getType() == 0) {
+            } else if (appType == 0) {
                 //Run OPELApplication if it is not running
 
                 String appID = "" + appList.getList().get(position).getAppId();
                 String appName = appList.getList().get(position).getTitle();
-                GlobalContext.get().getCommManager().requestStart(appID,
-                        appName);
-            }
-
-            //Running OPELApplication
-            else if (appList.getList().get(position).getType() == 1) {
+                OPELContext.getCommController().requestStart(appID, appName);
+            } else if (appType == 1) {
                 //Open configuration view if it is running
-
                 Toast.makeText(getApplicationContext(), appList.getList().get
                         (position).getTitle() + " is " +
                         "OPEN", Toast.LENGTH_SHORT).show();
@@ -472,7 +339,7 @@ public class MainActivity extends Activity implements WifiDirectStateListener {
         public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int
                 position, long arg3) {
             final int tmp = position;
-            final OPELAppList appList = GlobalContext.get().getAppList();
+            final OPELAppList appList = getAppList();
             if (appList.getList().get(position).getType() == -1) {
                 Toast.makeText(getApplicationContext(), "[native]" + appList
                         .getList().get(position).getTitle(), Toast
@@ -494,9 +361,8 @@ public class MainActivity extends Activity implements WifiDirectStateListener {
                     public void onClick(DialogInterface dialog, int id) {
                         // Action for 'Yes' Button
 
-                        GlobalContext.get().getCommManager()
-                                .requestTermination("" + appList.getList()
-                                        .get(tmp).getAppId());
+                        OPELContext.getCommController().requestTermination(""
+                                + appList.getList().get(tmp).getAppId());
                         Log.d("OPEL", "Request to kill ");
                     }
                 }).setNegativeButton("No", new DialogInterface
@@ -525,7 +391,7 @@ public class MainActivity extends Activity implements WifiDirectStateListener {
 
         @Override
         public void handleMessage(Message inputMessage) {
-            if (inputMessage.what == GlobalContext.get().getCommManager()
+            if (inputMessage.what == OPELContext.getCommController()
                     .getUPDATE_UI()) {
 
                 //String msg = (String) inputMessage.obj;
@@ -534,65 +400,66 @@ public class MainActivity extends Activity implements WifiDirectStateListener {
                 EventLoggerActivity.updateDisplay();
 
                 //update All of the UI page
-            } else if (inputMessage.what == GlobalContext.get()
-                    .getCommManager().getUPDATE_TOAST()) {
+            } else if (inputMessage.what == OPELContext.getCommController()
+                    .getUPDATE_TOAST()) {
                 String toastMsg = (String) inputMessage.obj;
                 Toast.makeText(getApplicationContext(), toastMsg, Toast
                         .LENGTH_SHORT).show();
                 //update All of the UI page
-            } else if (inputMessage.what == GlobalContext.get()
-                    .getCommManager().getMAKE_NOTI()) {
+            } else if (inputMessage.what == OPELContext.getCommController()
+                    .getMAKE_NOTI()) {
                 String notiJson = (String) inputMessage.obj;
                 updateDisplayItem();
                 AppManagerActivity.updateDisplay();
                 makeNotification(notiJson);
 
                 //update All of the UI page
-            } else if (inputMessage.what == GlobalContext.get()
-                    .getCommManager().getUPDATE_FILEMANAGER()) {
+            } else if (inputMessage.what == OPELContext.getCommController()
+                    .getUPDATE_FILEMANAGER()) {
                 JSONParser jp = (JSONParser) inputMessage.obj;
                 FileManagerActivity.updateDisplay(jp);
 
-            } else if (inputMessage.what == GlobalContext.get()
-                    .getCommManager().getEXE_FILE()) {
+            } else if (inputMessage.what == OPELContext.getCommController()
+                    .getEXE_FILE()) {
                 JSONParser jp = (JSONParser) inputMessage.obj;
                 FileManagerActivity.runRequestedFile(getApplicationContext(),
                         jp);
 
-            } else if (inputMessage.what == GlobalContext.get()
-                    .getCommManager().getSHARE_FILE()) {
+            } else if (inputMessage.what == OPELContext.getCommController()
+                    .getSHARE_FILE()) {
                 JSONParser jp = (JSONParser) inputMessage.obj;
 
                 FileManagerActivity.runSharingFile(getApplicationContext(), jp);
 
-            } else if (inputMessage.what == CommManager.COMM_CONNECTED) {
+            } else if (inputMessage.what == OPELDevice.COMM_CONNECTED) {
                 Log.d("OPEL", "Toast connected");
                 Toast.makeText(getApplicationContext(), "Successfully " +
                         "connected to OPEL", Toast.LENGTH_SHORT).show();
                 setIndicatorBT(true);
-            } else if (inputMessage.what == CommManager.COMM_DISCONNECTED) {
+            } else if (inputMessage.what == OPELDevice.COMM_DISCONNECTED) {
                 Log.d("OPEL", "Toast disconnected");
                 Toast.makeText(getApplicationContext(), "Disconnected to " +
                         "OPEL", Toast.LENGTH_SHORT).show();
                 setIndicatorBT(false);
-            } else if (inputMessage.what == CommManager.COMM_CONNECTING) {
+            } else if (inputMessage.what == OPELDevice.COMM_CONNECTING) {
                 Log.d("OPEL", "Toast disconnected");
                 Toast.makeText(getApplicationContext(), "Connecting to OPEL",
                         Toast.LENGTH_SHORT).show();
                 setIndicatorBT(false);
-            } else if (inputMessage.what == CommManager.COMM_CONNECT_FAILED) {
+            } else if (inputMessage.what == OPELDevice
+                    .COMM_CONNECT_FAILED) {
                 Log.d("OPEL", "Toast disconnected");
                 Toast.makeText(getApplicationContext(), "Failed connecting " +
                         "to" + " OPEL, re-connect with CONNECT button", Toast
                         .LENGTH_LONG).show();
                 setIndicatorBT(false);
-            } else if (inputMessage.what == CommManager
+            } else if (inputMessage.what == OPELDevice
                     .COMM_ALREADY_CONNECTED) {
                 Log.d("OPEL", "Toast already connecteed");
                 Toast.makeText(getApplicationContext(), "Already conneceted",
                         Toast.LENGTH_SHORT).show();
                 setIndicatorBT(true);
-            } else if (inputMessage.what == CommManager
+            } else if (inputMessage.what == OPELDevice
                     .COMM_ALREADY_CONNECTING) {
                 Log.d("OPEL", "Toast already connecteed");
                 Toast.makeText(getApplicationContext(), "Already connecting",
@@ -615,6 +482,7 @@ public class MainActivity extends Activity implements WifiDirectStateListener {
         else imageView.setImageResource(R.drawable.wifidirect_disabled);
     }
 
+    // TODO: move to Settings
     private void initStorageWorkspace() {
 
         File opelDir = new File(Environment.getExternalStorageDirectory()
@@ -645,32 +513,12 @@ public class MainActivity extends Activity implements WifiDirectStateListener {
             opelCloudDir.mkdir();
         }
 
-        GlobalContext.get().setOpelStoragePath(opelDir);
-        GlobalContext.get().setRUIStoragePath(opelRUIDir);
-        GlobalContext.get().setRemoteStorageStoragePath(opelRemoteStorageDir);
-        GlobalContext.get().setIconDirectoryPath(opelIconDir);
-        GlobalContext.get().setCloudStoragePath(opelCloudDir);
-    }
-
-    private void getNativeAppList() {
-        OPELAppList appList = GlobalContext.get().getAppList();
-        appList.add(new OPELApplication("-1", "Camera", BitmapFactory
-                .decodeResource(this.getResources(), R.drawable.cam), -1));
-        appList.add(new OPELApplication("-1", "Sensor", BitmapFactory
-                .decodeResource(this.getResources(), R.drawable.sensor), -1));
-        appList.add(new OPELApplication("-1", "App Market", BitmapFactory
-                .decodeResource(this.getResources(), R.drawable.market), -1));
-        appList.add(new OPELApplication("-1", "App Manager", BitmapFactory
-                .decodeResource(this.getResources(), R.drawable
-                        .icon_app_manager), -1));
-        appList.add(new OPELApplication("-1", "File Manager", BitmapFactory
-                .decodeResource(this.getResources(), R.drawable.filemanager),
-                -1));
-        appList.add(new OPELApplication("-1", "Event Logger", BitmapFactory
-                .decodeResource(this.getResources(), R.drawable.eventlogger),
-                -1));
-        appList.add(new OPELApplication("-1", "Connect", BitmapFactory
-                .decodeResource(this.getResources(), R.drawable.connect), -1));
+        OPELContext.getSettings().setOpelStoragePath(opelDir);
+        OPELContext.getSettings().setRUIStoragePath(opelRUIDir);
+        OPELContext.getSettings().setRemoteStorageStoragePath
+                (opelRemoteStorageDir);
+        OPELContext.getSettings().setIconDirectoryPath(opelIconDir);
+        OPELContext.getSettings().setCloudStoragePath(opelCloudDir);
     }
 
     // Input Json Format
@@ -701,24 +549,19 @@ public class MainActivity extends Activity implements WifiDirectStateListener {
 
         JSONParser jp = new JSONParser(JsonData);
         String appId = jp.getValueByKey("appID");
-        OPELApplication targetApp = GlobalContext.get().getAppList()
-                .getAppInAllList(appId);
+        OPELApplication targetApp = OPELContext.getAppList().getApp(appId);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder
                 (this).setCategory(appId).setContentTitle(targetApp.getTitle
                 ()).setContentText(jp.getValueByKey("description")).setTicker
-                (" " + jp.getValueByKey("appTitle")).setLargeIcon
-                (GlobalContext.get().getAppList().getAppInAllList(appId)
-                        .getImage()).setSmallIcon(R.drawable.opel)
-                .setContentIntent(contentIntent).setAutoCancel(true).setWhen
-                        (System.currentTimeMillis()).setDefaults(Notification
-                        .DEFAULT_SOUND | Notification.DEFAULT_VIBRATE |
+                (" " + jp.getValueByKey("appTitle")).setLargeIcon(OPELContext
+                .getAppList().getApp(appId).getImage()).setSmallIcon(R
+                .drawable.opel).setContentIntent(contentIntent).setAutoCancel
+                (true).setWhen(System.currentTimeMillis()).setDefaults
+                (Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE |
                 Notification.DEFAULT_LIGHTS).setNumber(1);
-
         Notification n = builder.build();
-
         nm.notify(1234, n);
-
     }
 }
 
@@ -738,7 +581,7 @@ class IconListAdapter extends ArrayAdapter<OPELApplication> {
     }
 
     public void updateDisplay() {
-        this.data = GlobalContext.get().getAppList().getList();
+        this.data = getAppList().getList();
         this.notifyDataSetChanged();
     }
 

@@ -230,7 +230,8 @@ public class SettingSubActivity extends Activity{
 								
 				Log.d("OPEL:SettingSubActivity", "Json parsing error, data = " + jsonData);
 				
-				Toast.makeText(getApplicationContext(), "Json parsing error : "+ jsonData, 0).show();
+				Toast.makeText(getApplicationContext(), "Json parsing error :" +
+						" "+ jsonData, Toast.LENGTH_LONG).show();
 				
 			}
 				

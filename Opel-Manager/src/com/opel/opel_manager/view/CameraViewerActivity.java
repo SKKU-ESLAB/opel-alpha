@@ -17,7 +17,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.opel.opel_manager.controller.GlobalContext;
+import com.opel.opel_manager.controller.OPELContext;
 import com.opel.opel_manager.R;
 
 import org.freedesktop.gstreamer.GStreamer;
@@ -133,7 +133,8 @@ public class CameraViewerActivity extends Activity implements SurfaceHolder.Call
         // Initialize TCP handling
         handler = new TcpHandler();
 
-        if (GlobalContext.get().getDeviceIP().equals("N/A")) {
+        // TODO
+        if (OPELContext.get().getDeviceIP().equals("N/A")) {
             this.finish();
         }
 
@@ -221,7 +222,7 @@ public class CameraViewerActivity extends Activity implements SurfaceHolder.Call
     @Override
     protected void onResume() {
         // Initialize TCP handling
-        GlobalContext.get().getCommManager()
+        OPELContext.getCommController()
                 .requestRunNativeJSAppCameraViewer();
         if (tcpstreaming == null) {
             tcpstreaming = new TCPStreaming(server, port, this, handler);
@@ -234,16 +235,17 @@ public class CameraViewerActivity extends Activity implements SurfaceHolder.Call
         this.acquireCpuWakeLock();
 
         // Initialize Wifi receiver
-        registerReceiver(GlobalContext.get().getWifiReceiver(),
-                GlobalContext.get().getIntentFilter());
+        // TODO
+        registerReceiver(OPELContext.get().getWifiReceiver(),
+                OPELContext.get().getIntentFilter());
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        GlobalContext.get().getCommManager()
+        OPELContext.getCommController()
                 .requestTermNativeJSAppCameraViewer();
-        GlobalContext.get().getCommManager().mCMFW
+        OPELContext.getCommController().mCMFW
                 .cmfw_wfd_off();
         this.releaseCpuWakeLock();
 
@@ -254,7 +256,8 @@ public class CameraViewerActivity extends Activity implements SurfaceHolder.Call
         }
 
         // Finalize Wifi receiver
-        unregisterReceiver(GlobalContext.get().getWifiReceiver());
+        // TODO
+        unregisterReceiver(OPELContext.get().getWifiReceiver());
     }
 
     @Override
@@ -412,7 +415,8 @@ class TCPStreaming extends Thread {
         sch = true;
         while (sch) {
             if (tcpSocket == null) {
-                while (GlobalContext.get().getCommManager()
+                // TODO
+                while (OPELContext.getCommController()
                         .mCMFW.cmfw_wfd_on(false) < 0) {
                     try {
                         sleep(1000);
