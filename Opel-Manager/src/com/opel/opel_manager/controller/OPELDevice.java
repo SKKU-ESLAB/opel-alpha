@@ -18,7 +18,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.UUID;
 
 public class OPELDevice {
@@ -195,6 +194,7 @@ public class OPELDevice {
         if (myClientTask != null) myClientTask.Cancel();
     }
 
+    // TODO: move to CommService
     public void Connect() {
         int port = CommController.CMFW_DEFAULT_PORT;
         if (stat != COMM_DISCONNECTED) {
@@ -609,75 +609,21 @@ public class OPELDevice {
             return rcvFile(OPELContext.get().getCloudStoragePath(), jp);
         }
 
-        public String rcvMsg() {
-            int port = CommController.CMFW_DEFAULT_PORT;
-            byte[] buf = new byte[4096];
-            String msg;
-            int res = mCMFW.cmfw_recv_msg(port, buf, 4096);
-            if (res < 0) {
-                handle_disconnected();
-                return "";
-            }
-
-            msg = new String(Arrays.copyOfRange(buf, 0, res));
-
-            Log.d("OPEL", "COMManager - rcv Msg : " + msg);
-            return msg;
-        }
-
-        public String rcvFile(File destDir, JSONParser jp) {
-            int port = CommController.CMFW_DEFAULT_PORT;
-            String name = "";
-            String size = "";
-
-            byte[] buf = new byte[1024];
-            Arrays.fill(buf, (byte) 0);
-
-            byte[] buf2 = new byte[1024];
-            Arrays.fill(buf2, (byte) 0);
-
-
-            name = rcvMsg();
-            if (name.equals("")) return name;
-            if (jp.getValueByKey("type").equals(INSTALLPKG)) {
-                name = jp.getValueByKey("appID") + ".icon";
-            }
-            size = rcvMsg();
-            if (size.equals("")) return name;
-
-            //File downloaddir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-            //File f = new File(downloaddir, name);
-
-            File f = new File(destDir, name);
-            if (mCMFW.cmfw_recv_file(port, f) < 0) {
-                Log.d("OPEL", "Recv File failed");
-                return "";
-            }
-
-            return name;
-        }
-
         private void updateMainUIThread(int what) {
-
             Message msg = Message.obtain();
             msg.what = what;
 
             handler.sendMessage(msg);
-
         }
 
         private void updateMainUIThread(int what, Object obj) {
 
             Message msg = Message.obtain();
             msg.what = what;
-
             msg.obj = obj;
 
             handler.sendMessage(msg);
-
         }
-
-
     }
 
 
@@ -690,7 +636,7 @@ public class OPELDevice {
         jp.addJsonKeyValue("pkgFileName", fileName);
 
         sendMsg(jp.getJsonData());
-        sendDownloadFile(fileName);
+        sendFile(fileName);
     }
 
     public void requestUninstall(String appID) {
@@ -814,47 +760,5 @@ public class OPELDevice {
         jp.addJsonKeyValue("share", String.valueOf(share));
 
         sendMsg(jp.getJsonData());
-    }
-
-    public void sendMsg(String msg) {
-        int port = CommController.CMFW_DEFAULT_PORT;
-
-        Log.d("SendMsg", msg);
-
-        if (mCMFW.cmfw_send_msg(port, msg) < 0) {
-            Log.d("SendMsg", "failed");
-            handle_disconnected();
-            return;
-        }
-    }
-
-
-    //Send the file on dowload folder
-    public void sendDownloadFile(String fileName) {
-
-        int port = CommController.CMFW_DEFAULT_PORT;
-        String fileSize = "";
-        BufferedInputStream bis;
-
-
-        File fd = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), fileName);
-
-        fileSize = String.valueOf(fd.length());
-
-        int len;
-        int size = 4096;
-        byte[] data = new byte[size];
-
-        sendMsg(fileName);
-        sendMsg(fileSize);
-        if (mCMFW.cmfw_send_file(port, fd) < 0) {
-            //handle_disconnected();
-            Log.d("OPEL", "Sendfile failed");
-            return;
-        }
-
-        Log.d("OPEL", "send File size : " + fileSize);
-
-        return;
     }
 }

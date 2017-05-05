@@ -14,12 +14,8 @@ import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 import android.util.Log;
 
-import com.opel.opel_manager.controller.OPELContext;
-
-/**
- * Created by eslab on 2016-05-16.
- */
 public class WifiDirectBroadcastReceiver extends BroadcastReceiver {
+    private static final String TAG = "WFDBroadcastReceiver";
     private WifiP2pManager mManager;
     private WifiP2pManager.Channel mChannel;
     private WifiP2pDevice opelDevice;
@@ -34,13 +30,29 @@ public class WifiDirectBroadcastReceiver extends BroadcastReceiver {
 
     public boolean removing = false;
 
-    private CommControllerListener mStateListener = null;
+    // Wi-fi Direct Device's Name & Address
+    private String mWifiDirectName;
+    private String mWifiDirectIPAddress;
 
-    public void setStateListener(CommControllerListener stateListener) {
-        this.mStateListener = stateListener;
+    private CommController mOwnerController = null;
+    private WifiDirectListener mListener = null;
+
+    public void setOwnerController(CommController ownerController) {
+        this.mOwnerController = ownerController;
     }
 
-    public WifiDirectBroadcastReceiver(WifiP2pManager manager, WifiP2pManager.Channel channel){
+    public void setWifiDirectInfo(String wifiDirectName, String
+            wifiDirectIPAddress) {
+        this.mWifiDirectName = wifiDirectName;
+        this.mWifiDirectIPAddress = wifiDirectIPAddress;
+    }
+
+    public void setStateListener(WifiDirectListener stateListener) {
+        this.mListener = stateListener;
+    }
+
+    public WifiDirectBroadcastReceiver(WifiP2pManager manager, WifiP2pManager
+            .Channel channel) {
         super();
 
         this.mManager = manager;
@@ -50,49 +62,54 @@ public class WifiDirectBroadcastReceiver extends BroadcastReceiver {
         mPeerListener = new PeerListListener() {
             @Override
             public void onPeersAvailable(WifiP2pDeviceList peers) {
+                if (mWifiDirectName.isEmpty() == true) {
+                    Log.d(TAG, "Failed to connect! No Wi-fi Direct " + "name " +
+                            "given!");
+                    sent_connected = false;
+                    return;
+                }
 
                 WifiP2pConfig config = new WifiP2pConfig();
-
-                for(WifiP2pDevice device : peers.getDeviceList()){
-                    if(device.deviceName.equals(CommController.getTargetWfdName())) {
-                        Log.d("BReceiver", "Found device connecting...");
+                for (WifiP2pDevice device : peers.getDeviceList()) {
+                    if (device.deviceName.compareTo(mWifiDirectName) == 0) {
+                        Log.d(TAG, "Found device connecting...");
                         opelDevice = device;
-                        if(opelDevice.status != WifiP2pDevice.AVAILABLE)
+                        if (opelDevice.status != WifiP2pDevice.AVAILABLE)
                             return;
 
                         if (device.status == WifiP2pDevice.AVAILABLE) {
                             config.deviceAddress = device.deviceAddress;
 
-                            if(device.wpsPbcSupported()) {
+                            if (device.wpsPbcSupported()) {
                                 config.wps.setup = WpsInfo.PBC;
-                                Log.d("WPSINFO", "PBC");
-                            }
-                            else if(device.wpsKeypadSupported()){
+                                Log.d(TAG, "WPS: PBC");
+                            } else if (device.wpsKeypadSupported()) {
                                 config.wps.setup = WpsInfo.KEYPAD;
                                 config.wps.pin = new String("12345670");
-                                Log.d("WPSINFO", "KeyPad");
-                            }
-                            else{
+                                Log.d(TAG, "WPS:KeyPad");
+                            } else {
                                 config.wps.setup = WpsInfo.DISPLAY;
-                                Log.d("WPSINFO", "Display");
+                                Log.d(TAG, "WPS:Display");
                             }
-                            mManager.connect(mChannel, config, new WifiP2pManager.ActionListener() {
+                            mManager.connect(mChannel, config, new
+                                    WifiP2pManager.ActionListener() {
                                 @Override
                                 public void onSuccess() {
-                                    Log.d("BReceiver", "Succedded to send connect msg");
+                                    Log.d(TAG, "Succedded to send " +
+                                            "connect msg");
                                     sent_connected = true;
                                 }
 
                                 @Override
                                 public void onFailure(int reason) {
-                                    Log.d("BReceiver", "Failed to connect" + Integer.toString(reason));
+                                    Log.d(TAG, "Failed to connect" + Integer
+                                            .toString(reason));
                                     sent_connected = false;
                                 }
                             });
                             break;
-                        }
-                        else if(device.status==WifiP2pDevice.INVITED){
-                            Log.d("Manager", "Invited");
+                        } else if (device.status == WifiP2pDevice.INVITED) {
+                            Log.d(TAG, "Invited");
 
                         }
                     }
@@ -106,73 +123,79 @@ public class WifiDirectBroadcastReceiver extends BroadcastReceiver {
             }
         };
     }
+
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
 
-        if(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION.equals(action  )){
+        if (WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION.equals(action)) {
             // Check to see if Wi-Fi is enabled and notify appropriate activity
 
             int state = intent.getIntExtra(WifiP2pManager.EXTRA_WIFI_STATE, -1);
-            if(state == WifiP2pManager.WIFI_P2P_STATE_ENABLED){
-                Log.d("WifiP2p", "State: Enabled");
+            if (state == WifiP2pManager.WIFI_P2P_STATE_ENABLED) {
+                Log.d(TAG, "State: Enabled");
+            } else {
+                Log.d(TAG, "State: Disabled");
             }
-            else{
-                Log.d("WifiP2p", "State: Disabled");
-            }
-        } else if (WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION.equals(action)) {
+        } else if (WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION.equals
+                (action)) {
             // Call WifiP2pManager.requestPeers() to get a list of current peers
             if (mManager != null) {
                 mManager.requestPeers(mChannel, mPeerListener);
             }
 
 
-        } else if (WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION.equals(action)) {
+        } else if (WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION.equals
+                (action)) {
             // Respond to new connection or disconnections
 
-                NetworkInfo networkInfo = (NetworkInfo) intent
-                        .getParcelableExtra(WifiP2pManager.EXTRA_NETWORK_INFO);
+            NetworkInfo networkInfo = (NetworkInfo) intent.getParcelableExtra
+                    (WifiP2pManager.EXTRA_NETWORK_INFO);
 
-                if (networkInfo.isConnected()) {
-                    WifiP2pGroup p2pGroup = (WifiP2pGroup)intent.getParcelableExtra(WifiP2pManager.EXTRA_WIFI_P2P_GROUP);
-                    if(p2pGroup.getOwner().deviceName != null && p2pGroup.getOwner().deviceName.equals(CommController.getTargetWfdName())) {
-                        Log.d("Breceiver", "Connected:" + Integer.toString(OPELContext.get().getCommManager().mCMFW.wfd_in_use));
+            if (networkInfo.isConnected()) {
+                WifiP2pGroup p2pGroup = (WifiP2pGroup) intent
+                        .getParcelableExtra(WifiP2pManager
+                                .EXTRA_WIFI_P2P_GROUP);
+                if (p2pGroup.getOwner().deviceName != null && p2pGroup
+                        .getOwner().deviceName.compareTo(mWifiDirectName) ==
+                        0) {
+                    Log.d(TAG, "Wi-fi Direct Connected");
 
-                        opelDevice = p2pGroup.getOwner();
-                        connection = true;
+                    opelDevice = p2pGroup.getOwner();
+                    connection = true;
 
-                        if(this.mStateListener != null)
-                            this.mStateListener.onWifiDirectStateChanged(true);
+                    if (this.mListener != null)
+                        this.mListener.onWifiDirectStateChanged(true);
 
-                        if (isConnected() && OPELContext.get().getCommManager().mCMFW.wfd_in_use == 0)
-                            OPELContext.get().getCommManager().mCMFW.cmfw_wfd_off();
-                    }
-                } else if (networkInfo.isConnectedOrConnecting()) {
-                    Log.d("Breceiver", "Connecting");
-                } else if (networkInfo.isAvailable()) {
-                    if(opelDevice != null) {
-                        Log.d("Breceiver", "Available");
-                        opelDevice = null;
-                        removing = false;
-                        connection = false;
-
-                        if(this.mStateListener != null)
-                            this.mStateListener.onWifiDirectStateChanged(false);
-                    }
+                    if (isConnected() && this.mOwnerController != null &&
+                            this.mOwnerController.wfd_in_use == 0)
+                        this.mOwnerController.cmfw_wfd_off();
                 }
+            } else if (networkInfo.isConnectedOrConnecting()) {
+                Log.d(TAG, "Wi-fi Direct Connecting");
+            } else if (networkInfo.isAvailable()) {
+                if (opelDevice != null) {
+                    Log.d(TAG, "Network available");
+                    opelDevice = null;
+                    removing = false;
+                    connection = false;
 
-        } else if (WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION.equals(action)) {
+                    if (this.mListener != null)
+                        this.mListener.onWifiDirectStateChanged(false);
+                }
+            }
+
+        } else if (WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION.equals
+                (action)) {
             // Respond to this device's wifi state changing
         }
     }
 
-    public boolean isConnected(){
-        if(opelDevice == null)
-            return false;
+    public boolean isConnected() {
+        if (opelDevice == null) return false;
 
-        Log.d("BReceiver", Integer.toString(opelDevice.status));
+        Log.d(TAG, Integer.toString(opelDevice.status));
 
-        if(removing == false)
-            return connection;
+        if (removing == false) return connection;
         return false;
     }
 }

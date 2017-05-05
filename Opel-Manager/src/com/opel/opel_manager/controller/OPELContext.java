@@ -65,7 +65,7 @@ public class OPELContext {
         return OPELContext.get().mOPELEventList;
     }
 
-    public static OPELDevice getCommController() {
+    public static OPELDevice getOPELDevice() {
         return OPELContext.get().mOPELDevice;
     }
 

@@ -36,21 +36,50 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.opel.cmfw.controller.CommController;
 import com.opel.opel_manager.R;
 
 import java.util.Set;
 
 public class BluetoothDeviceSettingActivity extends Activity {
     private static final String TAG = "BTDeviceSettingActivity";
+
+    // Intent to BluetoothDeviceSettingActivity
+    public static final String INTENT_KEY_RECEIVER =
+            "TryCommDeviceSettingResult";
+    public static final String INTENT_KEY_DEFAULT_BT_NAME =
+            "DefaultBluetooothDeviceName";
+    public static final String INTENT_KEY_DEFAULT_BT_ADDRESS =
+            "DefaultBluetooothDeviceAddress";
+
     public static String EXTRA_DEVICE_ADDRESS = "device_address";
+
+    // Parameters to BluetoothDeviceSettingActivity
+    // Result receiver
+    private CommService.BluetoothDeviceSettingResultReceiver mReceiver;
+    private String mDefaultBluetoothName;
+    private String mDefaultBluetoothAddress;
 
     private BluetoothAdapter mBluetoothAdapter;
 
-    /**
-     * Newly discovered devices
-     */
+    // Newly discovered devices
     private ArrayAdapter<String> mNewDevicesArrayAdapter;
+
+    private void resultInSuccess(String bluetoothName, String
+            bluetoothAddress) {
+        Bundle bundle = new Bundle();
+        bundle.putString(CommService.BluetoothDeviceSettingResultReceiver
+                .RECEIVER_KEY_BT_NAME, bluetoothName);
+        bundle.putString(CommService.BluetoothDeviceSettingResultReceiver
+                .RECEIVER_KEY_BT_ADDRESS, bluetoothAddress);
+        this.mReceiver.send(Activity.RESULT_OK, bundle);
+        finish();
+    }
+
+    private void resultInFail(String failMessage) {
+        Bundle bundle = new Bundle();
+        this.mReceiver.send(Activity.RESULT_CANCELED, bundle);
+        finish();
+    }
 
     // * Bluetooth Device Setting Process
     // 1. Initialize UI Layout
@@ -71,12 +100,23 @@ public class BluetoothDeviceSettingActivity extends Activity {
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.activity_bluetooth_device_setting);
 
-        // Set result CANCELED in case the user backs out
-        // TODO: convert to ResultReceiver
-        this.setResult(Activity.RESULT_CANCELED);
+        // Get Parameters
+        Intent callerIntent = this.getIntent();
+        this.mReceiver = (CommService.BluetoothDeviceSettingResultReceiver)
+                callerIntent.getParcelableExtra(INTENT_KEY_RECEIVER);
+        this.mDefaultBluetoothName = callerIntent.getStringExtra
+                (INTENT_KEY_DEFAULT_BT_NAME);
+        this.mDefaultBluetoothAddress = callerIntent.getStringExtra
+                (INTENT_KEY_DEFAULT_BT_ADDRESS);
 
         // Proceed to Step 2. Check communication device permission
         this.checkCommPermission();
+    }
+
+    @Override
+    public void onBackPressed() {
+        // Cancel communication setting.
+        resultInFail("User canceled Bluetooth device setting!");
     }
 
     // Step 2-1. Check communication device permission
@@ -102,10 +142,9 @@ public class BluetoothDeviceSettingActivity extends Activity {
                 .PERMISSION_GRANTED) {
             // If communication device permission is eventually not granted,
             // cancel communication setting.
-            Toast.makeText(this, "Failed to be granted", Toast.LENGTH_LONG)
-                    .show();
-            // TODO: convert to ResultReceiver
-            this.finish();
+            Toast.makeText(this, "Cannot be granted communication device " +
+                    "permission!", Toast.LENGTH_LONG).show();
+            resultInFail("Cannot be granted communication device permission!");
         } else {
             // Proceed to Step 3.
             // If communication device permission is granted, check if
@@ -121,8 +160,7 @@ public class BluetoothDeviceSettingActivity extends Activity {
             // If bluetooth adapter is not found, cancel communication setting.
             Toast.makeText(this, "Bluetooth device is required!", Toast
                     .LENGTH_SHORT).show();
-            // TODO: convert to ResultReceiver
-            this.finish();
+            resultInFail("Bluetooth device is required!");
         } else if (!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
             // If bluetooth device is turned off, try to turn bluetooth on.
             Intent enable_bt_intent = new Intent(BluetoothAdapter
@@ -147,8 +185,7 @@ public class BluetoothDeviceSettingActivity extends Activity {
             // setting.
             Toast.makeText(this, "Failed to be granted bluetooth " +
                     "permission", Toast.LENGTH_SHORT);
-            // TODO: convert to ResultReceiver
-            finish();
+            resultInFail("Failed to be granted bluetooth permission!");
         } else {
             // Proceed to Step 4.
             // Find already-bonded Bluetooth device once.
@@ -158,29 +195,30 @@ public class BluetoothDeviceSettingActivity extends Activity {
 
     // Step 4. Find already-bonded bluetooth device
     private void findBluetoothDevice() {
-        boolean bluetoothDeviceFound = false;
-        BluetoothAdapter ba = BluetoothAdapter.getDefaultAdapter();
-        Set<BluetoothDevice> bds = ba.getBondedDevices();
-        if (bds.size() > 0) {
-            for (BluetoothDevice tmpDevice : bds) {
-                String deviceName = tmpDevice.getName();
-                // TODO: move getTargetBtName() to parameter of the activity
-                if (deviceName.contains(CommController.getTargetBtName())) {
-                    bluetoothDeviceFound = true;
-                    break;
+        if (this.mDefaultBluetoothName.isEmpty() == false && this
+                .mDefaultBluetoothAddress.isEmpty() == false) {
+            BluetoothAdapter bluetoothAdapter = BluetoothAdapter
+                    .getDefaultAdapter();
+            Set<BluetoothDevice> bluetoothDevices = bluetoothAdapter
+                    .getBondedDevices();
+            if (bluetoothDevices.size() > 0) {
+                for (BluetoothDevice bluetoothDevice : bluetoothDevices) {
+                    String deviceName = bluetoothDevice.getName();
+                    String deviceAddress = bluetoothDevice.getAddress();
+                    if (deviceName.compareTo(this.mDefaultBluetoothName) == 0
+                            && deviceAddress.compareTo(this
+                            .mDefaultBluetoothAddress) == 0) {
+                        // If already-bonded bluetooth device is found, use it!
+                        resultInSuccess(deviceName, deviceAddress);
+                        return;
+                    }
                 }
             }
         }
-        if (bluetoothDeviceFound == true) {
-            // If already-bonded bluetooth device is found, use it!
-            // TODO: convert to ResultReceiver
-            this.setResult(Activity.RESULT_OK);
-            finish();
-        } else {
-            // Proceed to Step 5.
-            // If there is no bonded bluetooth device, discover devices
-            this.startToDiscover();
-        }
+
+        // Proceed to Step 5.
+        // If there is no bonded bluetooth device, discover devices
+        this.startToDiscover();
     }
 
     // Step 5. Discover devices
@@ -269,7 +307,6 @@ public class BluetoothDeviceSettingActivity extends Activity {
 
         // Request discover from BluetoothAdapter
         mBluetoothAdapter.startDiscovery();
-
     }
 
     /**
@@ -304,12 +341,11 @@ public class BluetoothDeviceSettingActivity extends Activity {
                 // If it's already paired, skip it, because it's been listed
                 // already
                 if (device.getBondState() != BluetoothDevice.BOND_BONDED) {
-                    if (device.getName() != null && device.getName().contains
-                            (CommController.getTargetBtName())) {
+                    if (device.getName() != null) {
                         mNewDevicesArrayAdapter.add(device.getName() + "\n" +
                                 device.getAddress());
                         mBluetoothAdapter.cancelDiscovery();
-                        setTitle("Found OPEL - Pairing");
+                        setTitle("Found Device - Pairing");
                         found = true;
 
                         device.createBond();
@@ -340,15 +376,12 @@ public class BluetoothDeviceSettingActivity extends Activity {
                             .getAddress());
 
                     Toast.makeText(BluetoothDeviceSettingActivity.this,
-                            "Pairing " + "success", Toast.LENGTH_SHORT).show();
+                            "Bluetooth pairing success!", Toast.LENGTH_SHORT)
+                            .show();
 
                     // Use it!
-                    // TODO: convert to ResultReceiver
-                    BluetoothDeviceSettingActivity.this.setResult(Activity
-                            .RESULT_OK, resultIntent);
-                    finish();
+                    resultInSuccess(device.getName(), device.getAddress());
                 }
-
             }
         }
     };

@@ -1,7 +1,6 @@
 package com.opel.opel_manager.view;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Notification;
@@ -9,9 +8,12 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.drawable.BitmapDrawable;
@@ -19,6 +21,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 import android.support.v4.app.ActivityCompat;
@@ -29,20 +32,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.CompoundButton;
 import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.opel.cmfw.controller.CommController;
-import com.opel.cmfw.controller.CommControllerListener;
 import com.opel.cmfw.view.BluetoothDeviceSettingActivity;
+import com.opel.cmfw.view.CommBroadcastReceiver;
+import com.opel.cmfw.view.CommEventListener;
+import com.opel.cmfw.view.CommService;
 import com.opel.opel_manager.R;
-import com.opel.opel_manager.controller.OPELDevice;
-import com.opel.opel_manager.controller.OPELContext;
 import com.opel.opel_manager.controller.JSONParser;
+import com.opel.opel_manager.controller.OPELContext;
+import com.opel.opel_manager.controller.OPELDevice;
 import com.opel.opel_manager.model.OPELAppList;
 import com.opel.opel_manager.model.OPELApplication;
 
@@ -52,7 +55,26 @@ import java.util.Set;
 
 import static com.opel.opel_manager.controller.OPELContext.getAppList;
 
-public class MainActivity extends Activity implements CommControllerListener {
+public class MainActivity extends Activity implements CommEventListener {
+    // RPC on CommService
+    private CommService mCommService;
+    private CommBroadcastReceiver mCommBroadcastReceiver;
+    private boolean mIsCommServiceBound = false;
+    private ServiceConnection mCommServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder
+                inputBinder) {
+            CommService.CommBinder serviceBinder = (CommService.CommBinder)
+                    inputBinder;
+            mCommService = serviceBinder.getService();
+            mIsCommServiceBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            mIsCommServiceBound = false;
+        }
+    };
 
     // IconGridView
     private GridView mIconGridView;
@@ -67,12 +89,9 @@ public class MainActivity extends Activity implements CommControllerListener {
         // Check Permission
         this.checkStoragePermission();
 
-        // TODO: Launch BluetoothDeviceSettingActivity for setting communication devices.
-
-
         // TODO: move to Settings
         // Initialize storage space
-        initStorageWorkspace();
+        this.initStorageWorkspace();
 
         // TODO: move to MainController
         // Initialize "only once on launch"
@@ -98,42 +117,17 @@ public class MainActivity extends Activity implements CommControllerListener {
         mIconGridView.setOnItemClickListener(mItemClickListener);
         mIconGridView.setOnItemLongClickListener(mItemLongClickListener);
 
-        // TODO: Initialize OPELDevice
-        OPELContext.getCommController().setOpelCommunicator();
+        // Launch CommService for setting connection with target OPEL device.
+        Intent serviceIntent = new Intent(this, CommService.class);
+        bindService(serviceIntent, this.mCommServiceConnection, Context
+                .BIND_AUTO_CREATE);
+        this.mCommService.initializeConnection(); // RPC to CommService
 
-        // TODO: convert Handler code to CommControllerListener
-        OPELContext.getCommController().setHandler(mHandler);
-
-        // TODO: convert to CommControllerListener's event
-        if (bluetoothDeviceFound) {
-            OPELContext.getCommController().Connect();
-        }
-
-        // Add radio button callbacks
-        RadioButton radioButtonTargetRPi2 = (RadioButton) this.findViewById(R
-                .id.radioButtonTargetRPi2);
-        radioButtonTargetRPi2.setOnCheckedChangeListener(new CompoundButton
-                .OnCheckedChangeListener() {
-            @SuppressLint("ShowToast")
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton,
-                                         boolean b) {
-                if (b == true) {
-                    Toast.makeText(getApplicationContext(), "Target board: "
-                            + "RPi2(Raspberry Pi 2)", Toast.LENGTH_SHORT)
-                            .show();
-                    CommController.setTargetRPi2();
-                } else {
-                    Toast.makeText(getApplicationContext(), "Target board: "
-                            + "TX1(Nvidia TX1)", Toast.LENGTH_SHORT).show();
-                    CommController.setTargetTX1();
-                }
-            }
-        });
-
-        // Add Wi-fi direct state listener
-        // TODO
-        OPELContext.get().getWifiReceiver().setStateListener(this);
+        // Set CommBroadcastReceiver and CommEventListener
+        IntentFilter broadcastIntentFilter = new IntentFilter();
+        broadcastIntentFilter.addAction(CommBroadcastReceiver.ACTION);
+        this.mCommBroadcastReceiver = new CommBroadcastReceiver(this);
+        this.registerReceiver(this.mCommBroadcastReceiver, broadcastIntentFilter);
     }
 
     private void checkStoragePermission() {
@@ -165,8 +159,8 @@ public class MainActivity extends Activity implements CommControllerListener {
         }
     }
 
-    // CommControllerListener
-    @Override
+    // WifiDirectListener
+    // TODO: convert to CommEventListener
     public void onWifiDirectStateChanged(boolean isOn) {
         this.setIndicatorWFD(isOn);
     }
@@ -190,9 +184,11 @@ public class MainActivity extends Activity implements CommControllerListener {
     }
 
     protected void onDestroy() {
+        super.onDestroy();
+        unbindService(this.mCommServiceConnection);
+
         // TODO
         OPELContext.get().exitApp();
-        super.onDestroy();
     }
 
     // IconGridView
@@ -242,8 +238,8 @@ public class MainActivity extends Activity implements CommControllerListener {
 
                         if (bds.size() > 0) {
                             for (BluetoothDevice tmpDevice : bds) {
-                                if (tmpDevice.getName().contains(CommController
-                                        .getTargetBtName())) {
+                                if (tmpDevice.getName().contains
+                                        (CommController.getTargetBtName())) {
                                     found = true;
                                     break;
                                 }
@@ -252,7 +248,8 @@ public class MainActivity extends Activity implements CommControllerListener {
 
                         if (!found) {
                             Intent serverIntent = new Intent(MainActivity
-                                    .this, BluetoothDeviceSettingActivity.class);
+                                    .this, BluetoothDeviceSettingActivity
+                                    .class);
                             startActivityForResult(serverIntent, 2);
                         } else {
                             OPELContext.getCommController().Connect();
@@ -387,6 +384,7 @@ public class MainActivity extends Activity implements CommControllerListener {
         }
     };
 
+    // TODO: Convert to CommServiceListener
     private Handler mHandler = new Handler(Looper.getMainLooper()) {
 
         @Override
@@ -446,15 +444,13 @@ public class MainActivity extends Activity implements CommControllerListener {
                 Toast.makeText(getApplicationContext(), "Connecting to OPEL",
                         Toast.LENGTH_SHORT).show();
                 setIndicatorBT(false);
-            } else if (inputMessage.what == OPELDevice
-                    .COMM_CONNECT_FAILED) {
+            } else if (inputMessage.what == OPELDevice.COMM_CONNECT_FAILED) {
                 Log.d("OPEL", "Toast disconnected");
                 Toast.makeText(getApplicationContext(), "Failed connecting " +
                         "to" + " OPEL, re-connect with CONNECT button", Toast
                         .LENGTH_LONG).show();
                 setIndicatorBT(false);
-            } else if (inputMessage.what == OPELDevice
-                    .COMM_ALREADY_CONNECTED) {
+            } else if (inputMessage.what == OPELDevice.COMM_ALREADY_CONNECTED) {
                 Log.d("OPEL", "Toast already connecteed");
                 Toast.makeText(getApplicationContext(), "Already conneceted",
                         Toast.LENGTH_SHORT).show();

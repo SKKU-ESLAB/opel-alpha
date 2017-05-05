@@ -19,16 +19,12 @@
 
 package com.opel.cmfw.controller;
 
-import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
-import android.content.IntentFilter;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.util.Log;
-
-import com.opel.opel_manager.controller.OPELContext;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -53,41 +49,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import static android.content.Context.WIFI_P2P_SERVICE;
-import static android.os.Looper.getMainLooper;
-
 public class CommController {
     // Status of Communication Framework
     public static final int CMFW_STAT_DISCON = 0;
     public static final int CMFW_STAT_BT_CONNECTED = 1;
     public static final int CMFW_STAT_WFD_CONNECTED = 2;
-
-    // TODO: move to Settings
-    // Constants on Target Device Name
-    private static final String CMFW_BT_NAME_RPI2 = "pi";
-    private static final String CMFW_WFD_NAME_RPI2 = "OPEL";
-    private static final String CMFW_BT_NAME_TX1 = "tegra";
-    private static final String CMFW_WFD_NAME_TX1 = "OPEL-Tegra";
-    private static String sTargetBtName = CMFW_BT_NAME_TX1;
-    private static String sTargetWfdName = CMFW_WFD_NAME_TX1;
-
-    public static String getTargetBtName() {
-        return sTargetBtName;
-    }
-
-    public static String getTargetWfdName() {
-        return sTargetWfdName;
-    }
-
-    public static void setTargetRPi2() {
-        sTargetBtName = CMFW_BT_NAME_RPI2;
-        sTargetWfdName = CMFW_WFD_NAME_RPI2;
-    }
-
-    public static void setTargetTX1() {
-        sTargetBtName = CMFW_BT_NAME_TX1;
-        sTargetWfdName = CMFW_WFD_NAME_TX1;
-    }
 
     private cmfw_port_c ports[];
 
@@ -124,18 +90,30 @@ public class CommController {
     private LinkedList<cmfw_queue_node_c> file_recv_queue[];
 
     // Wi-fi Direct
-    private IntentFilter mWifiP2PIntentFilter;
+    public int wfd_in_use;
     private WifiP2pManager mWifiP2pManager;
     private WifiP2pManager.Channel mWifiP2pManagerChannel;
     private WifiDirectBroadcastReceiver mWifiDirectBroadcastReceiver;
-
-    public int wfd_in_use;
-
     private List<WifiP2pDevice> peers;
     private String mMac;
 
-    private CommController(Activity initialActivity) {
-        this.initializeWifiDirect(initialActivity);
+    // Bluetooth Device's Name & Address
+    private String mBluetoothName;
+    private String mBluetoothAddress;
+
+    public CommController(WifiP2pManager wifiP2pManager, WifiP2pManager
+            .Channel wifiP2pManagerChannel, WifiDirectBroadcastReceiver
+            wifiDirectBroadcastReceiver, String bluetoothName, String
+            bluetoothAddress) {
+        // Setting Wi-fi Direct members
+        this.mWifiP2pManager = wifiP2pManager;
+        this.mWifiP2pManagerChannel = wifiP2pManagerChannel;
+        this.mWifiDirectBroadcastReceiver = wifiDirectBroadcastReceiver;
+        this.mWifiDirectBroadcastReceiver.setOwnerController(this);
+
+        // Setting Bluetooth Device's Name & Address
+        this.mBluetoothName = bluetoothName;
+        this.mBluetoothAddress = bluetoothAddress;
 
         ports = new cmfw_port_c[DEFINED_PORT_NUM];
 
@@ -164,40 +142,14 @@ public class CommController {
         wfd_off_thread = new WfdOffThread();
     }
 
-    private void checkPermission(Activity initialActivity) {
-
+    public void setWifiDirectInfo(String wifiDirectName, String
+            wifiDirectIPAddress) {
+        this.mWifiDirectBroadcastReceiver.setWifiDirectInfo(wifiDirectName,
+                wifiDirectIPAddress);
     }
 
-    private void initializeWifiDirect(Activity initialActivity) {
-        mWifiP2PIntentFilter = new IntentFilter();
-        mWifiP2PIntentFilter.addAction(WifiP2pManager
-                .WIFI_P2P_STATE_CHANGED_ACTION);
-        mWifiP2PIntentFilter.addAction(WifiP2pManager
-                .WIFI_P2P_PEERS_CHANGED_ACTION);
-        mWifiP2PIntentFilter.addAction(WifiP2pManager
-                .WIFI_P2P_CONNECTION_CHANGED_ACTION);
-        mWifiP2PIntentFilter.addAction(WifiP2pManager
-                .WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
-
-        this.mWifiP2pManager = (WifiP2pManager) initialActivity
-                .getSystemService(WIFI_P2P_SERVICE);
-        this.mWifiP2pManagerChannel = this.mWifiP2pManager.initialize
-                (initialActivity, getMainLooper(), null);
-        this.mWifiDirectBroadcastReceiver = new WifiDirectBroadcastReceiver
-                (this.mWifiP2pManager, this.mWifiP2pManagerChannel);
-    }
-
-    public void setStateListener(CommControllerListener listener) {
-        this.mWifiDirectBroadcastReceiver.setStateListener(listener);
-    }
-
-    public void resumeWifiReceiver(Activity initialActivity) {
-        initialActivity.registerReceiver(this.mWifiDirectBroadcastReceiver,
-                this.mWifiP2PIntentFilter);
-    }
-
-    public void pauseWifiReceiver(Activity initialActivity) {
-        initialActivity.unregisterReceiver(this.mWifiDirectBroadcastReceiver);
+    public WifiDirectBroadcastReceiver getWifiDirectBroadcastReceiver() {
+        return this.mWifiDirectBroadcastReceiver;
     }
 
     public boolean connect(int port) {
@@ -478,7 +430,7 @@ public class CommController {
                     return -1;
                 } else {
                     // TODO
-                    if (OPELContext.get().getWifiReceiver().isConnected()) {
+                    if (this.mWifiDirectBroadcastReceiver.isConnected()) {
                         wfd_in_use++;
                         cmfw_send_msg(CMFW_CONTROL_PORT, "on");
                         ports[CMFW_CONTROL_PORT].close();
@@ -498,10 +450,12 @@ public class CommController {
 
         Log.d("WFD_ON", "Scan!");
 
-        synchronized (mWifiP2pManager) {
+        // TODO: move to CommService
+        synchronized (this.mWifiP2pManager) {
             do {
-                mWifiP2pManager.discoverPeers(mWifiP2pManagerChannel, new
-                        WifiP2pManager.ActionListener() {
+                this.mWifiP2pManager.discoverPeers(this
+                        .mWifiP2pManagerChannel, new WifiP2pManager
+                        .ActionListener() {
                     @Override
                     public void onSuccess() {
                         Log.d("OPEL", "Scan started");
@@ -956,18 +910,26 @@ public class CommController {
                 return isSucceed;
             }
 
-            Set<BluetoothDevice> paired_devices = BluetoothAdapter
+            if (mBluetoothName.isEmpty() == true || mBluetoothAddress.isEmpty
+                    () == true) {
+                isSucceed = false;
+                return isSucceed;
+            }
+
+            Set<BluetoothDevice> bluetoothDevices = BluetoothAdapter
                     .getDefaultAdapter().getBondedDevices();
             BluetoothSocketWrapper newBtSocket = null;
 
-            if (paired_devices.size() > 0) {
-                for (BluetoothDevice btDevice : paired_devices) {
-                    if (btDevice.getName().contains(CommController
-                            .getTargetBtName())) {
+            if (bluetoothDevices.size() > 0) {
+                for (BluetoothDevice bluetoothDevice : bluetoothDevices) {
+                    String deviceName = bluetoothDevice.getName();
+                    String deviceAddress = bluetoothDevice.getAddress();
+                    if (deviceName.compareTo(mBluetoothName) == 0 &&
+                            deviceAddress.compareTo(mBluetoothAddress) == 0) {
                         // RedCarrottt: Fix Bluetooth connection failure bug
                         // (Issue #103)
                         try {
-                            BluetoothSocket rawBtSocket = btDevice
+                            BluetoothSocket rawBtSocket = bluetoothDevice
                                     .createRfcommSocketToServiceRecord(uuid);
                             newBtSocket = new NativeBluetoothSocket
                                     (rawBtSocket);
@@ -1028,7 +990,7 @@ public class CommController {
 
         public boolean wfd_connect() {
             // TODO
-            if (OPELContext.get().getWifiReceiver().isConnected() == false)
+            if (mWifiDirectBroadcastReceiver.isConnected() == false)
                 return false;
 
             Socket tmp_sock = new Socket();
@@ -1201,9 +1163,8 @@ public class CommController {
                     public void onFailure(int reason) {
                     }
                 });
-                //mWifiP2pManager.cancelConnect(mWifiP2pManagerChannel, );
-                // TODO
-                OPELContext.get().getWifiReceiver().removing = true;
+
+                mWifiDirectBroadcastReceiver.removing = true;
                 mWifiP2pManager.removeGroup(mWifiP2pManagerChannel, new
                         WifiP2pManager.ActionListener() {
                     @Override
