@@ -98,10 +98,10 @@ public class RemoteNotiUIActivity extends Activity {
 
                     if (isNoti.equals("2")) {
                         is = new FileInputStream(new File(OPELContext
-                                .getSettings().getCloudStoragePath(), ret[1]));
+                                .getSettings().getCloudDir(), ret[1]));
                     } else {
                         is = new FileInputStream(new File(OPELContext
-                                .getSettings().getRUIStoragePath(), ret[1]));
+                                .getSettings().getRemoteUIDir(), ret[1]));
 
                     }
                     iv.setImageDrawable(Drawable.createFromStream(is, ret[1]));

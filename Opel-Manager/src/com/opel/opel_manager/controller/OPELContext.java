@@ -1,9 +1,7 @@
 package com.opel.opel_manager.controller;
 
-import android.content.IntentFilter;
-import android.net.wifi.p2p.WifiP2pManager;
+import android.content.Context;
 
-import com.opel.cmfw.controller.WifiDirectBroadcastReceiver;
 import com.opel.opel_manager.model.OPELAppList;
 import com.opel.opel_manager.model.OPELEventList;
 import com.opel.opel_manager.model.Settings;
@@ -12,38 +10,58 @@ public class OPELContext {
     // OPELContext contains objects which belong to Companion device's context.
     // Models
     private Settings mSettings;
-    private MainController mMainController;
     private OPELAppList mOPELAppList;
     private OPELEventList mOPELEventList;
 
     // Controllers
-    private OPELDevice mOPELDevice;
+    private OPELAppCoreStub mOPELAppCoreStub;
     private MQTTController mMQTTController;
 
-    // Wi-fi Direct
-    // TODO: move to CommController
-    private WifiP2pManager mWifiP2pManager = null;
-    private WifiP2pManager.Channel mWifiP2pManagerChannel = null;
-    private WifiDirectBroadcastReceiver mWifiDirectBroadcastReceiver = null;
-    private IntentFilter mIntentFilter = null;
-    private String mWifiDirectIP = "N/A";
+    // State
+    private boolean mIsInitialized;
+    private boolean mIsAppInfoLoading;
 
     private OPELContext() {
-        this.mSettings = new Settings();
-        this.mMainController = new MainController();
+        this.mIsInitialized = false;
+        this.mIsAppInfoLoading = false;
 
-        this.mOPELDevice = new OPELDevice();
+        this.mSettings = new Settings();
+
+        this.mOPELAppCoreStub = new OPELAppCoreStub();
         this.mOPELAppList = new OPELAppList();
         this.mOPELEventList = new OPELEventList();
         this.mMQTTController = new MQTTController();
     }
 
     static private OPELContext singleton = null;
+
     private static OPELContext get() {
-        if(singleton == null) {
+        if (singleton == null) {
             singleton = new OPELContext();
         }
         return singleton;
+    }
+
+    public static void initialize(Context context, android.os.Handler
+            handler) {
+        if (!OPELContext.get().isInit()) {
+            // Initialize OPEL-related directories
+            OPELContext.getSettings().initializeDirectories();
+
+            // Add native applications to AppList
+            OPELContext.getAppList().addNativeAppList(context.getResources());
+
+            // Restore EventList
+            OPELContext.getEventList().open(context);
+
+            OPELContext.getAppCore().setMainUIHandler(handler);
+
+            OPELContext.initComplete();
+        }
+    }
+
+    public static void finish() {
+        OPELContext.getEventList().close();
     }
 
     // TODO: refactor getter/setter name
@@ -52,79 +70,35 @@ public class OPELContext {
         return OPELContext.get().mSettings;
     }
 
-    public static MainController getManagerState() {
-        return OPELContext.get().mMainController;
-    }
-
     public static OPELAppList getAppList() {
-        return OPELContext.get()
-                .mOPELAppList;
+        return OPELContext.get().mOPELAppList;
     }
 
     public static OPELEventList getEventList() {
         return OPELContext.get().mOPELEventList;
     }
 
-    public static OPELDevice getOPELDevice() {
-        return OPELContext.get().mOPELDevice;
+    public static OPELAppCoreStub getAppCore() {
+        return OPELContext.get().mOPELAppCoreStub;
     }
 
     public static MQTTController getMQTTController() {
         return OPELContext.get().mMQTTController;
     }
 
-    // TODO: move to CommController
-    public void setIntentFilter(IntentFilter i) {
-        mIntentFilter = i;
+    public static boolean isAppInfoLoading() {
+        return OPELContext.get().mIsAppInfoLoading;
     }
 
-    // TODO: move to CommController
-    public IntentFilter getIntentFilter() {
-        return mIntentFilter;
+    public static void setIsAppInfoLoading(boolean isAppInfoLoading) {
+        OPELContext.get().mIsAppInfoLoading = isAppInfoLoading;
     }
 
-    // TODO: move to CommController
-    public void setWifiP2pManager(WifiP2pManager manager) {
-        mWifiP2pManager = manager;
+    public static boolean isInit() {
+        return OPELContext.get().mIsInitialized;
     }
 
-    // TODO: move to CommController
-    public WifiP2pManager getWifiP2pManager() {
-        return mWifiP2pManager;
+    public static void initComplete() {
+        OPELContext.get().mIsInitialized = true;
     }
-
-    // TODO: move to CommController
-    public void setWifiChannel(WifiP2pManager.Channel channel) {
-        mWifiP2pManagerChannel = channel;
-    }
-
-    // TODO: move to CommController
-    public WifiP2pManager.Channel getChannel() {
-        return mWifiP2pManagerChannel;
-    }
-
-    // TODO: move to CommController
-    public void setWifiReceiver(WifiDirectBroadcastReceiver receiver) {
-        mWifiDirectBroadcastReceiver = receiver;
-    }
-
-    // TODO: move to CommController
-    public WifiDirectBroadcastReceiver getWifiReceiver() {
-        return mWifiDirectBroadcastReceiver;
-    }
-
-    // TODO: move to CommController
-    public String getDeviceIP() {
-        return this.mWifiDirectIP;
-    }
-
-    // TODO: move to CommController
-    public void setDeviceIP(String device_ip) {
-        this.mWifiDirectIP = device_ip;
-    }
-
-    // TODO: move to OPELEventList
-//    public void exitApp() {
-//        this.mOPELEventList.close();
-//    }
 }

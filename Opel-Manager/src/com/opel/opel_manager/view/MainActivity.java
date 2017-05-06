@@ -6,8 +6,6 @@ import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -19,8 +17,6 @@ import android.content.res.Resources;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.os.Environment;
-import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
@@ -37,48 +33,32 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.opel.cmfw.controller.CommController;
-import com.opel.cmfw.view.BluetoothDeviceSettingActivity;
 import com.opel.cmfw.view.CommBroadcastReceiver;
 import com.opel.cmfw.view.CommEventListener;
 import com.opel.cmfw.view.CommService;
 import com.opel.opel_manager.R;
 import com.opel.opel_manager.controller.JSONParser;
+import com.opel.opel_manager.controller.OPELAppCoreStub;
 import com.opel.opel_manager.controller.OPELContext;
-import com.opel.opel_manager.controller.OPELDevice;
 import com.opel.opel_manager.model.OPELAppList;
 import com.opel.opel_manager.model.OPELApplication;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.Set;
 
 import static com.opel.opel_manager.controller.OPELContext.getAppList;
 
 public class MainActivity extends Activity implements CommEventListener {
     // RPC on CommService
-    private CommService mCommService;
+    private CommService mCommService = null;
     private CommBroadcastReceiver mCommBroadcastReceiver;
-    private boolean mIsCommServiceBound = false;
-    private ServiceConnection mCommServiceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName componentName, IBinder
-                inputBinder) {
-            CommService.CommBinder serviceBinder = (CommService.CommBinder)
-                    inputBinder;
-            mCommService = serviceBinder.getService();
-            mIsCommServiceBound = true;
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-            mIsCommServiceBound = false;
-        }
-    };
+    private final MainActivity self = this;
 
     // IconGridView
     private GridView mIconGridView;
     private IconListAdapter mIconListAdapter;
+
+    // Wi-fi Direct
+    private boolean mIsWaitingWifiDirectOnForCamera = false;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -89,45 +69,35 @@ public class MainActivity extends Activity implements CommEventListener {
         // Check Permission
         this.checkStoragePermission();
 
-        // TODO: move to Settings
-        // Initialize storage space
-        this.initStorageWorkspace();
-
-        // TODO: move to MainController
-        // Initialize "only once on launch"
-        if (!OPELContext.getManagerState().isInit()) {
-            // Add native applications to AppList
-            // TODO: move to AppList
-            OPELContext.getAppList().addNativeAppList(this.getResources());
-
-            // Restore EventList
-            // TODO: move to EventList
-            OPELContext.getEventList().open(getApplicationContext());
-
-            OPELContext.getManagerState().initComplete();
-        }
+        // Initialize OPELContext "only once on launch"
+        OPELContext.initialize(this, this.mHandler);
 
         // Initialize UI Contents
-        //Create IconListAdapter
-        mIconGridView = (GridView) findViewById(R.id.iconGridView);
-        OPELAppList list = getAppList();
-        mIconListAdapter = new IconListAdapter(this, R.layout
-                .template_gridview_icon_main, list.getList());
-        mIconGridView.setAdapter(mIconListAdapter);
-        mIconGridView.setOnItemClickListener(mItemClickListener);
-        mIconGridView.setOnItemLongClickListener(mItemLongClickListener);
+        this.initializeUIContents();
 
-        // Launch CommService for setting connection with target OPEL device.
-        Intent serviceIntent = new Intent(this, CommService.class);
-        bindService(serviceIntent, this.mCommServiceConnection, Context
-                .BIND_AUTO_CREATE);
-        this.mCommService.initializeConnection(); // RPC to CommService
+        // Initialize Communication
+        this.initializeCommunication();
+    }
 
-        // Set CommBroadcastReceiver and CommEventListener
-        IntentFilter broadcastIntentFilter = new IntentFilter();
-        broadcastIntentFilter.addAction(CommBroadcastReceiver.ACTION);
-        this.mCommBroadcastReceiver = new CommBroadcastReceiver(this);
-        this.registerReceiver(this.mCommBroadcastReceiver, broadcastIntentFilter);
+    protected void onRestart() {
+        super.onRestart();
+        this.updateUI();
+    }
+
+    protected void onPause() {
+        super.onPause();
+        this.updateUI();
+    }
+
+    protected void onResume() {
+        super.onResume();
+        this.updateUI();
+    }
+
+    protected void onDestroy() {
+        super.onDestroy();
+        unbindService(this.mCommServiceConnection);
+        OPELContext.finish();
     }
 
     private void checkStoragePermission() {
@@ -159,42 +129,47 @@ public class MainActivity extends Activity implements CommEventListener {
         }
     }
 
-    // WifiDirectListener
-    // TODO: convert to CommEventListener
-    public void onWifiDirectStateChanged(boolean isOn) {
-        this.setIndicatorWFD(isOn);
+    private void initializeUIContents() {
+        //Create IconListAdapter
+        mIconGridView = (GridView) findViewById(R.id.iconGridView);
+        OPELAppList list = getAppList();
+        mIconListAdapter = new IconListAdapter(this, R.layout
+                .template_gridview_icon_main, list.getList());
+        mIconGridView.setAdapter(mIconListAdapter);
+        mIconGridView.setOnItemClickListener(mItemClickListener);
+        mIconGridView.setOnItemLongClickListener(mItemLongClickListener);
     }
 
-    protected void onRestart() {
-        super.onRestart();
-        this.updateDisplayItem();
+    private void initializeCommunication() {
+        // Launch CommService for setting connection with target OPEL device.
+        Intent serviceIntent = new Intent(this, CommService.class);
+        this.bindService(serviceIntent, this.mCommServiceConnection, Context
+                .BIND_AUTO_CREATE);
     }
 
-    protected void onPause() {
-        super.onPause();
-        this.updateDisplayItem();
-        // TODO
-    }
+    private ServiceConnection mCommServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder
+                inputBinder) {
+            CommService.CommBinder serviceBinder = (CommService.CommBinder)
+                    inputBinder;
+            mCommService = serviceBinder.getService();
 
-    protected void onResume() {
-        super.onResume();
-        this.updateDisplayItem();
-        // TODO
+            OPELContext.getAppCore().setCommService(mCommService);
+            mCommService.initializeConnection(); // RPC to CommService
 
-    }
+            // Set CommBroadcastReceiver and CommEventListener
+            IntentFilter broadcastIntentFilter = new IntentFilter();
+            broadcastIntentFilter.addAction(CommBroadcastReceiver.ACTION);
+            mCommBroadcastReceiver = new CommBroadcastReceiver(self);
+            registerReceiver(mCommBroadcastReceiver, broadcastIntentFilter);
+        }
 
-    protected void onDestroy() {
-        super.onDestroy();
-        unbindService(this.mCommServiceConnection);
-
-        // TODO
-        OPELContext.get().exitApp();
-    }
-
-    // IconGridView
-    public void updateDisplayItem() {
-        mIconListAdapter.updateDisplay();
-    }
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            mCommService = null;
+        }
+    };
 
     private GridView.OnItemClickListener mItemClickListener = new GridView
             .OnItemClickListener() {
@@ -204,265 +179,48 @@ public class MainActivity extends Activity implements CommEventListener {
             AlertDialog.Builder alertDlg = new AlertDialog.Builder
                     (MainActivity.this);
             OPELAppList appList = getAppList();
-            OPELDevice opelDevice = OPELContext.getCommController();
 
             // Native Menu Handling
             int appType = appList.getList().get(position).getType();
-            String appTitle = appList.getList().get(position).getTitle();
+            String appName = appList.getList().get(position).getTitle();
             if (appType == -1) {
-                if (appTitle.compareTo("App Manager") == 0) {
-                    if (opelDevice.isDisconnected()) {
-                        Toast.makeText(getApplicationContext(),
-                                "Disconnected" + " to OPEL", Toast
-                                        .LENGTH_SHORT).show();
-                    }
-                    Intent intent = new Intent(MainActivity.this,
-                            AppManagerActivity.class);
-                    startActivity(intent);
-                } else if (appTitle.compareTo("App Market") == 0) {
-                    if (opelDevice.isDisconnected()) {
-                        Toast.makeText(getApplicationContext(),
-                                "Disconnected" + " to OPEL", Toast
-                                        .LENGTH_SHORT).show();
-                    }
-                    Intent intent = new Intent(MainActivity.this,
-                            AppMarketActivity.class);
-                    startActivity(intent);
-                } else if (appTitle.compareTo("Connect") == 0) {
-                    if (opelDevice.isDisconnected()) {
-                        boolean found = false;
-                        BluetoothAdapter ba = BluetoothAdapter
-                                .getDefaultAdapter();
-
-                        Set<BluetoothDevice> bds = ba.getBondedDevices();
-
-                        if (bds.size() > 0) {
-                            for (BluetoothDevice tmpDevice : bds) {
-                                if (tmpDevice.getName().contains
-                                        (CommController.getTargetBtName())) {
-                                    found = true;
-                                    break;
-                                }
-                            }
-                        }
-
-                        if (!found) {
-                            Intent serverIntent = new Intent(MainActivity
-                                    .this, BluetoothDeviceSettingActivity
-                                    .class);
-                            startActivityForResult(serverIntent, 2);
-                        } else {
-                            OPELContext.getCommController().Connect();
-                        }
-                    } else
-                        Toast.makeText(getApplicationContext(), "Not " +
-                                "disconnected", Toast.LENGTH_SHORT).show();
-                } else if (appTitle.compareTo("File Manager") == 0) {
-                    if (opelDevice.isDisconnected()) {
-                        Toast.makeText(getApplicationContext(),
-                                "Disconnected" + " to OPEL", Toast
-                                        .LENGTH_SHORT).show();
-                    }
-
-
-                    Intent intent = new Intent(MainActivity.this,
-                            FileManagerActivity.class);
-                    startActivity(intent);
-
-                } else if (appTitle.compareTo("Camera") == 0) {
-                    if (opelDevice.isDisconnected()) {
-                        Toast.makeText(getApplicationContext(),
-                                "Disconnected" + " to OPEL", Toast
-                                        .LENGTH_SHORT).show();
-                    }
-                    Intent intent = new Intent(MainActivity.this,
-                            CameraViewerActivity.class);
-                    startActivity(intent);
-
-                } else if (appTitle.compareTo("Sensor") == 0) {
-                    if (opelDevice.isDisconnected()) {
-                        Toast.makeText(getApplicationContext(),
-                                "Disconnected" + " to OPEL", Toast
-                                        .LENGTH_SHORT).show();
-                    }
-                    Intent intent = new Intent(MainActivity.this,
-                            SensorViewerActivity.class);
-                    startActivity(intent);
-                } else if (appTitle.compareTo("Event Logger") == 0) {
-
-                    Intent intent = new Intent(MainActivity.this,
-                            EventLoggerActivity.class);
-                    startActivity(intent);
-                }
+                launchDefaultApp(appName);
             } else if (appType == 0) {
                 //Run OPELApplication if it is not running
-
-                String appID = "" + appList.getList().get(position).getAppId();
-                String appName = appList.getList().get(position).getTitle();
-                OPELContext.getCommController().requestStart(appID, appName);
+                String appId = "" + appList.getList().get(position).getAppId();
+                launchUserApp(appId, appName);
             } else if (appType == 1) {
-                //Open configuration view if it is running
                 Toast.makeText(getApplicationContext(), appList.getList().get
                         (position).getTitle() + " is " +
                         "OPEN", Toast.LENGTH_SHORT).show();
-
-                if (appList.getList().get(position).getConfigJson().equals
-                        ("N/A")) {
-                    Toast.makeText(getApplicationContext(), "Configurable " +
-                            "data is N/A", Toast.LENGTH_SHORT).show();
-                } else {
-                    Intent intent = new Intent(MainActivity.this,
-                            RemoteConfigUIActivity.class);
-
-                    Bundle extras = new Bundle();
-                    extras.putString("title", appList.getList().get(position)
-                            .getTitle());
-                    extras.putString("appID", "" + appList.getList().get
-                            (position).getAppId());
-                    extras.putString("jsonData", appList.getList().get
-                            (position).getConfigJson());
-
-                    intent.putExtras(extras);
-                    startActivity(intent);
-                }
+                OPELApplication app = appList.getList().get(position);
+                showRemoteConfigUI(app);
             }
-
         }
     };
 
     private GridView.OnItemLongClickListener mItemLongClickListener = new
             GridView.OnItemLongClickListener() {
-
         public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int
                 position, long arg3) {
-            final int tmp = position;
             final OPELAppList appList = getAppList();
-            if (appList.getList().get(position).getType() == -1) {
-                Toast.makeText(getApplicationContext(), "[native]" + appList
-                        .getList().get(position).getTitle(), Toast
-                        .LENGTH_SHORT).show();
-            }
-
-            if (appList.getList().get(position).getType() == 0) {
-                Toast.makeText(getApplicationContext(), "[installed]" +
+            OPELApplication app = OPELContext.getAppList().getList().get
+                    (position);
+            int appType = app.getType();
+            if (appType == -1) {
+                // Default Apps
+                Toast.makeText(getApplicationContext(), "[Native app]" +
                         appList.getList().get(position).getTitle(), Toast
                         .LENGTH_SHORT).show();
-            }
-
-            if (appList.getList().get(position).getType() == 1) {
-                AlertDialog.Builder alt_bld = new AlertDialog.Builder
-                        (MainActivity.this);
-                alt_bld.setMessage("Terminate this App ?").setCancelable
-                        (false).setPositiveButton("Yes", new DialogInterface
-                        .OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        // Action for 'Yes' Button
-
-                        OPELContext.getCommController().requestTermination(""
-                                + appList.getList().get(tmp).getAppId());
-                        Log.d("OPEL", "Request to kill ");
-                    }
-                }).setNegativeButton("No", new DialogInterface
-                        .OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        // Action for 'NO' Button
-                        dialog.cancel();
-                    }
-                });
-
-                AlertDialog alert = alt_bld.create();
-
-                alert.setTitle(appList.getList().get(position).getTitle());
-
-                Drawable d = new BitmapDrawable(getResources(), appList
-                        .getList().get(position).getImage());
-                alert.setIcon(d);
-                alert.show();
-            }
-
-            return true;
-        }
-    };
-
-    // TODO: Convert to CommServiceListener
-    private Handler mHandler = new Handler(Looper.getMainLooper()) {
-
-        @Override
-        public void handleMessage(Message inputMessage) {
-            if (inputMessage.what == OPELContext.getCommController()
-                    .getUPDATE_UI()) {
-
-                //String msg = (String) inputMessage.obj;
-                updateDisplayItem();
-                AppManagerActivity.updateDisplay();
-                EventLoggerActivity.updateDisplay();
-
-                //update All of the UI page
-            } else if (inputMessage.what == OPELContext.getCommController()
-                    .getUPDATE_TOAST()) {
-                String toastMsg = (String) inputMessage.obj;
-                Toast.makeText(getApplicationContext(), toastMsg, Toast
+            } else if (appType == 0) {
+                // Apps Not Running
+                Toast.makeText(getApplicationContext(), "[Installed]" +
+                        appList.getList().get(position).getTitle(), Toast
                         .LENGTH_SHORT).show();
-                //update All of the UI page
-            } else if (inputMessage.what == OPELContext.getCommController()
-                    .getMAKE_NOTI()) {
-                String notiJson = (String) inputMessage.obj;
-                updateDisplayItem();
-                AppManagerActivity.updateDisplay();
-                makeNotification(notiJson);
-
-                //update All of the UI page
-            } else if (inputMessage.what == OPELContext.getCommController()
-                    .getUPDATE_FILEMANAGER()) {
-                JSONParser jp = (JSONParser) inputMessage.obj;
-                FileManagerActivity.updateDisplay(jp);
-
-            } else if (inputMessage.what == OPELContext.getCommController()
-                    .getEXE_FILE()) {
-                JSONParser jp = (JSONParser) inputMessage.obj;
-                FileManagerActivity.runRequestedFile(getApplicationContext(),
-                        jp);
-
-            } else if (inputMessage.what == OPELContext.getCommController()
-                    .getSHARE_FILE()) {
-                JSONParser jp = (JSONParser) inputMessage.obj;
-
-                FileManagerActivity.runSharingFile(getApplicationContext(), jp);
-
-            } else if (inputMessage.what == OPELDevice.COMM_CONNECTED) {
-                Log.d("OPEL", "Toast connected");
-                Toast.makeText(getApplicationContext(), "Successfully " +
-                        "connected to OPEL", Toast.LENGTH_SHORT).show();
-                setIndicatorBT(true);
-            } else if (inputMessage.what == OPELDevice.COMM_DISCONNECTED) {
-                Log.d("OPEL", "Toast disconnected");
-                Toast.makeText(getApplicationContext(), "Disconnected to " +
-                        "OPEL", Toast.LENGTH_SHORT).show();
-                setIndicatorBT(false);
-            } else if (inputMessage.what == OPELDevice.COMM_CONNECTING) {
-                Log.d("OPEL", "Toast disconnected");
-                Toast.makeText(getApplicationContext(), "Connecting to OPEL",
-                        Toast.LENGTH_SHORT).show();
-                setIndicatorBT(false);
-            } else if (inputMessage.what == OPELDevice.COMM_CONNECT_FAILED) {
-                Log.d("OPEL", "Toast disconnected");
-                Toast.makeText(getApplicationContext(), "Failed connecting " +
-                        "to" + " OPEL, re-connect with CONNECT button", Toast
-                        .LENGTH_LONG).show();
-                setIndicatorBT(false);
-            } else if (inputMessage.what == OPELDevice.COMM_ALREADY_CONNECTED) {
-                Log.d("OPEL", "Toast already connecteed");
-                Toast.makeText(getApplicationContext(), "Already conneceted",
-                        Toast.LENGTH_SHORT).show();
-                setIndicatorBT(true);
-            } else if (inputMessage.what == OPELDevice
-                    .COMM_ALREADY_CONNECTING) {
-                Log.d("OPEL", "Toast already connecteed");
-                Toast.makeText(getApplicationContext(), "Already connecting",
-                        Toast.LENGTH_SHORT).show();
-                setIndicatorBT(false);
+            } else if (appType == 1) {
+                terminateUserApp(app);
             }
-
+            return true;
         }
     };
 
@@ -476,45 +234,6 @@ public class MainActivity extends Activity implements CommEventListener {
         ImageView imageView = (ImageView) this.findViewById(R.id.indicatorWFD);
         if (isOn == true) imageView.setImageResource(R.drawable.wifidirect);
         else imageView.setImageResource(R.drawable.wifidirect_disabled);
-    }
-
-    // TODO: move to Settings
-    private void initStorageWorkspace() {
-
-        File opelDir = new File(Environment.getExternalStorageDirectory()
-                .getPath() + "/OPEL");
-        File opelRUIDir = new File(Environment.getExternalStorageDirectory()
-                .getPath() + "/OPEL/RemoteUI");
-        File opelRemoteStorageDir = new File(Environment
-                .getExternalStorageDirectory().getPath() +
-                "/OPEL/RemoteStorage");
-        File opelIconDir = new File(Environment.getExternalStorageDirectory()
-                .getPath() + "/OPEL/Icon");
-        File opelCloudDir = new File(Environment.getExternalStorageDirectory
-                ().getPath() + "/OPEL/CloudService");
-
-        if (!opelDir.exists()) {
-            opelDir.mkdir();
-        }
-        if (!opelRUIDir.exists()) {
-            opelRUIDir.mkdir();
-        }
-        if (!opelRemoteStorageDir.exists()) {
-            opelRemoteStorageDir.mkdir();
-        }
-        if (!opelIconDir.exists()) {
-            opelIconDir.mkdir();
-        }
-        if (!opelCloudDir.exists()) {
-            opelCloudDir.mkdir();
-        }
-
-        OPELContext.getSettings().setOpelStoragePath(opelDir);
-        OPELContext.getSettings().setRUIStoragePath(opelRUIDir);
-        OPELContext.getSettings().setRemoteStorageStoragePath
-                (opelRemoteStorageDir);
-        OPELContext.getSettings().setIconDirectoryPath(opelIconDir);
-        OPELContext.getSettings().setCloudStoragePath(opelCloudDir);
     }
 
     // Input Json Format
@@ -559,6 +278,242 @@ public class MainActivity extends Activity implements CommEventListener {
         Notification n = builder.build();
         nm.notify(1234, n);
     }
+
+    public void updateUI() {
+        mIconListAdapter.updateDisplay();
+    }
+
+    private void terminateUserApp(OPELApplication app) {
+        // Apps Running
+        AlertDialog.Builder alt_bld = new AlertDialog.Builder(MainActivity
+                .this);
+        final OPELApplication fApp = app;
+        alt_bld.setMessage("Terminate this App ?").setCancelable(false)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener
+                        () {
+            public void onClick(DialogInterface dialog, int id) {
+                // Action for 'Yes' Button
+                OPELContext.getAppCore().requestTermination("" + fApp
+                        .getAppId());
+                Log.d("OPEL", "Request to kill ");
+            }
+        }).setNegativeButton("No", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // Action for 'NO' Button
+                dialog.cancel();
+            }
+        });
+
+        AlertDialog alert = alt_bld.create();
+        alert.setTitle(app.getTitle());
+        Drawable d = new BitmapDrawable(getResources(), app.getImage());
+        alert.setIcon(d);
+        alert.show();
+    }
+
+    private void launchAppManager() {
+        if (this.mCommService != null && !this.mCommService.isConnected()) {
+            Toast.makeText(getApplicationContext(), "Disconnected" + " to " +
+                    "OPEL", Toast.LENGTH_SHORT).show();
+        }
+        Intent intent = new Intent(MainActivity.this, AppManagerActivity.class);
+        startActivity(intent);
+    }
+
+    private void launchAppMarket() {
+        if (this.mCommService != null && !this.mCommService.isConnected()) {
+            Toast.makeText(getApplicationContext(), "Disconnected" + " to " +
+                    "OPEL", Toast.LENGTH_SHORT).show();
+        }
+        Intent intent = new Intent(MainActivity.this, AppMarketActivity.class);
+        startActivity(intent);
+    }
+
+    private void launchConnect() {
+        if (this.mCommService != null && !this.mCommService.isConnected()) {
+            this.mCommService.initializeConnection();
+        } else
+            Toast.makeText(getApplicationContext(), "Already connected to " +
+                    "OPEL device", Toast.LENGTH_SHORT).show();
+        return;
+    }
+
+    private void launchFileManager() {
+        if (this.mCommService != null && !this.mCommService.isConnected()) {
+            Toast.makeText(getApplicationContext(), "Disconnected" + " to " +
+                    "OPEL", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Intent intent = new Intent(MainActivity.this, FileManagerActivity
+                .class);
+        startActivity(intent);
+    }
+
+    private void launchCameraBeforeWifiDirectConnected() {
+        if (this.mCommService != null && !this.mCommService.isConnected()) {
+            Toast.makeText(getApplicationContext(), "Disconnected" + " to " +
+                    "OPEL", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        mIsWaitingWifiDirectOnForCamera = true;
+        this.mCommService.turnOnWifiDirect(true);
+    }
+
+    private void launchCameraAfterWifiDirectConnected() {
+        Intent intent = new Intent(MainActivity.this, CameraViewerActivity
+                .class);
+        intent.putExtra(CameraViewerActivity
+                .INTENT_KEY_DEFAULT_WIFI_DIRECT_IP_ADDRESS, this.mCommService
+                .getWifiDirectAddress());
+        startActivity(intent);
+    }
+
+    private void launchSensor() {
+        if (this.mCommService != null && !this.mCommService.isConnected()) {
+            Toast.makeText(getApplicationContext(), "Disconnected" + " to " +
+                    "OPEL", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        Intent intent = new Intent(MainActivity.this, SensorViewerActivity
+                .class);
+        startActivity(intent);
+    }
+
+    private void launchEventLogger() {
+        Intent intent = new Intent(MainActivity.this, EventLoggerActivity
+                .class);
+        startActivity(intent);
+    }
+
+    private void launchDefaultApp(String appName) {
+        if (appName.compareTo("App Manager") == 0) {
+            launchAppManager();
+        } else if (appName.compareTo("App Market") == 0) {
+            launchAppMarket();
+        } else if (appName.compareTo("Connect") == 0) {
+            launchConnect();
+        } else if (appName.compareTo("File Manager") == 0) {
+            launchFileManager();
+        } else if (appName.compareTo("Camera") == 0) {
+            launchCameraBeforeWifiDirectConnected();
+        } else if (appName.compareTo("Sensor") == 0) {
+            launchSensor();
+        } else if (appName.compareTo("Event Logger") == 0) {
+            launchEventLogger();
+        }
+    }
+
+    private void launchUserApp(String appId, String appName) {
+        OPELAppCoreStub opelAppCoreStub = OPELContext.getAppCore();
+        opelAppCoreStub.requestStart(appId, appName);
+    }
+
+    private void showRemoteConfigUI(OPELApplication app) {
+        //Open configuration view if it is running
+        if (app.getConfigJson().equals("N/A")) {
+            Toast.makeText(getApplicationContext(), "Configurable " + "data " +
+                    "is N/A", Toast.LENGTH_SHORT).show();
+        } else {
+            Intent intent = new Intent(MainActivity.this,
+                    RemoteConfigUIActivity.class);
+
+            Bundle extras = new Bundle();
+            extras.putString("title", app.getTitle());
+            extras.putString("appID", "" + app.getAppId());
+            extras.putString("jsonData", app.getConfigJson());
+
+            intent.putExtras(extras);
+            startActivity(intent);
+        }
+    }
+
+    // CommEventListener
+    @Override
+    public void onWifiDirectStateChanged(boolean isWifiOn) {
+        this.setIndicatorWFD(isWifiOn);
+        if(isWifiOn) {
+            if(this.mIsWaitingWifiDirectOnForCamera) {
+                this.launchCameraAfterWifiDirectConnected();
+            }
+        }
+
+        this.mIsWaitingWifiDirectOnForCamera = false;
+    }
+
+    @Override
+    public void onInitializationResult(boolean isInitSuccess) {
+        if (isInitSuccess) {
+            Toast.makeText(getApplicationContext(), "Successfully connected "
+                    + "to OPEL", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(getApplicationContext(), "Failed connecting " +
+                    "to" + " OPEL, re-connect with CONNECT button", Toast
+                    .LENGTH_LONG).show();
+        }
+    }
+
+    @Override
+    public void onBluetoothStateChanged(boolean isConnected) {
+        if (isConnected) {
+            setIndicatorBT(true);
+            OPELContext.getAppCore().requestUpdateAppInfomation();
+        } else {
+            setIndicatorBT(false);
+        }
+    }
+
+    @Override
+    public void onReceivedMessage(String message) {
+        // TODO: forward to OPELAppCoreStub
+        OPELContext.getAppCore().onReceivedMessage(message);
+    }
+
+    // TODO: Convert to CommServiceListener
+    // TODO: Convert to Comm-related callbacks
+    private android.os.Handler mHandler = new android.os.Handler(Looper
+            .getMainLooper()) {
+        @Override
+        public void handleMessage(Message inputMessage) {
+            if (inputMessage.what == OPELAppCoreStub.HANDLER_UPDATE_UI) {
+                //String msg = (String) inputMessage.obj;
+                updateUI();
+                // TODO: convert to CommBroadcastReceiver
+                AppManagerActivity.updateDisplay();
+                EventLoggerActivity.updateDisplay();
+
+                //update All of the UI page
+            } else if (inputMessage.what == OPELAppCoreStub
+                    .HANDLER_UPDATE_TOAST) {
+                String toastMsg = (String) inputMessage.obj;
+                Toast.makeText(getApplicationContext(), toastMsg, Toast
+                        .LENGTH_SHORT).show();
+                //update All of the UI page
+            } else if (inputMessage.what == OPELAppCoreStub.HANDLER_MAKE_NOTI) {
+                String notiJson = (String) inputMessage.obj;
+                updateUI();
+                AppManagerActivity.updateDisplay();
+                makeNotification(notiJson);
+
+                //update All of the UI page
+            } else if (inputMessage.what == OPELAppCoreStub
+                    .HANDLER_UPDATE_FILEMANAGER) {
+                JSONParser jp = (JSONParser) inputMessage.obj;
+                FileManagerActivity.updateDisplay(jp);
+
+            } else if (inputMessage.what == OPELAppCoreStub.HANDLER_EXE_FILE) {
+                JSONParser jp = (JSONParser) inputMessage.obj;
+                FileManagerActivity.runRequestedFile(getApplicationContext(),
+                        jp);
+
+            } else if (inputMessage.what == OPELAppCoreStub
+                    .HANDLER_SHARE_FILE) {
+                JSONParser jp = (JSONParser) inputMessage.obj;
+                FileManagerActivity.runSharingFile(getApplicationContext(), jp);
+            }
+        }
+    };
 }
 
 

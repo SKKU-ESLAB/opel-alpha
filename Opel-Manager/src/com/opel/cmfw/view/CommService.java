@@ -13,8 +13,8 @@ import android.os.ResultReceiver;
 import android.util.Log;
 
 import com.opel.cmfw.controller.CommController;
-import com.opel.cmfw.controller.WifiDirectListener;
 import com.opel.cmfw.controller.WifiDirectBroadcastReceiver;
+import com.opel.cmfw.controller.WifiDirectListener;
 
 import java.util.Arrays;
 
@@ -30,7 +30,7 @@ import java.util.Arrays;
      -(BluetoothDeviceSettingResultReceiver)-> CommService
      -(CommBroadcastReceiver)-> CMFW Users (CommEventListener)
 
-   * Event Path (Listen message)
+   * Event Path (Listen message, listen state)
    CommController -(BluetoothDeviceSettingResultReceiver)-> CommService
      -(CommBroadcastReceiver)-> CMFW Users (CommEventListener)
 */
@@ -51,6 +51,9 @@ public class CommService extends Service implements WifiDirectListener {
     // Wi-fi Direct
     private IntentFilter mWifiP2PIntentFilter;
 
+    // Connection state
+    private boolean mIsConnected = false;
+
     /* Initialize connection with target device (Initially, in Bluetooth)
        Step 1. Try communication device setting
                - On success: store connection information and proceed to Step 2.
@@ -63,13 +66,47 @@ public class CommService extends Service implements WifiDirectListener {
 
     public void setWifiDirectInfo(String wifiDirectName, String
             wifiDirectIPAddress) {
-        this.mCommController.setWifiDirectInfo(wifiDirectName, wifiDirectIPAddress);
+        if (mCommController != null) {
+            this.mCommController.setWifiDirectInfo(wifiDirectName,
+                    wifiDirectIPAddress);
+        }
+    }
+
+    public String getWifiDirectName() {
+        if (mCommController != null) {
+            return this.mCommController.getWifiDirectName();
+        } else {
+            return "";
+        }
+    }
+
+    public String getWifiDirectAddress() {
+        if (mCommController != null) {
+            return this.mCommController.getWifiDirectAddress();
+        } else {
+            return "";
+        }
     }
 
     // Destroy connection with target device
     public void destroyConnection() {
-        this.unregisterReceiver(this.mCommController
-                .getWifiDirectBroadcastReceiver());
+        if (mCommController != null) {
+            this.unregisterReceiver(this.mCommController
+                    .getWifiDirectBroadcastReceiver());
+
+        }
+    }
+
+    public void turnOnWifiDirect(boolean retry) {
+        if (mCommController != null) {
+            this.mCommController.cmfw_wfd_on(retry);
+        }
+    }
+
+    public void turnOffWifiDirect() {
+        if (mCommController != null) {
+            this.mCommController.cmfw_wfd_off();
+        }
     }
 
     // Step 1. Try communication device setting
@@ -93,6 +130,7 @@ public class CommService extends Service implements WifiDirectListener {
                 .INTENT_KEY_DEFAULT_BT_NAME, bluetoothName);
         btDeviceSettingIntent.putExtra(BluetoothDeviceSettingActivity
                 .INTENT_KEY_DEFAULT_BT_ADDRESS, bluetoothAddress);
+        btDeviceSettingIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         this.startActivity(btDeviceSettingIntent);
     }
 
@@ -121,7 +159,7 @@ public class CommService extends Service implements WifiDirectListener {
     private void onTryingCommDeviceSettingFail(String failMessage) {
         Log.e(TAG, "Failed pairing operation: " + failMessage);
         CommBroadcaster.onInitializationResult(this, false);
-        CommBroadcaster.onBluetoothStateChanged(this, false);
+        this.onBluetoothDisconnected();
     }
 
     // Step 2. Initialize CommController
@@ -152,24 +190,43 @@ public class CommService extends Service implements WifiDirectListener {
 
         // Initialize CommController
         this.mCommController = new CommController(wifiP2pManager,
-                wifiP2pManagerChannel, wifiDirectBroadcastReceiver, bluetoothName,
-                bluetoothAddress);
+                wifiP2pManagerChannel, wifiDirectBroadcastReceiver,
+                bluetoothName, bluetoothAddress);
 
         boolean resConnection = this.mCommController.connect(CommController
                 .CMFW_DEFAULT_PORT);
         if (resConnection == false) {
             // Connection Initialization Fail
             CommBroadcaster.onInitializationResult(this, false);
-            CommBroadcaster.onBluetoothStateChanged(this, false);
+            this.onBluetoothDisconnected();
         } else {
             // Connection Initialization Success
             CommBroadcaster.onInitializationResult(this, true);
-            CommBroadcaster.onBluetoothStateChanged(this, true);
+            this.onBluetoothConnected();
 
             // Start to receive message
             this.mReceiveMessageThread = new ReceiveMessageThread();
             this.mReceiveMessageThread.start();
         }
+    }
+
+    private void onBluetoothConnected() {
+        this.mIsConnected = true;
+        CommBroadcaster.onBluetoothStateChanged(this, true);
+    }
+
+    private void onBluetoothDisconnected() {
+        this.mIsReceiveMessageThreadOn = false;
+        if (mCommController != null) {
+            this.mCommController.close(CommController.CMFW_DEFAULT_PORT);
+        }
+
+        this.mIsConnected = false;
+        CommBroadcaster.onBluetoothStateChanged(this, false);
+    }
+
+    public boolean isConnected() {
+        return this.mIsConnected;
     }
 
     // Receive Message Thread
@@ -195,10 +252,12 @@ public class CommService extends Service implements WifiDirectListener {
         int port = CommController.CMFW_DEFAULT_PORT;
         byte[] buf = new byte[4096];
         String msg;
+        if (mCommController == null) {
+            return "";
+        }
         int res = this.mCommController.cmfw_recv_msg(port, buf, 4096);
         if (res < 0) {
-            CommBroadcaster.onBluetoothStateChanged(this, false);
-            this.mIsReceiveMessageThreadOn = false;
+            this.onBluetoothDisconnected();
             return "";
         }
 
@@ -248,9 +307,9 @@ public class CommService extends Service implements WifiDirectListener {
 
         Log.d(TAG, "Send Message: " + msg);
 
-        if (this.mCommController.cmfw_send_msg(port, msg) < 0) {
-            CommBroadcaster.onBluetoothStateChanged(this, false);
-            this.mIsReceiveMessageThreadOn = false;
+        if (this.mCommController != null && this.mCommController
+                .cmfw_send_msg(port, msg) < 0) {
+            this.onBluetoothDisconnected();
             return;
         }
     }
@@ -276,8 +335,7 @@ public class CommService extends Service implements WifiDirectListener {
 //        sendMessage(fileName);
 //        sendMessage(fileSize);
 //        if (this.mCommController.cmfw_send_file(port, fd) < 0) {
-//            CommBroadcaster.onBluetoothStateChanged(this, false);
-//            this.mIsReceiveMessageThreadOn = false;
+//            this.onBluetoothDisconnected();
 //            return;
 //        }
 //
@@ -312,8 +370,7 @@ public class CommService extends Service implements WifiDirectListener {
                         (RECEIVER_KEY_BT_NAME);
                 String bluetoothAddress = resultData.getString
                         (RECEIVER_KEY_BT_ADDRESS);
-                if (bluetoothAddress.isEmpty() == false && bluetoothName
-                        .isEmpty() == false) {
+                if (!bluetoothAddress.isEmpty() && !bluetoothName.isEmpty()) {
                     // On success: Proceed to Step 1-a.
                     onTryingCommDeviceSettingSuccess(bluetoothName,
                             bluetoothAddress);

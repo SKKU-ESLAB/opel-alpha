@@ -13,9 +13,9 @@ import android.os.IBinder;
 import android.os.Message;
 import android.util.Log;
 
-import com.opel.opel_manager.model.OPELApplication;
 import com.opel.opel_manager.controller.mqtt.MQTTBinder;
 import com.opel.opel_manager.controller.mqtt.MQTTBroadCastService;
+import com.opel.opel_manager.model.OPELApplication;
 
 import org.sidibe.mqtt.android.lib.MqttClientState;
 import org.sidibe.mqtt.android.lib.MqttMessage;
@@ -32,20 +32,21 @@ public class MQTTController {
     private MQTTDataReceiver dataReceiver;
     private IntentFilter intentCFilter;
     private MQTTPublisher mPublisher;
-    private String[] topic = {"opel/msg", "opel/img"} ;
+    private String[] topic = {"opel/msg", "opel/img"};
     private Context ctx;
 
     Handler handler;
 
-    public MQTTController(){
+    public MQTTController() {
 
     }
 
-    public void initMqttManager(Context ctx, Intent itt, Handler handler){
+    public void initMqttManager(Context ctx, Intent itt, Handler handler) {
 
         boolean result = retrieveIfLaunchFromNotification(itt);
         if (!result) {
-            intentCFilter = new IntentFilter(MQTTBroadCastService.ACTION_PUSH_ARRIVED);
+            intentCFilter = new IntentFilter(MQTTBroadCastService
+                    .ACTION_PUSH_ARRIVED);
             intentCFilter.addAction(MQTTBroadCastService.ACTION_STATE_CHANGED);
             intentCFilter.addAction(MQTTBroadCastService.ACTION_CLIEND_ID);
             dataReceiver = new MQTTDataReceiver();
@@ -55,21 +56,24 @@ public class MQTTController {
         }
     }
 
-    public void initPublisher(){
+    public void initPublisher() {
         mPublisher = new MQTTPublisher(ctx, topic);
     }
 
-    public void mqttSendMsg(String topic, String msg){
+    public void mqttSendMsg(String topic, String msg) {
 
         mPublisher.onPushMessage(msg, topic);
 
     }
-    public void mqttSendFile(String topic, byte[] file){
+
+    public void mqttSendFile(String topic, byte[] file) {
 
         mPublisher.onPushByteArray(file, topic);
 
     }
-    //private final MessageListAdapter messageAdapter = new MessageListAdapter(new ArrayList<MqttMessage>());
+
+    //private final MessageListAdapter messageAdapter = new
+    // MessageListAdapter(new ArrayList<MqttMessage>());
     public boolean retrieveIfLaunchFromNotification(Intent intent) {
 
         if (intent == null) {
@@ -83,7 +87,8 @@ public class MQTTController {
             return false;
         }
 
-        MqttClientState clientState = (MqttClientState) bundle.getSerializable(MQTTBroadCastService.KEY_STATE);
+        MqttClientState clientState = (MqttClientState) bundle
+                .getSerializable(MQTTBroadCastService.KEY_STATE);
 
         if (clientState != null) {
             setupConnectionStatePart(clientState);
@@ -91,7 +96,8 @@ public class MQTTController {
             return true;
         }
 
-        MqttMessage mqttMessage = (MqttMessage) bundle.getParcelable(MQTTBroadCastService.KEY_DATA);
+        MqttMessage mqttMessage = (MqttMessage) bundle.getParcelable
+                (MQTTBroadCastService.KEY_DATA);
         if (mqttMessage != null) {
             //messageAdapter.add(mqttMessage);
 
@@ -102,44 +108,38 @@ public class MQTTController {
     }
 
 
-    public MQTTDataReceiver getDataReceiver(){
+    public MQTTDataReceiver getDataReceiver() {
         return this.dataReceiver;
     }
 
-    public IntentFilter getIntentFilter(){
+    public IntentFilter getIntentFilter() {
         return this.intentCFilter;
     }
 
-    public void submitTopics(){
+    public void submitTopics() {
 
-        for(int i=0; i<topic.length; i++){
+        for (int i = 0; i < topic.length; i++) {
             mPublisher.onTopicSubmitted(topic[i]);
-          //  Log.d("OPEL", "topic : " + topic[i]);
+            //  Log.d("OPEL", "topic : " + topic[i]);
         }
     }
 
     private void setupConnectionStatePart(MqttClientState clientState) {
 
-     //   Log.d("OPEL", "Client state : " + clientState.name()+ "     " + clientState.getMessage());
+        //   Log.d("OPEL", "Client state : " + clientState.name()+ "     " +
+        // clientState.getMessage());
 
-        if( !clientState.name().equals( "CONNECTED") ){
+        if (!clientState.name().equals("CONNECTED")) {
 
             submitTopics();
-        }
-
-        else if( !clientState.name().equals( "CONNECTING") ){
+        } else if (!clientState.name().equals("CONNECTING")) {
             submitTopics();
-        }
+        } else if (!clientState.name().equals("SUBSCRIBE_ERROR")) {
 
-        else if( !clientState.name().equals( "SUBSCRIBE_ERROR") ){
+        } else if (!clientState.name().equals("NOTCONNECTED_UNKNOWNREASON")) {
 
-        }
-
-        else if( !clientState.name().equals( "NOTCONNECTED_UNKNOWNREASON") ){
-
-        }
-
-        else if( !clientState.name().equals( "NOTCONNECTED_WAITINGFORINTERNET") ){
+        } else if (!clientState.name().equals
+                ("NOTCONNECTED_WAITINGFORINTERNET")) {
 
         }
 
@@ -147,7 +147,7 @@ public class MQTTController {
 
     private void showGeneratedClientId(String clientID) {
 
-        Log.d("OPEL",  "Client ID : " + clientID);
+        Log.d("OPEL", "Client ID : " + clientID);
     }
 
 
@@ -162,16 +162,19 @@ public class MQTTController {
         @Override
         public void onReceive(Context ctx, Intent intent) {
             String action = intent.getAction();
-          //  Log.d("OPEL", "RCV MSG : ");
-            if (MQTTBroadCastService.ACTION_PUSH_ARRIVED.equalsIgnoreCase(action)) {
-                MqttMessage message = intent.getExtras().getParcelable(MQTTBroadCastService.KEY_DATA);
+            //  Log.d("OPEL", "RCV MSG : ");
+            if (MQTTBroadCastService.ACTION_PUSH_ARRIVED.equalsIgnoreCase
+                    (action)) {
+                MqttMessage message = intent.getExtras().getParcelable
+                        (MQTTBroadCastService.KEY_DATA);
                 //messageAdapter.add(message);
                 String content = message.getContentText();
 
-             //   Log.d("OPEL", "RCV MSG : "+ message + "   Content : " + content + "Topic : "+message.getTopic().getName());
+                //   Log.d("OPEL", "RCV MSG : "+ message + "   Content : " +
+                // content + "Topic : "+message.getTopic().getName());
 
-                if(message.getTopic().getName().equals("opel/msg")){
-               //     Log.d("OPEL","DONGIGIGIG");
+                if (message.getTopic().getName().equals("opel/msg")) {
+                    //     Log.d("OPEL","DONGIGIGIG");
                     JSONParser jp = new JSONParser(content);
                     String name = jp.getValueByKey("Name");
                     String age = jp.getValueByKey("age");
@@ -179,20 +182,23 @@ public class MQTTController {
                     String school = jp.getValueByKey("info");
                     String img = jp.getValueByKey("img");
 
-                    if(name.equals("") || age.equals("") || gender.equals("") || school.equals("") || img.equals("")) {
-                        Log.d("OPEL", "[MQTT Listener -> the data from cloud server is not correct : " + jp.getJsonData());
+                    if (name.equals("") || age.equals("") || gender.equals
+                            ("") || school.equals("") || img.equals("")) {
+                        Log.d("OPEL", "[MQTT Listener -> the data from cloud " +
+                                "server is not correct : " + jp.getJsonData());
                     }
-                   String appID = String.valueOf(Integer.parseInt(img.substring(0, 5)));
-                   OPELApplication ap = OPELContext.get().getAppList().getApp(appID);
+                    String appID = String.valueOf(Integer.parseInt(img
+                            .substring(0, 5)));
+                    OPELApplication ap = OPELContext.getAppList().getApp(appID);
 
                     String appTitle = ap.getTitle();
 
 
-                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd " +
+                            "HH:mm:ss");
                     String dateTime = sdf.format(new Date());
-                    String description = name + "("+age+") is Dectected";
+                    String description = name + "(" + age + ") is Dectected";
                     String txt = school + " - " + gender;
-
 
 
                     JSONParser sendJson = new JSONParser();
@@ -201,14 +207,18 @@ public class MQTTController {
                     sendJson.addJsonKeyValue("appID", appID);
                     sendJson.addJsonKeyValue("appTitle", appTitle);
                     sendJson.addJsonKeyValue("dateTime", dateTime);
-                    sendJson.addJsonKeyValue("isNoti","2");
-                    sendJson.addJsonKeyValue("description", description );
+                    sendJson.addJsonKeyValue("isNoti", "2");
+                    sendJson.addJsonKeyValue("description", description);
 
                     sendJson.addJsonKeyValue("text", txt);
                     sendJson.addJsonKeyValue("img", img);
 
-                    OPELContext.get().getEventList().addEvent(sendJson.getValueByKey("appID"), sendJson.getValueByKey("appTitle"), sendJson.getValueByKey("description"), sendJson.getValueByKey("dateTime"), sendJson.getJsonData());
-                    updateMainUIThread(MAKE_NOTI, sendJson.getJsonData() );
+                    OPELContext.getEventList().addEvent(sendJson
+                            .getValueByKey("appID"), sendJson.getValueByKey
+                            ("appTitle"), sendJson.getValueByKey
+                            ("description"), sendJson.getValueByKey
+                            ("dateTime"), sendJson.getJsonData());
+                    updateMainUIThread(MAKE_NOTI, sendJson.getJsonData());
                     updateMainUIThread(UPDATE_UI);
 
 
@@ -216,19 +226,23 @@ public class MQTTController {
                 return;
 
             }
-            if (MQTTBroadCastService.ACTION_STATE_CHANGED.equalsIgnoreCase(action)) {
-                MqttClientState connectionState = (MqttClientState) intent.getSerializableExtra(MQTTBroadCastService.KEY_STATE);
+            if (MQTTBroadCastService.ACTION_STATE_CHANGED.equalsIgnoreCase
+                    (action)) {
+                MqttClientState connectionState = (MqttClientState) intent
+                        .getSerializableExtra(MQTTBroadCastService.KEY_STATE);
                 setupConnectionStatePart(connectionState);
                 return;
             }
-            if (MQTTBroadCastService.ACTION_CLIEND_ID.equalsIgnoreCase(action)) {
-                String clientID = intent.getStringExtra(MQTTBroadCastService.KEY_CLIENT_ID);
+            if (MQTTBroadCastService.ACTION_CLIEND_ID.equalsIgnoreCase
+                    (action)) {
+                String clientID = intent.getStringExtra(MQTTBroadCastService
+                        .KEY_CLIENT_ID);
                 showGeneratedClientId(clientID);
                 return;
             }
         }
 
-        private void updateMainUIThread(int what){
+        private void updateMainUIThread(int what) {
 
             Message msg = Message.obtain();
             msg.what = what;
@@ -237,12 +251,12 @@ public class MQTTController {
 
         }
 
-        private void updateMainUIThread(int what, Object obj){
+        private void updateMainUIThread(int what, Object obj) {
 
             Message msg = Message.obtain();
             msg.what = what;
 
-            msg.obj  = obj;
+            msg.obj = obj;
 
             handler.sendMessage(msg);
 
@@ -259,16 +273,16 @@ class MQTTPublisher {
 
     private ArrayList<MqttTopic> topicList;
 
-    public MQTTPublisher(Context ctx, String[] topic){
+    public MQTTPublisher(Context ctx, String[] topic) {
 
         serviceConnecter = new ServiceConnecter();
         serviceConnecter.bind(ctx);
 
         mqttOption_retain = false;
-        mqttOption_Qos_Level=0;
+        mqttOption_Qos_Level = 0;
         topicList = new ArrayList<MqttTopic>();
 
-        for(int i=0; i<topic.length; i++){
+        for (int i = 0; i < topic.length; i++) {
             topicList.add(new MqttTopic(topic[i]));
         }
     }
@@ -277,7 +291,7 @@ class MQTTPublisher {
     public void onTopicSubmitted(String topicName) {
 
         if (!serviceConnecter.IsConnected()) {
-          //  Log.d("OPEL", "Your are not connected");
+            //  Log.d("OPEL", "Your are not connected");
             return;
         }
         MqttTopic tp = new MqttTopic(topicName);
@@ -288,15 +302,14 @@ class MQTTPublisher {
 
     public void onPushMessage(String message, String topicName) {
         if (!serviceConnecter.IsConnected()) {
-         //   Log.d("OPEL", "Your are not connected2");
+            //   Log.d("OPEL", "Your are not connected2");
             return;
         }
 
-        if (message == null || message.length() < 1 || topicName == null || topicName.length() < 1) {
-         //   Log.d("OPEL", "Topic or message cannot be empty");
-        }
-
-        else {
+        if (message == null || message.length() < 1 || topicName == null ||
+                topicName.length() < 1) {
+            //   Log.d("OPEL", "Topic or message cannot be empty");
+        } else {
 
             MqttMessage mqttMessage = new MqttMessage();
             mqttMessage.setContent(message);
@@ -307,17 +320,17 @@ class MQTTPublisher {
 
         }
     }
+
     public void onPushByteArray(byte[] byteArray, String topicName) {
         if (!serviceConnecter.IsConnected()) {
-         //   Log.d("OPEL", "Your are not connected2");
+            //   Log.d("OPEL", "Your are not connected2");
             return;
         }
 
-        if (byteArray == null || byteArray.length < 1 || topicName == null || topicName.length() < 1) {
+        if (byteArray == null || byteArray.length < 1 || topicName == null ||
+                topicName.length() < 1) {
             Log.d("OPEL", "Topic or message cannot be empty");
-        }
-
-        else {
+        } else {
 
             MqttMessage mqttMessage = new MqttMessage();
             mqttMessage.setContent(byteArray);
@@ -328,6 +341,7 @@ class MQTTPublisher {
 
         }
     }
+
     class ServiceConnecter implements ServiceConnection {
 
         private MQTTBroadCastService service;
@@ -336,7 +350,7 @@ class MQTTPublisher {
         public void bind(Context context) {
             Intent intent = new Intent(context, MQTTBroadCastService.class);
             context.bindService(intent, this, Context.BIND_AUTO_CREATE);
-          //  Log.d("OPEL", "bind");
+            //  Log.d("OPEL", "bind");
         }
 
         public void unbind(Context context) {
@@ -346,9 +360,10 @@ class MQTTPublisher {
 
         @Override
         public void onServiceConnected(ComponentName name, IBinder binder) {
-            MQTTBinder<MQTTBroadCastService> mqttBinder = (MQTTBinder<MQTTBroadCastService>) binder;
+            MQTTBinder<MQTTBroadCastService> mqttBinder =
+                    (MQTTBinder<MQTTBroadCastService>) binder;
             service = mqttBinder.getService();
-         //   Log.d("OPEL", "onServiceConnceted");
+            //   Log.d("OPEL", "onServiceConnceted");
 
             isBound = true;
 
@@ -381,8 +396,8 @@ class MQTTPublisher {
         }
 
         public boolean IsConnected() {
-            if(service == null){
-          //      Log.d("OPEL", "Service is null");
+            if (service == null) {
+                //      Log.d("OPEL", "Service is null");
                 return false;
 
             }

@@ -67,11 +67,6 @@ public class CommController {
     public static final short CMFW_PACKET_SIZE = 1008;
     public static final short CMFW_PACKET_HEADER_SIZE = 8;
 
-    private final int CMFW_CMD_WFD_ON = 1;
-    private final int CMFW_CMD_WFD_ON_ACK = 2;
-    private final int CMFW_CMD_WFD_OFF = 3;
-    private final int CMFW_CMD_WFD_OFF_ACK = 4;
-
     private final int DEFINED_PORT_NUM = 5;
     private final String ports_uuid[] =
             {"0a1b2c3d-4e5f-6a1c-2d0e-1f2a3b4c5d6d",
@@ -146,6 +141,14 @@ public class CommController {
             wifiDirectIPAddress) {
         this.mWifiDirectBroadcastReceiver.setWifiDirectInfo(wifiDirectName,
                 wifiDirectIPAddress);
+    }
+
+    public String getWifiDirectName() {
+        return this.mWifiDirectBroadcastReceiver.getWifiDirectName();
+    }
+
+    public String getWifiDirectAddress() {
+        return this.mWifiDirectBroadcastReceiver.getWifiDirectAddress();
     }
 
     public WifiDirectBroadcastReceiver getWifiDirectBroadcastReceiver() {
@@ -429,7 +432,6 @@ public class CommController {
                     ports[CMFW_CONTROL_PORT].close();
                     return -1;
                 } else {
-                    // TODO
                     if (this.mWifiDirectBroadcastReceiver.isConnected()) {
                         wfd_in_use++;
                         cmfw_send_msg(CMFW_CONTROL_PORT, "on");
@@ -450,7 +452,6 @@ public class CommController {
 
         Log.d("WFD_ON", "Scan!");
 
-        // TODO: move to CommService
         synchronized (this.mWifiP2pManager) {
             do {
                 this.mWifiP2pManager.discoverPeers(this
@@ -894,10 +895,10 @@ public class CommController {
             if (mBtSocket == null) return CMFW_STAT_DISCON;
 
             //Log.d("Stat", Boolean.toString(mBtSocket.isConnected()));
-            if (mBtSocket.isConnected() == false) return CMFW_STAT_DISCON;
+            if (!mBtSocket.isConnected()) return CMFW_STAT_DISCON;
 
             if (socket == null) return CMFW_STAT_BT_CONNECTED;
-            else if (socket.isConnected() == false)
+            else if (!socket.isConnected())
                 return CMFW_STAT_BT_CONNECTED;
             else return CMFW_STAT_WFD_CONNECTED;
         }
@@ -910,8 +911,7 @@ public class CommController {
                 return isSucceed;
             }
 
-            if (mBluetoothName.isEmpty() == true || mBluetoothAddress.isEmpty
-                    () == true) {
+            if (mBluetoothName.isEmpty() || mBluetoothAddress.isEmpty()) {
                 isSucceed = false;
                 return isSucceed;
             }

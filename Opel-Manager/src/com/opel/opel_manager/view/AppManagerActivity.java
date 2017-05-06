@@ -111,7 +111,7 @@ public class AppManagerActivity extends Activity {
 							new DialogInterface.OnClickListener() {
 								public void onClick(DialogInterface dialog,	int id) {
 									// Action for 'Yes' Button									
-									OPELContext.getCommController().requestUninstall(item
+									OPELContext.getAppCore().requestUninstall(item
 											.getAppID());
 								}
 							})

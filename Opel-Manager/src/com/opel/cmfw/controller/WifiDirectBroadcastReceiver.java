@@ -47,6 +47,13 @@ public class WifiDirectBroadcastReceiver extends BroadcastReceiver {
         this.mWifiDirectIPAddress = wifiDirectIPAddress;
     }
 
+    public String getWifiDirectName() {
+        return this.mWifiDirectName;
+    }
+    public String getWifiDirectAddress() {
+        return this.mWifiDirectIPAddress;
+    }
+
     public void setStateListener(WifiDirectListener stateListener) {
         this.mListener = stateListener;
     }

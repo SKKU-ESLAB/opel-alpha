@@ -131,7 +131,7 @@ public class RemoteConfigUIActivity extends Activity {
 
                     }
 
-                    OPELContext.getCommController().requestConfigSetting(jp);
+                    OPELContext.getAppCore().requestConfigSetting(jp);
                     this.finish();
                 }
 

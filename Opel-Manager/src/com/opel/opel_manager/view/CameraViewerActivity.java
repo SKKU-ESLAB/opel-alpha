@@ -3,6 +3,7 @@ package com.opel.opel_manager.view;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -17,8 +18,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.opel.opel_manager.controller.OPELContext;
 import com.opel.opel_manager.R;
+import com.opel.opel_manager.controller.OPELContext;
 
 import org.freedesktop.gstreamer.GStreamer;
 
@@ -30,8 +31,13 @@ import java.net.Socket;
 import java.net.SocketAddress;
 
 
-public class CameraViewerActivity extends Activity implements SurfaceHolder.Callback,
-        TCPStreaming.WidiStateListener {
+public class CameraViewerActivity extends Activity implements SurfaceHolder
+        .Callback {
+    public static final String INTENT_KEY_DEFAULT_WIFI_DIRECT_IP_ADDRESS =
+            "DefaultWifiDirectIPAddress";
+
+    private String mWifiDirectIPAddress = "";
+
     private native void nativeInit(String addr, String vport);     //
     // Initialize native code, build pipeline, etc
 
@@ -70,13 +76,12 @@ public class CameraViewerActivity extends Activity implements SurfaceHolder.Call
     // to seek to
     private String mediaUri;              // URI of the clip being played
 
-    private final String defaultMediaUri = "http://docs.gstreamer" +
+    private final String defaultMediaUri = "http://docs.gstreamer" + "" +
             ".com/media/sintel_trailer-368p.ogv";
     private String vport = "5000";
 
     private EditText editTextIPAddress;
     private InputMethodManager imm;
-    private String server = "192.168.49.1";
     private int port = 5000;
 
     private Button buttonRecord;
@@ -85,7 +90,7 @@ public class CameraViewerActivity extends Activity implements SurfaceHolder.Call
     private Object mDelayedSurface;
 
     // TCP Handling
-    TCPStreaming tcpstreaming;
+    TCPStreaming mTCPStreaming;
     private byte[] frame; // Maximum 1Frame JPEG SIZE of 1080P
     private TcpHandler handler;
 
@@ -98,9 +103,9 @@ public class CameraViewerActivity extends Activity implements SurfaceHolder.Call
 
         public void handleMessage(Message msg) {
             switch (msg.what) {
-                case TCPStreaming.MSG_TYPE_STAT_CHANGED:
+                case MSG_TYPE_STAT_CHANGED:
                     break;
-                case TCPStreaming.MSG_TYPE_STAT_READ:
+                case MSG_TYPE_STAT_READ:
                     processing = true;
                     processing = false;
                     break;
@@ -133,13 +138,17 @@ public class CameraViewerActivity extends Activity implements SurfaceHolder.Call
         // Initialize TCP handling
         handler = new TcpHandler();
 
-        // TODO
-        if (OPELContext.get().getDeviceIP().equals("N/A")) {
+        // Get Target IP Address
+        Intent intent = getIntent();
+        this.mWifiDirectIPAddress = intent.getStringExtra
+                (INTENT_KEY_DEFAULT_WIFI_DIRECT_IP_ADDRESS);
+        if (this.mWifiDirectIPAddress.compareTo("N/A") == 0) {
             this.finish();
         }
 
-        tcpstreaming = new TCPStreaming(server, port, this, handler);
-        tcpstreaming.start();
+        mTCPStreaming = new TCPStreaming(this.mWifiDirectIPAddress, port,
+                handler);
+        mTCPStreaming.start();
 
         // Initialize GStreamer and warn if it fails
         try {
@@ -161,10 +170,6 @@ public class CameraViewerActivity extends Activity implements SurfaceHolder.Call
                     .Builder().permitAll().build();
             StrictMode.setThreadPolicy(policy);
         }
-
-        editTextIPAddress = (EditText) this.findViewById(R.id
-                .editTextIPAddress);
-        editTextIPAddress.setText(server);
 
         SurfaceView sv = (SurfaceView) this.findViewById(R.id.surface_video);
         SurfaceHolder sh = sv.getHolder();
@@ -191,9 +196,9 @@ public class CameraViewerActivity extends Activity implements SurfaceHolder.Call
     }
 
     // Initialize Gstreamer connection
-    private void initializeGstreamerConnection() {
+    public void initializeGstreamerConnection() {
         Log.d("CameraViewerActivity", "initializeGstreamerConnection()");
-        nativeInit(server, vport);
+        nativeInit(this.mWifiDirectIPAddress, vport);
 
         try {
             Thread.sleep(2000);
@@ -222,42 +227,28 @@ public class CameraViewerActivity extends Activity implements SurfaceHolder.Call
     @Override
     protected void onResume() {
         // Initialize TCP handling
-        OPELContext.getCommController()
-                .requestRunNativeJSAppCameraViewer();
-        if (tcpstreaming == null) {
-            tcpstreaming = new TCPStreaming(server, port, this, handler);
-            tcpstreaming.start();
+        OPELContext.getAppCore().requestRunNativeJSAppCameraViewer();
+        if (mTCPStreaming == null) {
+            mTCPStreaming.start();
         }
 
         super.onResume();
 
         // Acquire wakelock
         this.acquireCpuWakeLock();
-
-        // Initialize Wifi receiver
-        // TODO
-        registerReceiver(OPELContext.get().getWifiReceiver(),
-                OPELContext.get().getIntentFilter());
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        OPELContext.getCommController()
-                .requestTermNativeJSAppCameraViewer();
-        OPELContext.getCommController().mCMFW
-                .cmfw_wfd_off();
+        OPELContext.getAppCore().requestTermNativeJSAppCameraViewer();
         this.releaseCpuWakeLock();
 
         // Finalize TCP handling
-        if (tcpstreaming != null) {
-            tcpstreaming.Cancel();
-            tcpstreaming = null;
+        if (mTCPStreaming != null) {
+            mTCPStreaming.Cancel();
+            mTCPStreaming = null;
         }
-
-        // Finalize Wifi receiver
-        // TODO
-        unregisterReceiver(OPELContext.get().getWifiReceiver());
     }
 
     @Override
@@ -284,7 +275,8 @@ public class CameraViewerActivity extends Activity implements SurfaceHolder.Call
     }
 
     // Called from native code. Native code calls this once it has created
-    // its pipeline and the camera_viewer loop is running, so it is ready to accept
+    // its pipeline and the camera_viewer loop is running, so it is ready to
+    // accept
     // commands.
     private void onGStreamerInitialized() {
         Log.i("GStreamer", "GStreamer initialized:");
@@ -346,127 +338,94 @@ public class CameraViewerActivity extends Activity implements SurfaceHolder.Call
     void exitFromRunLoop() {
     }
 
-    public void onWidiReady() {
-        Log.d("CameraViewerActivity", "onWidiReady()");
-        this.initializeGstreamerConnection();
-    }
-}
+    public static final short STAT_DISCON = 0;
+    public static final short STAT_CONNECTING = 1;
+    public static final short STAT_CONNECTED = 2;
 
-class TCPStreaming extends Thread {
-    interface WidiStateListener {
-        public void onWidiReady();
-    }
+    public static final int MSG_TYPE_STAT_CHANGED = 0;
+    public static final int MSG_TYPE_STAT_READ = 1;
 
-    private Socket tcpSocket;
-    private SocketAddress sock_addr;
-    private InputStream mInStream;
-    String ip;
-    int port;
-    boolean sch;
-    private short stat;
-    static public short STAT_DISCON = 0;
-    static public short STAT_CONNECTING = 1;
-    static public short STAT_CONNECTED = 2;
+    class TCPStreaming extends Thread {
+        private Socket tcpSocket;
+        private InputStream mInStream;
+        String ip;
+        int port;
+        boolean sch;
+        private short stat;
 
-    static public final int MSG_TYPE_STAT_CHANGED = 0;
-    static public final int MSG_TYPE_STAT_READ = 1;
-    private CameraViewerActivity.TcpHandler mHandler;
-    public byte frames[][];
+        private CameraViewerActivity.TcpHandler mHandler;
+        public byte frames[][];
 
-    private WidiStateListener mListener;
+        public TCPStreaming(String ip, int port, CameraViewerActivity
+                .TcpHandler handler) {
+            mHandler = handler;
+            this.ip = new String(ip);
+            this.port = port;
+            stat = STAT_DISCON;
+            frames = new byte[2][];
+            sch = false;
+        }
 
-    public TCPStreaming(String ip, int port, WidiStateListener listener,
-                        CameraViewerActivity.TcpHandler handler) {
-        mHandler = handler;
-        this.ip = new String(ip);
-        this.port = port;
-        stat = STAT_DISCON;
-        //Socket tmpSock = null;
-        sock_addr = null;
-        frames = new byte[2][];
+        public void onStatChanged(short stat) {
+        }
 
-        sch = false;
+        public void onReceived(byte[] frame) {
+            if (mHandler.processing == false)
+                mHandler.obtainMessage(MSG_TYPE_STAT_READ, frame)
+                        .sendToTarget();
+        }
 
-        this.mListener = listener;
-    }
+        public void Cancel() {
+            sch = false;
+        }
 
-    public void onStatChanged(short stat) {
-      /*
-       * Should implement this
-       */
+        public void run() {
 
-    }
+            short prev_stat = stat;
+            sch = true;
+            while (sch) {
+                if (tcpSocket == null) {
+                    // Forward to GStreamer RPI Viewer
+                    initializeGstreamerConnection();
+                    if (tcpSocket == null || tcpSocket.isConnected() == false)
+                        break;
+                }
+                if (prev_stat != stat) {
+                    prev_stat = stat;
+                    onStatChanged(stat);
+                }
 
-    public void onReceived(byte[] frame) {
-      /*
-       * Should implement this
-       */
-        if (mHandler.processing == false)
-            mHandler.obtainMessage(MSG_TYPE_STAT_READ, frame).sendToTarget();
-    }
-
-    public void Cancel() {
-        sch = false;
-    }
-
-    public void run() {
-
-        short prev_stat = stat;
-        sch = true;
-        while (sch) {
-            if (tcpSocket == null) {
-                // TODO
-                while (OPELContext.getCommController()
-                        .mCMFW.cmfw_wfd_on(false) < 0) {
+                byte[] frame = null;
+                while (sch && stat == STAT_CONNECTED) {
+                    if (tcpSocket.isConnected() == false) {
+                        stat = STAT_DISCON;
+                        break;
+                    }
                     try {
-                        sleep(1000);
-                    } catch (InterruptedException e) {
+                        ByteArrayOutputStream baos = new
+                                ByteArrayOutputStream();
+                        DataInputStream bis = new DataInputStream(mInStream);
+                        int len = bis.readInt();
+                        Log.d("Streaming", "Frame Len:" + Integer.toString
+                                (len));
+                        frame = new byte[len];
+                        bis.readFully(frame);
+                        onReceived(frame);
+                    } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }
-//                connect();
-                // Forward to GStreamer RPI Viewer
-                mListener.onWidiReady();
+            }
 
-                if (tcpSocket == null || tcpSocket.isConnected() == false)
-                    break;
-            }
-            if (prev_stat != stat) {
-                prev_stat = stat;
-                onStatChanged(stat);
-            }
-            byte[] frame = null;
-            while (sch && stat == STAT_CONNECTED) {
-                if (tcpSocket.isConnected() == false) {
-                    stat = STAT_DISCON;
-                    break;
+            try {
+                if (null != tcpSocket) {
+                    tcpSocket.close();
+                    tcpSocket = null;
                 }
-
-                try {
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    DataInputStream bis = new DataInputStream(mInStream);
-                    int len = bis.readInt();
-                    Log.d("Streaming", "Frame Len:" + Integer.toString(len));
-                    frame = new byte[len];
-                    bis.readFully(frame);
-
-                    onReceived(frame);
-
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        }
-
-        try {
-            if (null != tcpSocket) {
-                tcpSocket.close();
-                tcpSocket = null;
-            }
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
         }
     }
+
 }
