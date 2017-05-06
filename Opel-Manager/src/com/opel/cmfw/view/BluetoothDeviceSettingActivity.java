@@ -26,6 +26,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.ResultReceiver;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.View;
@@ -55,7 +56,7 @@ public class BluetoothDeviceSettingActivity extends Activity {
 
     // Parameters to BluetoothDeviceSettingActivity
     // Result receiver
-    private CommService.BluetoothDeviceSettingResultReceiver mReceiver;
+    private ResultReceiver mReceiver;
     private String mDefaultBluetoothName;
     private String mDefaultBluetoothAddress;
 
@@ -102,7 +103,7 @@ public class BluetoothDeviceSettingActivity extends Activity {
 
         // Get Parameters
         Intent callerIntent = this.getIntent();
-        this.mReceiver = (CommService.BluetoothDeviceSettingResultReceiver)
+        this.mReceiver = (ResultReceiver)
                 callerIntent.getParcelableExtra(INTENT_KEY_RECEIVER);
         this.mDefaultBluetoothName = callerIntent.getStringExtra
                 (INTENT_KEY_DEFAULT_BT_NAME);
