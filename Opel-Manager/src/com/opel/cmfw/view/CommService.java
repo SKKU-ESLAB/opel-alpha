@@ -55,9 +55,14 @@ public class CommService extends Service implements WifiDirectListener {
     private boolean mIsConnected = false;
 
     /* Initialize connection with target device (Initially, in Bluetooth)
-       Step 1. Try communication device setting
-               - On success: store connection information and proceed to Step 2.
-       Step 2. Initialize CommController
+       Step 1. Try to set bluetooth device (BluetoothTurningOnActivity)
+       (checking communication device permission, turning on bluetooth)
+       Step 2. Try to initialize CommController with stored info. (CommService)
+               - On success: store connection information and proceed to Step 4.
+               - On fail: proceed to Step 3.
+       Step 3. Try communication device setting (BluetoothDeviceSettingActivity)
+               - On success: store connection information and proceed to Step 4.
+       Step 4. Initialize CommController (CommService)
                (Make bluetooth socket connected to the target device)
     */
     public void initializeConnection() {
@@ -118,6 +123,9 @@ public class CommService extends Service implements WifiDirectListener {
                 (PREFERENCE_ATTR_KEY_BT_NAME, "");
         String bluetoothAddress = sharedPreferences.getString
                 (PREFERENCE_ATTR_KEY_BT_ADDRESS, "");
+        Log.d(TAG, "Stored bluetooth name: " + bluetoothName + " / " +
+                "bluetooth address: " +
+                bluetoothAddress);
 
         // Launch BluetoothDeviceSettingActivity for setting communication
         // devices.

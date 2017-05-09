@@ -65,23 +65,6 @@ public class BluetoothDeviceSettingActivity extends Activity {
     // Newly discovered devices
     private ArrayAdapter<String> mNewDevicesArrayAdapter;
 
-    private void resultInSuccess(String bluetoothName, String
-            bluetoothAddress) {
-        Bundle bundle = new Bundle();
-        bundle.putString(CommService.BluetoothDeviceSettingResultReceiver
-                .RECEIVER_KEY_BT_NAME, bluetoothName);
-        bundle.putString(CommService.BluetoothDeviceSettingResultReceiver
-                .RECEIVER_KEY_BT_ADDRESS, bluetoothAddress);
-        this.mReceiver.send(Activity.RESULT_OK, bundle);
-        finish();
-    }
-
-    private void resultInFail(String failMessage) {
-        Bundle bundle = new Bundle();
-        this.mReceiver.send(Activity.RESULT_CANCELED, bundle);
-        finish();
-    }
-
     // * Bluetooth Device Setting Process
     // 1. Initialize UI Layout
     // 2. Ensure that communication device permission is granted
@@ -103,8 +86,8 @@ public class BluetoothDeviceSettingActivity extends Activity {
 
         // Get Parameters
         Intent callerIntent = this.getIntent();
-        this.mReceiver = (ResultReceiver)
-                callerIntent.getParcelableExtra(INTENT_KEY_RECEIVER);
+        this.mReceiver = (ResultReceiver) callerIntent.getParcelableExtra
+                (INTENT_KEY_RECEIVER);
         this.mDefaultBluetoothName = callerIntent.getStringExtra
                 (INTENT_KEY_DEFAULT_BT_NAME);
         this.mDefaultBluetoothAddress = callerIntent.getStringExtra
@@ -118,108 +101,6 @@ public class BluetoothDeviceSettingActivity extends Activity {
     public void onBackPressed() {
         // Cancel communication setting.
         resultInFail("User canceled Bluetooth device setting!");
-    }
-
-    // Step 2-1. Check communication device permission
-    private void checkCommPermission() {
-        if (checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            // If communication device permission is not granted, request the
-            // permission once more.
-            ActivityCompat.requestPermissions(this, new String[]{Manifest
-                    .permission.ACCESS_COARSE_LOCATION}, 1);
-        } else {
-            // Proceed to Step 3.
-            // If communication device permission is granted, check if bluetooth
-            // device is turned on
-            checkBluetoothOn();
-        }
-    }
-
-    // Step 2-2. Handle the result of communication device permission request
-    public void onRequestPermissionsResult(int requestCode, String
-            permissions[], int[] grantResults) {
-        if (grantResults.length <= 0 || grantResults[0] != PackageManager
-                .PERMISSION_GRANTED) {
-            // If communication device permission is eventually not granted,
-            // cancel communication setting.
-            Toast.makeText(this, "Cannot be granted communication device " +
-                    "permission!", Toast.LENGTH_LONG).show();
-            resultInFail("Cannot be granted communication device permission!");
-        } else {
-            // Proceed to Step 3.
-            // If communication device permission is granted, check if
-            // bluetooth device is turned on.
-            checkBluetoothOn();
-        }
-    }
-
-    // Step 3-1. Check whether bluetooth is turned on or off
-    public void checkBluetoothOn() {
-        // Checking Bluetooth device via BluetoothAdapter
-        if (BluetoothAdapter.getDefaultAdapter() == null) {
-            // If bluetooth adapter is not found, cancel communication setting.
-            Toast.makeText(this, "Bluetooth device is required!", Toast
-                    .LENGTH_SHORT).show();
-            resultInFail("Bluetooth device is required!");
-        } else if (!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
-            // If bluetooth device is turned off, try to turn bluetooth on.
-            Intent enable_bt_intent = new Intent(BluetoothAdapter
-                    .ACTION_REQUEST_ENABLE);
-            startActivityForResult(enable_bt_intent, 1);
-        } else {
-            // Proceed to Step 4.
-            // If bluetooth device is turned on, find already-bonded
-            // bluetooth device.
-            this.findBluetoothDevice();
-        }
-    }
-
-    // Step 3-2. Handle the result of checking bluetooth on/off
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent
-            data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (resultCode == Activity.RESULT_CANCELED) {
-            // If trying to turn bluetooth on is failed, cancel communication
-            // setting.
-            Toast.makeText(this, "Failed to be granted bluetooth " +
-                    "permission", Toast.LENGTH_SHORT);
-            resultInFail("Failed to be granted bluetooth permission!");
-        } else {
-            // Proceed to Step 4.
-            // Find already-bonded Bluetooth device once.
-            this.findBluetoothDevice();
-        }
-    }
-
-    // Step 4. Find already-bonded bluetooth device
-    private void findBluetoothDevice() {
-        if (this.mDefaultBluetoothName.isEmpty() == false && this
-                .mDefaultBluetoothAddress.isEmpty() == false) {
-            BluetoothAdapter bluetoothAdapter = BluetoothAdapter
-                    .getDefaultAdapter();
-            Set<BluetoothDevice> bluetoothDevices = bluetoothAdapter
-                    .getBondedDevices();
-            if (bluetoothDevices.size() > 0) {
-                for (BluetoothDevice bluetoothDevice : bluetoothDevices) {
-                    String deviceName = bluetoothDevice.getName();
-                    String deviceAddress = bluetoothDevice.getAddress();
-                    if (deviceName.compareTo(this.mDefaultBluetoothName) == 0
-                            && deviceAddress.compareTo(this
-                            .mDefaultBluetoothAddress) == 0) {
-                        // If already-bonded bluetooth device is found, use it!
-                        resultInSuccess(deviceName, deviceAddress);
-                        return;
-                    }
-                }
-            }
-        }
-
-        // Proceed to Step 5.
-        // If there is no bonded bluetooth device, discover devices
-        this.startToDiscover();
     }
 
     // Step 5. Discover devices
@@ -247,6 +128,7 @@ public class BluetoothDeviceSettingActivity extends Activity {
         filter.addAction(BluetoothDevice.ACTION_FOUND);
         filter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
         filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+        this.mBluetoothBroadcastReceiver = new BluetoothBroadcastReceiver();
         this.registerReceiver(mBluetoothBroadcastReceiver, filter);
 
         // Get the local Bluetooth adapter
@@ -285,7 +167,9 @@ public class BluetoothDeviceSettingActivity extends Activity {
         }
 
         // Unregister broadcast listeners
-        this.unregisterReceiver(mBluetoothBroadcastReceiver);
+        if (mBluetoothBroadcastReceiver != null) {
+            this.unregisterReceiver(mBluetoothBroadcastReceiver);
+        }
     }
 
     /**
@@ -325,8 +209,9 @@ public class BluetoothDeviceSettingActivity extends Activity {
      * the title when
      * discovery is finished
      */
-    private final BroadcastReceiver mBluetoothBroadcastReceiver = new
-            BroadcastReceiver() {
+    private BluetoothBroadcastReceiver mBluetoothBroadcastReceiver = null;
+
+    class BluetoothBroadcastReceiver extends BroadcastReceiver {
         private boolean found = false;
 
         @Override
@@ -385,5 +270,23 @@ public class BluetoothDeviceSettingActivity extends Activity {
                 }
             }
         }
-    };
+    }
+
+    // Result Part
+    private void resultInSuccess(String bluetoothName, String
+            bluetoothAddress) {
+        Bundle bundle = new Bundle();
+        bundle.putString(CommService.BluetoothDeviceSettingResultReceiver
+                .RECEIVER_KEY_BT_NAME, bluetoothName);
+        bundle.putString(CommService.BluetoothDeviceSettingResultReceiver
+                .RECEIVER_KEY_BT_ADDRESS, bluetoothAddress);
+        this.mReceiver.send(Activity.RESULT_OK, bundle);
+        finish();
+    }
+
+    private void resultInFail(String failMessage) {
+        Bundle bundle = new Bundle();
+        this.mReceiver.send(Activity.RESULT_CANCELED, bundle);
+        finish();
+    }
 }
