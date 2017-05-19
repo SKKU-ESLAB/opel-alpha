@@ -10,7 +10,7 @@ target_link_libraries(opel_cmfw bluetooth)
 
 set_target_properties(opel_cmfw
 		PROPERTIES
-		ARCHIVE_OUTPUT_DIRECTORY "../../out/libs"
-		LIBRARY_OUTPUT_DIRECTORY "../../out/lib"
-		RUNTIME_OUTPUT_DIRECTORY "../../out/bin"
+		ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/out/libs"
+		LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/out/lib"
+		RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/out/bin"
 		COMPILE_FLAGS "-std=c++11")

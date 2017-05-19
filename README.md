@@ -57,9 +57,9 @@ In example of tegraTX1:
 $ ./target/tegraTX1/install-deps-tegraTX1.sh
 ```
 
-### How to Build (Alpha 2, 3)
+### How to Build
 ```
-$ cmake .
+$ cmake -Bbuild -H.
 $ make
 ```
 
