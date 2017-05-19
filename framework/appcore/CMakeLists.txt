@@ -17,9 +17,9 @@ add_library(AppPackageRepo OBJECT ${SRC_DIR}/AppPackageRepo.cpp)
 add_library(AppStatusManager OBJECT ${SRC_DIR}/AppStatusManager.cpp)
 add_library(RepoClass OBJECT ${SRC_DIR}/RepoClass.cpp)
 add_library(DbusManager OBJECT ${SRC_DIR}/DbusManager.cpp)
-add_executable(opel-appcore-manager ${SRC_DIR}/MainSysAppManager $<TARGET_OBJECTS:RemoteFileManager> $<TARGET_OBJECTS:GlobalData> $<TARGET_OBJECTS:JsonString> $<TARGET_OBJECTS:CommManager> $<TARGET_OBJECTS:miniunz> $<TARGET_OBJECTS:AppPackageManager> $<TARGET_OBJECTS:AppPackageRepo> $<TARGET_OBJECTS:AppStatusManager> $<TARGET_OBJECTS:RepoClass> $<TARGET_OBJECTS:DbusManager>)
+add_executable(opel-appcore ${SRC_DIR}/MainSysAppManager $<TARGET_OBJECTS:RemoteFileManager> $<TARGET_OBJECTS:GlobalData> $<TARGET_OBJECTS:JsonString> $<TARGET_OBJECTS:CommManager> $<TARGET_OBJECTS:miniunz> $<TARGET_OBJECTS:AppPackageManager> $<TARGET_OBJECTS:AppPackageRepo> $<TARGET_OBJECTS:AppStatusManager> $<TARGET_OBJECTS:RepoClass> $<TARGET_OBJECTS:DbusManager>)
 
-set_target_properties(opel-appcore-manager
+set_target_properties(opel-appcore
 		PROPERTIES
-		RUNTIME_OUTPUT_DIRECTORY "../../out/bin")
-target_link_libraries(opel-appcore-manager xml2 dbus-glib-1 dbus-1 glib-2.0 pthread bluetooth sqlite3 ${OPEL_LIBZ} opel_cmfw)
+		RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/out/bin)
+target_link_libraries(opel-appcore xml2 dbus-glib-1 dbus-1 glib-2.0 pthread bluetooth sqlite3 ${OPEL_LIBZ} opel_cmfw)

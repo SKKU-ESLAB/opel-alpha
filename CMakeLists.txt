@@ -12,5 +12,6 @@ add_custom_target(
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
   )
 
-add_subdirectory(src)
-add_subdirectory(system-apps)
+add_subdirectory(framework)
+add_subdirectory(api)
+add_subdirectory(apps/system)
