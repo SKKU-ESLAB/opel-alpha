@@ -6,32 +6,30 @@ import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.ResultReceiver;
 import android.support.v4.app.ActivityCompat;
 import android.view.Window;
 import android.widget.Toast;
 
 import com.opel.opel_manager.R;
 
-import static com.opel.cmfw.view.BluetoothDeviceSettingActivity
-        .INTENT_KEY_DEFAULT_BT_ADDRESS;
-import static com.opel.cmfw.view.BluetoothDeviceSettingActivity
-        .INTENT_KEY_DEFAULT_BT_NAME;
-import static com.opel.cmfw.view.BluetoothDeviceSettingActivity
-        .INTENT_KEY_RECEIVER;
-
-/**
- * Created by redcarrottt on 2017. 5. 9..
- */
-
 public class BluetoothTurningOnActivity extends Activity {
-    // * Bluetooth Device Setting Process
-    // 1. Initialize UI Layout
-    // 2. Ensure that communication device permission is granted
-    // 3. Ensure that bluetooth device is turned on
-    // * If one of step 1~3 is failed, it returns Activity.RESULT_CANCELED.
-    // * If step 3 is succeeded, it returns Activity.RESULT_OK.
-    // * (If step 1~2 is succeeded, it proceeds to the next step.)
+    private static final String TAG = "BTTurningOnActivity";
+
+    // Intent to BluetoothConnectingActivity
+    public static final String INTENT_KEY_RECEIVER =
+            "BTTurningOnResult";
+
+     /* Bluetooth Device Setting Process
+     1. Initialize UI Layout
+     2. Ensure that communication device permission is granted
+       - On fail: return Activity.RESULT_CANCELED
+     3. Ensure that bluetooth device is turned on
+       - On success: return Activity.RESULT_OK
+       - On fail: return Activity.RESULT_CANCELED
+     * If one of step 1~3 is failed, it returns Activity.RESULT_CANCELED.
+     * If step 3 is succeeded, it returns Activity.RESULT_OK.
+      (If step 1~2 is succeeded, it proceeds to the next step.)
+     */
 
     // Step 1. Initialize UI layout
     @Override
@@ -122,9 +120,9 @@ public class BluetoothTurningOnActivity extends Activity {
     private void resultInSuccess(String bluetoothName, String
             bluetoothAddress) {
         Bundle bundle = new Bundle();
-        bundle.putString(CommService.BluetoothDeviceSettingResultReceiver
+        bundle.putString(CommService.BluetoothConnectingResultReceiver
                 .RECEIVER_KEY_BT_NAME, bluetoothName);
-        bundle.putString(CommService.BluetoothDeviceSettingResultReceiver
+        bundle.putString(CommService.BluetoothConnectingResultReceiver
                 .RECEIVER_KEY_BT_ADDRESS, bluetoothAddress);
         this.mReceiver.send(Activity.RESULT_OK, bundle);
         finish();

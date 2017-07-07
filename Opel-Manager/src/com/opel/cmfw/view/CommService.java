@@ -20,18 +20,18 @@ import java.util.Arrays;
 
 /* * Command Path (Bluetooth device setting)
    CMFW Users -(IBinder)-> CommService
-     -(Intent)-> BluetoothDeviceSettingActivity
+     -(Intent)-> BluetoothConnectingActivity
 
    * Command Path (Send message)
    CMFW Users -(IBinder)-> CommService --> CommController
 
    * Event Path (Bluetooth device setting)
-   BluetoothDeviceSettingActivity
-     -(BluetoothDeviceSettingResultReceiver)-> CommService
+   BluetoothConnectingActivity
+     -(BluetoothConnectingResultReceiver)-> CommService
      -(CommBroadcastReceiver)-> CMFW Users (CommEventListener)
 
    * Event Path (Listen message, listen state)
-   CommController -(BluetoothDeviceSettingResultReceiver)-> CommService
+   CommController -(BluetoothConnectingResultReceiver)-> CommService
      -(CommBroadcastReceiver)-> CMFW Users (CommEventListener)
 */
 
@@ -53,21 +53,6 @@ public class CommService extends Service implements WifiDirectListener {
 
     // Connection state
     private boolean mIsConnected = false;
-
-    /* Initialize connection with target device (Initially, in Bluetooth)
-       Step 1. Try to set bluetooth device (BluetoothTurningOnActivity)
-       (checking communication device permission, turning on bluetooth)
-       Step 2. Try to initialize CommController with stored info. (CommService)
-               - On success: store connection information and proceed to Step 4.
-               - On fail: proceed to Step 3.
-       Step 3. Try communication device setting (BluetoothDeviceSettingActivity)
-               - On success: store connection information and proceed to Step 4.
-       Step 4. Initialize CommController (CommService)
-               (Make bluetooth socket connected to the target device)
-    */
-    public void initializeConnection() {
-        this.tryCommDeviceSetting();
-    }
 
     public void setWifiDirectInfo(String wifiDirectName, String
             wifiDirectIPAddress) {
@@ -114,8 +99,55 @@ public class CommService extends Service implements WifiDirectListener {
         }
     }
 
-    // Step 1. Try communication device setting
-    private void tryCommDeviceSetting() {
+    /* Initialize connection with target device (Initially, in Bluetooth)
+       Step 1. Turn on bluetooth device (BluetoothTurningOnActivity)
+               (checking communication device permission, turning on bluetooth)
+               - On success: proceed to step 2
+               - On fail: cancel the initialization
+       Step 2. Try make a Bluetooth connection (BluetoothConnectingActivity)
+               - On success: store connection information and proceed to step 3
+               - On fail: cancel the initialization
+       Step 3. Make bluetooth socket (Initialize CommController)
+               - On success: store connection information and handle connection
+               of Bluetooth
+               - On fail: cancel the initialization
+    */
+    public void initializeConnection() {
+        this.tryConnectingBluetooth();
+    }
+
+    // Step 1. Turn on bluetooth device (BluetoothTurningOnActivity)
+    private void turnOnBluetoothDevice() {
+        // Launch BluetoothTurningOnActivity
+        Intent btTuringOnIntent = new Intent(this,
+                BluetoothTurningOnActivity.class);
+        btTuringOnIntent.putExtra(BluetoothTurningOnActivity
+                .INTENT_KEY_RECEIVER, new BluetoothTurningOnResultReceiver());
+        this.startActivity(btTuringOnIntent);
+    }
+
+    // Step 2-a. On success, store the bluetooth connection information and
+    //             make a connection with target device.
+    private void onTurningOnBluetoothDeviceSuccess() {
+        Log.d(TAG, "Pairing request done");
+
+        // Proceed to Step 2.
+        tryConnectingBluetooth();
+    }
+
+    // Step 2-b. On fail, cancel the initialization
+    private void onTurningOnBluetoothDeviceFail() {
+        Log.e(TAG, "Failed turning on Bluetooth device");
+
+        // Broadcast the fail of initialization
+        CommBroadcaster.onInitializationResult(this, false);
+
+        // Handle Bluetooth disconnection
+        this.onBluetoothDisconnected();
+    }
+
+    // Step 2. Try make a Bluetooth connection (BluetoothConnectingActivity)
+    private void tryConnectingBluetooth() {
         // Restore bluetooth name from local storage
         SharedPreferences sharedPreferences = this.getSharedPreferences
                 (PREFERENCE_KEY, Context.MODE_PRIVATE);
@@ -124,28 +156,26 @@ public class CommService extends Service implements WifiDirectListener {
         String bluetoothAddress = sharedPreferences.getString
                 (PREFERENCE_ATTR_KEY_BT_ADDRESS, "");
         Log.d(TAG, "Stored bluetooth name: " + bluetoothName + " / " +
-                "bluetooth address: " +
-                bluetoothAddress);
+                "bluetooth address: " + bluetoothAddress);
 
-        // Launch BluetoothDeviceSettingActivity for setting communication
+        // Launch BluetoothConnectingActivity for setting communication
         // devices.
-        Intent btDeviceSettingIntent = new Intent(this,
-                BluetoothDeviceSettingActivity.class);
-        btDeviceSettingIntent.putExtra(BluetoothDeviceSettingActivity
-                .INTENT_KEY_RECEIVER, new
-                BluetoothDeviceSettingResultReceiver());
-        btDeviceSettingIntent.putExtra(BluetoothDeviceSettingActivity
+        Intent btConnectingIntent = new Intent(this,
+                BluetoothConnectingActivity.class);
+        btConnectingIntent.putExtra(BluetoothConnectingActivity
+                .INTENT_KEY_RECEIVER, new BluetoothConnectingResultReceiver());
+        btConnectingIntent.putExtra(BluetoothConnectingActivity
                 .INTENT_KEY_DEFAULT_BT_NAME, bluetoothName);
-        btDeviceSettingIntent.putExtra(BluetoothDeviceSettingActivity
+        btConnectingIntent.putExtra(BluetoothConnectingActivity
                 .INTENT_KEY_DEFAULT_BT_ADDRESS, bluetoothAddress);
-        btDeviceSettingIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        this.startActivity(btDeviceSettingIntent);
+        btConnectingIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        this.startActivity(btConnectingIntent);
     }
 
-    // Step 1-a. On success, store the bluetooth connection information and
+    // Step 2-a. On success, store the bluetooth connection information and
     //             make a connection with target device.
-    private void onTryingCommDeviceSettingSuccess(String bluetoothName,
-                                                  String bluetoothAddress) {
+    private void onTryingConnectingBluetoothSuccess(String bluetoothName,
+                                                    String bluetoothAddress) {
         Log.d(TAG, "Pairing request done");
 
         // Store the name to local storage
@@ -163,15 +193,18 @@ public class CommService extends Service implements WifiDirectListener {
         this.initializeCommController(bluetoothName, bluetoothAddress);
     }
 
-    // Step 1-b. On fail, cancel initializing connection
-    private void onTryingCommDeviceSettingFail(String failMessage) {
+    // Step 2-b. On fail, cancel the initialization
+    private void onTryingConnectingBluetoothFail(String failMessage) {
         Log.e(TAG, "Failed pairing operation: " + failMessage);
+
+        // Broadcast the fail of initialization
         CommBroadcaster.onInitializationResult(this, false);
+
+        // Handle Bluetooth disconnection
         this.onBluetoothDisconnected();
     }
 
-    // Step 2. Initialize CommController
-    //         (Make bluetooth socket connected to the target device)
+    // Step 3. Make bluetooth socket (Initialize CommController)
     private void initializeCommController(String bluetoothName, String
             bluetoothAddress) {
         // Initialize Wi-fi Direct Broadcast Receiver
@@ -205,11 +238,17 @@ public class CommService extends Service implements WifiDirectListener {
                 .CMFW_DEFAULT_PORT);
         if (resConnection == false) {
             // Connection Initialization Fail
+
+            // Broadcast the fail of initialization
             CommBroadcaster.onInitializationResult(this, false);
+            // Handle Bluetooth disconnection
             this.onBluetoothDisconnected();
         } else {
             // Connection Initialization Success
+
+            // Broadcast the success of initialization
             CommBroadcaster.onInitializationResult(this, true);
+            // Handle Bluetooth connection
             this.onBluetoothConnected();
 
             // Start to receive message
@@ -358,15 +397,34 @@ public class CommService extends Service implements WifiDirectListener {
         CommBroadcaster.onWifiStateChanged(this, isWifiOn);
     }
 
-    class BluetoothDeviceSettingResultReceiver extends ResultReceiver {
-        // Receiver from BluetoothDeviceSettingActivity
+    class BluetoothTurningOnResultReceiver extends ResultReceiver {
+        // Receiver from BluetoothConnectingActivity
+        public BluetoothTurningOnResultReceiver() {
+            super(null);
+        }
+
+        @Override
+        protected void onReceiveResult(int resultCode, Bundle resultData) {
+            // Handle the result of Step 1.
+            if (resultCode == Activity.RESULT_OK) {
+                // On success: Proceed to Step 1-a.
+                onTurningOnBluetoothDeviceSuccess();
+            } else {
+                // On fail: Proceed to Step 1-b.
+                onTurningOnBluetoothDeviceFail();
+            }
+        }
+    }
+
+    class BluetoothConnectingResultReceiver extends ResultReceiver {
+        // Receiver from BluetoothConnectingActivity
         public static final String RECEIVER_KEY_FAIL_MESSAGE = "FailMessage";
         public static final String RECEIVER_KEY_BT_NAME =
                 "BluetooothDeviceName";
         public static final String RECEIVER_KEY_BT_ADDRESS =
                 "BluetooothDeviceAddress";
 
-        public BluetoothDeviceSettingResultReceiver() {
+        public BluetoothConnectingResultReceiver() {
             super(null);
         }
 
@@ -380,18 +438,19 @@ public class CommService extends Service implements WifiDirectListener {
                         (RECEIVER_KEY_BT_ADDRESS);
                 if (!bluetoothAddress.isEmpty() && !bluetoothName.isEmpty()) {
                     // On success: Proceed to Step 1-a.
-                    onTryingCommDeviceSettingSuccess(bluetoothName,
+                    onTryingConnectingBluetoothSuccess(bluetoothName,
                             bluetoothAddress);
                 } else {
                     // On fail: Proceed to Step 1-b.
-                    onTryingCommDeviceSettingFail("Cannot get " + "bluetooth " +
-                            "device's name and address!");
+                    onTryingConnectingBluetoothFail("Cannot get " +
+                            "bluetooth " + "" + "" + "device's name and " +
+                            "address!");
                 }
             } else {
                 // On fail: Proceed to Step 1-b.
                 String failMessage = resultData.getString
                         (RECEIVER_KEY_FAIL_MESSAGE);
-                onTryingCommDeviceSettingFail(failMessage);
+                onTryingConnectingBluetoothFail(failMessage);
             }
         }
     }

@@ -64,7 +64,7 @@
             android:exported="true"/>
 
         <activity
-            android:name="com.opel.cmfw.view.BluetoothDeviceSettingActivity"
+            android:name="com.opel.cmfw.view.BluetoothConnectingActivity"
             android:theme="@android:style/Theme.DeviceDefault.Dialog"></activity>
     </application>
 

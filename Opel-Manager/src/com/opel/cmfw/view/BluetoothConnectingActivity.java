@@ -16,7 +16,6 @@
 
 package com.opel.cmfw.view;
 
-import android.Manifest;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -24,10 +23,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.ResultReceiver;
-import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -41,12 +38,12 @@ import com.opel.opel_manager.R;
 
 import java.util.Set;
 
-public class BluetoothDeviceSettingActivity extends Activity {
-    private static final String TAG = "BTDeviceSettingActivity";
+public class BluetoothConnectingActivity extends Activity {
+    private static final String TAG = "BTConnectingActivity";
 
-    // Intent to BluetoothDeviceSettingActivity
+    // Intent to BluetoothConnectingActivity
     public static final String INTENT_KEY_RECEIVER =
-            "TryCommDeviceSettingResult";
+            "BTConnectingResult";
     public static final String INTENT_KEY_DEFAULT_BT_NAME =
             "DefaultBluetooothDeviceName";
     public static final String INTENT_KEY_DEFAULT_BT_ADDRESS =
@@ -54,7 +51,7 @@ public class BluetoothDeviceSettingActivity extends Activity {
 
     public static String EXTRA_DEVICE_ADDRESS = "device_address";
 
-    // Parameters to BluetoothDeviceSettingActivity
+    // Parameters to BluetoothConnectingActivity
     // Result receiver
     private ResultReceiver mReceiver;
     private String mDefaultBluetoothName;
@@ -65,17 +62,13 @@ public class BluetoothDeviceSettingActivity extends Activity {
     // Newly discovered devices
     private ArrayAdapter<String> mNewDevicesArrayAdapter;
 
-    // * Bluetooth Device Setting Process
-    // 1. Initialize UI Layout
-    // 2. Ensure that communication device permission is granted
-    // 3. Ensure that bluetooth device is turned on
-    // 4. Find already-bonded bluetooth device once
-    //    (bonded = paired + connected)
-    // 5. If there is no bonded bluetooth device, discover devices then pair and
-    //    connect one of them.
-    // * If one of step 2~5 is failed, it returns Activity.RESULT_CANCELED.
-    // * If step 4~5 is succeeded, it returns Activity.RESULT_OK.
-    // * (If step 2~3 is succeeded, it proceeds to the next step.)
+    /* Bluetooth Device Setting Process
+     Step 1. Initialize UI Layout
+     Step 2. Find already-bonded bluetooth device once
+        (bonded = paired + connected)
+     Step 3. If there is no bonded bluetooth device, discover devices then pair
+      and connect one of them.
+     */
 
     // Step 1. Initialize UI layout
     @Override
@@ -93,8 +86,8 @@ public class BluetoothDeviceSettingActivity extends Activity {
         this.mDefaultBluetoothAddress = callerIntent.getStringExtra
                 (INTENT_KEY_DEFAULT_BT_ADDRESS);
 
-        // Proceed to Step 2. Check communication device permission
-        this.checkCommPermission();
+        // Proceed to Step 2. Find already-bonded bluetooth device once
+
     }
 
     @Override
@@ -261,7 +254,7 @@ public class BluetoothDeviceSettingActivity extends Activity {
                     resultIntent.putExtra(EXTRA_DEVICE_ADDRESS, device
                             .getAddress());
 
-                    Toast.makeText(BluetoothDeviceSettingActivity.this,
+                    Toast.makeText(BluetoothConnectingActivity.this,
                             "Bluetooth pairing success!", Toast.LENGTH_SHORT)
                             .show();
 
@@ -276,9 +269,9 @@ public class BluetoothDeviceSettingActivity extends Activity {
     private void resultInSuccess(String bluetoothName, String
             bluetoothAddress) {
         Bundle bundle = new Bundle();
-        bundle.putString(CommService.BluetoothDeviceSettingResultReceiver
+        bundle.putString(CommService.BluetoothConnectingResultReceiver
                 .RECEIVER_KEY_BT_NAME, bluetoothName);
-        bundle.putString(CommService.BluetoothDeviceSettingResultReceiver
+        bundle.putString(CommService.BluetoothConnectingResultReceiver
                 .RECEIVER_KEY_BT_ADDRESS, bluetoothAddress);
         this.mReceiver.send(Activity.RESULT_OK, bundle);
         finish();
