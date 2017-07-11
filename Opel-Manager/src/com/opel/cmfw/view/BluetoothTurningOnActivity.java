@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.ResultReceiver;
 import android.support.v4.app.ActivityCompat;
 import android.view.Window;
 import android.widget.Toast;
@@ -15,9 +16,18 @@ import com.opel.opel_manager.R;
 public class BluetoothTurningOnActivity extends Activity {
     private static final String TAG = "BTTurningOnActivity";
 
-    // Intent to BluetoothConnectingActivity
+    // Intent to BluetoothDiscoveryActivity
     public static final String INTENT_KEY_RECEIVER =
             "BTTurningOnResult";
+
+    private ResultReceiver mReceiver;
+
+
+    @Override
+    public void onBackPressed() {
+        // Cancel communication setting.
+        resultInFail();
+    }
 
      /* Bluetooth Device Setting Process
      1. Initialize UI Layout
@@ -38,6 +48,10 @@ public class BluetoothTurningOnActivity extends Activity {
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.activity_bluetooth_turning_on);
 
+        Intent callerIntent = this.getIntent();
+        this.mReceiver = (ResultReceiver) callerIntent.getParcelableExtra
+                (INTENT_KEY_RECEIVER);
+
         // Proceed to Step 2. Check communication device permission
         this.checkCommPermission();
     }
@@ -54,7 +68,7 @@ public class BluetoothTurningOnActivity extends Activity {
             // Proceed to Step 3.
             // If communication device permission is granted, check if bluetooth
             // device is turned on
-            checkBluetoothOn();
+            ensureBluetoothOn();
         }
     }
 
@@ -65,25 +79,25 @@ public class BluetoothTurningOnActivity extends Activity {
                 .PERMISSION_GRANTED) {
             // If communication device permission is eventually not granted,
             // cancel communication setting.
-            Toast.makeText(this, "Cannot be granted communication device " +
-                    "permission!", Toast.LENGTH_LONG).show();
-            resultInFail("Cannot be granted communication device permission!");
+            Toast.makeText(this, "Cannot be granted communication device permission!",
+                    Toast.LENGTH_LONG).show();
+            resultInFail();
         } else {
             // Proceed to Step 3.
-            // If communication device permission is granted, check if
-            // bluetooth device is turned on.
-            checkBluetoothOn();
+            // Check if bluetooth device is turned on.
+            // If it is not turned on, ensure that bluetooth device is turned on.
+            ensureBluetoothOn();
         }
     }
 
-    // Step 3-1. Check whether bluetooth is turned on or off
-    public void checkBluetoothOn() {
+    // Step 3-1. Ensure whether bluetooth is turned on
+    public void ensureBluetoothOn() {
         // Checking Bluetooth device via BluetoothAdapter
         if (BluetoothAdapter.getDefaultAdapter() == null) {
             // If bluetooth adapter is not found, cancel communication setting.
             Toast.makeText(this, "Bluetooth device is required!", Toast
                     .LENGTH_SHORT).show();
-            resultInFail("Bluetooth device is required!");
+            resultInFail();
         } else if (!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
             // If bluetooth device is turned off, try to turn bluetooth on.
             Intent enable_bt_intent = new Intent(BluetoothAdapter
@@ -93,7 +107,7 @@ public class BluetoothTurningOnActivity extends Activity {
             // Proceed to Step 4.
             // If bluetooth device is turned on, find already-bonded
             // bluetooth device.
-            this.findBluetoothDevice();
+            this.resultInSuccess();
         }
     }
 
@@ -108,29 +122,21 @@ public class BluetoothTurningOnActivity extends Activity {
             // setting.
             Toast.makeText(this, "Failed to be granted bluetooth " +
                     "permission", Toast.LENGTH_SHORT);
-            resultInFail("Failed to be granted bluetooth permission!");
+            this.resultInFail();
         } else {
-            // Proceed to Step 4.
-            // Find already-bonded Bluetooth device once.
-            this.findBluetoothDevice();
+            // Result in success
+            this.resultInSuccess();
         }
     }
 
     // Result Part
-    private void resultInSuccess(String bluetoothName, String
-            bluetoothAddress) {
-        Bundle bundle = new Bundle();
-        bundle.putString(CommService.BluetoothConnectingResultReceiver
-                .RECEIVER_KEY_BT_NAME, bluetoothName);
-        bundle.putString(CommService.BluetoothConnectingResultReceiver
-                .RECEIVER_KEY_BT_ADDRESS, bluetoothAddress);
-        this.mReceiver.send(Activity.RESULT_OK, bundle);
+    private void resultInSuccess() {
+        this.mReceiver.send(Activity.RESULT_OK, null);
         finish();
     }
 
-    private void resultInFail(String failMessage) {
-        Bundle bundle = new Bundle();
-        this.mReceiver.send(Activity.RESULT_CANCELED, bundle);
+    private void resultInFail() {
+        this.mReceiver.send(Activity.RESULT_CANCELED, null);
         finish();
     }
 }

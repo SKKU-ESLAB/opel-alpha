@@ -96,23 +96,14 @@ public class CommController {
     private List<WifiP2pDevice> peers;
     private String mMac;
 
-    // Bluetooth Device's Name & Address
-    private String mBluetoothName;
-    private String mBluetoothAddress;
-
     public CommController(WifiP2pManager wifiP2pManager, WifiP2pManager
             .Channel wifiP2pManagerChannel, WifiDirectBroadcastReceiver
-            wifiDirectBroadcastReceiver, String bluetoothName, String
-            bluetoothAddress) {
+                                  wifiDirectBroadcastReceiver) {
         // Setting Wi-fi Direct members
         this.mWifiP2pManager = wifiP2pManager;
         this.mWifiP2pManagerChannel = wifiP2pManagerChannel;
         this.mWifiDirectBroadcastReceiver = wifiDirectBroadcastReceiver;
         this.mWifiDirectBroadcastReceiver.setOwnerController(this);
-
-        // Setting Bluetooth Device's Name & Address
-        this.mBluetoothName = bluetoothName;
-        this.mBluetoothAddress = bluetoothAddress;
 
         ports = new cmfw_port_c[DEFINED_PORT_NUM];
 
@@ -432,7 +423,7 @@ public class CommController {
 
                 msg = new String(Arrays.copyOfRange(buf, 0, res));
                 Log.d("OPEL", "Control Message:" + msg);
-                if (msg.equals("off")) {
+                if (msg.compareTo("off") == 0) {
                     ports[CMFW_CONTROL_PORT].close();
                     return -1;
                 } else {
@@ -493,7 +484,8 @@ public class CommController {
         return 0;
     }
 
-    public int cmfw_send_file(int port, File fd) {
+    // TODO: reimplement it
+    /*public int cmfw_send_file(int port, File fd) {
 
         int res = 0;
         int iter = 0;
@@ -668,7 +660,7 @@ public class CommController {
         else cmfw_wfd_off();
 
         return res;
-    }
+    }*/
 
     public static String getMacAddr() {
         try {
@@ -799,15 +791,15 @@ public class CommController {
             else return CMFW_STAT_WFD_CONNECTED;
         }
 
-
-        public boolean connect() {
+        // TODO:
+        public boolean connect(String bluetoothName, String bluetoothAddress) {
             boolean isSucceed = false;
             if (get_stat() != CMFW_STAT_DISCON) {
                 isSucceed = true;
                 return isSucceed;
             }
 
-            if (mBluetoothName.isEmpty() || mBluetoothAddress.isEmpty()) {
+            if (bluetoothName.isEmpty() || bluetoothAddress.isEmpty()) {
                 isSucceed = false;
                 return isSucceed;
             }
@@ -820,8 +812,8 @@ public class CommController {
                 for (BluetoothDevice bluetoothDevice : bluetoothDevices) {
                     String deviceName = bluetoothDevice.getName();
                     String deviceAddress = bluetoothDevice.getAddress();
-                    if (deviceName.compareTo(mBluetoothName) == 0 &&
-                            deviceAddress.compareTo(mBluetoothAddress) == 0) {
+                    if (deviceName.compareTo(bluetoothName) == 0 &&
+                            deviceAddress.compareTo(bluetoothAddress) == 0) {
                         // RedCarrottt: Fix Bluetooth connection failure bug
                         // (Issue #103)
                         try {
@@ -1050,30 +1042,30 @@ public class CommController {
                 ports[CMFW_DEFAULT_PORT].wfd_close();
                 mWifiP2pManager.stopPeerDiscovery(mWifiP2pManagerChannel, new
                         WifiP2pManager.ActionListener() {
-                    @Override
-                    public void onSuccess() {
-                        Log.d("WifiP2p", "Stop discovery");
-                    }
+                            @Override
+                            public void onSuccess() {
+                                Log.d("WifiP2p", "Stop discovery");
+                            }
 
-                    @Override
-                    public void onFailure(int reason) {
-                    }
-                });
+                            @Override
+                            public void onFailure(int reason) {
+                            }
+                        });
 
                 mWifiDirectBroadcastReceiver.removing = true;
                 mWifiP2pManager.removeGroup(mWifiP2pManagerChannel, new
                         WifiP2pManager.ActionListener() {
-                    @Override
-                    public void onSuccess() {
-                        Log.d("WifiP2p", "Removed from group");
-                    }
+                            @Override
+                            public void onSuccess() {
+                                Log.d("WifiP2p", "Removed from group");
+                            }
 
-                    @Override
-                    public void onFailure(int reason) {
-                        Log.d("WifiP2p", "Remove failed");
+                            @Override
+                            public void onFailure(int reason) {
+                                Log.d("WifiP2p", "Remove failed");
 
-                    }
-                });
+                            }
+                        });
             }
             running = false;
         }

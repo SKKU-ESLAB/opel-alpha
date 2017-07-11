@@ -38,10 +38,10 @@ import com.opel.opel_manager.R;
 
 import java.util.Set;
 
-public class BluetoothConnectingActivity extends Activity {
+public class BluetoothDiscoveryActivity extends Activity {
     private static final String TAG = "BTConnectingActivity";
 
-    // Intent to BluetoothConnectingActivity
+    // Intent to BluetoothDiscoveryActivity
     public static final String INTENT_KEY_RECEIVER =
             "BTConnectingResult";
     public static final String INTENT_KEY_DEFAULT_BT_NAME =
@@ -51,44 +51,14 @@ public class BluetoothConnectingActivity extends Activity {
 
     public static String EXTRA_DEVICE_ADDRESS = "device_address";
 
-    // Parameters to BluetoothConnectingActivity
+    // Parameters to BluetoothDiscoveryActivity
     // Result receiver
     private ResultReceiver mReceiver;
-    private String mDefaultBluetoothName;
-    private String mDefaultBluetoothAddress;
 
     private BluetoothAdapter mBluetoothAdapter;
 
     // Newly discovered devices
     private ArrayAdapter<String> mNewDevicesArrayAdapter;
-
-    /* Bluetooth Device Setting Process
-     Step 1. Initialize UI Layout
-     Step 2. Find already-bonded bluetooth device once
-        (bonded = paired + connected)
-     Step 3. If there is no bonded bluetooth device, discover devices then pair
-      and connect one of them.
-     */
-
-    // Step 1. Initialize UI layout
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-        setContentView(R.layout.activity_bluetooth_device_setting);
-
-        // Get Parameters
-        Intent callerIntent = this.getIntent();
-        this.mReceiver = (ResultReceiver) callerIntent.getParcelableExtra
-                (INTENT_KEY_RECEIVER);
-        this.mDefaultBluetoothName = callerIntent.getStringExtra
-                (INTENT_KEY_DEFAULT_BT_NAME);
-        this.mDefaultBluetoothAddress = callerIntent.getStringExtra
-                (INTENT_KEY_DEFAULT_BT_ADDRESS);
-
-        // Proceed to Step 2. Find already-bonded bluetooth device once
-
-    }
 
     @Override
     public void onBackPressed() {
@@ -96,7 +66,31 @@ public class BluetoothConnectingActivity extends Activity {
         resultInFail("User canceled Bluetooth device setting!");
     }
 
-    // Step 5. Discover devices
+    /* Bluetooth Device Setting Process
+     Step 1. Initialize UI Layout and get local Bluetooth adapter
+     Step 2. Discover devices then pair and connect one of them.
+     */
+
+    // Step 1. Initialize UI layout and get local Bluetooth adapter
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+        setContentView(R.layout.activity_bluetooth_discovery);
+
+        // Get Parameters
+        Intent callerIntent = this.getIntent();
+        this.mReceiver = (ResultReceiver) callerIntent.getParcelableExtra
+                (INTENT_KEY_RECEIVER);
+
+        // Get the local Bluetooth adapter
+        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
+        // Proceed to Step 2: Discover devices then pair and connect one of them.
+        this.startToDiscover();
+    }
+
+    // Step 2. Discover devices then pair and connect one of them.
     private void startToDiscover() {
         // Initialize array adapters. One for already paired devices and
         // one for newly discovered devices
@@ -123,9 +117,6 @@ public class BluetoothConnectingActivity extends Activity {
         filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
         this.mBluetoothBroadcastReceiver = new BluetoothBroadcastReceiver();
         this.registerReceiver(mBluetoothBroadcastReceiver, filter);
-
-        // Get the local Bluetooth adapter
-        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
         // Get a set of currently paired devices
         Set<BluetoothDevice> pairedDevices = mBluetoothAdapter
@@ -192,10 +183,10 @@ public class BluetoothConnectingActivity extends Activity {
      */
     private AdapterView.OnItemClickListener mDeviceClickListener = new
             AdapterView.OnItemClickListener() {
-        public void onItemClick(AdapterView<?> av, View v, int arg2, long
-                arg3) {
-        }
-    };
+                public void onItemClick(AdapterView<?> av, View v, int arg2, long
+                        arg3) {
+                }
+            };
 
     /**
      * The BroadcastReceiver that listens for discovered devices and changes
@@ -254,7 +245,7 @@ public class BluetoothConnectingActivity extends Activity {
                     resultIntent.putExtra(EXTRA_DEVICE_ADDRESS, device
                             .getAddress());
 
-                    Toast.makeText(BluetoothConnectingActivity.this,
+                    Toast.makeText(BluetoothDiscoveryActivity.this,
                             "Bluetooth pairing success!", Toast.LENGTH_SHORT)
                             .show();
 
