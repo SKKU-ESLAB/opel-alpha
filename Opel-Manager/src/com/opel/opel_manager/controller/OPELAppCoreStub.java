@@ -7,7 +7,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
-import com.opel.cmfw.view.CommService;
+import com.opel.cmfw.view.CommChannelService;
 import com.opel.opel_manager.model.OPELApplication;
 import com.opel.opel_manager.view.SensorViewerActivity;
 
@@ -62,7 +62,7 @@ public class OPELAppCoreStub {
 
     // MainActivity-dependent part
     private Handler mMainUIHandler;
-    private CommService mCommService;
+    private CommChannelService mCommChannelService;
 
     public OPELAppCoreStub() {
         mBluetoothSocket = null;
@@ -73,8 +73,8 @@ public class OPELAppCoreStub {
         this.mMainUIHandler = mainUIHandler;
     }
 
-    public void setCommService(CommService commService) {
-        this.mCommService = commService;
+    public void setCommService(CommChannelService commChannelService) {
+        this.mCommChannelService = commChannelService;
     }
 
     private SensorViewerActivity mRegisteredSensorView = null;
@@ -235,7 +235,7 @@ public class OPELAppCoreStub {
 
         if (wifiDirectIPAddress.isEmpty() == false && wifiDirectName.isEmpty
                 () == false) {
-            this.mCommService.setWifiDirectInfo(wifiDirectName,
+            this.mCommChannelService.setWifiDirectInfo(wifiDirectName,
                     wifiDirectIPAddress);
         }
         updateMainUIThread(HANDLER_UPDATE_UI);
@@ -305,8 +305,8 @@ public class OPELAppCoreStub {
 
     String handleNotiPreLoadImg(JSONParser jp) {
         // TODO: remake from the bottom
-//        if(this.mCommService == null) return "";
-//        String res = this.mCommService.rcvFile(OPELContext.getSettings()
+//        if(this.mService == null) return "";
+//        String res = this.mService.rcvFile(OPELContext.getSettings()
 //                .getRemoteUIDir(), jp);
 //        return res;
         return "";
@@ -413,7 +413,7 @@ public class OPELAppCoreStub {
         jp.addJsonKeyValue("type", INSTALLPKG);
         jp.addJsonKeyValue("pkgFileName", fileName);
 
-        this.mCommService.sendMessage(jp.getJsonData());
+        this.mCommChannelService.sendRawString(jp.getJsonData());
         // TODO: remake from the bottom
         // sendFile(fileName);
     }
@@ -424,7 +424,7 @@ public class OPELAppCoreStub {
         jp.addJsonKeyValue("type", DELETEAPP);
         jp.addJsonKeyValue("appID", appID);
 
-        this.mCommService.sendMessage(jp.getJsonData());
+        this.mCommChannelService.sendRawString(jp.getJsonData());
     }
 
     public void requestStart(String appID, String appName) {
@@ -433,7 +433,7 @@ public class OPELAppCoreStub {
         jp.addJsonKeyValue("type", EXEAPP);
         jp.addJsonKeyValue("appID", appID);
         jp.addJsonKeyValue("appName", appName);
-        this.mCommService.sendMessage(jp.getJsonData());
+        this.mCommChannelService.sendRawString(jp.getJsonData());
     }
 
     public void requestTermination(String appID) {
@@ -451,7 +451,7 @@ public class OPELAppCoreStub {
         sendJP.addJsonKeyValue("rqID", jp.getValueByKey("rqID"));
         sendJP.addJsonKeyValue("pid", jp.getValueByKey("pid"));
 
-        this.mCommService.sendMessage(sendJP.getJsonData());
+        this.mCommChannelService.sendRawString(sendJP.getJsonData());
     }
 
     public void requestTermination() {
@@ -461,7 +461,7 @@ public class OPELAppCoreStub {
         sendJP.makeNewJson();
         sendJP.addJsonKeyValue("type", ANDROID_TERMINATE);
         Log.d("OPEL", "Termination json : " + sendJP);
-        this.mCommService.sendMessage(sendJP.getJsonData());
+        this.mCommChannelService.sendRawString(sendJP.getJsonData());
     }
 
 
@@ -471,14 +471,14 @@ public class OPELAppCoreStub {
         jp.makeNewJson();
         jp.addJsonKeyValue("type", UPDATEAPPINFO);
 
-        this.mCommService.sendMessage(jp.getJsonData());
+        this.mCommChannelService.sendRawString(jp.getJsonData());
     }
 
     public void requestConfigSetting(JSONParser _jp) {
 
         _jp.addJsonKeyValue("type", CONFIG_EVENT);
 
-        this.mCommService.sendMessage(_jp.getJsonData());
+        this.mCommChannelService.sendRawString(_jp.getJsonData());
     }
 
     public void requestRunNativeJSAppCameraViewer() {
@@ -488,7 +488,7 @@ public class OPELAppCoreStub {
         jp.addJsonKeyValue("type", RUN_NATIVE_CAMERAVIEWER);
 
 
-        this.mCommService.sendMessage(jp.getJsonData());
+        this.mCommChannelService.sendRawString(jp.getJsonData());
     }
 
     public void requestRunNativeJSAppSensorViewer() {
@@ -498,7 +498,7 @@ public class OPELAppCoreStub {
         jp.addJsonKeyValue("type", RUN_NATIVE_SENSORVIEWER);
 
 
-        this.mCommService.sendMessage(jp.getJsonData());
+        this.mCommChannelService.sendRawString(jp.getJsonData());
     }
 
     public void requestTermNativeJSAppCameraViewer() {
@@ -508,7 +508,7 @@ public class OPELAppCoreStub {
         jp.addJsonKeyValue("type", TERM_NATIVE_CAMERAVIEWER);
 
 
-        this.mCommService.sendMessage(jp.getJsonData());
+        this.mCommChannelService.sendRawString(jp.getJsonData());
     }
 
     public void requestTermNativeJSAppSensorViewer() {
@@ -517,7 +517,7 @@ public class OPELAppCoreStub {
 
         jp.addJsonKeyValue("type", TERM_NATIVE_SENSORVIEWER);
 
-        this.mCommService.sendMessage(jp.getJsonData());
+        this.mCommChannelService.sendRawString(jp.getJsonData());
     }
 
     public void requestUpdateFileManager(String path) {
@@ -527,7 +527,7 @@ public class OPELAppCoreStub {
         jp.addJsonKeyValue("type", RemoteFileManager_getListOfCurPath);
         jp.addJsonKeyValue("path", path);
 
-        this.mCommService.sendMessage(jp.getJsonData());
+        this.mCommChannelService.sendRawString(jp.getJsonData());
     }
 
     public void requestFilebyFileManager(String path, int share) {
@@ -539,6 +539,6 @@ public class OPELAppCoreStub {
 
         jp.addJsonKeyValue("share", String.valueOf(share));
 
-        this.mCommService.sendMessage(jp.getJsonData());
+        this.mCommChannelService.sendRawString(jp.getJsonData());
     }
 }

@@ -260,9 +260,9 @@ public class BluetoothDiscoveryActivity extends Activity {
     private void resultInSuccess(String bluetoothName, String
             bluetoothAddress) {
         Bundle bundle = new Bundle();
-        bundle.putString(CommService.BluetoothConnectingResultReceiver
+        bundle.putString(CommChannelService.BluetoothConnectingResultReceiver
                 .RECEIVER_KEY_BT_NAME, bluetoothName);
-        bundle.putString(CommService.BluetoothConnectingResultReceiver
+        bundle.putString(CommChannelService.BluetoothConnectingResultReceiver
                 .RECEIVER_KEY_BT_ADDRESS, bluetoothAddress);
         this.mReceiver.send(Activity.RESULT_OK, bundle);
         finish();

@@ -53,6 +53,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+// TODO: complete "connect" code
+// TODO: shrink into 2 ports
 public class CommController {
     // Status of Communication Framework
     public static final int CMFW_STAT_DISCON = 0;
@@ -64,21 +66,17 @@ public class CommController {
     public static final int CMFW_WFD_OFF_TIME = 10;
     public static final int CMFW_CONTROL_PORT = 0;
     public static final int CMFW_DEFAULT_PORT = 1;
-    public static final int CMFW_RFS_PORT = 2;
-    public static final int CMFW_STR_PORT = 3;
-    public static final int CMFW_MAR_PORT = 4;
 
     public static final short CMFW_PACKET_SIZE = 1008;
     public static final short CMFW_PACKET_HEADER_SIZE = 8;
 
-    private final int DEFINED_PORT_NUM = 5;
+    private final int DEFINED_PORT_NUM = 2;
+    // Bluetooth Port = UUID
     private final String ports_uuid[] =
             {"0a1b2c3d-4e5f-6a1c-2d0e-1f2a3b4c5d6d",
-                    "0a1b2c3d-4e5f-6a1c-2d0e-1f2a3b4c5d6e",
-                    "0a1b2c3d-4e5f-6a1c-2d0e-1f2a3b4c5d6f",
-                    "0a1b2c3d-4e5f-6a1c-2d0e-1f2a3b4c5d6a",
-                    "0a1b2c3d-4e5f-6a1c-2d0e-1f2a3b4c5d6b"};
-    private final int ports_port_num[] = {10001, 10002, 10003, 10004, 10005};
+                    "0a1b2c3d-4e5f-6a1c-2d0e-1f2a3b4c5d6e"};
+    // Wi-fi Port = TCP Port Num
+    private final int ports_port_num[] = {10001, 10002};
 
     public static byte header_id[];
 
@@ -93,8 +91,6 @@ public class CommController {
     private WifiP2pManager mWifiP2pManager;
     private WifiP2pManager.Channel mWifiP2pManagerChannel;
     private WifiDirectBroadcastReceiver mWifiDirectBroadcastReceiver;
-    private List<WifiP2pDevice> peers;
-    private String mMac;
 
     public CommController(WifiP2pManager wifiP2pManager, WifiP2pManager
             .Channel wifiP2pManagerChannel, WifiDirectBroadcastReceiver
@@ -265,7 +261,7 @@ public class CommController {
     }
 
     public int cmfw_recv_msg(int port, byte[] buf, int len) {
-        Log.d("RECV_MSG", "REceiving");
+        Log.d("RECV_MSG", "Receiving");
         int res = 0;
         while (true) {
             //Check msg queue nodes first
@@ -484,211 +480,6 @@ public class CommController {
         return 0;
     }
 
-    // TODO: reimplement it
-    /*public int cmfw_send_file(int port, File fd) {
-
-        int res = 0;
-        int iter = 0;
-        boolean by_wfd;
-
-        if (cmfw_wfd_on(false) < 0) by_wfd = false;
-        else by_wfd = true;
-
-        if (by_wfd && false == ports[port].wfd_connect()) {
-            by_wfd = false;
-        }
-        if (!by_wfd) {
-            ports[CMFW_RFS_PORT].connect();
-            Log.d("WifiDirect", "Connected");
-        }
-
-        OutputStream os;
-        InputStream is;
-        if (by_wfd) {
-            os = ports[port].get_output_stream(true);
-            is = ports[port].get_input_stream(true);
-        } else {
-            os = ports[CMFW_RFS_PORT].get_output_stream(false);
-            is = ports[CMFW_RFS_PORT].get_input_stream(false);
-        }
-
-        if (os == null) return -1;
-
-        DataOutputStream dos = new DataOutputStream(os);
-        int bytes = 0;
-        BufferedInputStream bis = null;
-        try {
-            Log.d("File", "File send");
-            bis = new BufferedInputStream(new FileInputStream(fd));
-        } catch (IOException e) {
-            e.printStackTrace();
-            res = -1;
-        }
-        if (res == -1) return -1;
-        try {
-            byte buff[] = new byte[CMFW_PACKET_SIZE];
-            int read_size;
-            Log.d("File", "Name Len:" + Integer.toString((int) ((byte) fd
-                    .getName().length())));
-            dos.writeByte((byte) fd.getName().length());
-            dos.write(fd.getName().getBytes(), 0, fd.getName().length());
-            Log.d("File", "Name:" + fd.getName());
-            dos.writeInt((int) fd.length());
-            Log.d("File", "File Size:" + Integer.toString((int) fd.length()));
-            while ((read_size = bis.read(buff, 0, CMFW_PACKET_SIZE)) != -1) {
-                dos.write(buff, 0, read_size);
-                bytes += read_size;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            if (bytes < fd.length()) res = -1;
-        }
-
-        Log.d("WFD", "Sent file");
-        byte[] ha = new byte[256];
-        try {
-            is.read(ha, 0, 1);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        if (!by_wfd) {
-            ports[CMFW_RFS_PORT].close();
-        } else cmfw_wfd_off();
-
-        return res;
-    }
-
-    public int cmfw_recv_file(int port, File f) {
-
-        int res = 0;
-        int fnamelen = 0, flen = 0;
-        byte fname[] = null, buf[] = null;
-        String str_fname = null;
-
-        int iter = 0;
-        boolean by_wfd;
-
-        if (cmfw_wfd_on(false) < 0) by_wfd = false;
-        else by_wfd = true;
-
-
-        if (by_wfd && false == ports[port].wfd_connect()) {
-            by_wfd = false;
-        }
-        if (!by_wfd) {
-            ports[CMFW_RFS_PORT].connect();
-        }
-        Log.d("WifiDirect", "Connected");
-        InputStream is;
-        OutputStream os;
-
-        if (by_wfd) {
-            is = ports[port].get_input_stream(true);
-            os = ports[port].get_output_stream(true);
-        } else {
-            is = ports[CMFW_RFS_PORT].get_input_stream(false);
-            os = ports[CMFW_RFS_PORT].get_output_stream(false);
-        }
-        if (is == null || os == null) return -1;
-
-        DataInputStream dis = new DataInputStream(is);
-
-
-        try {
-            fnamelen = dis.readInt();
-            fname = new byte[fnamelen];
-            dis.readFully(fname, 0, fnamelen);
-            str_fname = new String(fname);
-            flen = dis.readInt();
-        } catch (IOException e) {
-            e.printStackTrace();
-            res = -1;
-        }
-
-        Log.d("FileInfo", str_fname + "(" + Integer.toString(flen) + ")");
-
-        if (res == -1) {
-            ports[port].wfd_close();
-            return res;
-        }
-        int bytes = 0;
-        BufferedOutputStream bos = null;
-        try {
-            buf = new byte[CMFW_PACKET_SIZE];
-            int read_size;
-            bos = new BufferedOutputStream(new FileOutputStream(f));
-            int curr_progress, prev_progress = 0;
-            while (bytes < flen) {
-
-                if ((curr_progress = (bytes * 10) / flen) != prev_progress) {
-                    Log.d("Progress", Integer.toString(curr_progress * 10));
-                    prev_progress = curr_progress;
-                }
-                read_size = dis.read(buf, 0, CMFW_PACKET_SIZE);
-                bos.write(buf, 0, read_size);
-                bytes += read_size;
-            }
-            Log.d("BYTE?SIZE", Integer.toString(bytes) + "/" + Integer
-                    .toString(flen));
-            //os.write(1023);
-        } catch (IOException e) {
-            e.printStackTrace();
-            res = -1;
-        }
-
-        if (res == 0) {
-            try {
-
-                is.close();
-                dis.close();
-                bos.flush();
-                bos.close();
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        byte[] ha = new byte[256];
-        ha[0] = '1';
-        try {
-            os.write(ha, 0, 1);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        if (!by_wfd) ports[CMFW_RFS_PORT].close();
-        else cmfw_wfd_off();
-
-        return res;
-    }*/
-
-    public static String getMacAddr() {
-        try {
-            List<NetworkInterface> all = Collections.list(NetworkInterface
-                    .getNetworkInterfaces());
-            for (NetworkInterface nif : all) {
-                if (!nif.getName().equalsIgnoreCase("wlan0")) continue;
-
-                byte[] macBytes = nif.getHardwareAddress();
-                if (macBytes == null) {
-                    return "";
-                }
-
-                StringBuilder res1 = new StringBuilder();
-                for (byte b : macBytes) {
-                    res1.append(Integer.toHexString(b & 0xFF) + ":");
-                }
-
-                if (res1.length() > 0) {
-                    res1.deleteCharAt(res1.length() - 1);
-                }
-                return res1.toString();
-            }
-        } catch (Exception ex) {
-        }
-        return "02:00:00:00:00:00";
-    }
-
     // Communication Framework Payload
     private class cmfw_payload_header_c {
         public byte header_id;
@@ -763,252 +554,6 @@ public class CommController {
         }
     }
 
-    // Port
-    private class cmfw_port_c {
-        public final String ip_addr = "192.168.49.1";
-
-        private BluetoothSocket mBtSocket;
-        private Socket socket;
-        private UUID uuid;
-        private int tcp_port_num;
-
-        cmfw_port_c(UUID uuid, int port_num) {
-            this.uuid = uuid;
-            mBtSocket = null;
-            socket = null;
-            tcp_port_num = port_num;
-        }
-
-        public int get_stat() {
-            if (mBtSocket == null) return CMFW_STAT_DISCON;
-
-            //Log.d("Stat", Boolean.toString(mBtSocket.isConnected()));
-            if (!mBtSocket.isConnected()) return CMFW_STAT_DISCON;
-
-            if (socket == null) return CMFW_STAT_BT_CONNECTED;
-            else if (!socket.isConnected())
-                return CMFW_STAT_BT_CONNECTED;
-            else return CMFW_STAT_WFD_CONNECTED;
-        }
-
-        // TODO:
-        public boolean connect(String bluetoothName, String bluetoothAddress) {
-            boolean isSucceed = false;
-            if (get_stat() != CMFW_STAT_DISCON) {
-                isSucceed = true;
-                return isSucceed;
-            }
-
-            if (bluetoothName.isEmpty() || bluetoothAddress.isEmpty()) {
-                isSucceed = false;
-                return isSucceed;
-            }
-
-            Set<BluetoothDevice> bluetoothDevices = BluetoothAdapter
-                    .getDefaultAdapter().getBondedDevices();
-            BluetoothSocketWrapper newBtSocket = null;
-
-            if (bluetoothDevices.size() > 0) {
-                for (BluetoothDevice bluetoothDevice : bluetoothDevices) {
-                    String deviceName = bluetoothDevice.getName();
-                    String deviceAddress = bluetoothDevice.getAddress();
-                    if (deviceName.compareTo(bluetoothName) == 0 &&
-                            deviceAddress.compareTo(bluetoothAddress) == 0) {
-                        // RedCarrottt: Fix Bluetooth connection failure bug
-                        // (Issue #103)
-                        try {
-                            BluetoothSocket rawBtSocket = bluetoothDevice
-                                    .createRfcommSocketToServiceRecord(uuid);
-                            newBtSocket = new NativeBluetoothSocket
-                                    (rawBtSocket);
-                            newBtSocket.connect();
-                            isSucceed = true;
-                        } catch (IOException e) {
-                            try {
-                                newBtSocket = new FallbackBluetoothSocket
-                                        (newBtSocket.getUnderlyingSocket());
-                                Thread.sleep(500);
-                                newBtSocket.connect();
-                                isSucceed = true;
-                            } catch (FallbackException e1) {
-                                Log.w("Bluetooth", "Could not initialize " +
-                                        "FallbackBluetoothSocket class", e1);
-                                isSucceed = false;
-                            } catch (InterruptedException e1) {
-                                Log.w("Bluetooth", e1.getMessage(), e1);
-                                isSucceed = false;
-                            } catch (IOException e1) {
-                                Log.w("Bluetooth", "Fallback failed. " +
-                                        "Cancelling it.", e1);
-                                isSucceed = false;
-                            }
-                        }
-
-                        if (isSucceed == true && newBtSocket
-                                .getUnderlyingSocket().isConnected()) {
-                            Log.d("Bluetooth", "Connected");
-                        } else {
-                            Log.d("Bluetooth", "Connection failed");
-                            newBtSocket = null;
-                        }
-                    }
-                }
-            }
-            if (newBtSocket == null) isSucceed = false;
-            else this.mBtSocket = newBtSocket.getUnderlyingSocket();
-
-            return isSucceed;
-        }
-
-        public void wfd_close() {
-            int stat = get_stat();
-            if (stat == CMFW_STAT_WFD_CONNECTED) {
-                try {
-                    socket.close();
-                    Log.d("WFD", "socket closed");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                socket = null;
-            }
-
-            return;
-
-        }
-
-        public boolean wfd_connect() {
-            // TODO
-            if (mWifiDirectBroadcastReceiver.isConnected() == false)
-                return false;
-
-            Socket tmp_sock = new Socket();
-
-            try {
-                tmp_sock.bind(null);
-                Log.d("WFDConnect", "Try Socket connect");
-                tmp_sock.connect((new InetSocketAddress(ip_addr,
-                        tcp_port_num)), 1500);
-            } catch (IOException e) {
-                e.printStackTrace();
-                tmp_sock = null;
-            }
-            if (tmp_sock == null) return false;
-            if (tmp_sock.isConnected() == true) {
-                socket = tmp_sock;
-                Log.d("WFD_CONNECT", "Connected to device");
-                return true;
-            } else return false;
-        }
-
-        public OutputStream get_output_stream(boolean is_wfd) {
-            OutputStream res = null;
-            int stat = get_stat();
-            //Log.d("STAT", Integer.toString(stat));
-            if (is_wfd == false) if (stat == CMFW_STAT_WFD_CONNECTED)
-                stat = CMFW_STAT_BT_CONNECTED;
-            switch (stat) {
-                case CMFW_STAT_DISCON:
-                    res = null;
-                    break;
-                case CMFW_STAT_BT_CONNECTED: {
-                    OutputStream tmp_output_stream = null;
-
-                    try {
-                        tmp_output_stream = mBtSocket.getOutputStream();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        tmp_output_stream = null;
-                    }
-
-                    res = tmp_output_stream;
-
-                    break;
-                }
-                case CMFW_STAT_WFD_CONNECTED: {
-                    OutputStream tmp_output_stream = null;
-
-                    try {
-                        tmp_output_stream = socket.getOutputStream();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        tmp_output_stream = null;
-                    }
-
-                    res = tmp_output_stream;
-                    break;
-                }
-            }
-
-            return res;
-        }
-
-        public InputStream get_input_stream(boolean is_wfd) {
-            InputStream res = null;
-            int stat = get_stat();
-            if (is_wfd == false && stat == CMFW_STAT_WFD_CONNECTED)
-                stat = CMFW_STAT_BT_CONNECTED;
-            switch (stat) {
-                case CMFW_STAT_DISCON:
-                    res = null;
-                    break;
-                case CMFW_STAT_BT_CONNECTED: {
-                    InputStream tmp_input_stream = null;
-
-                    try {
-                        tmp_input_stream = mBtSocket.getInputStream();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        tmp_input_stream = null;
-                    }
-
-                    res = tmp_input_stream;
-
-                    break;
-                }
-                case CMFW_STAT_WFD_CONNECTED: {
-                    InputStream tmp_input_stream = null;
-
-                    try {
-                        tmp_input_stream = socket.getInputStream();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        tmp_input_stream = null;
-                    }
-
-                    res = tmp_input_stream;
-                    break;
-                }
-            }
-
-            return res;
-        }
-
-        void close() {
-            int stat = get_stat();
-            switch (stat) {
-                case CMFW_STAT_BT_CONNECTED:
-                    try {
-                        mBtSocket.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        Log.d("BTSocket", "Close failed");
-                    }
-                    mBtSocket = null;
-                    break;
-                case CMFW_STAT_WFD_CONNECTED:
-                    try {
-                        socket.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        Log.d("Socket", "Close failed");
-                    }
-                    socket = null;
-                    break;
-            }
-        }
-
-    }
-
     // Wi-fi Direct Off Thread
     private class WfdOffThread extends Thread {
         private boolean running;
@@ -1072,4 +617,250 @@ public class CommController {
     }
 
     private WfdOffThread wfd_off_thread;
+}
+
+// Port
+class cmfw_port_c {
+    public final String ip_addr = "192.168.49.1";
+
+    private BluetoothSocket mBtSocket;
+    private Socket socket;
+    private UUID uuid;
+    private int tcp_port_num;
+
+    cmfw_port_c(UUID uuid, int port_num) {
+        this.uuid = uuid;
+        mBtSocket = null;
+        socket = null;
+        tcp_port_num = port_num;
+    }
+
+    public int get_stat() {
+        if (mBtSocket == null) return CMFW_STAT_DISCON;
+
+        //Log.d("Stat", Boolean.toString(mBtSocket.isConnected()));
+        if (!mBtSocket.isConnected()) return CMFW_STAT_DISCON;
+
+        if (socket == null) return CMFW_STAT_BT_CONNECTED;
+        else if (!socket.isConnected())
+            return CMFW_STAT_BT_CONNECTED;
+        else return CMFW_STAT_WFD_CONNECTED;
+    }
+
+    // TODO:
+    public boolean connect(String bluetoothName, String bluetoothAddress) {
+        boolean isSucceed = false;
+        if (get_stat() != CMFW_STAT_DISCON) {
+            isSucceed = true;
+            return isSucceed;
+        }
+
+        if (bluetoothName.isEmpty() || bluetoothAddress.isEmpty()) {
+            isSucceed = false;
+            return isSucceed;
+        }
+
+        Set<BluetoothDevice> bluetoothDevices = BluetoothAdapter
+                .getDefaultAdapter().getBondedDevices();
+        BluetoothSocketWrapper newBtSocket = null;
+
+        if (bluetoothDevices.size() > 0) {
+            for (BluetoothDevice bluetoothDevice : bluetoothDevices) {
+                String deviceName = bluetoothDevice.getName();
+                String deviceAddress = bluetoothDevice.getAddress();
+                if (deviceName.compareTo(bluetoothName) == 0 &&
+                        deviceAddress.compareTo(bluetoothAddress) == 0) {
+                    // RedCarrottt: Fix Bluetooth connection failure bug
+                    // (Issue #103)
+                    try {
+                        BluetoothSocket rawBtSocket = bluetoothDevice
+                                .createRfcommSocketToServiceRecord(uuid);
+                        newBtSocket = new NativeBluetoothSocket
+                                (rawBtSocket);
+                        newBtSocket.connect();
+                        isSucceed = true;
+                    } catch (IOException e) {
+                        try {
+                            newBtSocket = new FallbackBluetoothSocket
+                                    (newBtSocket.getUnderlyingSocket());
+                            Thread.sleep(500);
+                            newBtSocket.connect();
+                            isSucceed = true;
+                        } catch (FallbackException e1) {
+                            Log.w("Bluetooth", "Could not initialize " +
+                                    "FallbackBluetoothSocket class", e1);
+                            isSucceed = false;
+                        } catch (InterruptedException e1) {
+                            Log.w("Bluetooth", e1.getMessage(), e1);
+                            isSucceed = false;
+                        } catch (IOException e1) {
+                            Log.w("Bluetooth", "Fallback failed. " +
+                                    "Cancelling it.", e1);
+                            isSucceed = false;
+                        }
+                    }
+
+                    if (isSucceed == true && newBtSocket
+                            .getUnderlyingSocket().isConnected()) {
+                        Log.d("Bluetooth", "Connected");
+                    } else {
+                        Log.d("Bluetooth", "Connection failed");
+                        newBtSocket = null;
+                    }
+                }
+            }
+        }
+        if (newBtSocket == null) isSucceed = false;
+        else this.mBtSocket = newBtSocket.getUnderlyingSocket();
+
+        return isSucceed;
+    }
+
+    public void wfd_close() {
+        int stat = get_stat();
+        if (stat == CMFW_STAT_WFD_CONNECTED) {
+            try {
+                socket.close();
+                Log.d("WFD", "socket closed");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            socket = null;
+        }
+
+        return;
+
+    }
+
+    public boolean wfd_connect() {
+        // TODO
+        if (mWifiDirectBroadcastReceiver.isConnected() == false)
+            return false;
+
+        Socket tmp_sock = new Socket();
+
+        try {
+            tmp_sock.bind(null);
+            Log.d("WFDConnect", "Try Socket connect");
+            tmp_sock.connect((new InetSocketAddress(ip_addr,
+                    tcp_port_num)), 1500);
+        } catch (IOException e) {
+            e.printStackTrace();
+            tmp_sock = null;
+        }
+        if (tmp_sock == null) return false;
+        if (tmp_sock.isConnected() == true) {
+            socket = tmp_sock;
+            Log.d("WFD_CONNECT", "Connected to device");
+            return true;
+        } else return false;
+    }
+
+    public OutputStream get_output_stream(boolean is_wfd) {
+        OutputStream res = null;
+        int stat = get_stat();
+        //Log.d("STAT", Integer.toString(stat));
+        if (is_wfd == false) if (stat == CMFW_STAT_WFD_CONNECTED)
+            stat = CMFW_STAT_BT_CONNECTED;
+        switch (stat) {
+            case CMFW_STAT_DISCON:
+                res = null;
+                break;
+            case CMFW_STAT_BT_CONNECTED: {
+                OutputStream tmp_output_stream = null;
+
+                try {
+                    tmp_output_stream = mBtSocket.getOutputStream();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    tmp_output_stream = null;
+                }
+
+                res = tmp_output_stream;
+
+                break;
+            }
+            case CMFW_STAT_WFD_CONNECTED: {
+                OutputStream tmp_output_stream = null;
+
+                try {
+                    tmp_output_stream = socket.getOutputStream();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    tmp_output_stream = null;
+                }
+
+                res = tmp_output_stream;
+                break;
+            }
+        }
+
+        return res;
+    }
+
+    public InputStream get_input_stream(boolean is_wfd) {
+        InputStream res = null;
+        int stat = get_stat();
+        if (is_wfd == false && stat == CMFW_STAT_WFD_CONNECTED)
+            stat = CMFW_STAT_BT_CONNECTED;
+        switch (stat) {
+            case CMFW_STAT_DISCON:
+                res = null;
+                break;
+            case CMFW_STAT_BT_CONNECTED: {
+                InputStream tmp_input_stream = null;
+
+                try {
+                    tmp_input_stream = mBtSocket.getInputStream();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    tmp_input_stream = null;
+                }
+
+                res = tmp_input_stream;
+
+                break;
+            }
+            case CMFW_STAT_WFD_CONNECTED: {
+                InputStream tmp_input_stream = null;
+
+                try {
+                    tmp_input_stream = socket.getInputStream();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    tmp_input_stream = null;
+                }
+
+                res = tmp_input_stream;
+                break;
+            }
+        }
+
+        return res;
+    }
+
+    void close() {
+        int stat = get_stat();
+        switch (stat) {
+            case CMFW_STAT_BT_CONNECTED:
+                try {
+                    mBtSocket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Log.d("BTSocket", "Close failed");
+                }
+                mBtSocket = null;
+                break;
+            case CMFW_STAT_WFD_CONNECTED:
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Log.d("Socket", "Close failed");
+                }
+                socket = null;
+                break;
+        }
+    }
+
 }

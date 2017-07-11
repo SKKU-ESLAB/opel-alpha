@@ -34,8 +34,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.opel.cmfw.view.CommBroadcastReceiver;
+import com.opel.cmfw.view.CommChannelService;
 import com.opel.cmfw.view.CommEventListener;
-import com.opel.cmfw.view.CommService;
 import com.opel.opel_manager.R;
 import com.opel.opel_manager.controller.JSONParser;
 import com.opel.opel_manager.controller.OPELAppCoreStub;
@@ -48,8 +48,8 @@ import java.util.ArrayList;
 import static com.opel.opel_manager.controller.OPELContext.getAppList;
 
 public class MainActivity extends Activity implements CommEventListener {
-    // RPC on CommService
-    private CommService mCommService = null;
+    // RPC on CommChannelService
+    private CommChannelService mCommChannelService = null;
     private CommBroadcastReceiver mCommBroadcastReceiver;
     private final MainActivity self = this;
 
@@ -141,8 +141,8 @@ public class MainActivity extends Activity implements CommEventListener {
     }
 
     private void initializeCommunication() {
-        // Launch CommService for setting connection with target OPEL device.
-        Intent serviceIntent = new Intent(this, CommService.class);
+        // Launch CommChannelService for setting connection with target OPEL device.
+        Intent serviceIntent = new Intent(this, CommChannelService.class);
         this.bindService(serviceIntent, this.mCommServiceConnection, Context
                 .BIND_AUTO_CREATE);
     }
@@ -151,12 +151,12 @@ public class MainActivity extends Activity implements CommEventListener {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder
                 inputBinder) {
-            CommService.CommBinder serviceBinder = (CommService.CommBinder)
+            CommChannelService.CommBinder serviceBinder = (CommChannelService.CommBinder)
                     inputBinder;
-            mCommService = serviceBinder.getService();
+            mCommChannelService = serviceBinder.getService();
 
-            OPELContext.getAppCore().setCommService(mCommService);
-            mCommService.initializeConnection(); // RPC to CommService
+            OPELContext.getAppCore().setCommService(mCommChannelService);
+            mCommChannelService.initializeConnection(); // RPC to CommChannelService
 
             // Set CommBroadcastReceiver and CommEventListener
             IntentFilter broadcastIntentFilter = new IntentFilter();
@@ -167,7 +167,7 @@ public class MainActivity extends Activity implements CommEventListener {
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
-            mCommService = null;
+            mCommChannelService = null;
         }
     };
 
@@ -312,7 +312,7 @@ public class MainActivity extends Activity implements CommEventListener {
     }
 
     private void launchAppManager() {
-        if (this.mCommService != null && !this.mCommService.isConnected()) {
+        if (this.mCommChannelService != null && !this.mCommChannelService.isConnected()) {
             Toast.makeText(getApplicationContext(), "Disconnected" + " to " +
                     "OPEL", Toast.LENGTH_SHORT).show();
         }
@@ -321,7 +321,7 @@ public class MainActivity extends Activity implements CommEventListener {
     }
 
     private void launchAppMarket() {
-        if (this.mCommService != null && !this.mCommService.isConnected()) {
+        if (this.mCommChannelService != null && !this.mCommChannelService.isConnected()) {
             Toast.makeText(getApplicationContext(), "Disconnected" + " to " +
                     "OPEL", Toast.LENGTH_SHORT).show();
         }
@@ -330,8 +330,8 @@ public class MainActivity extends Activity implements CommEventListener {
     }
 
     private void launchConnect() {
-        if (this.mCommService != null && !this.mCommService.isConnected()) {
-            this.mCommService.initializeConnection();
+        if (this.mCommChannelService != null && !this.mCommChannelService.isConnected()) {
+            this.mCommChannelService.initializeConnection();
         } else
             Toast.makeText(getApplicationContext(), "Already connected to " +
                     "OPEL device", Toast.LENGTH_SHORT).show();
@@ -339,7 +339,7 @@ public class MainActivity extends Activity implements CommEventListener {
     }
 
     private void launchFileManager() {
-        if (this.mCommService != null && !this.mCommService.isConnected()) {
+        if (this.mCommChannelService != null && !this.mCommChannelService.isConnected()) {
             Toast.makeText(getApplicationContext(), "Disconnected" + " to " +
                     "OPEL", Toast.LENGTH_SHORT).show();
             return;
@@ -351,27 +351,27 @@ public class MainActivity extends Activity implements CommEventListener {
     }
 
     private void launchCameraBeforeWifiDirectConnected() {
-        if (this.mCommService != null && !this.mCommService.isConnected()) {
+        if (this.mCommChannelService != null && !this.mCommChannelService.isConnected()) {
             Toast.makeText(getApplicationContext(), "Disconnected" + " to " +
                     "OPEL", Toast.LENGTH_SHORT).show();
             return;
         }
 
         mIsWaitingWifiDirectOnForCamera = true;
-        this.mCommService.turnOnWifiDirect(true);
+        this.mCommChannelService.turnOnWifiDirect(true);
     }
 
     private void launchCameraAfterWifiDirectConnected() {
         Intent intent = new Intent(MainActivity.this, CameraViewerActivity
                 .class);
         intent.putExtra(CameraViewerActivity
-                .INTENT_KEY_DEFAULT_WIFI_DIRECT_IP_ADDRESS, this.mCommService
+                .INTENT_KEY_DEFAULT_WIFI_DIRECT_IP_ADDRESS, this.mCommChannelService
                 .getWifiDirectAddress());
         startActivity(intent);
     }
 
     private void launchSensor() {
-        if (this.mCommService != null && !this.mCommService.isConnected()) {
+        if (this.mCommChannelService != null && !this.mCommChannelService.isConnected()) {
             Toast.makeText(getApplicationContext(), "Disconnected" + " to " +
                     "OPEL", Toast.LENGTH_SHORT).show();
             return;
