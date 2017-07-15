@@ -28,21 +28,21 @@ public class CommBroadcastReceiver extends BroadcastReceiver {
     public static final String ACTION = "com.opel.cmfw.broadcastreceiver";
     public static final String KEY_EVENT_TYPE = "eventType";
 
-    public static final String EVENT_TYPE_ON_WIFI_STATE_CHANGED =
-            "onWifiStateChanged";
+    public static final String EVENT_TYPE_ON_WIFI_DIRECT_DEVICE_STATE_CHANGED =
+            "onWifiDirectDeviceStateChanged";
     public static final String KEY_IS_WIFI_ON = "isWifiOn";
 
-    public static final String EVENT_TYPE_ON_INITIALIZATION_RESULT =
-            "onInitializationResult";
-    public static final String KEY_IS_INIT_SUCCESS = "isInitSuccess";
+    public static final String EVENT_TYPE_ON_COMM_CHANNEL_STATE_CHANGED =
+            "onCommChannelStateChanged";
+    public static final String KEY_IS_COMM_CHANNEL_CONNECTED = "isCommChannelConnected";
 
-    public static final String EVENT_TYPE_ON_BLUETOOTH_STATE_CHANGED =
-            "onBluetoothStateChanged";
-    public static final String KEY_IS_CONNECTED = "isConnected";
+    public static final String EVENT_TYPE_ON_BLUETOOTH_DEVICE_STATE_CHANGED =
+            "onBluetoothDeviceStateChanged";
+    public static final String KEY_IS_CONNECTED = "isChannelConnected";
 
-    public static final String EVENT_TYPE_ON_RECEIVED_MESSAGE =
-            "onReceivedMessage";
+    public static final String EVENT_TYPE_ON_RECEIVED_MESSAGE = "onReceivedMessage";
     public static final String KEY_MESSAGE = "message";
+    public static final String KEY_FILE_PATH = "filePath";
 
     private CommEventListener mListener;
 
@@ -55,24 +55,25 @@ public class CommBroadcastReceiver extends BroadcastReceiver {
         String action = intent.getAction();
         if (action.compareTo(ACTION) == 0) {
             String eventType = intent.getStringExtra(KEY_EVENT_TYPE);
-            if (eventType.compareTo(EVENT_TYPE_ON_INITIALIZATION_RESULT) == 0) {
+            if (eventType.compareTo(EVENT_TYPE_ON_COMM_CHANNEL_STATE_CHANGED) == 0) {
                 boolean isInitSuccess = intent.getBooleanExtra
-                        (KEY_IS_INIT_SUCCESS, false);
-                this.mListener.onInitializationResult(isInitSuccess);
-            } else if (eventType.compareTo(EVENT_TYPE_ON_WIFI_STATE_CHANGED)
+                        (KEY_IS_COMM_CHANNEL_CONNECTED, false);
+                this.mListener.onCommChannelStateChanged(isInitSuccess);
+            } else if (eventType.compareTo(EVENT_TYPE_ON_WIFI_DIRECT_DEVICE_STATE_CHANGED)
                     == 0) {
                 boolean isWifiOn = intent.getBooleanExtra(KEY_IS_WIFI_ON,
                         false);
-                this.mListener.onWifiDirectStateChanged(isWifiOn);
+                this.mListener.onWifiDirectDeviceStateChanged(isWifiOn);
             } else if (eventType.compareTo
-                    (EVENT_TYPE_ON_BLUETOOTH_STATE_CHANGED) == 0) {
+                    (EVENT_TYPE_ON_BLUETOOTH_DEVICE_STATE_CHANGED) == 0) {
                 boolean isConnected = intent.getBooleanExtra
                         (KEY_IS_CONNECTED, false);
-                this.mListener.onBluetoothStateChanged(isConnected);
+                this.mListener.onBluetoothDeviceStateChanged(isConnected);
             } else if (eventType.compareTo(EVENT_TYPE_ON_RECEIVED_MESSAGE) ==
                     0) {
                 String message = intent.getStringExtra(KEY_MESSAGE);
-                this.mListener.onReceivedMessage(message);
+                String filePath = intent.getStringExtra(KEY_FILE_PATH);
+                this.mListener.onReceivedMessage(message, filePath);
             }
         }
     }

@@ -175,7 +175,7 @@ public class CameraViewerActivity extends Activity implements SurfaceHolder
         SurfaceHolder sh = sv.getHolder();
         sh.addCallback(this);
 
-        // Retrieve our previous state, or initialize it to default values
+        // Retrieve our previous state, or connectChannel it to default values
         if (savedInstanceState != null) {
             is_playing_desired = savedInstanceState.getBoolean("playing");
             position = savedInstanceState.getInt("position");

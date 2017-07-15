@@ -108,7 +108,7 @@ public class MainActivity extends Activity implements CommEventListener {
 
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                     Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                Toast.makeText(this, "Storage permission is required to run "
+                Toast.makeText(this, "Storage permission is required to start "
                         + "OPEL Manager.", Toast.LENGTH_SHORT).show();
             }
             ActivityCompat.requestPermissions(this, new String[]{Manifest
@@ -156,7 +156,7 @@ public class MainActivity extends Activity implements CommEventListener {
             mCommChannelService = serviceBinder.getService();
 
             OPELContext.getAppCore().setCommService(mCommChannelService);
-            mCommChannelService.initializeConnection(); // RPC to CommChannelService
+            mCommChannelService.connectChannel(); // RPC to CommChannelService
 
             // Set CommBroadcastReceiver and CommEventListener
             IntentFilter broadcastIntentFilter = new IntentFilter();
@@ -312,7 +312,7 @@ public class MainActivity extends Activity implements CommEventListener {
     }
 
     private void launchAppManager() {
-        if (this.mCommChannelService != null && !this.mCommChannelService.isConnected()) {
+        if (this.mCommChannelService != null && !this.mCommChannelService.isChannelConnected()) {
             Toast.makeText(getApplicationContext(), "Disconnected" + " to " +
                     "OPEL", Toast.LENGTH_SHORT).show();
         }
@@ -321,7 +321,7 @@ public class MainActivity extends Activity implements CommEventListener {
     }
 
     private void launchAppMarket() {
-        if (this.mCommChannelService != null && !this.mCommChannelService.isConnected()) {
+        if (this.mCommChannelService != null && !this.mCommChannelService.isChannelConnected()) {
             Toast.makeText(getApplicationContext(), "Disconnected" + " to " +
                     "OPEL", Toast.LENGTH_SHORT).show();
         }
@@ -330,8 +330,8 @@ public class MainActivity extends Activity implements CommEventListener {
     }
 
     private void launchConnect() {
-        if (this.mCommChannelService != null && !this.mCommChannelService.isConnected()) {
-            this.mCommChannelService.initializeConnection();
+        if (this.mCommChannelService != null && !this.mCommChannelService.isChannelConnected()) {
+            this.mCommChannelService.connectChannel();
         } else
             Toast.makeText(getApplicationContext(), "Already connected to " +
                     "OPEL device", Toast.LENGTH_SHORT).show();
@@ -339,7 +339,7 @@ public class MainActivity extends Activity implements CommEventListener {
     }
 
     private void launchFileManager() {
-        if (this.mCommChannelService != null && !this.mCommChannelService.isConnected()) {
+        if (this.mCommChannelService != null && !this.mCommChannelService.isChannelConnected()) {
             Toast.makeText(getApplicationContext(), "Disconnected" + " to " +
                     "OPEL", Toast.LENGTH_SHORT).show();
             return;
@@ -351,7 +351,7 @@ public class MainActivity extends Activity implements CommEventListener {
     }
 
     private void launchCameraBeforeWifiDirectConnected() {
-        if (this.mCommChannelService != null && !this.mCommChannelService.isConnected()) {
+        if (this.mCommChannelService != null && !this.mCommChannelService.isChannelConnected()) {
             Toast.makeText(getApplicationContext(), "Disconnected" + " to " +
                     "OPEL", Toast.LENGTH_SHORT).show();
             return;
@@ -371,7 +371,7 @@ public class MainActivity extends Activity implements CommEventListener {
     }
 
     private void launchSensor() {
-        if (this.mCommChannelService != null && !this.mCommChannelService.isConnected()) {
+        if (this.mCommChannelService != null && !this.mCommChannelService.isChannelConnected()) {
             Toast.makeText(getApplicationContext(), "Disconnected" + " to " +
                     "OPEL", Toast.LENGTH_SHORT).show();
             return;
@@ -431,7 +431,7 @@ public class MainActivity extends Activity implements CommEventListener {
 
     // CommEventListener
     @Override
-    public void onWifiDirectStateChanged(boolean isWifiOn) {
+    public void onWifiDirectDeviceStateChanged(boolean isWifiOn) {
         this.setIndicatorWFD(isWifiOn);
         if(isWifiOn) {
             if(this.mIsWaitingWifiDirectOnForCamera) {
@@ -443,19 +443,19 @@ public class MainActivity extends Activity implements CommEventListener {
     }
 
     @Override
-    public void onInitializationResult(boolean isInitSuccess) {
+    public void onCommChannelStateChanged(boolean isInitSuccess) {
         if (isInitSuccess) {
             Toast.makeText(getApplicationContext(), "Successfully connected "
                     + "to OPEL", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(getApplicationContext(), "Failed connecting " +
-                    "to" + " OPEL, re-connect with CONNECT button", Toast
+                    "to" + " OPEL, re-connectChannel with CONNECT button", Toast
                     .LENGTH_LONG).show();
         }
     }
 
     @Override
-    public void onBluetoothStateChanged(boolean isConnected) {
+    public void onBluetoothDeviceStateChanged(boolean isConnected) {
         if (isConnected) {
             setIndicatorBT(true);
             OPELContext.getAppCore().requestUpdateAppInfomation();
@@ -465,7 +465,7 @@ public class MainActivity extends Activity implements CommEventListener {
     }
 
     @Override
-    public void onReceivedMessage(String message) {
+    public void onReceivedMessage(String message, String filePath) {
         // TODO: forward to OPELAppCoreStub
         OPELContext.getAppCore().onReceivedMessage(message);
     }

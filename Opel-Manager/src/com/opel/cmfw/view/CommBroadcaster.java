@@ -3,46 +3,50 @@ package com.opel.cmfw.view;
 import android.content.Intent;
 
 public class CommBroadcaster {
-    public static void onInitializationResult(CommChannelService service, boolean
+    public static void onCommChannelState(CommChannelService service, boolean
             isInitSuccess) {
         Intent broadcastIntent = new Intent();
         broadcastIntent.setAction(CommBroadcastReceiver.ACTION);
         broadcastIntent.putExtra(CommBroadcastReceiver.KEY_EVENT_TYPE,
-                CommBroadcastReceiver.EVENT_TYPE_ON_INITIALIZATION_RESULT);
-        broadcastIntent.putExtra(CommBroadcastReceiver.KEY_IS_INIT_SUCCESS,
+                CommBroadcastReceiver.EVENT_TYPE_ON_COMM_CHANNEL_STATE_CHANGED);
+        broadcastIntent.putExtra(CommBroadcastReceiver.KEY_IS_COMM_CHANNEL_CONNECTED,
                 isInitSuccess);
         service.sendBroadcast(broadcastIntent);
     }
 
-    public static void onWifiStateChanged(CommChannelService service, boolean
-            isWifiOn) {
+    public static void onWifiDirectDeviceStateChanged(CommChannelService service, boolean
+            isWifiDirectOn) {
         Intent broadcastIntent = new Intent();
         broadcastIntent.setAction(CommBroadcastReceiver.ACTION);
         broadcastIntent.putExtra(CommBroadcastReceiver.KEY_EVENT_TYPE,
-                CommBroadcastReceiver.EVENT_TYPE_ON_WIFI_STATE_CHANGED);
+                CommBroadcastReceiver.EVENT_TYPE_ON_WIFI_DIRECT_DEVICE_STATE_CHANGED);
         broadcastIntent.putExtra(CommBroadcastReceiver.KEY_IS_WIFI_ON,
-                isWifiOn);
+                isWifiDirectOn);
         service.sendBroadcast(broadcastIntent);
     }
 
-    public static void onBluetoothStateChanged(CommChannelService service, boolean
+    public static void onBluetoothDeviceStateChanged(CommChannelService service, boolean
             isConnected) {
         Intent broadcastIntent = new Intent();
         broadcastIntent.setAction(CommBroadcastReceiver.ACTION);
         broadcastIntent.putExtra(CommBroadcastReceiver.KEY_EVENT_TYPE,
-                CommBroadcastReceiver.EVENT_TYPE_ON_BLUETOOTH_STATE_CHANGED);
+                CommBroadcastReceiver.EVENT_TYPE_ON_BLUETOOTH_DEVICE_STATE_CHANGED);
         broadcastIntent.putExtra(CommBroadcastReceiver.KEY_IS_CONNECTED,
                 isConnected);
         service.sendBroadcast(broadcastIntent);
     }
 
-    public static void onReceivedMessage(CommChannelService service, String message) {
+    public static void onReceivedMessage(CommChannelService service,
+                                         String message, String filePath) {
+        // TODO: add file
         Intent broadcastIntent = new Intent();
         broadcastIntent.setAction(CommBroadcastReceiver.ACTION);
         broadcastIntent.putExtra(CommBroadcastReceiver.KEY_EVENT_TYPE,
                 CommBroadcastReceiver.EVENT_TYPE_ON_RECEIVED_MESSAGE);
         broadcastIntent.putExtra(CommBroadcastReceiver.KEY_MESSAGE,
                 message);
+        broadcastIntent.putExtra(CommBroadcastReceiver.KEY_FILE_PATH,
+                filePath);
         service.sendBroadcast(broadcastIntent);
     }
 }

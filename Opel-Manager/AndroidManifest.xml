@@ -63,9 +63,6 @@
             android:enabled="true"
             android:exported="true"/>
 
-        <activity
-            android:name="com.opel.cmfw.view.BluetoothDiscoveryActivity"
-            android:theme="@android:style/Theme.DeviceDefault.Dialog"></activity>
     </application>
 
 </manifest>
