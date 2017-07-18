@@ -501,7 +501,6 @@ class WifiDirectDeviceController implements DeviceController, WifiDirectListener
         private String mWifiDirectName;
         private String mWifiDirectIPAddress;
 
-        private CMFWLegacy mOwnerController = null;
         private WifiDirectListener mListener = null;
 
         public void setOwnerController(CMFWLegacy ownerController) {

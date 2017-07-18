@@ -48,7 +48,7 @@ import java.util.UUID;
 // TODO: remove BT/WFD status management -> replace it with state change event listener
 public class CMFWLegacy {
     // Status of Communication Framework
-    public static final int CMFW_STAT_DISCON = 0;
+    public static finalint CMFW_STAT_DISCON = 0;
     public static final int CMFW_STAT_BT_CONNECTED = 1;
     public static final int CMFW_STAT_WFD_CONNECTED = 2;
     public static final int CMFW_WFD_OFF_TIME = 10;
