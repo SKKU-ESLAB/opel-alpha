@@ -36,13 +36,13 @@ public class CommBroadcaster {
         service.sendBroadcast(broadcastIntent);
     }
 
-    public static void onReceivedMessage(CommChannelService service,
-                                         String message, String filePath) {
+    public static void onReceivedRawMessage(CommChannelService service,
+                                            String message, String filePath) {
         // TODO: add file
         Intent broadcastIntent = new Intent();
         broadcastIntent.setAction(CommBroadcastReceiver.ACTION);
         broadcastIntent.putExtra(CommBroadcastReceiver.KEY_EVENT_TYPE,
-                CommBroadcastReceiver.EVENT_TYPE_ON_RECEIVED_MESSAGE);
+                CommBroadcastReceiver.EVENT_TYPE_ON_RECEIVED_RAW_MESSAGE);
         broadcastIntent.putExtra(CommBroadcastReceiver.KEY_MESSAGE,
                 message);
         broadcastIntent.putExtra(CommBroadcastReceiver.KEY_FILE_PATH,

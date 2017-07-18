@@ -23,9 +23,7 @@ import android.os.ResultReceiver;
 import android.util.Log;
 
 import com.opel.cmfw.controller.BluetoothCommPort;
-import com.opel.cmfw.controller.CMFWLegacy;
 import com.opel.cmfw.controller.CommPortListener;
-import com.opel.cmfw.controller.WifiDirectBroadcastReceiver;
 import com.opel.cmfw.controller.WifiDirectCommPort;
 import com.opel.cmfw.controller.WifiDirectListener;
 
@@ -46,7 +44,8 @@ import java.util.UUID;
 
 /* Roles of CommChannelService
     - Initialize/disconnectChannel Bluetooth, Wi-fi Direct device (Bluetooth/WifiDirectDeviceController)
-    - State Management of Bluetooth, Wi-fi Direct device (Bluetooth/WifiDirectDeviceController)
+    - State Management of Bluetooth, Wi-fi Direct device
+    (Bluetooth/WifiDirectDeviceController)
     - Transfer data via Bluetooth or Wi-fi Direct (CMFWLegacy)
  */
 
@@ -171,7 +170,7 @@ public class CommChannelService extends Service implements CommPortListener {
         this.mWifiDirectDeviceController.connect();
     }
 
-    public int disableLargeData() {
+    public void disableLargeData() {
         // TODO: implement it
     }
 
@@ -181,7 +180,7 @@ public class CommChannelService extends Service implements CommPortListener {
         String listenedMessage = null;
         try {
             listenedMessage = new String(messageData, "UTF-8");
-            CommBroadcaster.onReceivedMessage(self, listenedMessage, filePath);
+            CommBroadcaster.onReceivedRawMessage(self, listenedMessage, filePath);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
@@ -440,6 +439,7 @@ class WifiDirectDeviceController implements DeviceController, WifiDirectListener
         wifiP2PIntentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
         wifiP2PIntentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
 
+        // Initialize WifiP2PManager of Android Framework
         WifiP2pManager wifiP2pManager = (WifiP2pManager) this.mService.getSystemService(
                 Activity.WIFI_P2P_SERVICE);
         WifiP2pManager.Channel wifiP2pManagerChannel = wifiP2pManager.initialize(this.mService,
@@ -487,7 +487,7 @@ class WifiDirectDeviceController implements DeviceController, WifiDirectListener
         private static final String TAG = "WFDBroadcastReceiver";
         private WifiP2pManager mManager;
         private WifiP2pManager.Channel mChannel;
-        private WifiP2pDevice opelDevice;
+        private WifiP2pDevice mConnectedDevice;
 
         public WifiP2pManager.ConnectionInfoListener mConnectionListener;
         public WifiP2pManager.PeerListListener mPeerListener;
@@ -502,10 +502,6 @@ class WifiDirectDeviceController implements DeviceController, WifiDirectListener
         private String mWifiDirectIPAddress;
 
         private WifiDirectListener mListener = null;
-
-        public void setOwnerController(CMFWLegacy ownerController) {
-            this.mOwnerController = ownerController;
-        }
 
         public void setWifiDirectInfo(String wifiDirectName, String
                 wifiDirectIPAddress) {
@@ -530,29 +526,26 @@ class WifiDirectDeviceController implements DeviceController, WifiDirectListener
 
             this.mManager = manager;
             this.mChannel = channel;
-            opelDevice = null;
+            mConnectedDevice = null;
 
             mPeerListener = new WifiP2pManager.PeerListListener() {
                 @Override
                 public void onPeersAvailable(WifiP2pDeviceList peers) {
                     if (mWifiDirectName.isEmpty() == true) {
-                        Log.d(TAG, "Failed to connectChannel! No Wi-fi Direct " + "name " +
-                                "given!");
+                        Log.d(TAG, "Failed to connectChannel! No Wi-fi Direct name given!");
                         sent_connected = false;
                         return;
                     }
 
-                    WifiP2pConfig config = new WifiP2pConfig();
                     for (WifiP2pDevice device : peers.getDeviceList()) {
                         if (device.deviceName.compareTo(mWifiDirectName) == 0) {
                             Log.d(TAG, "Found device connecting...");
-                            opelDevice = device;
-                            if (opelDevice.status != WifiP2pDevice.AVAILABLE)
+                            if (mConnectedDevice.status != WifiP2pDevice.AVAILABLE)
                                 return;
 
                             if (device.status == WifiP2pDevice.AVAILABLE) {
+                                WifiP2pConfig config = new WifiP2pConfig();
                                 config.deviceAddress = device.deviceAddress;
-
                                 if (device.wpsPbcSupported()) {
                                     config.wps.setup = WpsInfo.PBC;
                                     Log.d(TAG, "WPS: PBC");
@@ -568,8 +561,7 @@ class WifiDirectDeviceController implements DeviceController, WifiDirectListener
                                         WifiP2pManager.ActionListener() {
                                             @Override
                                             public void onSuccess() {
-                                                Log.d(TAG, "Succedded to send " +
-                                                        "connectChannel msg");
+                                                Log.d(TAG, "Succedded to send connectChannel msg");
                                                 sent_connected = true;
                                             }
 
@@ -630,22 +622,18 @@ class WifiDirectDeviceController implements DeviceController, WifiDirectListener
                             0) {
                         Log.d(TAG, "Wi-fi Direct Connected");
 
-                        opelDevice = p2pGroup.getOwner();
+                        mConnectedDevice = p2pGroup.getOwner();
                         connection = true;
 
                         if (this.mListener != null)
                             this.mListener.onWifiDirectStateChanged(true);
-
-                        if (isConnected() && this.mOwnerController != null &&
-                                this.mOwnerController.wfd_in_use == 0)
-                            this.mOwnerController.turnOffWifiDirect();
                     }
                 } else if (networkInfo.isConnectedOrConnecting()) {
                     Log.d(TAG, "Wi-fi Direct Connecting");
                 } else if (networkInfo.isAvailable()) {
-                    if (opelDevice != null) {
+                    if (mConnectedDevice != null) {
                         Log.d(TAG, "Network available");
-                        opelDevice = null;
+                        mConnectedDevice = null;
                         removing = false;
                         connection = false;
 
@@ -660,9 +648,9 @@ class WifiDirectDeviceController implements DeviceController, WifiDirectListener
         }
 
         public boolean isConnected() {
-            if (opelDevice == null) return false;
+            if (mConnectedDevice == null) return false;
 
-            Log.d(TAG, Integer.toString(opelDevice.status));
+            Log.d(TAG, Integer.toString(mConnectedDevice.status));
 
             if (removing == false) return connection;
             return false;

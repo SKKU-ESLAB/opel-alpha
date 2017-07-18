@@ -40,13 +40,13 @@ public class CommBroadcastReceiver extends BroadcastReceiver {
             "onBluetoothDeviceStateChanged";
     public static final String KEY_IS_CONNECTED = "isChannelConnected";
 
-    public static final String EVENT_TYPE_ON_RECEIVED_MESSAGE = "onReceivedMessage";
+    public static final String EVENT_TYPE_ON_RECEIVED_RAW_MESSAGE = "onReceivedRawMessage";
     public static final String KEY_MESSAGE = "message";
     public static final String KEY_FILE_PATH = "filePath";
 
-    private CommEventListener mListener;
+    private CommChannelEventListener mListener;
 
-    public CommBroadcastReceiver(CommEventListener listener) {
+    public CommBroadcastReceiver(CommChannelEventListener listener) {
         this.mListener = listener;
     }
 
@@ -69,11 +69,11 @@ public class CommBroadcastReceiver extends BroadcastReceiver {
                 boolean isConnected = intent.getBooleanExtra
                         (KEY_IS_CONNECTED, false);
                 this.mListener.onBluetoothDeviceStateChanged(isConnected);
-            } else if (eventType.compareTo(EVENT_TYPE_ON_RECEIVED_MESSAGE) ==
+            } else if (eventType.compareTo(EVENT_TYPE_ON_RECEIVED_RAW_MESSAGE) ==
                     0) {
                 String message = intent.getStringExtra(KEY_MESSAGE);
                 String filePath = intent.getStringExtra(KEY_FILE_PATH);
-                this.mListener.onReceivedMessage(message, filePath);
+                this.mListener.onReceivedRawMessage(message, filePath);
             }
         }
     }

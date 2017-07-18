@@ -34,8 +34,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.opel.cmfw.view.CommBroadcastReceiver;
+import com.opel.cmfw.view.CommChannelEventListener;
 import com.opel.cmfw.view.CommChannelService;
-import com.opel.cmfw.view.CommEventListener;
 import com.opel.opel_manager.R;
 import com.opel.opel_manager.controller.JSONParser;
 import com.opel.opel_manager.controller.OPELAppCoreStub;
@@ -47,7 +47,7 @@ import java.util.ArrayList;
 
 import static com.opel.opel_manager.controller.OPELContext.getAppList;
 
-public class MainActivity extends Activity implements CommEventListener {
+public class MainActivity extends Activity implements CommChannelEventListener {
     // RPC on CommChannelService
     private CommChannelService mCommChannelService = null;
     private CommBroadcastReceiver mCommBroadcastReceiver;
@@ -158,7 +158,7 @@ public class MainActivity extends Activity implements CommEventListener {
             OPELContext.getAppCore().setCommService(mCommChannelService);
             mCommChannelService.connectChannel(); // RPC to CommChannelService
 
-            // Set CommBroadcastReceiver and CommEventListener
+            // Set CommBroadcastReceiver and CommChannelEventListener
             IntentFilter broadcastIntentFilter = new IntentFilter();
             broadcastIntentFilter.addAction(CommBroadcastReceiver.ACTION);
             mCommBroadcastReceiver = new CommBroadcastReceiver(self);
@@ -429,7 +429,7 @@ public class MainActivity extends Activity implements CommEventListener {
         }
     }
 
-    // CommEventListener
+    // CommChannelEventListener
     @Override
     public void onWifiDirectDeviceStateChanged(boolean isWifiOn) {
         this.setIndicatorWFD(isWifiOn);
@@ -465,7 +465,7 @@ public class MainActivity extends Activity implements CommEventListener {
     }
 
     @Override
-    public void onReceivedMessage(String message, String filePath) {
+    public void onReceivedRawMessage(String message, String filePath) {
         // TODO: forward to OPELAppCoreStub
         OPELContext.getAppCore().onReceivedMessage(message);
     }
