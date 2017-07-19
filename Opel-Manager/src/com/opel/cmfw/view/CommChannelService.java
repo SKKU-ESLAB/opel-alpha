@@ -13,8 +13,6 @@ import android.net.wifi.WpsInfo;
 import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
-import android.net.wifi.p2p.WifiP2pGroup;
-import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Bundle;
 import android.os.Environment;
@@ -25,17 +23,11 @@ import android.util.Log;
 import com.opel.cmfw.controller.BluetoothCommPort;
 import com.opel.cmfw.controller.CommPortListener;
 import com.opel.cmfw.controller.WifiDirectCommPort;
-import com.opel.cmfw.controller.WifiDirectListener;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.util.Set;
 import java.util.UUID;
-
-/* OPEL Manager's Communication Path
-    - OPEL Manager Internal -> CommChannelService(main thread) -> OPEL device's CMFW
-    - OPEL device's CMFW -> CommChannelService(listening thread) -> OPEL Manager Internal
- */
 
 /* Threads of CommChannelService
     - main thread: send messages that are coming from OPEL Manager internal to CMFWLegacy
@@ -43,16 +35,25 @@ import java.util.UUID;
 */
 
 /* Roles of CommChannelService
-    - Initialize/disconnectChannel Bluetooth, Wi-fi Direct device (Bluetooth/WifiDirectDeviceController)
+    - Initialize/disconnectChannel Bluetooth, Wi-fi Direct device
+    (BluetoothDeviceController, WifiDirectDeviceController)
+
     - State Management of Bluetooth, Wi-fi Direct device
-    (Bluetooth/WifiDirectDeviceController)
-    - Transfer data via Bluetooth or Wi-fi Direct (CMFWLegacy)
+    (BluetoothDeviceController.State, WifiDirectDeviceController.State)
+
+    - Transfer data via Bluetooth or Wi-fi Direct
+    (BlutoothCommPort, WifiDirectCommPort)
  */
 
 public class CommChannelService extends Service implements CommPortListener {
     private static final String TAG = "CommChannelService";
     private final CommChannelService self = this;
-    private final IBinder mBinder = new CommBinder();
+    private final IBinder mBinder;
+    private int mBindersCount = 0;
+
+    private State mState;
+    private ConnectChannelProcedure mConnectChannelProcedure;
+    private EnableLargeDataModeProcedure mEnableLargeDataModeProcedure;
 
     // Device Controller
     private BluetoothDeviceController mBluetoothDeviceController = null;
@@ -63,88 +64,34 @@ public class CommChannelService extends Service implements CommPortListener {
     private BluetoothCommPort mControlPort;
     private WifiDirectCommPort mLargeDataPort;
 
-    // Connection state
-    private boolean mIsChannelConnected = false;
-
     // Download path
     private String mDownloadFilePath;
 
-    private int mBindersCount = 0;
+    static public final int STATE_DISCONNECTED = 0;
+    static public final int STATE_CONNECTED_DEFAULT = 1;
+    static public final int STATE_CONNECTED_LARGEDATA = 2;
 
-    public void setDownloadFilePath(String downloadFilePath) {
-        this.mDownloadFilePath = downloadFilePath;
-    }
+    static private String DEFAULT_PORT_BLUETOOTH_UUID = "0a1b2c3d-4e5f-6a1c-2d0e-1f2a3b4c5d6d";
+    static private String CONTROL_PORT_BLUETOOTH_UUID = "0a1b2c3d-4e5f-6a1c-2d0e-1f2a3b4c5d6e";
+    static private int LARGEDATA_PORT_TCP_PORT = 10001;
 
-    // Connect CommChannelService = Connect Bluetooth Device + Open Default Port
-    public void connectChannel() {
-        // (Connect) Step 1. Connect Bluetooth Device
-        this.mBluetoothDeviceController.connect();
-    }
-
-    protected void onConnectingBluetoothDeviceSuccess(BluetoothDevice bluetoothDevice) {
-        // (Connect) Step 2. Open Port
-        boolean isOpeningSuccess = this.mDefaultPort.open();
-
-        // Connect the Bluetooth device
-        if (isOpeningSuccess) {
-            // Handle Channel connection
-            this.onChannelConnected();
-        } else {
-            this.onChannelDisconnected();
-        }
-    }
-
-    protected void onConnectingBluetoothDeviceFail() {
-        // Handle Bluetooth disconnection
-        this.onChannelDisconnected();
-    }
-
-    // Disconnection = Disconnect all devices + close all ports
-    public void disconnectChannel() {
-        // Close ports
-        if (this.mDefaultPort != null)
-            this.mDefaultPort.close();
-        if (this.mControlPort != null)
-            this.mControlPort.close();
-        if (this.mLargeDataPort != null)
-            this.mLargeDataPort.close();
-
-        // Disconnect devices
-        if (this.mBluetoothDeviceController != null)
-            this.mBluetoothDeviceController.disconnect();
-        if (this.mWifiDirectDeviceController != null)
-            this.mWifiDirectDeviceController.disconnect();
-
-        this.onChannelDisconnected();
-    }
-
-    // Bluetooth state change event handlers
-    protected void onChannelConnected() {
-        this.mIsChannelConnected = true;
-
-        // TODO: LargedataPort?
-        // Start listening thread
-        if (this.mDefaultPort != null)
-            this.mDefaultPort.runListeningThread(this, this.mDownloadFilePath);
-
-        // Run custom handlers
-        CommBroadcaster.onCommChannelState(this, this.mIsChannelConnected);
-    }
-
-    protected void onChannelDisconnected() {
-        this.mIsChannelConnected = false;
-
-        // TODO: LargedataPort?
-        // Finish listening thread
-        if (this.mDefaultPort != null)
-            this.mDefaultPort.stopListeningThread();
-
-        // Run custom handlers
-        CommBroadcaster.onCommChannelState(this, this.mIsChannelConnected);
+    public CommChannelService() {
+        this.mBinder = new CommBinder();
+        this.mState = new State();
+        this.mConnectChannelProcedure = new ConnectChannelProcedure();
+        this.mEnableLargeDataModeProcedure = new EnableLargeDataModeProcedure();
     }
 
     public boolean isChannelConnected() {
-        return this.mIsChannelConnected;
+        return this.isChannelConnectedDefault() || this.isChannelConnectedLargeData();
+    }
+
+    public boolean isChannelConnectedDefault() {
+        return this.mState.get() == STATE_CONNECTED_DEFAULT;
+    }
+
+    public boolean isChannelConnectedLargeData() {
+        return this.mState.get() == STATE_CONNECTED_LARGEDATA;
     }
 
     public boolean isBluetoothDeviceConnected() {
@@ -155,26 +102,50 @@ public class CommChannelService extends Service implements CommPortListener {
         return this.mWifiDirectDeviceController.isConnected();
     }
 
-    // Enable Largedata = Notify Wi-fi direct ON Command + Connect WFD Device + Open Largedata Port
-    public void enableLargeData() {
-        // TODO: implement it
-        // (Enable Largedata) Step 1. Notify Wi-fi direct ON Command
-        boolean isOpenSuccess = this.mControlPort.open();
-        if(!isOpenSuccess)
-            return;
-        // TODO: remove sending "on/off" message from OPEL device
-        this.sendRawMessageOnControl("on", null);
-        this.mControlPort.close();
-
-        // (Enable Largedata) Step 2. Connect WFD Device
-        this.mWifiDirectDeviceController.connect();
+    public void setDownloadFilePath(String downloadFilePath) {
+        this.mDownloadFilePath = downloadFilePath;
     }
 
-    public void disableLargeData() {
-        // TODO: implement it
+    public void connectChannel() {
+        this.mConnectChannelProcedure.start();
     }
 
-    // On received raw message
+    public void disconnectChannel() {
+        // Finish listening threads
+        if (this.mDefaultPort != null) this.mDefaultPort.stopListeningThread();
+        if (this.mControlPort != null) this.mControlPort.stopListeningThread();
+        if (this.mLargeDataPort != null) this.mLargeDataPort.stopListeningThread();
+
+        // Close ports
+        if (this.mDefaultPort != null) this.mDefaultPort.close();
+        if (this.mControlPort != null) this.mControlPort.close();
+        if (this.mLargeDataPort != null) this.mLargeDataPort.close();
+
+        // Disconnect devices
+        if (this.mBluetoothDeviceController != null) this.mBluetoothDeviceController.disconnect();
+        if (this.mWifiDirectDeviceController != null) this.mWifiDirectDeviceController.disconnect();
+
+        this.mState.transitToDisconnected();
+    }
+
+    public void enableLargeDataMode() {
+        this.mEnableLargeDataModeProcedure.start();
+    }
+
+    private void disableLargeDataMode() {
+        // Finish listening threads
+        if (this.mControlPort != null) this.mControlPort.stopListeningThread();
+        if (this.mLargeDataPort != null) this.mLargeDataPort.stopListeningThread();
+
+        // Close ports
+        if (this.mControlPort != null) this.mControlPort.close();
+        if (this.mLargeDataPort != null) this.mLargeDataPort.close();
+
+        // Disconnect device
+        if (this.mWifiDirectDeviceController != null) this.mWifiDirectDeviceController.disconnect();
+    }
+
+    // On received raw message (via default or largedata port)
     @Override
     public void onReceivingRawMessage(byte[] messageData, int messageDataLength, String filePath) {
         String listenedMessage = null;
@@ -193,24 +164,248 @@ public class CommChannelService extends Service implements CommPortListener {
             return;
         }
 
-        // TODO: LargedataPort?
-        int res = this.mDefaultPort.sendRawMessage(messageData.getBytes(),
-                messageData.getBytes().length, file);
-        if (res < 0) {
-            this.disconnectChannel();
+        if (this.isChannelConnectedLargeData()) {
+            int res;
+            res = this.mLargeDataPort.sendRawMessage(messageData.getBytes(), messageData.getBytes
+                    ().length, file);
+            if (res < 0) {
+                this.disableLargeDataMode();
+            }
+        } else {
+            int res;
+            res = this.mDefaultPort.sendRawMessage(messageData.getBytes(), messageData.getBytes()
+                    .length, file);
+            if (res < 0) {
+                this.disconnectChannel();
+            }
+        }
+
+    }
+
+    // Connect CommChannelService = Connect Bluetooth Device + Open Default Port
+    private class ConnectChannelProcedure {
+        private ConnectingResultListener mConnectingResultListener = null;
+
+        public void start() {
+            // (Connect) Step 1. Connect Bluetooth Device
+            this.mConnectingResultListener = new ConnectingResultListener();
+            mBluetoothDeviceController.connect(this.mConnectingResultListener);
+        }
+
+        private class ConnectingResultListener implements BluetoothDeviceController
+                .ConnectingResultListener {
+            @Override
+            public void onConnectingBluetoothDeviceSuccess(BluetoothDevice bluetoothDevice) {
+                openDefaultPort();
+            }
+
+            @Override
+            public void onConnectingBluetoothDeviceFail() {
+                onFail();
+            }
+        }
+
+        private void openDefaultPort() {
+            // (Connect) Step 2. Open Port
+            boolean isOpeningSuccess = mDefaultPort.open();
+
+            // Connect the Bluetooth device
+            if (isOpeningSuccess) {
+                onSuccess();
+            } else {
+                onFail();
+            }
+        }
+
+        private void onSuccess() {
+            // Start listening thread
+            if (mDefaultPort != null) mDefaultPort.runListeningThread(self, mDownloadFilePath);
+
+            // Handle Channel connection
+            mState.transitToConnectedDefault();
+        }
+
+        private void onFail() {
+            disconnectChannel();
         }
     }
 
-    public void sendRawMessageOnControl(String messageData, File file) {
-        if (!this.isBluetoothDeviceConnected() || !this.isChannelConnected()) {
-            this.disconnectChannel();
-            return;
+    // Enable Largedata = Notify Wi-fi direct ON Command + Connect WFD Device + Open
+    // Largedata Port
+    private class EnableLargeDataModeProcedure {
+        private ControlPortListener mControlPortListener = null;
+        private ConnectingResultListener mConnectingResultListener = null;
+        private String mIpAddress = null;
+        static private final String kWifiDirectOnMessage = "on";
+
+        public void start() {
+            // (Enable Largedata) Step 1. Notify Wi-fi direct ON Command
+            boolean isOpenSuccess = mControlPort.open();
+            if (!isOpenSuccess) return;
+
+            // Start listening threa
+            this.mControlPortListener = new ControlPortListener();
+            mControlPort.runListeningThread(this.mControlPortListener, mDownloadFilePath);
+
+            // Send Wi-fi direct on message
+            sendRawMessageOnControl(kWifiDirectOnMessage, null);
         }
 
-        int res = this.mControlPort.sendRawMessage(messageData.getBytes(),
-                messageData.getBytes().length, file);
-        if (res < 0) {
-            this.disconnectChannel();
+        private void sendRawMessageOnControl(String messageData, File file) {
+            if (!isBluetoothDeviceConnected() || !isChannelConnected()) {
+                onFail();
+                return;
+            }
+
+            int res = mControlPort.sendRawMessage(messageData.getBytes(), messageData.getBytes()
+                    .length, file);
+            if (res < 0) {
+                onFail();
+            }
+        }
+
+        class ControlPortListener implements CommPortListener {
+            @Override
+            public void onReceivingRawMessage(byte[] messageData, int messageDataLength, String
+                    filePath) {
+                String rawMessage = null;
+                try {
+                    rawMessage = new String(messageData, "UTF-8");
+                    String[] words = rawMessage.split("\\r?\\n");
+                    mIpAddress = words[0];
+                    String wifiDirectName = words[1];
+                    discoverAndConnectWifiDirectDevice(wifiDirectName);
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                    onFail();
+                }
+            }
+        }
+
+        private void discoverAndConnectWifiDirectDevice(String wifiDirectName) {
+            // (Enable Largedata) Step 2. Connect WFD Device
+            this.mConnectingResultListener = new ConnectingResultListener();
+            mWifiDirectDeviceController.connect(this.mConnectingResultListener, wifiDirectName);
+        }
+
+        class ConnectingResultListener implements WifiDirectDeviceController
+                .ConnectingResultListener {
+            @Override
+            public void onConnectingWifiDirectDeviceSuccess() {
+                openLargeDataPort();
+            }
+
+            @Override
+            public void onConnectingWifiDirectDeviceFail() {
+                onFail();
+            }
+        }
+
+        private void openLargeDataPort() {
+            // (Enable Largedata) Step 3. Open largedata port
+            boolean isOpeningSuccess = mLargeDataPort.open(this.mIpAddress);
+
+            // Connect the Bluetooth device
+            if (isOpeningSuccess) {
+                this.onSuccess();
+            } else {
+                this.onFail();
+            }
+        }
+
+        private void onSuccess() {
+            // Close control port
+            if (mControlPort != null) {
+                mControlPort.stopListeningThread();
+                mControlPort.close();
+            }
+
+            // Start listening thread
+            if (mLargeDataPort != null) mLargeDataPort.runListeningThread(self, mDownloadFilePath);
+
+            // Handle Channel connection
+            mState.transitToConnectedLargedata();
+        }
+
+        private void onFail() {
+            disableLargeDataMode();
+        }
+    }
+
+    private class State {
+        private CommBroadcastReceiver mCommBroadcastReceiver;
+        private DeviceControllerListener mDeviceControllerListener;
+        private int mState = STATE_DISCONNECTED;
+
+        public void transitToConnectedDefault() {
+            this.mState = STATE_CONNECTED_DEFAULT;
+
+            // Start to watch Bluetooth & Wi-fi Direct device's status
+            this.startToWatchDeviceState();
+
+            // Broadcast CommChannel default connection event via CommBroadcaster
+            CommBroadcaster.onCommChannelState(self, this.mState);
+        }
+
+        public void transitToConnectedLargedata() {
+            this.mState = STATE_CONNECTED_LARGEDATA;
+
+            // Broadcast CommChannel largedata connection event via CommBroadcaster
+            CommBroadcaster.onCommChannelState(self, this.mState);
+        }
+
+        public void transitToDisconnected() {
+            this.mState = STATE_DISCONNECTED;
+
+            // Stop to watch Bluetooth & Wi-fi Direct device's status
+            this.stopToWatchDeviceState();
+
+            // Broadcast CommChannel disconnection event via CommBroadcaster
+            CommBroadcaster.onCommChannelState(self, this.mState);
+        }
+
+        private void startToWatchDeviceState() {
+            IntentFilter broadcastIntentFilter = new IntentFilter();
+            broadcastIntentFilter.addAction(CommBroadcastReceiver.ACTION);
+            this.mDeviceControllerListener = new DeviceControllerListener();
+            this.mCommBroadcastReceiver = new CommBroadcastReceiver(this.mDeviceControllerListener);
+            self.registerReceiver(this.mCommBroadcastReceiver, broadcastIntentFilter);
+        }
+
+        private void stopToWatchDeviceState() {
+            if (this.mCommBroadcastReceiver != null)
+                self.unregisterReceiver(this.mCommBroadcastReceiver);
+        }
+
+        class DeviceControllerListener implements CommChannelEventListener {
+            @Override
+            public void onWifiDirectDeviceStateChanged(boolean isConnected) {
+                if (!isConnected) {
+                    if (mState == STATE_CONNECTED_LARGEDATA) transitToConnectedDefault();
+                }
+            }
+
+            @Override
+            public void onBluetoothDeviceStateChanged(boolean isConnected) {
+                if (!isConnected) {
+                    if (mState == STATE_CONNECTED_DEFAULT || mState == STATE_CONNECTED_LARGEDATA)
+                        transitToDisconnected();
+                }
+            }
+
+            @Override
+            public void onCommChannelStateChanged(int commChannelState) {
+                // not used
+            }
+
+            @Override
+            public void onReceivedRawMessage(String message, String filePath) {
+                // not used
+            }
+        }
+
+        public int get() {
+            return this.mState;
         }
     }
 
@@ -223,18 +418,16 @@ public class CommChannelService extends Service implements CommPortListener {
         this.mWifiDirectDeviceController = new WifiDirectDeviceController(this);
 
         // Initialize ports
-        this.mDefaultPort = new BluetoothCommPort(UUID.fromString(
-                "0a1b2c3d-4e5f-6a1c-2d0e-1f2a3b4c5d6d"));
-        this.mControlPort = new BluetoothCommPort(UUID.fromString(
-                "0a1b2c3d-4e5f-6a1c-2d0e-1f2a3b4c5d6e"));
-        this.mLargeDataPort = new WifiDirectCommPort(10001);
+        this.mDefaultPort = new BluetoothCommPort(UUID.fromString(DEFAULT_PORT_BLUETOOTH_UUID));
+        this.mControlPort = new BluetoothCommPort(UUID.fromString(CONTROL_PORT_BLUETOOTH_UUID));
+        this.mLargeDataPort = new WifiDirectCommPort(LARGEDATA_PORT_TCP_PORT);
     }
 
     @Override
     public IBinder onBind(Intent intent) {
         this.mBindersCount++;
 
-        // TODO: Hard-coded download file path
+        // Hard-coded download file path
         if (mBindersCount == 1) {
             this.mDownloadFilePath = Environment.getExternalStorageDirectory().getPath() + "/OPEL";
         }
@@ -260,400 +453,399 @@ public class CommChannelService extends Service implements CommPortListener {
     }
 }
 
-interface DeviceController {
-    public boolean isConnected();
+class BluetoothDeviceController {
+    private Service mService;
 
-    public void connect();
+    private ConnectProcedure mConnectProcedureProcedure = new ConnectProcedure();
+    private State mState = new State();
 
-    public void disconnect();
-}
-
-class BluetoothDeviceController implements DeviceController {
-    private CommChannelService mService;
-    private boolean mIsConnected = false;
-    private BluetoothDeviceStatusReceiver mBluetoothDeviceStatusReceiver = null;
-
-    public BluetoothDeviceController(CommChannelService service) {
+    public BluetoothDeviceController(Service service) {
         this.mService = service;
     }
 
     public boolean isConnected() {
-        return this.mIsConnected;
+        return this.mState.isConnected();
     }
 
-    // Connect to Bluetooth device
-    public void connect() {
-        Intent bluetoothConnectorIntent = new Intent(this.mService,
-                BluetoothConnectorActivity.class);
-        bluetoothConnectorIntent.putExtra(BluetoothConnectorActivity
-                .INTENT_KEY_RECEIVER, new BluetoothConnectorResultReceiver(this.mService));
-        bluetoothConnectorIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        this.mService.startActivity(bluetoothConnectorIntent);
+    public void connect(ConnectingResultListener connectingResultListener) {
+        this.mConnectProcedureProcedure.start(connectingResultListener);
     }
 
-    class BluetoothConnectorResultReceiver extends ResultReceiver {
-        static final String RECEIVER_KEY_FAIL_MESSAGE = "FailMessage";
-        static final String RECEIVER_KEY_BT_NAME =
-                "BluetooothDeviceName";
-        static final String RECEIVER_KEY_BT_ADDRESS =
-                "BluetooothDeviceAddress";
+    public void disconnect() {
+        // not yet implemented
+        this.mState.transitToDisconnected();
+    }
 
-        private CommChannelService mService;
+    interface ConnectingResultListener {
+        public void onConnectingBluetoothDeviceSuccess(BluetoothDevice bluetoothDevice);
 
-        // Receiver from BluetoothConnectorActivity
-        private BluetoothConnectorResultReceiver(CommChannelService service) {
-            super(null);
-            this.mService = service;
+        public void onConnectingBluetoothDeviceFail();
+    }
+
+    class ConnectProcedure {
+        private ConnectingResultListener mConnectingResultListener = null;
+
+        // ConnectProcedure to Bluetooth device
+        public void start(ConnectingResultListener connectingResultListener) {
+            this.mConnectingResultListener = connectingResultListener;
+
+            Intent bluetoothConnectorIntent = new Intent(mService, BluetoothConnectorActivity
+                    .class);
+            bluetoothConnectorIntent.putExtra(BluetoothConnectorActivity.INTENT_KEY_RECEIVER, new
+                    BluetoothConnectorResultReceiver());
+            bluetoothConnectorIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            mService.startActivity(bluetoothConnectorIntent);
         }
 
-        @Override
-        protected void onReceiveResult(int resultCode, Bundle resultData) {
-            if (resultCode == Activity.RESULT_OK) {
-                String bluetoothName = resultData.getString(RECEIVER_KEY_BT_NAME);
-                String bluetoothAddress = resultData.getString(RECEIVER_KEY_BT_ADDRESS);
-                if (bluetoothName != null && bluetoothAddress != null
-                        && !bluetoothName.isEmpty() && !bluetoothAddress.isEmpty()) {
-                    // Success
-                    onConnectingSuccess(bluetoothName, bluetoothAddress);
+        class BluetoothConnectorResultReceiver extends ResultReceiver {
+            static final String RECEIVER_KEY_FAIL_MESSAGE = "FailMessage";
+            static final String RECEIVER_KEY_BT_NAME = "BluetooothDeviceName";
+            static final String RECEIVER_KEY_BT_ADDRESS = "BluetooothDeviceAddress";
+
+            // Receiver from BluetoothConnectorActivity
+            private BluetoothConnectorResultReceiver() {
+                super(null);
+            }
+
+            @Override
+            protected void onReceiveResult(int resultCode, Bundle resultData) {
+                if (resultCode == Activity.RESULT_OK) {
+                    String bluetoothName = resultData.getString(RECEIVER_KEY_BT_NAME);
+                    String bluetoothAddress = resultData.getString(RECEIVER_KEY_BT_ADDRESS);
+                    if (bluetoothName != null && bluetoothAddress != null && !bluetoothName
+                            .isEmpty() && !bluetoothAddress.isEmpty()) {
+                        // Success
+                        onSuccess(bluetoothName, bluetoothAddress);
+                    } else {
+                        // Fail
+                        onFail();
+                    }
                 } else {
                     // Fail
-                    onConnectingFail();
+                    onFail();
                 }
-            } else {
-                // Fail
-                onConnectingFail();
             }
         }
-    }
 
-    private void onConnectingSuccess(String bluetoothName, String bluetoothAddress) {
-        BluetoothDevice bluetoothDevice = findBluetoothDevice(bluetoothName, bluetoothAddress);
-        this.onConnected(bluetoothDevice);
+        private void onSuccess(String bluetoothName, String bluetoothAddress) {
+            BluetoothDevice bluetoothDevice = findBluetoothDevice(bluetoothName, bluetoothAddress);
 
-        // CommChannelService's bluetooth device connection success event handlers
-        this.mService.onConnectingBluetoothDeviceSuccess(bluetoothDevice);
-    }
+            // State transition
+            mState.transitToConnected(bluetoothDevice);
 
-    private void onConnectingFail() {
-        // CommChannelService's bluetooth device connection fail event handlers
-        this.mService.onConnectingBluetoothDeviceFail();
-
-        this.onDisconnected();
-    }
-
-    private void onConnected(BluetoothDevice bluetoothDevice) {
-        this.mIsConnected = true;
-
-        // Start to watch Bluetooth device's status
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
-        this.mBluetoothDeviceStatusReceiver = new BluetoothDeviceStatusReceiver(bluetoothDevice);
-        this.mService.registerReceiver(this.mBluetoothDeviceStatusReceiver, filter);
-
-        // Custom Bluetooth device connection event handlers
-        CommBroadcaster.onBluetoothDeviceStateChanged(this.mService, this.mIsConnected);
-    }
-
-    private void onDisconnected() {
-        this.mIsConnected = false;
-
-        // Unregister receiver
-        this.mService.unregisterReceiver(this.mBluetoothDeviceStatusReceiver);
-
-        // Custom Bluetooth device disconnection event handlers
-        CommBroadcaster.onBluetoothDeviceStateChanged(this.mService, this.mIsConnected);
-    }
-
-    class BluetoothDeviceStatusReceiver extends BroadcastReceiver {
-        private BluetoothDevice mBindingBluetoothDevice;
-
-        public BluetoothDeviceStatusReceiver(BluetoothDevice bindingBluetoothDevice) {
-            this.mBindingBluetoothDevice = bindingBluetoothDevice;
+            // Notify result
+            this.mConnectingResultListener.onConnectingBluetoothDeviceSuccess(bluetoothDevice);
         }
 
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if (BluetoothDevice.ACTION_BOND_STATE_CHANGED.compareTo(action) == 0) {
-                BluetoothDevice device = intent.getParcelableExtra
-                        (BluetoothDevice.EXTRA_DEVICE);
-                if (this.mBindingBluetoothDevice != null) {
-                    if (device.getBondState() != BluetoothDevice.BOND_BONDED) {
-                        onDisconnected();
+        private void onFail() {
+            // State transition
+            mState.transitToDisconnected();
+
+            // Notify result
+            this.mConnectingResultListener.onConnectingBluetoothDeviceFail();
+        }
+
+        // Utility functions
+        private BluetoothDevice findBluetoothDevice(String bluetoothName, String bluetoothAddress) {
+            if (bluetoothName == null || bluetoothAddress == null || bluetoothName.isEmpty() ||
+                    bluetoothAddress.isEmpty()) {
+                return null;
+            }
+
+            Set<BluetoothDevice> bluetoothDevices = BluetoothAdapter.getDefaultAdapter()
+                    .getBondedDevices();
+            if (bluetoothDevices.size() > 0) {
+                for (BluetoothDevice bluetoothDevice : bluetoothDevices) {
+                    String deviceName = bluetoothDevice.getName();
+                    String deviceAddress = bluetoothDevice.getAddress();
+                    if (deviceName.compareTo(bluetoothName) == 0 && deviceAddress.compareTo
+                            (bluetoothAddress) == 0) {
+                        return bluetoothDevice;
                     }
                 }
-                // TODO: what if bonding is not done forever?
             }
-        }
-    }
-
-    // Disconnect from Bluetooth device
-    public void disconnect() {
-        // not yet implemented
-        this.onDisconnected();
-    }
-
-    // Utility functions
-    private BluetoothDevice findBluetoothDevice(String bluetoothName, String bluetoothAddress) {
-        if (bluetoothName == null || bluetoothAddress == null
-                || bluetoothName.isEmpty() || bluetoothAddress.isEmpty()) {
             return null;
         }
+    }
 
-        Set<BluetoothDevice> bluetoothDevices = BluetoothAdapter
-                .getDefaultAdapter().getBondedDevices();
-        if (bluetoothDevices.size() > 0) {
-            for (BluetoothDevice bluetoothDevice : bluetoothDevices) {
-                String deviceName = bluetoothDevice.getName();
-                String deviceAddress = bluetoothDevice.getAddress();
-                if (deviceName.compareTo(bluetoothName) == 0 &&
-                        deviceAddress.compareTo(bluetoothAddress) == 0) {
-                    return bluetoothDevice;
-                }
-            }
+    private class State {
+        private boolean mIsConnected = false;
+
+        private BluetoothDeviceStatusReceiver mBluetoothDeviceStatusReceiver = null;
+
+        public boolean isConnected() {
+            return this.mIsConnected;
         }
-        return null;
-    }
-}
 
-class WifiDirectDeviceController implements DeviceController, WifiDirectListener {
-    static private String TAG = "WFDController";
-    private CommChannelService mService;
-    private boolean mIsConnected = false;
-    private WifiDirectBroadcastReceiver mWifiDirectBroadcastReceiver;
+        public void transitToConnected(BluetoothDevice bluetoothDevice) {
+            this.mIsConnected = true;
 
-    public WifiDirectDeviceController(CommChannelService service) {
-        this.mService = service;
-    }
+            // Start to watch Bluetooth device's status
+            this.startToWatchDeviceState(bluetoothDevice);
 
-    public boolean isConnected() {
-        return this.mIsConnected;
-    }
+            // Broadcast Bluetooth device connection event via CommBroadcaster
+            CommBroadcaster.onBluetoothDeviceStateChanged(mService, this.mIsConnected);
+        }
 
-    public void connect() {
-        // Initialize Wi-fi Direct Broadcast Receiver
-        IntentFilter wifiP2PIntentFilter;
-        wifiP2PIntentFilter = new IntentFilter();
-        wifiP2PIntentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
-        wifiP2PIntentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
-        wifiP2PIntentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
-        wifiP2PIntentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
+        public void transitToDisconnected() {
+            this.mIsConnected = false;
 
-        // Initialize WifiP2PManager of Android Framework
-        WifiP2pManager wifiP2pManager = (WifiP2pManager) this.mService.getSystemService(
-                Activity.WIFI_P2P_SERVICE);
-        WifiP2pManager.Channel wifiP2pManagerChannel = wifiP2pManager.initialize(this.mService,
-                this.mService.getMainLooper(), null);
-        this.mWifiDirectBroadcastReceiver = new WifiDirectBroadcastReceiver(
-                wifiP2pManager, wifiP2pManagerChannel);
-        this.mWifiDirectBroadcastReceiver.setStateListener(this);
-        this.mService.registerReceiver(this.mWifiDirectBroadcastReceiver, wifiP2PIntentFilter);
+            // Stop to watch Bluetooth device's status
+            this.stopToWatchDeviceState();
 
-        // Start Wi-fi direct discovery
-        WifiP2pManager.Channel channel = wifiP2pManager.initialize(this.mService,
-                this.mService.getMainLooper(), null);
-        wifiP2pManager.discoverPeers(channel, new WifiP2pManager
-                .ActionListener() {
-            @Override
-            public void onSuccess() {
-                Log.d(TAG, "Scan started");
+            // Broadcast Bluetooth device disconnection event via CommBroadcaster
+            CommBroadcaster.onBluetoothDeviceStateChanged(mService, this.mIsConnected);
+        }
+
+        private void startToWatchDeviceState(BluetoothDevice bluetoothDevice) {
+            IntentFilter filter = new IntentFilter();
+            filter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
+            this.mBluetoothDeviceStatusReceiver = new BluetoothDeviceStatusReceiver
+                    (bluetoothDevice);
+            mService.registerReceiver(this.mBluetoothDeviceStatusReceiver, filter);
+        }
+
+        private void stopToWatchDeviceState() {
+            if (this.mBluetoothDeviceStatusReceiver != null)
+                mService.unregisterReceiver(this.mBluetoothDeviceStatusReceiver);
+        }
+
+        // Receive Bluetooth device disconnection event from Android Bluetooth framework
+        class BluetoothDeviceStatusReceiver extends BroadcastReceiver {
+            private BluetoothDevice mBindingBluetoothDevice;
+
+            public BluetoothDeviceStatusReceiver(BluetoothDevice bindingBluetoothDevice) {
+                this.mBindingBluetoothDevice = bindingBluetoothDevice;
             }
 
             @Override
-            public void onFailure(int reason) {
-
-            }
-        });
-        // TODO: implement it
-    }
-
-    public void disconnect() {
-        if (this.mWifiDirectBroadcastReceiver != null)
-            this.mService.unregisterReceiver(this.mWifiDirectBroadcastReceiver);
-
-        // TODO: implement it
-    }
-
-    // TODO: Wi-fi Direct state change event handlers
-
-    // TODO: Implement WifiDirectListener
-    @Override
-    public void onWifiDirectStateChanged(boolean isWifiOn) {
-        CommBroadcaster.onWifiDirectDeviceStateChanged(this.mService, isWifiOn);
-    }
-
-    // TODO: fuse it into WifiDirectDeviceController
-    public class WifiDirectBroadcastReceiver extends BroadcastReceiver {
-        private static final String TAG = "WFDBroadcastReceiver";
-        private WifiP2pManager mManager;
-        private WifiP2pManager.Channel mChannel;
-        private WifiP2pDevice mConnectedDevice;
-
-        public WifiP2pManager.ConnectionInfoListener mConnectionListener;
-        public WifiP2pManager.PeerListListener mPeerListener;
-
-        boolean sent_connected = false;
-        boolean connection = false;
-
-        public boolean removing = false;
-
-        // Wi-fi Direct Device's Name & Address
-        private String mWifiDirectName;
-        private String mWifiDirectIPAddress;
-
-        private WifiDirectListener mListener = null;
-
-        public void setWifiDirectInfo(String wifiDirectName, String
-                wifiDirectIPAddress) {
-            this.mWifiDirectName = wifiDirectName;
-            this.mWifiDirectIPAddress = wifiDirectIPAddress;
-        }
-
-        public String getWifiDirectName() {
-            return this.mWifiDirectName;
-        }
-        public String getWifiDirectAddress() {
-            return this.mWifiDirectIPAddress;
-        }
-
-        public void setStateListener(WifiDirectListener stateListener) {
-            this.mListener = stateListener;
-        }
-
-        public WifiDirectBroadcastReceiver(WifiP2pManager manager, WifiP2pManager
-                .Channel channel) {
-            super();
-
-            this.mManager = manager;
-            this.mChannel = channel;
-            mConnectedDevice = null;
-
-            mPeerListener = new WifiP2pManager.PeerListListener() {
-                @Override
-                public void onPeersAvailable(WifiP2pDeviceList peers) {
-                    if (mWifiDirectName.isEmpty() == true) {
-                        Log.d(TAG, "Failed to connectChannel! No Wi-fi Direct name given!");
-                        sent_connected = false;
-                        return;
-                    }
-
-                    for (WifiP2pDevice device : peers.getDeviceList()) {
-                        if (device.deviceName.compareTo(mWifiDirectName) == 0) {
-                            Log.d(TAG, "Found device connecting...");
-                            if (mConnectedDevice.status != WifiP2pDevice.AVAILABLE)
-                                return;
-
-                            if (device.status == WifiP2pDevice.AVAILABLE) {
-                                WifiP2pConfig config = new WifiP2pConfig();
-                                config.deviceAddress = device.deviceAddress;
-                                if (device.wpsPbcSupported()) {
-                                    config.wps.setup = WpsInfo.PBC;
-                                    Log.d(TAG, "WPS: PBC");
-                                } else if (device.wpsKeypadSupported()) {
-                                    config.wps.setup = WpsInfo.KEYPAD;
-                                    config.wps.pin = new String("12345670");
-                                    Log.d(TAG, "WPS:KeyPad");
-                                } else {
-                                    config.wps.setup = WpsInfo.DISPLAY;
-                                    Log.d(TAG, "WPS:Display");
-                                }
-                                mManager.connect(mChannel, config, new
-                                        WifiP2pManager.ActionListener() {
-                                            @Override
-                                            public void onSuccess() {
-                                                Log.d(TAG, "Succedded to send connectChannel msg");
-                                                sent_connected = true;
-                                            }
-
-                                            @Override
-                                            public void onFailure(int reason) {
-                                                Log.d(TAG, "Failed to connectChannel" + Integer
-                                                        .toString(reason));
-                                                sent_connected = false;
-                                            }
-                                        });
-                                break;
-                            } else if (device.status == WifiP2pDevice.INVITED) {
-                                Log.d(TAG, "Invited");
-
-                            }
+            public void onReceive(Context context, Intent intent) {
+                String action = intent.getAction();
+                if (BluetoothDevice.ACTION_BOND_STATE_CHANGED.compareTo(action) == 0) {
+                    BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice
+                            .EXTRA_DEVICE);
+                    if (this.mBindingBluetoothDevice != null) {
+                        if (device.getBondState() != BluetoothDevice.BOND_BONDED) {
+                            transitToDisconnected();
                         }
                     }
                 }
-            };
+            }
+        }
+    }
+}
 
-            mConnectionListener = new WifiP2pManager.ConnectionInfoListener() {
-                @Override
-                public void onConnectionInfoAvailable(WifiP2pInfo info) {
-                }
-            };
+class WifiDirectDeviceController {
+    static private String TAG = "WFDController";
+    private Service mService;
+    private String mWifiDirectName;
+    private WifiP2pManager mWifiP2pManager = null;
+    private WifiP2pManager.Channel mWifiP2pManagerChannel = null;
+
+    private ConnectProcedure mConnectProcedure;
+    private State mState;
+
+    public WifiDirectDeviceController(Service service) {
+        this.mService = service;
+
+        this.mConnectProcedure = new ConnectProcedure();
+        this.mState = new State();
+
+        this.mWifiP2pManager = (WifiP2pManager) this.mService.getSystemService(Activity
+                .WIFI_P2P_SERVICE);
+        this.mWifiP2pManagerChannel = this.mWifiP2pManager.initialize(this.mService, this
+                .mService.getMainLooper(), null);
+    }
+
+    public boolean isConnected() {
+        return this.mState.isConnected();
+    }
+
+    public void connect(ConnectingResultListener connectingResultListener, String wifiDirectName) {
+        this.mWifiDirectName = wifiDirectName;
+
+        this.mConnectProcedure.start(connectingResultListener);
+    }
+
+    public void disconnect() {
+        // TODO: implement it
+    }
+
+    interface ConnectingResultListener {
+        public void onConnectingWifiDirectDeviceSuccess();
+
+        public void onConnectingWifiDirectDeviceFail();
+    }
+
+    private class ConnectProcedure {
+        private ConnectingResultListener mConnectingResultListener;
+
+        public void start(ConnectingResultListener connectingResultListener) {
+            this.mConnectingResultListener = connectingResultListener;
+
+            this.discoverPeers();
         }
 
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
+        private void discoverPeers() {
+            // Step 1. Discover peers
+            IntentFilter wifiP2PIntentFilter;
+            wifiP2PIntentFilter = new IntentFilter();
+            wifiP2PIntentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
+            mService.registerReceiver(new WifiDirectPeerChangedEventReceiver(),
+                    wifiP2PIntentFilter);
+            // wifiP2PIntentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
+            // wifiP2PIntentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
+            // wifiP2PIntentFilter.addAction(WifiP2pManager
+            // .WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
 
-            if (action.compareTo(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION) == 0) {
-                // Check to see if Wi-Fi is enabled and notify appropriate activity
-                int state = intent.getIntExtra(WifiP2pManager.EXTRA_WIFI_STATE, -1);
-                if (state == WifiP2pManager.WIFI_P2P_STATE_ENABLED) {
-                    Log.d(TAG, "State: Enabled");
-                } else {
-                    Log.d(TAG, "State: Disabled");
+            // Start Wi-fi direct discovery
+            mWifiP2pManager.discoverPeers(mWifiP2pManagerChannel, null);
+        }
+
+        class WifiDirectPeerChangedEventReceiver extends BroadcastReceiver {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String action = intent.getAction();
+                if (WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION.compareTo(action) == 0) {
+                    onPeerChanged();
                 }
-            } else if (action.compareTo(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION) == 0) {
-                // Call WifiP2pManager.requestPeers() to get a list of current peers
-                if (mManager != null) {
-                    mManager.requestPeers(mChannel, mPeerListener);
-                }
-
-
-            } else if (action.compareTo(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION) == 0) {
-                // Respond to new connection or disconnections
-
-                NetworkInfo networkInfo = (NetworkInfo) intent.getParcelableExtra
-                        (WifiP2pManager.EXTRA_NETWORK_INFO);
-
-                if (networkInfo.isConnected()) {
-                    WifiP2pGroup p2pGroup = (WifiP2pGroup) intent
-                            .getParcelableExtra(WifiP2pManager
-                                    .EXTRA_WIFI_P2P_GROUP);
-                    if (p2pGroup.getOwner().deviceName != null && p2pGroup
-                            .getOwner().deviceName.compareTo(mWifiDirectName) ==
-                            0) {
-                        Log.d(TAG, "Wi-fi Direct Connected");
-
-                        mConnectedDevice = p2pGroup.getOwner();
-                        connection = true;
-
-                        if (this.mListener != null)
-                            this.mListener.onWifiDirectStateChanged(true);
-                    }
-                } else if (networkInfo.isConnectedOrConnecting()) {
-                    Log.d(TAG, "Wi-fi Direct Connecting");
-                } else if (networkInfo.isAvailable()) {
-                    if (mConnectedDevice != null) {
-                        Log.d(TAG, "Network available");
-                        mConnectedDevice = null;
-                        removing = false;
-                        connection = false;
-
-                        if (this.mListener != null)
-                            this.mListener.onWifiDirectStateChanged(false);
-                    }
-                }
-
-            } else if (action.compareTo(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION) == 0) {
-                // Respond to this device's wifi state changing
             }
         }
 
+        private void onPeerChanged() {
+            // Step 2. Request peer list
+            mWifiP2pManager.requestPeers(mWifiP2pManagerChannel, new WifiDirectPeerListListener());
+        }
+
+        class WifiDirectPeerListListener implements WifiP2pManager.PeerListListener {
+            @Override
+            public void onPeersAvailable(WifiP2pDeviceList peerDeviceList) {
+                onPeerListReceived(peerDeviceList);
+            }
+        }
+
+        private void onPeerListReceived(WifiP2pDeviceList peerDeviceList) {
+            // Step 3. Check if there is peer device that we want
+            if (mWifiDirectName.isEmpty()) {
+                Log.d(TAG, "Failed to connectChannel! No Wi-fi Direct name given!");
+                this.onFail();
+                return;
+            }
+
+            for (WifiP2pDevice peerDevice : peerDeviceList.getDeviceList()) {
+                if (peerDevice.deviceName.compareTo(mWifiDirectName) == 0) {
+                    Log.d(TAG, "Found device");
+                    if (peerDevice.status == WifiP2pDevice.AVAILABLE) {
+                        Log.d(TAG, "Connecting...");
+                        requestConnection(peerDevice);
+                    } else {
+                        this.onFail();
+                    }
+                    return;
+                }
+            }
+        }
+
+        private void requestConnection(WifiP2pDevice peerDevice) {
+            // Step 4. Request for connecting to the peer device
+            WifiP2pConfig wifiP2pConfig = new WifiP2pConfig();
+            wifiP2pConfig.deviceAddress = peerDevice.deviceAddress;
+            if (peerDevice.wpsPbcSupported()) {
+                wifiP2pConfig.wps.setup = WpsInfo.PBC;
+                Log.d(TAG, "WPS: PBC");
+            } else if (peerDevice.wpsKeypadSupported()) {
+                wifiP2pConfig.wps.setup = WpsInfo.KEYPAD;
+                wifiP2pConfig.wps.pin = "12345670";
+                Log.d(TAG, "WPS:KeyPad");
+            } else {
+                wifiP2pConfig.wps.setup = WpsInfo.DISPLAY;
+                Log.d(TAG, "WPS:Display");
+            }
+            mWifiP2pManager.connect(mWifiP2pManagerChannel, wifiP2pConfig, new WifiP2pManager
+                    .ActionListener() {
+                @Override
+                public void onSuccess() {
+                    ConnectProcedure.this.onSuccess();
+                }
+
+                @Override
+                public void onFailure(int reason) {
+                    onFail();
+                }
+            });
+        }
+
+        private void onSuccess() {
+            // State transition
+            mState.transitToConnected();
+
+            // Notify result
+            this.mConnectingResultListener.onConnectingWifiDirectDeviceSuccess();
+        }
+
+        private void onFail() {
+            // State transition
+            mState.transitToDisconnected();
+
+            // Notify result
+            this.mConnectingResultListener.onConnectingWifiDirectDeviceFail();
+        }
+    }
+
+    private class State {
+        private WifiDirectDeviceStatusReceiver mWifiDirectDeviceStatusReceiver;
+
+        private boolean mIsConnected = false;
+
         public boolean isConnected() {
-            if (mConnectedDevice == null) return false;
+            return this.mIsConnected;
+        }
 
-            Log.d(TAG, Integer.toString(mConnectedDevice.status));
+        public void transitToConnected() {
+            this.mIsConnected = true;
 
-            if (removing == false) return connection;
-            return false;
+            // Start to watch Bluetooth device's status
+            this.startToWatchDeviceState();
+
+            // Broadcast Wi-fi direct device connection event via CommBroadcaster
+            CommBroadcaster.onWifiDirectDeviceStateChanged(mService, this.mIsConnected);
+        }
+
+        public void transitToDisconnected() {
+            this.mIsConnected = false;
+
+            // Stop to watch Bluetooth device's status
+            this.stopToWatchDeviceState();
+
+            // Broadcast Wi-fi direct device disconnection event via CommBroadcaster
+            CommBroadcaster.onWifiDirectDeviceStateChanged(mService, this.mIsConnected);
+        }
+
+        private void startToWatchDeviceState() {
+            IntentFilter filter = new IntentFilter();
+            filter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
+            this.mWifiDirectDeviceStatusReceiver = new WifiDirectDeviceStatusReceiver();
+            mService.registerReceiver(this.mWifiDirectDeviceStatusReceiver, filter);
+        }
+
+        private void stopToWatchDeviceState() {
+            if (this.mWifiDirectDeviceStatusReceiver != null)
+                mService.unregisterReceiver(this.mWifiDirectDeviceStatusReceiver);
+        }
+
+        // Receive Wi-fi direct device disconnection event from Android Bluetooth framework
+        class WifiDirectDeviceStatusReceiver extends BroadcastReceiver {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String action = intent.getAction();
+                if (WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION.compareTo(action) == 0) {
+                    NetworkInfo networkInfo = (NetworkInfo) intent.getParcelableExtra
+                            (WifiP2pManager.EXTRA_NETWORK_INFO);
+                    if (!networkInfo.isConnectedOrConnecting() || !networkInfo.isAvailable()) {
+                        transitToDisconnected();
+                    }
+                }
+            }
         }
     }
 }

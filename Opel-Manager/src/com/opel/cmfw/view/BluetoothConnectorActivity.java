@@ -34,10 +34,8 @@ public class BluetoothConnectorActivity extends Activity {
 
     // SharedPreference
     private static final String PREFERENCE_KEY = "BluetoothConnectorActivity";
-    private static final String PREFERENCE_ATTR_KEY_BT_NAME =
-            "BluetoothDeviceName";
-    private static final String PREFERENCE_ATTR_KEY_BT_ADDRESS =
-            "BluetoothDeviceAddress";
+    private static final String PREFERENCE_ATTR_KEY_BT_NAME = "BluetoothDeviceName";
+    private static final String PREFERENCE_ATTR_KEY_BT_ADDRESS = "BluetoothDeviceAddress";
 
     // Result
     private ResultReceiver mReceiver;
@@ -80,27 +78,23 @@ public class BluetoothConnectorActivity extends Activity {
     // Step 1. Preparation
     // Step 1-1. Grant communication device permission
     private void grantCommunicationDevicePermission() {
-        if (checkSelfPermission(Manifest.permission.BLUETOOTH_ADMIN)
-                != PackageManager.PERMISSION_GRANTED
-                && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
+        if (checkSelfPermission(Manifest.permission.BLUETOOTH_ADMIN) != PackageManager
+                .PERMISSION_GRANTED && checkSelfPermission(Manifest.permission
+                .ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // If communication device permission is not granted, request the
             // permission once more.
-            ActivityCompat.requestPermissions(this, new String[]{
-                    Manifest.permission.ACCESS_COARSE_LOCATION,
-                    Manifest.permission.BLUETOOTH_ADMIN}, 1);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission
+                    .ACCESS_COARSE_LOCATION, Manifest.permission.BLUETOOTH_ADMIN}, 1);
         } else {
             // Proceed
             turnOnBluetoothDevice();
         }
     }
 
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String permissions[],
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[],
                                            @NonNull int[] grantResults) {
-        if (grantResults.length <= 0
-                || grantResults[0] != PackageManager.PERMISSION_GRANTED
-                || grantResults[1] != PackageManager.PERMISSION_GRANTED) {
+        if (grantResults.length <= 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED ||
+                grantResults[1] != PackageManager.PERMISSION_GRANTED) {
             // If communication device permission is eventually not granted,
             // cancel communication setting.
             resultInFail("Cannot be granted communication device permission!");
@@ -118,8 +112,7 @@ public class BluetoothConnectorActivity extends Activity {
             resultInFail("Bluetooth device is required!");
         } else if (!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
             // If bluetooth device is turned off, try to turn bluetooth on.
-            Intent enableBtIntent = new Intent(BluetoothAdapter
-                    .ACTION_REQUEST_ENABLE);
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, 1);
         } else {
             // Proceed
@@ -128,8 +121,7 @@ public class BluetoothConnectorActivity extends Activity {
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent
-            data) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (resultCode == Activity.RESULT_CANCELED) {
@@ -145,20 +137,18 @@ public class BluetoothConnectorActivity extends Activity {
     // Step 2-1. Try binding and connecting default Bluetooth device
     private void tryBindingAndConnectingDefaultBluetoothDevice() {
         // Restore bluetooth name from local storage
-        SharedPreferences sharedPreferences = this.getSharedPreferences
-                (PREFERENCE_KEY, Context.MODE_PRIVATE);
-        String bluetoothName = sharedPreferences.getString
-                (PREFERENCE_ATTR_KEY_BT_NAME, "");
-        String bluetoothAddress = sharedPreferences.getString
-                (PREFERENCE_ATTR_KEY_BT_ADDRESS, "");
+        SharedPreferences sharedPreferences = this.getSharedPreferences(PREFERENCE_KEY, Context
+                .MODE_PRIVATE);
+        String bluetoothName = sharedPreferences.getString(PREFERENCE_ATTR_KEY_BT_NAME, "");
+        String bluetoothAddress = sharedPreferences.getString(PREFERENCE_ATTR_KEY_BT_ADDRESS, "");
 
         BluetoothDevice bluetoothDevice = findBluetoothDevice(bluetoothName, bluetoothAddress);
         if (bluetoothDevice != null) {
             // Receive binding result
             IntentFilter filter = new IntentFilter();
             filter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
-            this.mBindingDefaultBluetoothDeviceReceiver = new BindingDefaultBluetoothDeviceReceiver(
-                    bluetoothDevice);
+            this.mBindingDefaultBluetoothDeviceReceiver = new
+                    BindingDefaultBluetoothDeviceReceiver(bluetoothDevice);
             this.registerReceiver(this.mBindingDefaultBluetoothDeviceReceiver, filter);
 
             // Request binding default bluetooth device
@@ -184,8 +174,7 @@ public class BluetoothConnectorActivity extends Activity {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if (BluetoothDevice.ACTION_BOND_STATE_CHANGED.compareTo(action) == 0) {
-                BluetoothDevice device = intent.getParcelableExtra
-                        (BluetoothDevice.EXTRA_DEVICE);
+                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
 
                 if (this.mBindingBluetoothDevice != null) {
                     if (device.getBondState() == BluetoothDevice.BOND_BONDED) {
@@ -193,8 +182,8 @@ public class BluetoothConnectorActivity extends Activity {
                         String bindingBluetoothAddress = this.mBindingBluetoothDevice.getAddress();
                         String thisBluetoothName = device.getName();
                         String thisBluetoothAddress = device.getAddress();
-                        if (bindingBluetoothName.compareTo(thisBluetoothName) == 0
-                                && bindingBluetoothAddress.compareTo(thisBluetoothAddress) == 0) {
+                        if (bindingBluetoothName.compareTo(thisBluetoothName) == 0 &&
+                                bindingBluetoothAddress.compareTo(thisBluetoothAddress) == 0) {
                             // Return select
                             resultInSelect(bindingBluetoothName, bindingBluetoothAddress);
                         }
@@ -239,12 +228,10 @@ public class BluetoothConnectorActivity extends Activity {
         if (pairedDevices.size() > 0) {
             findViewById(R.id.title_paired_devices).setVisibility(View.VISIBLE);
             for (BluetoothDevice device : pairedDevices) {
-                this.mBoundDevicesArrayAdapter.add(device.getName() + "\n" +
-                        device.getAddress());
+                this.mBoundDevicesArrayAdapter.add(device.getName() + "\n" + device.getAddress());
             }
         } else {
-            String noDevices = getResources().getText(R.string.none_paired)
-                    .toString();
+            String noDevices = getResources().getText(R.string.none_paired).toString();
             this.mBoundDevicesArrayAdapter.add(noDevices);
         }
 
@@ -284,8 +271,7 @@ public class BluetoothConnectorActivity extends Activity {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 if (device.getBondState() != BluetoothDevice.BOND_BONDED) {
                     if (device.getName() != null) {
-                        mNewDevicesArrayAdapter.add(device.getName() + "\n" +
-                                device.getAddress());
+                        mNewDevicesArrayAdapter.add(device.getName() + "\n" + device.getAddress());
                     }
                 }
             } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.compareTo(action) == 0) {
@@ -293,8 +279,7 @@ public class BluetoothConnectorActivity extends Activity {
                 setProgressBarIndeterminateVisibility(false);
                 Log.d(TAG, "Discovery done");
                 if (mNewDevicesArrayAdapter.getCount() == 0) {
-                    String noDevices = getResources().getText(R.string
-                            .none_found).toString();
+                    String noDevices = getResources().getText(R.string.none_found).toString();
                     mNewDevicesArrayAdapter.add(noDevices);
                 }
             }
@@ -322,14 +307,12 @@ public class BluetoothConnectorActivity extends Activity {
         this.mBluetoothAdapter.cancelDiscovery();
     }
 
-    private AdapterView.OnItemClickListener mPairedDeviceListOnClickListener
-            = new AdapterView.OnItemClickListener() {
-        public void onItemClick(AdapterView<?> parent, View view,
-                                int position, long id) {
+    private AdapterView.OnItemClickListener mPairedDeviceListOnClickListener = new AdapterView
+            .OnItemClickListener() {
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             String entryString = mNewDevicesArrayAdapter.getItem(position);
-            if (entryString == null
-                    || entryString.compareTo(getResources().getText(R.string.none_found).toString())
-                            == 0) {
+            if (entryString == null || entryString.compareTo(getResources().getText(R.string
+                    .none_found).toString()) == 0) {
                 return;
             }
 
@@ -342,14 +325,12 @@ public class BluetoothConnectorActivity extends Activity {
         }
     };
 
-    private AdapterView.OnItemClickListener mNewDeviceListOnClickListener
-            = new AdapterView.OnItemClickListener() {
-        public void onItemClick(AdapterView<?> parent, View view,
-                                int position, long id) {
+    private AdapterView.OnItemClickListener mNewDeviceListOnClickListener = new AdapterView
+            .OnItemClickListener() {
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             String entryString = mBoundDevicesArrayAdapter.getItem(position);
-            if (entryString == null
-                    || entryString.compareTo(getResources().getText(R.string.none_found).toString())
-                            == 0) {
+            if (entryString == null || entryString.compareTo(getResources().getText(R.string
+                    .none_found).toString()) == 0) {
                 return;
             }
 
@@ -369,8 +350,8 @@ public class BluetoothConnectorActivity extends Activity {
             // Receive binding result
             IntentFilter filter = new IntentFilter();
             filter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
-            this.mBindingBluetoothDeviceReceiver = new BindingBluetoothDeviceReceiver(
-                    bluetoothDevice);
+            this.mBindingBluetoothDeviceReceiver = new BindingBluetoothDeviceReceiver
+                    (bluetoothDevice);
             this.registerReceiver(this.mBindingBluetoothDeviceReceiver, filter);
 
             // Request binding default bluetooth device
@@ -396,16 +377,15 @@ public class BluetoothConnectorActivity extends Activity {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if (BluetoothDevice.ACTION_BOND_STATE_CHANGED.compareTo(action) == 0) {
-                BluetoothDevice device = intent.getParcelableExtra
-                        (BluetoothDevice.EXTRA_DEVICE);
+                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 if (this.mBindingBluetoothDevice != null) {
                     if (device.getBondState() == BluetoothDevice.BOND_BONDED) {
                         String bindingBluetoothName = this.mBindingBluetoothDevice.getName();
                         String bindingBluetoothAddress = this.mBindingBluetoothDevice.getAddress();
                         String thisBluetoothName = device.getName();
                         String thisBluetoothAddress = device.getAddress();
-                        if (bindingBluetoothName.compareTo(thisBluetoothName) == 0
-                                && bindingBluetoothAddress.compareTo(thisBluetoothAddress) == 0) {
+                        if (bindingBluetoothName.compareTo(thisBluetoothName) == 0 &&
+                                bindingBluetoothAddress.compareTo(thisBluetoothAddress) == 0) {
                             // Return select
                             resultInSelect(bindingBluetoothName, bindingBluetoothAddress);
                         }
@@ -426,10 +406,10 @@ public class BluetoothConnectorActivity extends Activity {
             this.unregisterReceiver(this.mBindingBluetoothDeviceReceiver);
 
         Bundle bundle = new Bundle();
-        bundle.putString(BluetoothDeviceController.BluetoothConnectorResultReceiver
-                .RECEIVER_KEY_BT_NAME, bluetoothName);
-        bundle.putString(BluetoothDeviceController.BluetoothConnectorResultReceiver
-                .RECEIVER_KEY_BT_ADDRESS, bluetoothAddress);
+        bundle.putString(BluetoothDeviceController.ConnectProcedure
+                .BluetoothConnectorResultReceiver.RECEIVER_KEY_BT_NAME, bluetoothName);
+        bundle.putString(BluetoothDeviceController.ConnectProcedure
+                .BluetoothConnectorResultReceiver.RECEIVER_KEY_BT_ADDRESS, bluetoothAddress);
         this.mReceiver.send(Activity.RESULT_OK, null);
         finish();
     }
@@ -443,27 +423,27 @@ public class BluetoothConnectorActivity extends Activity {
             this.unregisterReceiver(this.mBindingBluetoothDeviceReceiver);
 
         Bundle bundle = new Bundle();
-        bundle.putString(BluetoothDeviceController.BluetoothConnectorResultReceiver
-                .RECEIVER_KEY_FAIL_MESSAGE, failMessage);
+        bundle.putString(BluetoothDeviceController.ConnectProcedure
+                .BluetoothConnectorResultReceiver.RECEIVER_KEY_FAIL_MESSAGE, failMessage);
         this.mReceiver.send(Activity.RESULT_CANCELED, null);
         finish();
     }
 
     // Utility functions
     private BluetoothDevice findBluetoothDevice(String bluetoothName, String bluetoothAddress) {
-        if (bluetoothName == null || bluetoothAddress == null
-                || bluetoothName.isEmpty() || bluetoothAddress.isEmpty()) {
+        if (bluetoothName == null || bluetoothAddress == null || bluetoothName.isEmpty() ||
+                bluetoothAddress.isEmpty()) {
             return null;
         }
 
-        Set<BluetoothDevice> bluetoothDevices = BluetoothAdapter
-                .getDefaultAdapter().getBondedDevices();
+        Set<BluetoothDevice> bluetoothDevices = BluetoothAdapter.getDefaultAdapter()
+                .getBondedDevices();
         if (bluetoothDevices.size() > 0) {
             for (BluetoothDevice bluetoothDevice : bluetoothDevices) {
                 String deviceName = bluetoothDevice.getName();
                 String deviceAddress = bluetoothDevice.getAddress();
-                if (deviceName.compareTo(bluetoothName) == 0 &&
-                        deviceAddress.compareTo(bluetoothAddress) == 0) {
+                if (deviceName.compareTo(bluetoothName) == 0 && deviceAddress.compareTo
+                        (bluetoothAddress) == 0) {
                     return bluetoothDevice;
                 }
             }

@@ -34,7 +34,7 @@ public class CommBroadcastReceiver extends BroadcastReceiver {
 
     public static final String EVENT_TYPE_ON_COMM_CHANNEL_STATE_CHANGED =
             "onCommChannelStateChanged";
-    public static final String KEY_IS_COMM_CHANNEL_CONNECTED = "isCommChannelConnected";
+    public static final String KEY_COMM_CHANNEL_STATE = "isCommChannelConnected";
 
     public static final String EVENT_TYPE_ON_BLUETOOTH_DEVICE_STATE_CHANGED =
             "onBluetoothDeviceStateChanged";
@@ -56,9 +56,9 @@ public class CommBroadcastReceiver extends BroadcastReceiver {
         if (action.compareTo(ACTION) == 0) {
             String eventType = intent.getStringExtra(KEY_EVENT_TYPE);
             if (eventType.compareTo(EVENT_TYPE_ON_COMM_CHANNEL_STATE_CHANGED) == 0) {
-                boolean isInitSuccess = intent.getBooleanExtra
-                        (KEY_IS_COMM_CHANNEL_CONNECTED, false);
-                this.mListener.onCommChannelStateChanged(isInitSuccess);
+                int commChannelState = intent.getIntExtra
+                        (KEY_COMM_CHANNEL_STATE, CommChannelService.STATE_DISCONNECTED);
+                this.mListener.onCommChannelStateChanged(commChannelState);
             } else if (eventType.compareTo(EVENT_TYPE_ON_WIFI_DIRECT_DEVICE_STATE_CHANGED)
                     == 0) {
                 boolean isWifiOn = intent.getBooleanExtra(KEY_IS_WIFI_ON,

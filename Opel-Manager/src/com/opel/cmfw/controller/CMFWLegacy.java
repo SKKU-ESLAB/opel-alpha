@@ -81,7 +81,7 @@ public class CMFWLegacy {
     // TODO: move to CommChannelService
 //    private WifiP2pManager mWifiP2pManager;
 //    private WifiP2pManager.Channel mWifiP2pManagerChannel;
-//    private WifiDirectBroadcastReceiver mWifiDirectBroadcastReceiver;
+//    private LegacyWifiDirectBroadcastReceiver mWifiDirectBroadcastReceiver;
 
     // BluetoothDevice
     private BluetoothDevice mBluetoothDevice = null;
