@@ -201,28 +201,28 @@ public class MainActivity extends Activity implements CommChannelEventListener {
 
     private GridView.OnItemLongClickListener mItemLongClickListener = new
             GridView.OnItemLongClickListener() {
-        public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int
-                position, long arg3) {
-            final OPELAppList appList = getAppList();
-            OPELApplication app = OPELContext.getAppList().getList().get
-                    (position);
-            int appType = app.getType();
-            if (appType == -1) {
-                // Default Apps
-                Toast.makeText(getApplicationContext(), "[Native app]" +
-                        appList.getList().get(position).getTitle(), Toast
-                        .LENGTH_SHORT).show();
-            } else if (appType == 0) {
-                // Apps Not Running
-                Toast.makeText(getApplicationContext(), "[Installed]" +
-                        appList.getList().get(position).getTitle(), Toast
-                        .LENGTH_SHORT).show();
-            } else if (appType == 1) {
-                terminateUserApp(app);
-            }
-            return true;
-        }
-    };
+                public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int
+                        position, long arg3) {
+                    final OPELAppList appList = getAppList();
+                    OPELApplication app = OPELContext.getAppList().getList().get
+                            (position);
+                    int appType = app.getType();
+                    if (appType == -1) {
+                        // Default Apps
+                        Toast.makeText(getApplicationContext(), "[Native app]" +
+                                appList.getList().get(position).getTitle(), Toast
+                                .LENGTH_SHORT).show();
+                    } else if (appType == 0) {
+                        // Apps Not Running
+                        Toast.makeText(getApplicationContext(), "[Installed]" +
+                                appList.getList().get(position).getTitle(), Toast
+                                .LENGTH_SHORT).show();
+                    } else if (appType == 1) {
+                        terminateUserApp(app);
+                    }
+                    return true;
+                }
+            };
 
     private void setIndicatorBT(boolean isOn) {
         ImageView imageView = (ImageView) this.findViewById(R.id.indicatorBT);
@@ -274,7 +274,7 @@ public class MainActivity extends Activity implements CommChannelEventListener {
                 .drawable.opel).setContentIntent(contentIntent).setAutoCancel
                 (true).setWhen(System.currentTimeMillis()).setDefaults
                 (Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE |
-                Notification.DEFAULT_LIGHTS).setNumber(1);
+                        Notification.DEFAULT_LIGHTS).setNumber(1);
         Notification n = builder.build();
         nm.notify(1234, n);
     }
@@ -291,13 +291,13 @@ public class MainActivity extends Activity implements CommChannelEventListener {
         alt_bld.setMessage("Terminate this App ?").setCancelable(false)
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener
                         () {
-            public void onClick(DialogInterface dialog, int id) {
-                // Action for 'Yes' Button
-                OPELContext.getAppCore().requestTermination("" + fApp
-                        .getAppId());
-                Log.d("OPEL", "Request to kill ");
-            }
-        }).setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        // Action for 'Yes' Button
+                        OPELContext.getAppCore().requestTermination("" + fApp
+                                .getAppId());
+                        Log.d("OPEL", "Request to kill ");
+                    }
+                }).setNegativeButton("No", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 // Action for 'NO' Button
                 dialog.cancel();
@@ -358,15 +358,11 @@ public class MainActivity extends Activity implements CommChannelEventListener {
         }
 
         mIsWaitingWifiDirectOnForCamera = true;
-        this.mCommChannelService.turnOnWifiDirect(true);
+        this.mCommChannelService.enableLargeDataMode();
     }
 
     private void launchCameraAfterWifiDirectConnected() {
-        Intent intent = new Intent(MainActivity.this, CameraViewerActivity
-                .class);
-        intent.putExtra(CameraViewerActivity
-                .INTENT_KEY_DEFAULT_WIFI_DIRECT_IP_ADDRESS, this.mCommChannelService
-                .getWifiDirectAddress());
+        Intent intent = new Intent(MainActivity.this, CameraViewerActivity.class);
         startActivity(intent);
     }
 
@@ -433,8 +429,8 @@ public class MainActivity extends Activity implements CommChannelEventListener {
     @Override
     public void onWifiDirectDeviceStateChanged(boolean isWifiOn) {
         this.setIndicatorWFD(isWifiOn);
-        if(isWifiOn) {
-            if(this.mIsWaitingWifiDirectOnForCamera) {
+        if (isWifiOn) {
+            if (this.mIsWaitingWifiDirectOnForCamera) {
                 this.launchCameraAfterWifiDirectConnected();
             }
         }
@@ -443,8 +439,9 @@ public class MainActivity extends Activity implements CommChannelEventListener {
     }
 
     @Override
-    public void onCommChannelStateChanged(boolean isInitSuccess) {
-        if (isInitSuccess) {
+    public void onCommChannelStateChanged(int commChannelState) {
+        if (commChannelState == CommChannelService.STATE_CONNECTED_DEFAULT
+                || commChannelState == CommChannelService.STATE_CONNECTED_LARGEDATA) {
             Toast.makeText(getApplicationContext(), "Successfully connected "
                     + "to OPEL", Toast.LENGTH_SHORT).show();
         } else {

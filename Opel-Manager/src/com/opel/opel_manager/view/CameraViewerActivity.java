@@ -33,8 +33,6 @@ import java.net.SocketAddress;
 
 public class CameraViewerActivity extends Activity implements SurfaceHolder
         .Callback {
-    public static final String INTENT_KEY_DEFAULT_WIFI_DIRECT_IP_ADDRESS =
-            "DefaultWifiDirectIPAddress";
 
     private String mWifiDirectIPAddress = "";
 
@@ -139,9 +137,8 @@ public class CameraViewerActivity extends Activity implements SurfaceHolder
         handler = new TcpHandler();
 
         // Get Target IP Address
-        Intent intent = getIntent();
-        this.mWifiDirectIPAddress = intent.getStringExtra
-                (INTENT_KEY_DEFAULT_WIFI_DIRECT_IP_ADDRESS);
+        // TODO: Fix it!
+        this.mWifiDirectIPAddress = "N/A";
         if (this.mWifiDirectIPAddress.compareTo("N/A") == 0) {
             this.finish();
         }

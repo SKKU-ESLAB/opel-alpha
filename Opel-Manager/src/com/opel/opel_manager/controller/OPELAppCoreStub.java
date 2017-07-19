@@ -188,19 +188,11 @@ public class OPELAppCoreStub {
     void handleUpdateAppInfomation(JSONParser jp) {
         if (OPELContext.isAppInfoLoading() == true) return;
 
-        String wifiDirectIPAddress = "";
-        String wifiDirectName = "";
         while (jp.hasMoreValue()) {
             String ret[] = new String[2];
             ret = jp.getNextKeyValue();
 
             if (ret[0].equals("type") && ret[1].equals(UPDATEAPPINFO)) {
-                continue;
-            } else if (ret[0].compareTo("IP_ADDR__a") == 0) {
-                wifiDirectIPAddress = ret[1];
-                continue;
-            } else if (ret[0].compareTo("WIFI_DIRECT_NAME") == 0) {
-                wifiDirectName = ret[1];
                 continue;
             } else if (ret[0].compareTo("OPEL_DATA_DIR") == 0) {
                 OPELContext.getSettings().setOpelDataDir(ret[1]);
@@ -231,12 +223,6 @@ public class OPELAppCoreStub {
 
             OPELContext.getAppList().add(new OPELApplication(appID, ret[1],
                     bitmap, type));
-        }
-
-        if (wifiDirectIPAddress.isEmpty() == false && wifiDirectName.isEmpty
-                () == false) {
-            this.mCommChannelService.setWifiDirectInfo(wifiDirectName,
-                    wifiDirectIPAddress);
         }
         updateMainUIThread(HANDLER_UPDATE_UI);
         OPELContext.setIsAppInfoLoading(true);
@@ -413,9 +399,8 @@ public class OPELAppCoreStub {
         jp.addJsonKeyValue("type", INSTALLPKG);
         jp.addJsonKeyValue("pkgFileName", fileName);
 
-        this.mCommChannelService.sendRawMessage(jp.getJsonData());
-        // TODO: remake from the bottom
-        // sendFile(fileName);
+        File file = new File(fileName);
+        this.mCommChannelService.sendRawMessage(jp.getJsonData(), file);
     }
 
     public void requestUninstall(String appID) {

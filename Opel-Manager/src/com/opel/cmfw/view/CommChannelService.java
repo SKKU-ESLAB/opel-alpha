@@ -26,12 +26,13 @@ import com.opel.cmfw.controller.WifiDirectCommPort;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
+import java.util.Date;
 import java.util.Set;
 import java.util.UUID;
 
 /* Threads of CommChannelService
-    - main thread: send messages that are coming from OPEL Manager internal to CMFWLegacy
-    - listening thread: poll messages from CMFWLegacy and pass them to OPEL Manager internal
+    - main thread: send messages that are coming from OPEL Manager internal to CommPort
+    - listening thread: poll messages from CommPort and pass them to OPEL Manager internal
 */
 
 /* Roles of CommChannelService
@@ -63,6 +64,7 @@ public class CommChannelService extends Service implements CommPortListener {
     private BluetoothCommPort mDefaultPort;
     private BluetoothCommPort mControlPort;
     private WifiDirectCommPort mLargeDataPort;
+    private LargeDataPortWatcher mLargeDataPortWatcher;
 
     // Download path
     private String mDownloadFilePath;
@@ -116,6 +118,9 @@ public class CommChannelService extends Service implements CommPortListener {
         if (this.mControlPort != null) this.mControlPort.stopListeningThread();
         if (this.mLargeDataPort != null) this.mLargeDataPort.stopListeningThread();
 
+        // Finish watcher thread
+        if (this.mLargeDataPort != null) mLargeDataPortWatcher.stopToWatch();
+
         // Close ports
         if (this.mDefaultPort != null) this.mDefaultPort.close();
         if (this.mControlPort != null) this.mControlPort.close();
@@ -137,6 +142,9 @@ public class CommChannelService extends Service implements CommPortListener {
         if (this.mControlPort != null) this.mControlPort.stopListeningThread();
         if (this.mLargeDataPort != null) this.mLargeDataPort.stopListeningThread();
 
+        // Finish watcher thread
+        if (this.mLargeDataPort != null) mLargeDataPortWatcher.stopToWatch();
+
         // Close ports
         if (this.mControlPort != null) this.mControlPort.close();
         if (this.mLargeDataPort != null) this.mLargeDataPort.close();
@@ -155,6 +163,10 @@ public class CommChannelService extends Service implements CommPortListener {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
+    }
+
+    public void sendRawMessage(String messageData) {
+        this.sendRawMessage(messageData, null);
     }
 
     // Send raw message (via default or largedata port)
@@ -243,7 +255,7 @@ public class CommChannelService extends Service implements CommPortListener {
             boolean isOpenSuccess = mControlPort.open();
             if (!isOpenSuccess) return;
 
-            // Start listening threa
+            // Start listening thread
             this.mControlPortListener = new ControlPortListener();
             mControlPort.runListeningThread(this.mControlPortListener, mDownloadFilePath);
 
@@ -323,12 +335,64 @@ public class CommChannelService extends Service implements CommPortListener {
             // Start listening thread
             if (mLargeDataPort != null) mLargeDataPort.runListeningThread(self, mDownloadFilePath);
 
+            // Start watcher thread
+            mLargeDataPortWatcher = new LargeDataPortWatcher();
+            mLargeDataPortWatcher.startToWatch();
+
             // Handle Channel connection
             mState.transitToConnectedLargedata();
         }
 
         private void onFail() {
             disableLargeDataMode();
+        }
+    }
+
+    private class LargeDataPortWatcher extends Thread {
+        static private final long kSleepMillisecs = 1000;
+        static private final long kThresholdMillisecs = 10000;
+
+        private int mNumInUse = 0;
+        private Date mLastAccess;
+        private boolean mIsEnabled = false;
+
+        public void startToWatch() {
+            this.start();
+        }
+
+        public void stopToWatch() {
+            this.mIsEnabled = false;
+        }
+
+        // TODO:
+        public void startToUse() {
+            this.mLastAccess = new Date();
+            this.mNumInUse++;
+        }
+
+        // TODO:
+        public void endToUse() {
+            this.mLastAccess = new Date();
+            this.mNumInUse--;
+        }
+
+        @Override
+        public void run() {
+            this.mIsEnabled = true;
+            this.mLastAccess = new Date();
+
+            while (this.mIsEnabled) {
+                Date now = new Date();
+                if ((mNumInUse == 0) && (now.compareTo(this.mLastAccess) > kThresholdMillisecs)) {
+                    disableLargeDataMode();
+                }
+
+                try {
+                    Thread.sleep(kSleepMillisecs);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
@@ -693,10 +757,6 @@ class WifiDirectDeviceController {
             wifiP2PIntentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
             mService.registerReceiver(new WifiDirectPeerChangedEventReceiver(),
                     wifiP2PIntentFilter);
-            // wifiP2PIntentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
-            // wifiP2PIntentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
-            // wifiP2PIntentFilter.addAction(WifiP2pManager
-            // .WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
 
             // Start Wi-fi direct discovery
             mWifiP2pManager.discoverPeers(mWifiP2pManagerChannel, null);
