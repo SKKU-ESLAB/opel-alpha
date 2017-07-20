@@ -34,7 +34,6 @@ public class BluetoothConnectorActivity extends Activity {
 
     // SharedPreference
     private static final String PREFERENCE_KEY = "BluetoothConnectorActivity";
-    private static final String PREFERENCE_ATTR_KEY_BT_NAME = "BluetoothDeviceName";
     private static final String PREFERENCE_ATTR_KEY_BT_ADDRESS = "BluetoothDeviceAddress";
 
     // Result
@@ -79,7 +78,7 @@ public class BluetoothConnectorActivity extends Activity {
     // Step 1-1. Grant communication device permission
     private void grantCommunicationDevicePermission() {
         if (checkSelfPermission(Manifest.permission.BLUETOOTH_ADMIN) != PackageManager
-                .PERMISSION_GRANTED && checkSelfPermission(Manifest.permission
+                .PERMISSION_GRANTED || checkSelfPermission(Manifest.permission
                 .ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // If communication device permission is not granted, request the
             // permission once more.
@@ -139,10 +138,9 @@ public class BluetoothConnectorActivity extends Activity {
         // Restore bluetooth name from local storage
         SharedPreferences sharedPreferences = this.getSharedPreferences(PREFERENCE_KEY, Context
                 .MODE_PRIVATE);
-        String bluetoothName = sharedPreferences.getString(PREFERENCE_ATTR_KEY_BT_NAME, "");
         String bluetoothAddress = sharedPreferences.getString(PREFERENCE_ATTR_KEY_BT_ADDRESS, "");
 
-        BluetoothDevice bluetoothDevice = findBluetoothDevice(bluetoothName, bluetoothAddress);
+        BluetoothDevice bluetoothDevice = findBondedBluetoothDevice(bluetoothAddress);
         if (bluetoothDevice != null) {
             // Receive binding result
             IntentFilter filter = new IntentFilter();
@@ -185,7 +183,7 @@ public class BluetoothConnectorActivity extends Activity {
                         if (bindingBluetoothName.compareTo(thisBluetoothName) == 0 &&
                                 bindingBluetoothAddress.compareTo(thisBluetoothAddress) == 0) {
                             // Return select
-                            resultInSelect(bindingBluetoothName, bindingBluetoothAddress);
+                            resultInSelect(bindingBluetoothAddress);
                         }
                     }
                 }
@@ -262,7 +260,7 @@ public class BluetoothConnectorActivity extends Activity {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-
+            Log.d(TAG, "Action: " + action);
             // TODO: refine discovery UI
             // When discovery finds a device
             if (BluetoothDevice.ACTION_FOUND.compareTo(action) == 0) {
@@ -271,12 +269,18 @@ public class BluetoothConnectorActivity extends Activity {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 if (device.getBondState() != BluetoothDevice.BOND_BONDED) {
                     if (device.getName() != null) {
-                        mNewDevicesArrayAdapter.add(device.getName() + "\n" + device.getAddress());
+                        mNewDevicesArrayAdapter.add(device.getAddress() + "\n" + device.getName());
+                    } else {
+                        mNewDevicesArrayAdapter.add(device.getAddress());
                     }
                 }
             } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.compareTo(action) == 0) {
                 // When discovery is finished, change the Activity title
                 setProgressBarIndeterminateVisibility(false);
+                setTitle(R.string.select_device);
+                Button scanButton = (Button) findViewById(R.id.button_scan);
+                scanButton.setVisibility(View.VISIBLE);
+
                 Log.d(TAG, "Discovery done");
                 if (mNewDevicesArrayAdapter.getCount() == 0) {
                     String noDevices = getResources().getText(R.string.none_found).toString();
@@ -288,6 +292,10 @@ public class BluetoothConnectorActivity extends Activity {
 
     // Step 3-2. Start discovery
     private void startDiscovery() {
+        // Initialize new device list
+        this.mNewDevicesArrayAdapter.clear();
+        this.mNewDevicesArrayAdapter.notifyDataSetChanged();
+
         // Indicate scanning in the title
         this.setProgressBarIndeterminateVisibility(true);
         this.setTitle(R.string.scanning);
@@ -301,6 +309,7 @@ public class BluetoothConnectorActivity extends Activity {
     }
 
     private void cancelDiscovery() {
+        this.setTitle(R.string.select_device);
         Button scanButton = (Button) findViewById(R.id.button_scan);
         scanButton.setVisibility(View.VISIBLE);
 
@@ -310,24 +319,6 @@ public class BluetoothConnectorActivity extends Activity {
     private AdapterView.OnItemClickListener mPairedDeviceListOnClickListener = new AdapterView
             .OnItemClickListener() {
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            String entryString = mNewDevicesArrayAdapter.getItem(position);
-            if (entryString == null || entryString.compareTo(getResources().getText(R.string
-                    .none_found).toString()) == 0) {
-                return;
-            }
-
-            String[] bluetoothNameAddress = entryString.split("\\r?\\n");
-            String bluetoothName = bluetoothNameAddress[0];
-            String bluetoothAddress = bluetoothNameAddress[1];
-
-            cancelDiscovery();
-            resultInSelect(bluetoothName, bluetoothAddress);
-        }
-    };
-
-    private AdapterView.OnItemClickListener mNewDeviceListOnClickListener = new AdapterView
-            .OnItemClickListener() {
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             String entryString = mBoundDevicesArrayAdapter.getItem(position);
             if (entryString == null || entryString.compareTo(getResources().getText(R.string
                     .none_found).toString()) == 0) {
@@ -335,17 +326,33 @@ public class BluetoothConnectorActivity extends Activity {
             }
 
             String[] bluetoothNameAddress = entryString.split("\\r?\\n");
-            String bluetoothName = bluetoothNameAddress[0];
-            String bluetoothAddress = bluetoothNameAddress[1];
+            String bluetoothAddress = bluetoothNameAddress[0];
 
             cancelDiscovery();
-            tryBindingBluetoothDevice(bluetoothName, bluetoothAddress);
+            resultInSelect(bluetoothAddress);
+        }
+    };
+
+    private AdapterView.OnItemClickListener mNewDeviceListOnClickListener = new AdapterView
+            .OnItemClickListener() {
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            String entryString = mNewDevicesArrayAdapter.getItem(position);
+            if (entryString == null || entryString.compareTo(getResources().getText(R.string
+                    .none_found).toString()) == 0) {
+                return;
+            }
+
+            String[] bluetoothNameAddress = entryString.split("\\r?\\n");
+            String bluetoothAddress = bluetoothNameAddress[0];
+
+            cancelDiscovery();
+            tryBindingBluetoothDevice(bluetoothAddress);
         }
     };
 
     // Step 3-3. (When selecting a bluetooth device) try binding the device
-    private void tryBindingBluetoothDevice(String bluetoothName, String bluetoothAddress) {
-        BluetoothDevice bluetoothDevice = findBluetoothDevice(bluetoothName, bluetoothAddress);
+    private void tryBindingBluetoothDevice(String bluetoothAddress) {
+        BluetoothDevice bluetoothDevice = getBluetoothDevice(bluetoothAddress);
         if (bluetoothDevice != null) {
             // Receive binding result
             IntentFilter filter = new IntentFilter();
@@ -380,14 +387,11 @@ public class BluetoothConnectorActivity extends Activity {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 if (this.mBindingBluetoothDevice != null) {
                     if (device.getBondState() == BluetoothDevice.BOND_BONDED) {
-                        String bindingBluetoothName = this.mBindingBluetoothDevice.getName();
                         String bindingBluetoothAddress = this.mBindingBluetoothDevice.getAddress();
-                        String thisBluetoothName = device.getName();
                         String thisBluetoothAddress = device.getAddress();
-                        if (bindingBluetoothName.compareTo(thisBluetoothName) == 0 &&
-                                bindingBluetoothAddress.compareTo(thisBluetoothAddress) == 0) {
+                        if (bindingBluetoothAddress.compareTo(thisBluetoothAddress) == 0) {
                             // Return select
-                            resultInSelect(bindingBluetoothName, bindingBluetoothAddress);
+                            resultInSelect(bindingBluetoothAddress);
                         }
                     }
                 }
@@ -397,7 +401,7 @@ public class BluetoothConnectorActivity extends Activity {
     }
 
     // Result Part
-    private void resultInSelect(String bluetoothName, String bluetoothAddress) {
+    private void resultInSelect(String bluetoothAddress) {
         if (this.mBindingDefaultBluetoothDeviceReceiver != null)
             this.unregisterReceiver(this.mBindingDefaultBluetoothDeviceReceiver);
         if (this.mBluetoothDeviceDiscoveryReceiver != null)
@@ -407,10 +411,9 @@ public class BluetoothConnectorActivity extends Activity {
 
         Bundle bundle = new Bundle();
         bundle.putString(BluetoothDeviceController.ConnectProcedure
-                .BluetoothConnectorResultReceiver.RECEIVER_KEY_BT_NAME, bluetoothName);
-        bundle.putString(BluetoothDeviceController.ConnectProcedure
                 .BluetoothConnectorResultReceiver.RECEIVER_KEY_BT_ADDRESS, bluetoothAddress);
         this.mReceiver.send(Activity.RESULT_OK, null);
+        Log.d(TAG, "Select success: " + bluetoothAddress);
         finish();
     }
 
@@ -426,28 +429,35 @@ public class BluetoothConnectorActivity extends Activity {
         bundle.putString(BluetoothDeviceController.ConnectProcedure
                 .BluetoothConnectorResultReceiver.RECEIVER_KEY_FAIL_MESSAGE, failMessage);
         this.mReceiver.send(Activity.RESULT_CANCELED, null);
+        Log.d(TAG, "Select fail: " + failMessage);
         finish();
     }
 
     // Utility functions
-    private BluetoothDevice findBluetoothDevice(String bluetoothName, String bluetoothAddress) {
-        if (bluetoothName == null || bluetoothAddress == null || bluetoothName.isEmpty() ||
-                bluetoothAddress.isEmpty()) {
+    private BluetoothDevice findBondedBluetoothDevice(String bluetoothAddress) {
+        if (bluetoothAddress == null || bluetoothAddress.isEmpty()) {
             return null;
         }
-
         Set<BluetoothDevice> bluetoothDevices = BluetoothAdapter.getDefaultAdapter()
                 .getBondedDevices();
         if (bluetoothDevices.size() > 0) {
             for (BluetoothDevice bluetoothDevice : bluetoothDevices) {
                 String deviceName = bluetoothDevice.getName();
                 String deviceAddress = bluetoothDevice.getAddress();
-                if (deviceName.compareTo(bluetoothName) == 0 && deviceAddress.compareTo
-                        (bluetoothAddress) == 0) {
+                if (deviceAddress.compareTo(bluetoothAddress) == 0) {
                     return bluetoothDevice;
                 }
             }
         }
         return null;
+    }
+
+    private BluetoothDevice getBluetoothDevice(String bluetoothAddress) {
+        if (bluetoothAddress == null || bluetoothAddress.isEmpty()) {
+            return null;
+        }
+        BluetoothDevice bluetoothDevice = BluetoothAdapter.getDefaultAdapter().getRemoteDevice
+                (bluetoothAddress);
+        return bluetoothDevice;
     }
 }

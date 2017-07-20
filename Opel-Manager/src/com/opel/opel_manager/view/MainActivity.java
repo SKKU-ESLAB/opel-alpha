@@ -102,29 +102,26 @@ public class MainActivity extends Activity implements CommChannelEventListener {
 
     private void checkStoragePermission() {
         // Check storage read/write permission
-        if (this.checkSelfPermission(Manifest.permission
-                .READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+        if (this.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager
+                .PERMISSION_GRANTED) {
             Log.d("OPEL", "Requesting Permission");
 
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                Toast.makeText(this, "Storage permission is required to start "
-                        + "OPEL Manager.", Toast.LENGTH_SHORT).show();
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission
+                    .READ_EXTERNAL_STORAGE)) {
+                Toast.makeText(this, "Storage permission is required to start " + "OPEL Manager"
+                        + ".", Toast.LENGTH_SHORT).show();
             }
-            ActivityCompat.requestPermissions(this, new String[]{Manifest
-                    .permission.READ_EXTERNAL_STORAGE, Manifest.permission
-                    .WRITE_EXTERNAL_STORAGE}, 1);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission
+                    .READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
         } else {
             Log.d("OPEL", "Permission granted");
         }
     }
 
-    public void onRequestPermissionsResult(int requestCode, String
-            permissions[], int[] grantResults) {
-        if (grantResults.length <= 0 || grantResults[0] != PackageManager
-                .PERMISSION_GRANTED) {
-            Toast.makeText(this, "Failed to be granted", Toast.LENGTH_LONG)
-                    .show();
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[]
+            grantResults) {
+        if (grantResults.length <= 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(this, "Failed to be granted", Toast.LENGTH_LONG).show();
             this.finish();
         }
     }
@@ -133,8 +130,8 @@ public class MainActivity extends Activity implements CommChannelEventListener {
         //Create IconListAdapter
         mIconGridView = (GridView) findViewById(R.id.iconGridView);
         OPELAppList list = getAppList();
-        mIconListAdapter = new IconListAdapter(this, R.layout
-                .template_gridview_icon_main, list.getList());
+        mIconListAdapter = new IconListAdapter(this, R.layout.template_gridview_icon_main, list
+                .getList());
         mIconGridView.setAdapter(mIconListAdapter);
         mIconGridView.setOnItemClickListener(mItemClickListener);
         mIconGridView.setOnItemLongClickListener(mItemLongClickListener);
@@ -143,14 +140,12 @@ public class MainActivity extends Activity implements CommChannelEventListener {
     private void initializeCommunication() {
         // Launch CommChannelService for setting connection with target OPEL device.
         Intent serviceIntent = new Intent(this, CommChannelService.class);
-        this.bindService(serviceIntent, this.mCommServiceConnection, Context
-                .BIND_AUTO_CREATE);
+        this.bindService(serviceIntent, this.mCommServiceConnection, Context.BIND_AUTO_CREATE);
     }
 
     private ServiceConnection mCommServiceConnection = new ServiceConnection() {
         @Override
-        public void onServiceConnected(ComponentName componentName, IBinder
-                inputBinder) {
+        public void onServiceConnected(ComponentName componentName, IBinder inputBinder) {
             CommChannelService.CommBinder serviceBinder = (CommChannelService.CommBinder)
                     inputBinder;
             mCommChannelService = serviceBinder.getService();
@@ -171,13 +166,10 @@ public class MainActivity extends Activity implements CommChannelEventListener {
         }
     };
 
-    private GridView.OnItemClickListener mItemClickListener = new GridView
-            .OnItemClickListener() {
+    private GridView.OnItemClickListener mItemClickListener = new GridView.OnItemClickListener() {
         @Override
-        public void onItemClick(AdapterView<?> arg0, View v, int position,
-                                long arg3) {
-            AlertDialog.Builder alertDlg = new AlertDialog.Builder
-                    (MainActivity.this);
+        public void onItemClick(AdapterView<?> arg0, View v, int position, long arg3) {
+            AlertDialog.Builder alertDlg = new AlertDialog.Builder(MainActivity.this);
             OPELAppList appList = getAppList();
 
             // Native Menu Handling
@@ -190,39 +182,34 @@ public class MainActivity extends Activity implements CommChannelEventListener {
                 String appId = "" + appList.getList().get(position).getAppId();
                 launchUserApp(appId, appName);
             } else if (appType == 1) {
-                Toast.makeText(getApplicationContext(), appList.getList().get
-                        (position).getTitle() + " is " +
-                        "OPEN", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), appList.getList().get(position).getTitle
+                        () + " is " + "OPEN", Toast.LENGTH_SHORT).show();
                 OPELApplication app = appList.getList().get(position);
                 showRemoteConfigUI(app);
             }
         }
     };
 
-    private GridView.OnItemLongClickListener mItemLongClickListener = new
-            GridView.OnItemLongClickListener() {
-                public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int
-                        position, long arg3) {
-                    final OPELAppList appList = getAppList();
-                    OPELApplication app = OPELContext.getAppList().getList().get
-                            (position);
-                    int appType = app.getType();
-                    if (appType == -1) {
-                        // Default Apps
-                        Toast.makeText(getApplicationContext(), "[Native app]" +
-                                appList.getList().get(position).getTitle(), Toast
-                                .LENGTH_SHORT).show();
-                    } else if (appType == 0) {
-                        // Apps Not Running
-                        Toast.makeText(getApplicationContext(), "[Installed]" +
-                                appList.getList().get(position).getTitle(), Toast
-                                .LENGTH_SHORT).show();
-                    } else if (appType == 1) {
-                        terminateUserApp(app);
-                    }
-                    return true;
-                }
-            };
+    private GridView.OnItemLongClickListener mItemLongClickListener = new GridView
+            .OnItemLongClickListener() {
+        public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
+            final OPELAppList appList = getAppList();
+            OPELApplication app = OPELContext.getAppList().getList().get(position);
+            int appType = app.getType();
+            if (appType == -1) {
+                // Default Apps
+                Toast.makeText(getApplicationContext(), "[Native app]" + appList.getList().get
+                        (position).getTitle(), Toast.LENGTH_SHORT).show();
+            } else if (appType == 0) {
+                // Apps Not Running
+                Toast.makeText(getApplicationContext(), "[Installed]" + appList.getList().get
+                        (position).getTitle(), Toast.LENGTH_SHORT).show();
+            } else if (appType == 1) {
+                terminateUserApp(app);
+            }
+            return true;
+        }
+    };
 
     private void setIndicatorBT(boolean isOn) {
         ImageView imageView = (ImageView) this.findViewById(R.id.indicatorBT);
@@ -248,33 +235,30 @@ public class MainActivity extends Activity implements CommChannelEventListener {
     */
     public void makeNotification(String JsonData) {
 
-        NotificationManager nm = (NotificationManager) getSystemService
-                (Context.NOTIFICATION_SERVICE);
+        NotificationManager nm = (NotificationManager) getSystemService(Context
+                .NOTIFICATION_SERVICE);
         Resources res = getResources();
 
-        Intent notificationIntent = new Intent(this, RemoteNotiUIActivity
-                .class);
+        Intent notificationIntent = new Intent(this, RemoteNotiUIActivity.class);
         Bundle extras = new Bundle();
         extras.putString("jsonData", JsonData);
         extras.putString("checkNoti", "1");
         notificationIntent.putExtras(extras);
 
-        PendingIntent contentIntent = PendingIntent.getActivity(this, 1,
-                notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 1, notificationIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
 
         JSONParser jp = new JSONParser(JsonData);
         String appId = jp.getValueByKey("appID");
         OPELApplication targetApp = OPELContext.getAppList().getApp(appId);
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder
-                (this).setCategory(appId).setContentTitle(targetApp.getTitle
-                ()).setContentText(jp.getValueByKey("description")).setTicker
-                (" " + jp.getValueByKey("appTitle")).setLargeIcon(OPELContext
-                .getAppList().getApp(appId).getImage()).setSmallIcon(R
-                .drawable.opel).setContentIntent(contentIntent).setAutoCancel
-                (true).setWhen(System.currentTimeMillis()).setDefaults
-                (Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE |
-                        Notification.DEFAULT_LIGHTS).setNumber(1);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this).setCategory
+                (appId).setContentTitle(targetApp.getTitle()).setContentText(jp.getValueByKey
+                ("description")).setTicker(" " + jp.getValueByKey("appTitle")).setLargeIcon
+                (OPELContext.getAppList().getApp(appId).getImage()).setSmallIcon(R.drawable.opel)
+                .setContentIntent(contentIntent).setAutoCancel(true).setWhen(System
+                        .currentTimeMillis()).setDefaults(Notification.DEFAULT_SOUND |
+                        Notification.DEFAULT_VIBRATE | Notification.DEFAULT_LIGHTS).setNumber(1);
         Notification n = builder.build();
         nm.notify(1234, n);
     }
@@ -288,16 +272,14 @@ public class MainActivity extends Activity implements CommChannelEventListener {
         AlertDialog.Builder alt_bld = new AlertDialog.Builder(MainActivity
                 .this);
         final OPELApplication fApp = app;
-        alt_bld.setMessage("Terminate this App ?").setCancelable(false)
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener
-                        () {
-                    public void onClick(DialogInterface dialog, int id) {
-                        // Action for 'Yes' Button
-                        OPELContext.getAppCore().requestTermination("" + fApp
-                                .getAppId());
-                        Log.d("OPEL", "Request to kill ");
-                    }
-                }).setNegativeButton("No", new DialogInterface.OnClickListener() {
+        alt_bld.setMessage("Terminate this App ?").setCancelable(false).setPositiveButton("Yes",
+                new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // Action for 'Yes' Button
+                OPELContext.getAppCore().requestTermination("" + fApp.getAppId());
+                Log.d("OPEL", "Request to kill ");
+            }
+        }).setNegativeButton("No", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 // Action for 'NO' Button
                 dialog.cancel();
@@ -313,8 +295,8 @@ public class MainActivity extends Activity implements CommChannelEventListener {
 
     private void launchAppManager() {
         if (this.mCommChannelService != null && !this.mCommChannelService.isChannelConnected()) {
-            Toast.makeText(getApplicationContext(), "Disconnected" + " to " +
-                    "OPEL", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Disconnected" + " to " + "OPEL", Toast
+                    .LENGTH_SHORT).show();
         }
         Intent intent = new Intent(MainActivity.this, AppManagerActivity.class);
         startActivity(intent);
@@ -322,8 +304,8 @@ public class MainActivity extends Activity implements CommChannelEventListener {
 
     private void launchAppMarket() {
         if (this.mCommChannelService != null && !this.mCommChannelService.isChannelConnected()) {
-            Toast.makeText(getApplicationContext(), "Disconnected" + " to " +
-                    "OPEL", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Disconnected" + " to " + "OPEL", Toast
+                    .LENGTH_SHORT).show();
         }
         Intent intent = new Intent(MainActivity.this, AppMarketActivity.class);
         startActivity(intent);
@@ -333,27 +315,26 @@ public class MainActivity extends Activity implements CommChannelEventListener {
         if (this.mCommChannelService != null && !this.mCommChannelService.isChannelConnected()) {
             this.mCommChannelService.connectChannel();
         } else
-            Toast.makeText(getApplicationContext(), "Already connected to " +
-                    "OPEL device", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Already connected to " + "OPEL device",
+                    Toast.LENGTH_SHORT).show();
         return;
     }
 
     private void launchFileManager() {
         if (this.mCommChannelService != null && !this.mCommChannelService.isChannelConnected()) {
-            Toast.makeText(getApplicationContext(), "Disconnected" + " to " +
-                    "OPEL", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Disconnected" + " to " + "OPEL", Toast
+                    .LENGTH_SHORT).show();
             return;
         }
 
-        Intent intent = new Intent(MainActivity.this, FileManagerActivity
-                .class);
+        Intent intent = new Intent(MainActivity.this, FileManagerActivity.class);
         startActivity(intent);
     }
 
     private void launchCameraBeforeWifiDirectConnected() {
         if (this.mCommChannelService != null && !this.mCommChannelService.isChannelConnected()) {
-            Toast.makeText(getApplicationContext(), "Disconnected" + " to " +
-                    "OPEL", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Disconnected" + " to " + "OPEL", Toast
+                    .LENGTH_SHORT).show();
             return;
         }
 
@@ -368,18 +349,16 @@ public class MainActivity extends Activity implements CommChannelEventListener {
 
     private void launchSensor() {
         if (this.mCommChannelService != null && !this.mCommChannelService.isChannelConnected()) {
-            Toast.makeText(getApplicationContext(), "Disconnected" + " to " +
-                    "OPEL", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Disconnected" + " to " + "OPEL", Toast
+                    .LENGTH_SHORT).show();
             return;
         }
-        Intent intent = new Intent(MainActivity.this, SensorViewerActivity
-                .class);
+        Intent intent = new Intent(MainActivity.this, SensorViewerActivity.class);
         startActivity(intent);
     }
 
     private void launchEventLogger() {
-        Intent intent = new Intent(MainActivity.this, EventLoggerActivity
-                .class);
+        Intent intent = new Intent(MainActivity.this, EventLoggerActivity.class);
         startActivity(intent);
     }
 
@@ -409,11 +388,10 @@ public class MainActivity extends Activity implements CommChannelEventListener {
     private void showRemoteConfigUI(OPELApplication app) {
         //Open configuration view if it is running
         if (app.getConfigJson().equals("N/A")) {
-            Toast.makeText(getApplicationContext(), "Configurable " + "data " +
-                    "is N/A", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Configurable " + "data " + "is N/A", Toast
+                    .LENGTH_SHORT).show();
         } else {
-            Intent intent = new Intent(MainActivity.this,
-                    RemoteConfigUIActivity.class);
+            Intent intent = new Intent(MainActivity.this, RemoteConfigUIActivity.class);
 
             Bundle extras = new Bundle();
             extras.putString("title", app.getTitle());
@@ -440,15 +418,14 @@ public class MainActivity extends Activity implements CommChannelEventListener {
 
     @Override
     public void onCommChannelStateChanged(int commChannelState) {
-        if (commChannelState == CommChannelService.STATE_CONNECTED_DEFAULT
-                || commChannelState == CommChannelService.STATE_CONNECTED_LARGEDATA) {
-            Toast.makeText(getApplicationContext(), "Successfully connected "
-                    + "to OPEL", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(getApplicationContext(), "Failed connecting " +
-                    "to" + " OPEL, re-connectChannel with CONNECT button", Toast
-                    .LENGTH_LONG).show();
-        }
+//        if (commChannelState == CommChannelService.STATE_CONNECTED_DEFAULT || commChannelState ==
+//                CommChannelService.STATE_CONNECTED_LARGEDATA) {
+//            Toast.makeText(getApplicationContext(), "Successfully connected to OPEL", Toast
+//                    .LENGTH_SHORT).show();
+//        } else {
+//            Toast.makeText(getApplicationContext(), "Failed connecting to OPEL. " +
+//                    "re-connectChannel" + " with CONNECT button", Toast.LENGTH_LONG).show();
+//        }
     }
 
     @Override
@@ -469,8 +446,7 @@ public class MainActivity extends Activity implements CommChannelEventListener {
 
     // TODO: Convert to CommServiceListener
     // TODO: Convert to Comm-related callbacks
-    private android.os.Handler mHandler = new android.os.Handler(Looper
-            .getMainLooper()) {
+    private android.os.Handler mHandler = new android.os.Handler(Looper.getMainLooper()) {
         @Override
         public void handleMessage(Message inputMessage) {
             if (inputMessage.what == OPELAppCoreStub.HANDLER_UPDATE_UI) {
@@ -481,11 +457,9 @@ public class MainActivity extends Activity implements CommChannelEventListener {
                 EventLoggerActivity.updateDisplay();
 
                 //update All of the UI page
-            } else if (inputMessage.what == OPELAppCoreStub
-                    .HANDLER_UPDATE_TOAST) {
+            } else if (inputMessage.what == OPELAppCoreStub.HANDLER_UPDATE_TOAST) {
                 String toastMsg = (String) inputMessage.obj;
-                Toast.makeText(getApplicationContext(), toastMsg, Toast
-                        .LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), toastMsg, Toast.LENGTH_SHORT).show();
                 //update All of the UI page
             } else if (inputMessage.what == OPELAppCoreStub.HANDLER_MAKE_NOTI) {
                 String notiJson = (String) inputMessage.obj;
@@ -494,18 +468,15 @@ public class MainActivity extends Activity implements CommChannelEventListener {
                 makeNotification(notiJson);
 
                 //update All of the UI page
-            } else if (inputMessage.what == OPELAppCoreStub
-                    .HANDLER_UPDATE_FILEMANAGER) {
+            } else if (inputMessage.what == OPELAppCoreStub.HANDLER_UPDATE_FILEMANAGER) {
                 JSONParser jp = (JSONParser) inputMessage.obj;
                 FileManagerActivity.updateDisplay(jp);
 
             } else if (inputMessage.what == OPELAppCoreStub.HANDLER_EXE_FILE) {
                 JSONParser jp = (JSONParser) inputMessage.obj;
-                FileManagerActivity.runRequestedFile(getApplicationContext(),
-                        jp);
+                FileManagerActivity.runRequestedFile(getApplicationContext(), jp);
 
-            } else if (inputMessage.what == OPELAppCoreStub
-                    .HANDLER_SHARE_FILE) {
+            } else if (inputMessage.what == OPELAppCoreStub.HANDLER_SHARE_FILE) {
                 JSONParser jp = (JSONParser) inputMessage.obj;
                 FileManagerActivity.runSharingFile(getApplicationContext(), jp);
             }
@@ -520,8 +491,7 @@ class IconListAdapter extends ArrayAdapter<OPELApplication> {
     ArrayList<OPELApplication> data;
 
 
-    public IconListAdapter(Context context, int layoutResourceId,
-                           ArrayList<OPELApplication> data) {
+    public IconListAdapter(Context context, int layoutResourceId, ArrayList<OPELApplication> data) {
         super(context, layoutResourceId, data);
         this.layoutResourceId = layoutResourceId;
         this.context = context;

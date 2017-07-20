@@ -30,6 +30,8 @@ import java.util.Date;
 import java.util.Set;
 import java.util.UUID;
 
+import static android.content.ContentValues.TAG;
+
 /* Threads of CommChannelService
     - main thread: send messages that are coming from OPEL Manager internal to CommPort
     - listening thread: poll messages from CommPort and pass them to OPEL Manager internal
@@ -119,7 +121,7 @@ public class CommChannelService extends Service implements CommPortListener {
         if (this.mLargeDataPort != null) this.mLargeDataPort.stopListeningThread();
 
         // Finish watcher thread
-        if (this.mLargeDataPort != null) mLargeDataPortWatcher.stopToWatch();
+        if (this.mLargeDataPortWatcher != null) mLargeDataPortWatcher.stopToWatch();
 
         // Close ports
         if (this.mDefaultPort != null) this.mDefaultPort.close();
@@ -143,7 +145,7 @@ public class CommChannelService extends Service implements CommPortListener {
         if (this.mLargeDataPort != null) this.mLargeDataPort.stopListeningThread();
 
         // Finish watcher thread
-        if (this.mLargeDataPort != null) mLargeDataPortWatcher.stopToWatch();
+        if (this.mLargeDataPortWatcher != null) mLargeDataPortWatcher.stopToWatch();
 
         // Close ports
         if (this.mControlPort != null) this.mControlPort.close();
@@ -208,17 +210,20 @@ public class CommChannelService extends Service implements CommPortListener {
                 .ConnectingResultListener {
             @Override
             public void onConnectingBluetoothDeviceSuccess(BluetoothDevice bluetoothDevice) {
+                Log.d(TAG, "Connecting Bluetooth Device success");
                 openDefaultPort();
             }
 
             @Override
             public void onConnectingBluetoothDeviceFail() {
+                Log.d(TAG, "Connecting Bluetooth Device fail");
                 onFail();
             }
         }
 
         private void openDefaultPort() {
             // (Connect) Step 2. Open Port
+            Log.d(TAG, "Try opening port");
             boolean isOpeningSuccess = mDefaultPort.open();
 
             // Connect the Bluetooth device
@@ -563,7 +568,6 @@ class BluetoothDeviceController {
 
         class BluetoothConnectorResultReceiver extends ResultReceiver {
             static final String RECEIVER_KEY_FAIL_MESSAGE = "FailMessage";
-            static final String RECEIVER_KEY_BT_NAME = "BluetooothDeviceName";
             static final String RECEIVER_KEY_BT_ADDRESS = "BluetooothDeviceAddress";
 
             // Receiver from BluetoothConnectorActivity
@@ -574,25 +578,26 @@ class BluetoothDeviceController {
             @Override
             protected void onReceiveResult(int resultCode, Bundle resultData) {
                 if (resultCode == Activity.RESULT_OK) {
-                    String bluetoothName = resultData.getString(RECEIVER_KEY_BT_NAME);
                     String bluetoothAddress = resultData.getString(RECEIVER_KEY_BT_ADDRESS);
-                    if (bluetoothName != null && bluetoothAddress != null && !bluetoothName
-                            .isEmpty() && !bluetoothAddress.isEmpty()) {
+                    if (bluetoothAddress != null && !bluetoothAddress.isEmpty()) {
                         // Success
-                        onSuccess(bluetoothName, bluetoothAddress);
+                        Log.d(TAG, "Connecting success");
+                        onSuccess(bluetoothAddress);
                     } else {
                         // Fail
+                        Log.d(TAG, "Connecting fail");
                         onFail();
                     }
                 } else {
                     // Fail
+                    Log.d(TAG, "Connecting fail");
                     onFail();
                 }
             }
         }
 
-        private void onSuccess(String bluetoothName, String bluetoothAddress) {
-            BluetoothDevice bluetoothDevice = findBluetoothDevice(bluetoothName, bluetoothAddress);
+        private void onSuccess(String bluetoothAddress) {
+            BluetoothDevice bluetoothDevice = findBondedBluetoothDevice(bluetoothAddress);
 
             // State transition
             mState.transitToConnected(bluetoothDevice);
@@ -610,9 +615,8 @@ class BluetoothDeviceController {
         }
 
         // Utility functions
-        private BluetoothDevice findBluetoothDevice(String bluetoothName, String bluetoothAddress) {
-            if (bluetoothName == null || bluetoothAddress == null || bluetoothName.isEmpty() ||
-                    bluetoothAddress.isEmpty()) {
+        private BluetoothDevice findBondedBluetoothDevice(String bluetoothAddress) {
+            if (bluetoothAddress == null || bluetoothAddress.isEmpty()) {
                 return null;
             }
 
@@ -622,8 +626,7 @@ class BluetoothDeviceController {
                 for (BluetoothDevice bluetoothDevice : bluetoothDevices) {
                     String deviceName = bluetoothDevice.getName();
                     String deviceAddress = bluetoothDevice.getAddress();
-                    if (deviceName.compareTo(bluetoothName) == 0 && deviceAddress.compareTo
-                            (bluetoothAddress) == 0) {
+                    if (deviceAddress.compareTo(bluetoothAddress) == 0) {
                         return bluetoothDevice;
                     }
                 }
