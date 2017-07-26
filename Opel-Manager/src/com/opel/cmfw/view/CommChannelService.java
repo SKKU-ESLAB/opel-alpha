@@ -21,8 +21,11 @@ import android.os.ResultReceiver;
 import android.util.Log;
 
 import com.opel.cmfw.controller.BluetoothCommPort;
+import com.opel.cmfw.controller.CommPort;
 import com.opel.cmfw.controller.CommPortListener;
 import com.opel.cmfw.controller.WifiDirectCommPort;
+import com.opel.cmfw.glue.CommBroadcastReceiver;
+import com.opel.cmfw.glue.CommChannelEventListener;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
@@ -72,8 +75,10 @@ public class CommChannelService extends Service implements CommPortListener {
     private String mDownloadFilePath;
 
     static public final int STATE_DISCONNECTED = 0;
-    static public final int STATE_CONNECTED_DEFAULT = 1;
-    static public final int STATE_CONNECTED_LARGEDATA = 2;
+    static public final int STATE_CONNECTING_DEFAULT = 1;
+    static public final int STATE_CONNECTED_DEFAULT = 2;
+    static public final int STATE_CONNECTING_LARGE_DATA = 3;
+    static public final int STATE_CONNECTED_LARGE_DATA = 4;
 
     static private String DEFAULT_PORT_BLUETOOTH_UUID = "0a1b2c3d-4e5f-6a1c-2d0e-1f2a3b4c5d6d";
     static private String CONTROL_PORT_BLUETOOTH_UUID = "0a1b2c3d-4e5f-6a1c-2d0e-1f2a3b4c5d6e";
@@ -86,16 +91,13 @@ public class CommChannelService extends Service implements CommPortListener {
         this.mEnableLargeDataModeProcedure = new EnableLargeDataModeProcedure();
     }
 
-    public boolean isChannelConnected() {
-        return this.isChannelConnectedDefault() || this.isChannelConnectedLargeData();
+    public boolean isDefaultPortAvailable() {
+        return this.mState.get() == STATE_CONNECTED_DEFAULT || this.mState.get() ==
+                STATE_CONNECTING_LARGE_DATA || this.mState.get() == STATE_CONNECTED_LARGE_DATA;
     }
 
-    public boolean isChannelConnectedDefault() {
-        return this.mState.get() == STATE_CONNECTED_DEFAULT;
-    }
-
-    public boolean isChannelConnectedLargeData() {
-        return this.mState.get() == STATE_CONNECTED_LARGEDATA;
+    public boolean isLargeDataPortAvailable() {
+        return this.mState.get() == STATE_CONNECTED_LARGE_DATA;
     }
 
     public boolean isBluetoothDeviceConnected() {
@@ -111,6 +113,10 @@ public class CommChannelService extends Service implements CommPortListener {
     }
 
     public void connectChannel() {
+        // CommChannel State: transit to ConnectingDefault
+        this.mState.transitToConnectingDefault();
+
+        // Start to connect channel
         this.mConnectChannelProcedure.start();
     }
 
@@ -132,10 +138,14 @@ public class CommChannelService extends Service implements CommPortListener {
         if (this.mBluetoothDeviceController != null) this.mBluetoothDeviceController.disconnect();
         if (this.mWifiDirectDeviceController != null) this.mWifiDirectDeviceController.disconnect();
 
+        // CommChannel State: transit to Disconnected
         this.mState.transitToDisconnected();
     }
 
     public void enableLargeDataMode() {
+        // CommChannel State: transit to ConnectingLargeData
+        this.mState.transitToConnectingLargeData();
+
         this.mEnableLargeDataModeProcedure.start();
     }
 
@@ -153,6 +163,9 @@ public class CommChannelService extends Service implements CommPortListener {
 
         // Disconnect device
         if (this.mWifiDirectDeviceController != null) this.mWifiDirectDeviceController.disconnect();
+
+        // CommChannel State: transit to ConnectedDefault
+        this.mState.transitToConnectedDefault();
     }
 
     // On received raw message (via default or largedata port)
@@ -167,18 +180,26 @@ public class CommChannelService extends Service implements CommPortListener {
         }
     }
 
+    @Override
+    public void onSuddenlyClosed(CommPort port) {
+        if (port == this.mLargeDataPort) {
+            this.disableLargeDataMode();
+        } else if (port == this.mDefaultPort) {
+            this.disconnectChannel();
+        }
+    }
+
     public void sendRawMessage(String messageData) {
         this.sendRawMessage(messageData, null);
     }
 
     // Send raw message (via default or largedata port)
     public void sendRawMessage(String messageData, File file) {
-        if (!this.isBluetoothDeviceConnected() || !this.isChannelConnected()) {
-            this.disconnectChannel();
+        if (!this.isBluetoothDeviceConnected() || !this.isDefaultPortAvailable()) {
             return;
         }
 
-        if (this.isChannelConnectedLargeData()) {
+        if (this.isLargeDataPortAvailable()) {
             int res;
             res = this.mLargeDataPort.sendRawMessage(messageData.getBytes(), messageData.getBytes
                     ().length, file);
@@ -201,6 +222,7 @@ public class CommChannelService extends Service implements CommPortListener {
         private ConnectingResultListener mConnectingResultListener = null;
 
         public void start() {
+            // TODO: storing connection information and auto-connection
             // (Connect) Step 1. Connect Bluetooth Device
             this.mConnectingResultListener = new ConnectingResultListener();
             mBluetoothDeviceController.connect(this.mConnectingResultListener);
@@ -211,6 +233,8 @@ public class CommChannelService extends Service implements CommPortListener {
             @Override
             public void onConnectingBluetoothDeviceSuccess(BluetoothDevice bluetoothDevice) {
                 Log.d(TAG, "Connecting Bluetooth Device success");
+                mDefaultPort.setBluetoothDevice(bluetoothDevice);
+                mControlPort.setBluetoothDevice(bluetoothDevice);
                 openDefaultPort();
             }
 
@@ -223,7 +247,6 @@ public class CommChannelService extends Service implements CommPortListener {
 
         private void openDefaultPort() {
             // (Connect) Step 2. Open Port
-            Log.d(TAG, "Try opening port");
             boolean isOpeningSuccess = mDefaultPort.open();
 
             // Connect the Bluetooth device
@@ -238,7 +261,7 @@ public class CommChannelService extends Service implements CommPortListener {
             // Start listening thread
             if (mDefaultPort != null) mDefaultPort.runListeningThread(self, mDownloadFilePath);
 
-            // Handle Channel connection
+            // CommChannel State: transit to ConnectedDefault
             mState.transitToConnectedDefault();
         }
 
@@ -269,7 +292,7 @@ public class CommChannelService extends Service implements CommPortListener {
         }
 
         private void sendRawMessageOnControl(String messageData, File file) {
-            if (!isBluetoothDeviceConnected() || !isChannelConnected()) {
+            if (!isBluetoothDeviceConnected() || !isDefaultPortAvailable()) {
                 onFail();
                 return;
             }
@@ -296,6 +319,12 @@ public class CommChannelService extends Service implements CommPortListener {
                     e.printStackTrace();
                     onFail();
                 }
+            }
+
+            @Override
+            public void onSuddenlyClosed(CommPort port) {
+                Log.e(TAG, "Control port is suddenly closed");
+                onFail();
             }
         }
 
@@ -344,8 +373,8 @@ public class CommChannelService extends Service implements CommPortListener {
             mLargeDataPortWatcher = new LargeDataPortWatcher();
             mLargeDataPortWatcher.startToWatch();
 
-            // Handle Channel connection
-            mState.transitToConnectedLargedata();
+            // CommChannel State: transit to ConnectedLargeData
+            mState.transitToConnectedLargeData();
         }
 
         private void onFail() {
@@ -406,31 +435,44 @@ public class CommChannelService extends Service implements CommPortListener {
         private DeviceControllerListener mDeviceControllerListener;
         private int mState = STATE_DISCONNECTED;
 
-        public void transitToConnectedDefault() {
-            this.mState = STATE_CONNECTED_DEFAULT;
+        private void transitTo(int newState) {
+            int prevState = this.mState;
+            this.mState = newState;
 
-            // Start to watch Bluetooth & Wi-fi Direct device's status
-            this.startToWatchDeviceState();
-
-            // Broadcast CommChannel default connection event via CommBroadcaster
-            CommBroadcaster.onCommChannelState(self, this.mState);
-        }
-
-        public void transitToConnectedLargedata() {
-            this.mState = STATE_CONNECTED_LARGEDATA;
-
-            // Broadcast CommChannel largedata connection event via CommBroadcaster
-            CommBroadcaster.onCommChannelState(self, this.mState);
+            // Broadcast CommChannel disconnection event via CommBroadcaster
+            if (prevState != newState)
+                CommBroadcaster.onCommChannelStateChanged(self, prevState, newState);
         }
 
         public void transitToDisconnected() {
-            this.mState = STATE_DISCONNECTED;
+            // Transit to new state
+            this.transitTo(STATE_DISCONNECTED);
 
             // Stop to watch Bluetooth & Wi-fi Direct device's status
             this.stopToWatchDeviceState();
+        }
 
-            // Broadcast CommChannel disconnection event via CommBroadcaster
-            CommBroadcaster.onCommChannelState(self, this.mState);
+        public void transitToConnectingDefault() {
+            // Transit to new state
+            this.transitTo(STATE_CONNECTING_DEFAULT);
+        }
+
+        public void transitToConnectedDefault() {
+            // Transit to new state
+            this.transitTo(STATE_CONNECTED_DEFAULT);
+
+            // Start to watch Bluetooth & Wi-fi Direct device's status
+            this.startToWatchDeviceState();
+        }
+
+        public void transitToConnectingLargeData() {
+            // Transit to new state
+            this.transitTo(STATE_CONNECTING_LARGE_DATA);
+        }
+
+        public void transitToConnectedLargeData() {
+            // Transit to new state
+            this.transitTo(STATE_CONNECTED_LARGE_DATA);
         }
 
         private void startToWatchDeviceState() {
@@ -442,28 +484,33 @@ public class CommChannelService extends Service implements CommPortListener {
         }
 
         private void stopToWatchDeviceState() {
-            if (this.mCommBroadcastReceiver != null)
+            if (this.mCommBroadcastReceiver != null) {
                 self.unregisterReceiver(this.mCommBroadcastReceiver);
+                this.mCommBroadcastReceiver = null;
+            }
         }
 
         class DeviceControllerListener implements CommChannelEventListener {
+            // TODO: WFD or BT StateListener should be separated from CommChannelEventListener
             @Override
             public void onWifiDirectDeviceStateChanged(boolean isConnected) {
                 if (!isConnected) {
-                    if (mState == STATE_CONNECTED_LARGEDATA) transitToConnectedDefault();
+                    if (mState == STATE_CONNECTED_LARGE_DATA || mState ==
+                            STATE_CONNECTING_LARGE_DATA)
+                        transitToConnectedDefault();
                 }
             }
 
             @Override
             public void onBluetoothDeviceStateChanged(boolean isConnected) {
                 if (!isConnected) {
-                    if (mState == STATE_CONNECTED_DEFAULT || mState == STATE_CONNECTED_LARGEDATA)
+                    if (mState == STATE_CONNECTED_DEFAULT || mState == STATE_CONNECTED_LARGE_DATA)
                         transitToDisconnected();
                 }
             }
 
             @Override
-            public void onCommChannelStateChanged(int commChannelState) {
+            public void onCommChannelStateChanged(int prevState, int newState) {
                 // not used
             }
 
@@ -487,9 +534,11 @@ public class CommChannelService extends Service implements CommPortListener {
         this.mWifiDirectDeviceController = new WifiDirectDeviceController(this);
 
         // Initialize ports
-        this.mDefaultPort = new BluetoothCommPort(UUID.fromString(DEFAULT_PORT_BLUETOOTH_UUID));
-        this.mControlPort = new BluetoothCommPort(UUID.fromString(CONTROL_PORT_BLUETOOTH_UUID));
-        this.mLargeDataPort = new WifiDirectCommPort(LARGEDATA_PORT_TCP_PORT);
+        this.mDefaultPort = new BluetoothCommPort("DefaultPort", UUID.fromString
+                (DEFAULT_PORT_BLUETOOTH_UUID));
+        this.mControlPort = new BluetoothCommPort("ControlPort", UUID.fromString
+                (CONTROL_PORT_BLUETOOTH_UUID));
+        this.mLargeDataPort = new WifiDirectCommPort("LargeDataPort", LARGEDATA_PORT_TCP_PORT);
     }
 
     @Override
@@ -673,8 +722,10 @@ class BluetoothDeviceController {
         }
 
         private void stopToWatchDeviceState() {
-            if (this.mBluetoothDeviceStatusReceiver != null)
+            if (this.mBluetoothDeviceStatusReceiver != null) {
                 mService.unregisterReceiver(this.mBluetoothDeviceStatusReceiver);
+                this.mBluetoothDeviceStatusReceiver = null;
+            }
         }
 
         // Receive Bluetooth device disconnection event from Android Bluetooth framework
@@ -892,8 +943,10 @@ class WifiDirectDeviceController {
         }
 
         private void stopToWatchDeviceState() {
-            if (this.mWifiDirectDeviceStatusReceiver != null)
+            if (this.mWifiDirectDeviceStatusReceiver != null) {
                 mService.unregisterReceiver(this.mWifiDirectDeviceStatusReceiver);
+                this.mWifiDirectDeviceStatusReceiver = null;
+            }
         }
 
         // Receive Wi-fi direct device disconnection event from Android Bluetooth framework

@@ -3,15 +3,18 @@ package com.opel.cmfw.view;
 import android.app.Service;
 import android.content.Intent;
 
+import com.opel.cmfw.glue.CommBroadcastReceiver;
+
 public class CommBroadcaster {
-    public static void onCommChannelState(Service service, int
-            commChannelState) {
+    public static void onCommChannelStateChanged(Service service, int prevState, int newState) {
         Intent broadcastIntent = new Intent();
         broadcastIntent.setAction(CommBroadcastReceiver.ACTION);
         broadcastIntent.putExtra(CommBroadcastReceiver.KEY_EVENT_TYPE,
                 CommBroadcastReceiver.EVENT_TYPE_ON_COMM_CHANNEL_STATE_CHANGED);
-        broadcastIntent.putExtra(CommBroadcastReceiver.KEY_COMM_CHANNEL_STATE,
-                commChannelState);
+        broadcastIntent.putExtra(CommBroadcastReceiver.KEY_COMM_CHANNEL_PREV_STATE,
+                prevState);
+        broadcastIntent.putExtra(CommBroadcastReceiver.KEY_COMM_CHANNEL_NEW_STATE,
+                newState);
         service.sendBroadcast(broadcastIntent);
     }
 
@@ -39,7 +42,6 @@ public class CommBroadcaster {
 
     public static void onReceivedRawMessage(Service service,
                                             String message, String filePath) {
-        // TODO: add file
         Intent broadcastIntent = new Intent();
         broadcastIntent.setAction(CommBroadcastReceiver.ACTION);
         broadcastIntent.putExtra(CommBroadcastReceiver.KEY_EVENT_TYPE,

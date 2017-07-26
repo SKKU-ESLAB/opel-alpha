@@ -17,7 +17,8 @@ public class WifiDirectCommPort extends CommPort {
 
     private int mTcpPortNum;
 
-    public WifiDirectCommPort(int tcpPortNum) {
+    public WifiDirectCommPort(String portName, int tcpPortNum) {
+        super(portName);
         this.mTcpPortNum = tcpPortNum;
     }
 

@@ -14,10 +14,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
-import java.util.LinkedList;
 
 abstract public class CommPort {
     static private String TAG = "CommPort";
+    protected String mPortName;
+
     private byte mPresentHeaderId = 0;
 
     private ListeningThread mListeningThread;
@@ -25,6 +26,10 @@ abstract public class CommPort {
     private CommPortListener mListener;
 
     private String mDownloadFilePath;
+
+    public CommPort(String portName) {
+        this.mPortName = portName;
+    }
 
     abstract public boolean isOpened();
 
@@ -55,8 +60,14 @@ abstract public class CommPort {
         }
     }
 
+    private void suddenlyClose(String reasonMessage) {
+        Log.e(TAG, "[" + this.mPortName + "] Suddenly closed: " + reasonMessage);
+        this.close();
+
+        this.mListener.onSuddenlyClosed(this);
+    }
+
     public void listenRawMessage() {
-        Log.d(TAG, "listenRawMessage");
         InputStream inputStream = this.getInputStream();
         if (inputStream == null) return;
         DataInputStream dataInputStream = new DataInputStream(inputStream);
@@ -99,9 +110,13 @@ abstract public class CommPort {
                         if (!header.getFlagIsData()) return; // not expected
                         CommDataPayload messageData = CommDataPayload.read(dataInputStream,
                                 header.getPayloadSize());
-
-                        System.arraycopy(messageData.toByteArray(), 0,
-                                totalMessageData, loadedBytesSize, messageData.getBytesSize());
+                        byte[] messageDataBytes = messageData.toByteArray();
+                        if (messageDataBytes == null) {
+                            this.suddenlyClose("sendRawMessage: Failed to make message data " +
+                                    "packet");
+                        }
+                        System.arraycopy(messageDataBytes, 0, totalMessageData, loadedBytesSize,
+                                messageData.getBytesSize());
                         loadedBytesSize += messageData.getBytesSize();
                         if (header.getFlagIsEndData()) {
                             if (messageMetadata.getIsFileAttached() != 0) {
@@ -126,10 +141,11 @@ abstract public class CommPort {
                         File fileToWrite = new File(this.mDownloadFilePath, fileName);
                         bufferedOutputStream = null;
                         try {
-                            bufferedOutputStream = new BufferedOutputStream(
-                                    new FileOutputStream(fileToWrite));
+                            bufferedOutputStream = new BufferedOutputStream(new FileOutputStream
+                                    (fileToWrite));
                         } catch (IOException e) {
-                            e.printStackTrace();
+                            this.suddenlyClose("listenRawMessage: Failed to get stream for " +
+                                    "downloading attached file");
                             return;
                         }
 
@@ -140,12 +156,15 @@ abstract public class CommPort {
                     case kFileData:
                         // File data is expected
                         if (!header.getFlagIsFile()) return; // not expected
-                        CommDataPayload fileData = CommDataPayload.read(dataInputStream,
-                                header.getPayloadSize());
+                        CommDataPayload fileData = CommDataPayload.read(dataInputStream, header
+                                .getPayloadSize());
 
                         // Write to white
-                        bufferedOutputStream.write(fileData.toByteArray(),
-                                0, fileData.getBytesSize());
+                        byte[] fileDataBytes = fileData.toByteArray();
+                        if (fileDataBytes == null) {
+                            this.suddenlyClose("sendRawMessage: Failed to make file data packet");
+                        }
+                        bufferedOutputStream.write(fileDataBytes, 0, fileData.getBytesSize());
 
                         // Expect next packet
                         if (header.getFlagIsEndData()) {
@@ -158,20 +177,19 @@ abstract public class CommPort {
                         break;
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                this.suddenlyClose("listenRawMessage: I/O exception");
                 return;
             }
 
             if (isMessageCompleted) {
                 // Notify the message
                 if (fileMetadata != null)
-                    this.mListener.onReceivingRawMessage(totalMessageData,
-                            messageMetadata.getMessageDataLength(),
-                            String.copyValueOf(fileMetadata.getSrcFileName()));
+                    this.mListener.onReceivingRawMessage(totalMessageData, messageMetadata
+                            .getMessageDataLength(), String.copyValueOf(fileMetadata
+                            .getSrcFileName()));
                 else
-                    this.mListener.onReceivingRawMessage(totalMessageData,
-                            messageMetadata.getMessageDataLength(),
-                            null);
+                    this.mListener.onReceivingRawMessage(totalMessageData, messageMetadata
+                            .getMessageDataLength(), null);
 
                 // Initialize variables
                 expectedPacketType = kMessageMetadata;
@@ -184,8 +202,7 @@ abstract public class CommPort {
     }
 
     public int sendRawMessage(byte[] dataBytes, int messageDataLength, File file) {
-        if (!this.isOpened())
-            return -1;
+        if (!this.isOpened()) return -1;
 
         // Get DataOutputStream
         OutputStream outputStream = this.getOutputStream();
@@ -196,17 +213,17 @@ abstract public class CommPort {
         {
             // Send message metadata
             this.mPresentHeaderId++;
-            CommRawPacket messageMetadataPacket = CommRawPacket.makeMessageMetadataPacket(
-                    this.mPresentHeaderId, messageDataLength,
-                    (file != null));
+            CommRawPacket messageMetadataPacket = CommRawPacket.makeMessageMetadataPacket(this
+                    .mPresentHeaderId, messageDataLength, (file != null));
             byte[] messageMetadataBytes = messageMetadataPacket.toByteArray();
+            if (messageMetadataBytes == null) {
+                this.suddenlyClose("sendRawMessage: Failed to make message metadata packet");
+            }
             try {
-                dataOutputStream.write(messageMetadataBytes, 0,
-                        messageMetadataPacket.getBytesSize());
+                dataOutputStream.write(messageMetadataBytes, 0, messageMetadataPacket
+                        .getBytesSize());
             } catch (Exception e) {
-                e.printStackTrace();
-                Log.d(TAG, "Header write failed");
-                this.close();
+                this.suddenlyClose("sendRawMessage: Header write failed");
                 return -1;
             }
 
@@ -229,20 +246,21 @@ abstract public class CommPort {
                 byte[] messageDataPayloadBytes = new byte[messageDataPayloadSize];
                 System.arraycopy(dataBytes, sentBytes, messageDataPayloadBytes, 0,
                         messageDataPayloadSize);
-                messageDataPacket = CommRawPacket.makeDataPacket(
-                        this.mPresentHeaderId, messageDataPayloadBytes, sentBytes,
-                        messageDataPayloadSize, isEnd, false);
-                Log.d(TAG, "sendRawMessage(message): mPayloadSize = " + messageDataPayloadSize);
+                messageDataPacket = CommRawPacket.makeDataPacket(this.mPresentHeaderId,
+                        messageDataPayloadBytes, sentBytes, messageDataPayloadSize, isEnd, false);
+                Log.d(TAG, "[" + this.mPortName + "] sendRawMessage(message): mPayloadSize = " +
+                        messageDataPayloadSize);
 
                 // Send
                 byte[] messageDataPacketBytes = messageDataPacket.toByteArray();
+                if (messageDataPacketBytes == null) {
+                    this.suddenlyClose("sendRawMessage: Failed to make message data packet");
+                }
                 try {
-                    dataOutputStream.write(
-                            messageDataPacketBytes, 0, messageDataPacket.getBytesSize());
+                    dataOutputStream.write(messageDataPacketBytes, 0, messageDataPacket
+                            .getBytesSize());
                 } catch (Exception e) {
-                    e.printStackTrace();
-                    Log.d(TAG, "Header write failed");
-                    this.close();
+                    this.suddenlyClose("sendRawMessage: Header write failed");
                     return -1;
                 }
                 sentBytes += messageDataPayloadSize;
@@ -252,15 +270,16 @@ abstract public class CommPort {
         // If file is attached, send file metadata and file data
         if (file != null) {
             // Send file metadata
-            CommRawPacket fileMetadataPacket = CommRawPacket.makeFileMetadataPacket(
-                    this.mPresentHeaderId, file);
+            CommRawPacket fileMetadataPacket = CommRawPacket.makeFileMetadataPacket(this
+                    .mPresentHeaderId, file);
             byte[] fileMetadataBytes = fileMetadataPacket.toByteArray();
+            if (fileMetadataBytes == null) {
+                this.suddenlyClose("sendRawMessage: Failed to make file metadata packet");
+            }
             try {
                 dataOutputStream.write(fileMetadataBytes, 0, fileMetadataPacket.getBytesSize());
             } catch (Exception e) {
-                e.printStackTrace();
-                Log.d(TAG, "Header write failed");
-                this.close();
+                this.suddenlyClose("sendRawMessage: Header write failed");
                 return -1;
             }
 
@@ -271,7 +290,8 @@ abstract public class CommPort {
             try {
                 bufferedInputStream = new BufferedInputStream(new FileInputStream(file));
             } catch (IOException e) {
-                e.printStackTrace();
+                this.suddenlyClose("sendRawMessage: failed to get stream for reading file to be "
+                        + "attached");
                 return -1;
             }
             while (sentBytes < fileDataLength) {
@@ -290,29 +310,30 @@ abstract public class CommPort {
                 }
                 byte[] fileDataPayloadBytes = new byte[fileDataPayloadSize];
                 try {
-                    int readSize = bufferedInputStream.read(
-                            fileDataPayloadBytes, sentBytes, fileDataPayloadSize);
+                    int readSize = bufferedInputStream.read(fileDataPayloadBytes, sentBytes,
+                            fileDataPayloadSize);
                     if (readSize <= 0) break;
                 } catch (IOException e) {
-                    e.printStackTrace();
-                    if (sentBytes < fileDataLength)
+                    if (sentBytes < fileDataLength) {
+                        this.suddenlyClose("sendRawMessage: I/O exception during reading file");
                         return -1;
-                    else
-                        break;
+                    } else break;
                 }
-                fileDataPacket = CommRawPacket.makeDataPacket(
-                        this.mPresentHeaderId, fileDataPayloadBytes, sentBytes,
-                        CommRawPacketHeader.kMaxPacketPayloadSize, isEnd, true);
-                Log.d(TAG, "sendRawMessage(file): mPayloadSize = " + fileDataPayloadSize);
+                fileDataPacket = CommRawPacket.makeDataPacket(this.mPresentHeaderId,
+                        fileDataPayloadBytes, sentBytes, CommRawPacketHeader
+                                .kMaxPacketPayloadSize, isEnd, true);
+                Log.d(TAG, "[" + this.mPortName + "] sendRawMessage(file): mPayloadSize = " +
+                        fileDataPayloadSize);
 
                 // Send
                 byte[] fileDataPacketBytes = fileDataPacket.toByteArray();
+                if (fileDataPacketBytes == null) {
+                    this.suddenlyClose("sendRawMessage: Failed to make file data packet");
+                }
                 try {
                     dataOutputStream.write(fileDataPacketBytes, 0, fileDataPacket.getBytesSize());
                 } catch (Exception e) {
-                    e.printStackTrace();
-                    Log.d(TAG, "Header write failed");
-                    this.close();
+                    this.suddenlyClose("sendRawMessage: Header write failed");
                     return -1;
                 }
                 sentBytes += fileDataPayloadSize;
@@ -334,26 +355,25 @@ class CommRawPacket {
     static public CommRawPacket makeMessageMetadataPacket(byte headerId, int totalDataSize,
                                                           boolean isFileAttached) {
         CommMessageMetadata payload = new CommMessageMetadata(totalDataSize, isFileAttached);
-        CommRawPacketHeader header = new CommRawPacketHeader(
-                headerId, payload.getBytesSize(), 0, false, false, false, true);
+        CommRawPacketHeader header = new CommRawPacketHeader(headerId, payload.getBytesSize(), 0,
+                false, false, false, true);
 
         return new CommRawPacket(header, payload);
     }
 
     static public CommRawPacket makeFileMetadataPacket(byte headerId, File srcFile) {
-        CommFileMetadata payload = new CommFileMetadata((int) srcFile.length(),
-                (char) srcFile.getName().length(), srcFile.getName().toCharArray());
-        CommRawPacketHeader header = new CommRawPacketHeader(
-                headerId, payload.getBytesSize(), 0, false, false, false, true);
+        CommFileMetadata payload = new CommFileMetadata((int) srcFile.length(), (char) srcFile
+                .getName().length(), srcFile.getName().toCharArray());
+        CommRawPacketHeader header = new CommRawPacketHeader(headerId, payload.getBytesSize(), 0,
+                false, false, false, true);
         return new CommRawPacket(header, payload);
     }
 
-    static public CommRawPacket makeDataPacket(byte headerId,
-                                               byte[] data, int currOffset, short size,
-                                               boolean isEnd, boolean isFile) {
+    static public CommRawPacket makeDataPacket(byte headerId, byte[] data, int currOffset, short
+            size, boolean isEnd, boolean isFile) {
         CommDataPayload payload = new CommDataPayload(data, size);
-        CommRawPacketHeader header = new CommRawPacketHeader(
-                headerId, (byte) payload.getBytesSize(), currOffset, isFile, !isFile, isEnd, false);
+        CommRawPacketHeader header = new CommRawPacketHeader(headerId, (byte) payload
+                .getBytesSize(), currOffset, isFile, !isFile, isEnd, false);
 
         return new CommRawPacket(header, payload);
     }
@@ -367,16 +387,13 @@ class CommRawPacket {
         // Payload header
         headerBytes = this.mRawPacketHeader.toByteArray();
         if (headerBytes == null) return null;
-        System.arraycopy(headerBytes, 0,
-                resBytes, 0,
-                this.mRawPacketHeader.getBytesSize());
+        System.arraycopy(headerBytes, 0, resBytes, 0, this.mRawPacketHeader.getBytesSize());
 
         // Payload
         payloadBytes = this.mRawPacketPayload.toByteArray();
         if (headerBytes == null) return null;
-        System.arraycopy(payloadBytes, 0,
-                resBytes, this.mRawPacketHeader.getBytesSize(),
-                this.mRawPacketPayload.getBytesSize());
+        System.arraycopy(payloadBytes, 0, resBytes, this.mRawPacketHeader.getBytesSize(), this
+                .mRawPacketPayload.getBytesSize());
 
         return resBytes;
     }
@@ -397,9 +414,8 @@ class CommRawPacketHeader {
     private short mPayloadSize;
     private int mCurrOffset;
 
-    public CommRawPacketHeader(byte headerId, short payloadSize, int currOffset,
-                               boolean isFile, boolean isData, boolean isEndData,
-                               boolean isMetadata) {
+    public CommRawPacketHeader(byte headerId, short payloadSize, int currOffset, boolean isFile,
+                               boolean isData, boolean isEndData, boolean isMetadata) {
         byte headerFlag = 0x00;
 
         //0x80 : file, 0x40 : data, 0x20 : end data, 0x10 : metadata
@@ -414,8 +430,7 @@ class CommRawPacketHeader {
         this.mCurrOffset = currOffset;
     }
 
-    public CommRawPacketHeader(byte headerId, short payloadSize, int currOffset,
-                               byte headerFlag) {
+    public CommRawPacketHeader(byte headerId, short payloadSize, int currOffset, byte headerFlag) {
         this.mHeaderId = headerId;
         this.mHeaderFlag = headerFlag;
         this.mPayloadSize = payloadSize;
@@ -525,6 +540,7 @@ class CommMessageMetadata extends CommRawPacketPayload {
 }
 
 class CommFileMetadata extends CommRawPacketPayload {
+    // TODO: (on OPEL device side) shrink fields
     private int mFileSize;
     private char mFileNameLength;
     private char mFileName[];
@@ -590,8 +606,8 @@ class CommDataPayload extends CommRawPacketPayload {
         return this.mData;
     }
 
-    public static CommDataPayload read(DataInputStream dataInputStream, short dataSize)
-            throws IOException {
+    public static CommDataPayload read(DataInputStream dataInputStream, short dataSize) throws
+            IOException {
         byte[] data = new byte[dataSize];
         dataInputStream.readFully(data, 0, dataSize);
         CommDataPayload dataPayload = new CommDataPayload(data, dataSize);

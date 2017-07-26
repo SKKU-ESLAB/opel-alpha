@@ -21,7 +21,8 @@ public class BluetoothCommPort extends CommPort {
     private boolean mIsOpened = false;
     private BluetoothDevice mBluetoothDevice = null;
 
-    public BluetoothCommPort(UUID uuid) {
+    public BluetoothCommPort(String portName, UUID uuid) {
+        super(portName);
         this.mUUID = uuid;
     }
 
@@ -35,25 +36,29 @@ public class BluetoothCommPort extends CommPort {
 
     public boolean open() {
         boolean isSucceed = false;
-        if (this.isOpened())
-            return true;
+        if (this.isOpened()) return true;
 
-        if(this.mBluetoothDevice == null)
+        if (this.mBluetoothDevice == null) {
+            Log.w(TAG, "There is no bluetooth device!");
             return false;
+        }
 
         // RedCarrottt: Fix Bluetooth connection failure bug (Issue #103)
         BluetoothSocketWrapper newBluetoothSocket = null;
         try {
-            BluetoothSocket rawBtSocket = this.mBluetoothDevice
-                    .createRfcommSocketToServiceRecord(mUUID);
-            newBluetoothSocket = new NativeBluetoothSocket
-                    (rawBtSocket);
+            Log.d(TAG, "Before createRfcommSocketToServiceRecord");
+            BluetoothSocket rawBtSocket = this.mBluetoothDevice.createRfcommSocketToServiceRecord
+                    (mUUID);
+            Log.d(TAG, "After createRfcommSocketToServiceRecord");
+            newBluetoothSocket = new NativeBluetoothSocket(rawBtSocket);
+            Log.d(TAG, "After new NativeBluetoothSocket");
             newBluetoothSocket.connect();
+            Log.d(TAG, "After connect");
             isSucceed = true;
         } catch (IOException e) {
             try {
-                newBluetoothSocket = new FallbackBluetoothSocket
-                        (newBluetoothSocket.getUnderlyingSocket());
+                newBluetoothSocket = new FallbackBluetoothSocket(newBluetoothSocket
+                        .getUnderlyingSocket());
                 Thread.sleep(500);
                 newBluetoothSocket.connect();
                 isSucceed = true;
@@ -76,8 +81,12 @@ public class BluetoothCommPort extends CommPort {
             newBluetoothSocket = null;
         }
 
-        if (newBluetoothSocket == null) isSucceed = false;
-        else this.mBluetoothSocket = newBluetoothSocket.getUnderlyingSocket();
+        if (newBluetoothSocket == null) {
+            isSucceed = false;
+            Log.w(TAG, "Cannot get BluetoothSocket");
+        } else {
+            this.mBluetoothSocket = newBluetoothSocket.getUnderlyingSocket();
+        }
 
         if (isSucceed) this.mIsOpened = true;
         return isSucceed;

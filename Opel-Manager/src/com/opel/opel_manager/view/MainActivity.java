@@ -33,8 +33,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.opel.cmfw.view.CommBroadcastReceiver;
-import com.opel.cmfw.view.CommChannelEventListener;
+import com.opel.cmfw.glue.CommBroadcastReceiver;
+import com.opel.cmfw.glue.CommChannelEventListener;
 import com.opel.cmfw.view.CommChannelService;
 import com.opel.opel_manager.R;
 import com.opel.opel_manager.controller.JSONParser;
@@ -48,6 +48,7 @@ import java.util.ArrayList;
 import static com.opel.opel_manager.controller.OPELContext.getAppList;
 
 public class MainActivity extends Activity implements CommChannelEventListener {
+    private static final String TAG = "MainActivity";
     // RPC on CommChannelService
     private CommChannelService mCommChannelService = null;
     private CommBroadcastReceiver mCommBroadcastReceiver;
@@ -59,6 +60,9 @@ public class MainActivity extends Activity implements CommChannelEventListener {
 
     // Wi-fi Direct
     private boolean mIsWaitingWifiDirectOnForCamera = false;
+
+    private PortIndicator mDefaultPortIndicator;
+    private PortIndicator mLargeDataPortIndicator;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -128,13 +132,18 @@ public class MainActivity extends Activity implements CommChannelEventListener {
 
     private void initializeUIContents() {
         //Create IconListAdapter
-        mIconGridView = (GridView) findViewById(R.id.iconGridView);
+        this.mIconGridView = (GridView) findViewById(R.id.iconGridView);
         OPELAppList list = getAppList();
-        mIconListAdapter = new IconListAdapter(this, R.layout.template_gridview_icon_main, list
-                .getList());
-        mIconGridView.setAdapter(mIconListAdapter);
-        mIconGridView.setOnItemClickListener(mItemClickListener);
-        mIconGridView.setOnItemLongClickListener(mItemLongClickListener);
+        this.mIconListAdapter = new IconListAdapter(this, R.layout.template_gridview_icon_main,
+                list.getList());
+        this.mIconGridView.setAdapter(mIconListAdapter);
+        this.mIconGridView.setOnItemClickListener(mItemClickListener);
+        this.mIconGridView.setOnItemLongClickListener(mItemLongClickListener);
+
+        this.mDefaultPortIndicator = new PortIndicator(R.id.indicatorBT, R.drawable
+                .bluetooth_disabled, R.drawable.bluetooth);
+        this.mLargeDataPortIndicator = new PortIndicator(R.id.indicatorWFD, R.drawable
+                .wifidirect_disabled, R.drawable.wifidirect);
     }
 
     private void initializeCommunication() {
@@ -150,18 +159,20 @@ public class MainActivity extends Activity implements CommChannelEventListener {
                     inputBinder;
             mCommChannelService = serviceBinder.getService();
 
-            OPELContext.getAppCore().setCommService(mCommChannelService);
-            mCommChannelService.connectChannel(); // RPC to CommChannelService
-
             // Set CommBroadcastReceiver and CommChannelEventListener
             IntentFilter broadcastIntentFilter = new IntentFilter();
             broadcastIntentFilter.addAction(CommBroadcastReceiver.ACTION);
             mCommBroadcastReceiver = new CommBroadcastReceiver(self);
             registerReceiver(mCommBroadcastReceiver, broadcastIntentFilter);
+
+            // Request to connect channel
+            OPELContext.getAppCore().setCommService(mCommChannelService);
+            mCommChannelService.connectChannel(); // RPC to CommChannelService
         }
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
+            unregisterReceiver(mCommBroadcastReceiver);
             mCommChannelService = null;
         }
     };
@@ -211,16 +222,93 @@ public class MainActivity extends Activity implements CommChannelEventListener {
         }
     };
 
-    private void setIndicatorBT(boolean isOn) {
-        ImageView imageView = (ImageView) this.findViewById(R.id.indicatorBT);
-        if (isOn == true) imageView.setImageResource(R.drawable.bluetooth);
-        else imageView.setImageResource(R.drawable.bluetooth_disabled);
-    }
+    class PortIndicator {
+        public static final int STATE_DISCONNECTED = 0;
+        public static final int STATE_CONNECTING = 1;
+        public static final int STATE_CONNECTED = 2;
 
-    private void setIndicatorWFD(boolean isOn) {
-        ImageView imageView = (ImageView) this.findViewById(R.id.indicatorWFD);
-        if (isOn == true) imageView.setImageResource(R.drawable.wifidirect);
-        else imageView.setImageResource(R.drawable.wifidirect_disabled);
+        private ImageView mIndicatorImageView;
+        private ConnectingAnimationThread mConnectingAnimationThread;
+        private int mState;
+        private int mDisconnectedResourceId;
+        private int mConnectedResourceId;
+
+        public PortIndicator(int indicatorImageViewId, int disconnectedResourceId, int
+                connectedResourceId) {
+            this.mIndicatorImageView = (ImageView) findViewById(indicatorImageViewId);
+            this.mState = STATE_DISCONNECTED;
+            this.mDisconnectedResourceId = disconnectedResourceId;
+            this.mConnectedResourceId = connectedResourceId;
+            this.mConnectingAnimationThread = new ConnectingAnimationThread();
+        }
+
+        public int getState() {
+            return this.mState;
+        }
+
+        public void setDisconnected() {
+            this.mState = STATE_DISCONNECTED;
+            this.mConnectingAnimationThread.disable();
+            this.mIndicatorImageView.setImageResource(mDisconnectedResourceId);
+        }
+
+        public void setConnecting() {
+            this.mState = STATE_CONNECTING;
+            this.mConnectingAnimationThread.start();
+        }
+
+        public void setConnected() {
+            this.mState = STATE_CONNECTED;
+            this.mConnectingAnimationThread.disable();
+            mIndicatorImageView.setImageResource(mConnectedResourceId);
+        }
+
+        class ConnectingAnimationThread extends Thread {
+            private static final int SLEEP_MILLISECS = 300;
+            private boolean mIsEnabled = false;
+
+            public void disable() {
+                this.mIsEnabled = false;
+            }
+
+            @Override
+            public void run() {
+                boolean imageViewConnected = false;
+                this.mIsEnabled = true;
+                while (this.mIsEnabled) {
+                    try {
+                        final boolean fImageViewConnected = imageViewConnected;
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (fImageViewConnected) {
+                                    mIndicatorImageView.setImageResource(mConnectedResourceId);
+                                } else {
+                                    mIndicatorImageView.setImageResource(mDisconnectedResourceId);
+                                }
+                            }
+                        });
+
+                        imageViewConnected = !imageViewConnected;
+
+                        Thread.sleep(SLEEP_MILLISECS);
+                    } catch (InterruptedException e) {
+                    }
+                }
+
+                final int fState = mState;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (fState == STATE_CONNECTED) {
+                            mIndicatorImageView.setImageResource(mConnectedResourceId);
+                        } else if (fState == STATE_DISCONNECTED) {
+                            mIndicatorImageView.setImageResource(mDisconnectedResourceId);
+                        }
+                    }
+                });
+            }
+        }
     }
 
     // Input Json Format
@@ -294,36 +382,40 @@ public class MainActivity extends Activity implements CommChannelEventListener {
     }
 
     private void launchAppManager() {
-        if (this.mCommChannelService != null && !this.mCommChannelService.isChannelConnected()) {
-            Toast.makeText(getApplicationContext(), "Disconnected" + " to " + "OPEL", Toast
-                    .LENGTH_SHORT).show();
+        if (this.mCommChannelService != null && !this.mCommChannelService.isDefaultPortAvailable
+                ()) {
+            Toast.makeText(getApplicationContext(), "Disconnected to OPEL", Toast.LENGTH_SHORT)
+                    .show();
         }
         Intent intent = new Intent(MainActivity.this, AppManagerActivity.class);
         startActivity(intent);
     }
 
     private void launchAppMarket() {
-        if (this.mCommChannelService != null && !this.mCommChannelService.isChannelConnected()) {
-            Toast.makeText(getApplicationContext(), "Disconnected" + " to " + "OPEL", Toast
-                    .LENGTH_SHORT).show();
+        if (this.mCommChannelService != null && !this.mCommChannelService.isDefaultPortAvailable
+                ()) {
+            Toast.makeText(getApplicationContext(), "Disconnected to OPEL", Toast.LENGTH_SHORT)
+                    .show();
         }
         Intent intent = new Intent(MainActivity.this, AppMarketActivity.class);
         startActivity(intent);
     }
 
     private void launchConnect() {
-        if (this.mCommChannelService != null && !this.mCommChannelService.isChannelConnected()) {
+        if (this.mCommChannelService != null && !this.mCommChannelService.isDefaultPortAvailable
+                ()) {
             this.mCommChannelService.connectChannel();
         } else
-            Toast.makeText(getApplicationContext(), "Already connected to " + "OPEL device",
-                    Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Already connected to OPEL device", Toast
+                    .LENGTH_SHORT).show();
         return;
     }
 
     private void launchFileManager() {
-        if (this.mCommChannelService != null && !this.mCommChannelService.isChannelConnected()) {
-            Toast.makeText(getApplicationContext(), "Disconnected" + " to " + "OPEL", Toast
-                    .LENGTH_SHORT).show();
+        if (this.mCommChannelService != null && !this.mCommChannelService.isDefaultPortAvailable
+                ()) {
+            Toast.makeText(getApplicationContext(), "Disconnected to OPEL", Toast.LENGTH_SHORT)
+                    .show();
             return;
         }
 
@@ -332,9 +424,10 @@ public class MainActivity extends Activity implements CommChannelEventListener {
     }
 
     private void launchCameraBeforeWifiDirectConnected() {
-        if (this.mCommChannelService != null && !this.mCommChannelService.isChannelConnected()) {
-            Toast.makeText(getApplicationContext(), "Disconnected" + " to " + "OPEL", Toast
-                    .LENGTH_SHORT).show();
+        if (this.mCommChannelService != null && !this.mCommChannelService.isDefaultPortAvailable
+                ()) {
+            Toast.makeText(getApplicationContext(), "Disconnected to OPEL", Toast.LENGTH_SHORT)
+                    .show();
             return;
         }
 
@@ -348,7 +441,8 @@ public class MainActivity extends Activity implements CommChannelEventListener {
     }
 
     private void launchSensor() {
-        if (this.mCommChannelService != null && !this.mCommChannelService.isChannelConnected()) {
+        if (this.mCommChannelService != null && !this.mCommChannelService.isDefaultPortAvailable
+                ()) {
             Toast.makeText(getApplicationContext(), "Disconnected" + " to " + "OPEL", Toast
                     .LENGTH_SHORT).show();
             return;
@@ -405,37 +499,77 @@ public class MainActivity extends Activity implements CommChannelEventListener {
 
     // CommChannelEventListener
     @Override
-    public void onWifiDirectDeviceStateChanged(boolean isWifiOn) {
-        this.setIndicatorWFD(isWifiOn);
-        if (isWifiOn) {
-            if (this.mIsWaitingWifiDirectOnForCamera) {
-                this.launchCameraAfterWifiDirectConnected();
-            }
+    public void onCommChannelStateChanged(int prevState, int newState) {
+        Log.d(TAG, "CommChannel State change: " + prevState + " -> " + newState);
+        switch (newState) {
+            case CommChannelService.STATE_DISCONNECTED:
+                mDefaultPortIndicator.setDisconnected();
+                mLargeDataPortIndicator.setDisconnected();
+
+                switch (prevState) {
+                    case CommChannelService.STATE_CONNECTING_DEFAULT:
+                        Toast.makeText(getApplicationContext(), "Failed connecting to OPEL " +
+                                "device. Retry it.", Toast.LENGTH_LONG).show();
+                        break;
+                    case CommChannelService.STATE_CONNECTED_DEFAULT:
+                    case CommChannelService.STATE_CONNECTING_LARGE_DATA:
+                    case CommChannelService.STATE_CONNECTED_LARGE_DATA:
+                        Toast.makeText(getApplicationContext(), "OPEL device is disconnected.",
+                                Toast.LENGTH_LONG).show();
+                        break;
+                }
+                break;
+            case CommChannelService.STATE_CONNECTING_DEFAULT:
+                mDefaultPortIndicator.setConnecting();
+                mLargeDataPortIndicator.setDisconnected();
+                break;
+            case CommChannelService.STATE_CONNECTED_DEFAULT:
+                mDefaultPortIndicator.setConnected();
+                mLargeDataPortIndicator.setDisconnected();
+
+                switch (prevState) {
+                    case CommChannelService.STATE_CONNECTING_DEFAULT:
+                        Toast.makeText(getApplicationContext(), "OPEL device is connected.",
+                                Toast.LENGTH_LONG).show();
+                        OPELContext.getAppCore().requestUpdateAppInfomation();
+                        break;
+                    case CommChannelService.STATE_CONNECTING_LARGE_DATA:
+                        Toast.makeText(getApplicationContext(), "Opening large data port is " +
+                                "failed.", Toast.LENGTH_LONG).show();
+                        break;
+                    case CommChannelService.STATE_CONNECTED_LARGE_DATA:
+                        Toast.makeText(getApplicationContext(), "Large data port is closed.",
+                                Toast.LENGTH_LONG).show();
+                        break;
+                }
+                break;
+            case CommChannelService.STATE_CONNECTING_LARGE_DATA:
+                mDefaultPortIndicator.setConnected();
+                mLargeDataPortIndicator.setConnecting();
+                break;
+            case CommChannelService.STATE_CONNECTED_LARGE_DATA:
+                mDefaultPortIndicator.setConnected();
+                mLargeDataPortIndicator.setConnected();
+
+                Toast.makeText(getApplicationContext(), "Large data port is opened.", Toast
+                        .LENGTH_LONG).show();
+
+                if (this.mIsWaitingWifiDirectOnForCamera) {
+                    this.launchCameraAfterWifiDirectConnected();
+                    this.mIsWaitingWifiDirectOnForCamera = false;
+                }
+                break;
         }
-
-        this.mIsWaitingWifiDirectOnForCamera = false;
-    }
-
-    @Override
-    public void onCommChannelStateChanged(int commChannelState) {
-//        if (commChannelState == CommChannelService.STATE_CONNECTED_DEFAULT || commChannelState ==
-//                CommChannelService.STATE_CONNECTED_LARGEDATA) {
-//            Toast.makeText(getApplicationContext(), "Successfully connected to OPEL", Toast
-//                    .LENGTH_SHORT).show();
-//        } else {
-//            Toast.makeText(getApplicationContext(), "Failed connecting to OPEL. " +
-//                    "re-connectChannel" + " with CONNECT button", Toast.LENGTH_LONG).show();
-//        }
     }
 
     @Override
     public void onBluetoothDeviceStateChanged(boolean isConnected) {
-        if (isConnected) {
-            setIndicatorBT(true);
-            OPELContext.getAppCore().requestUpdateAppInfomation();
-        } else {
-            setIndicatorBT(false);
-        }
+        // TODO: Deprecated. To be removed from CommChannelEventListener.
+    }
+
+    @Override
+    public void onWifiDirectDeviceStateChanged(boolean isWifiOn) {
+        // TODO: Deprecated. To be removed from CommChannelEventListener.
     }
 
     @Override

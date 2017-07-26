@@ -50,8 +50,7 @@ public class AppMarketActivity extends Activity {
 
         mWebView = (WebView) findViewById(com.opel.opel_manager.R.id.webView1);
         mWebView.getSettings().setJavaScriptEnabled(true);
-        mWebView.loadUrl("http://nyx.skku.ac.kr/temp_market/camera_viewer" +
-                ".html");
+        mWebView.loadUrl("http://nyx.skku.ac.kr/temp_market/main.html");
         mWebView.setVerticalScrollBarEnabled(true);
         mWebView.setWebViewClient(new webViewClient());
 
