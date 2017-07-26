@@ -63,13 +63,13 @@ public class BluetoothCommPort extends CommPort {
                 newBluetoothSocket.connect();
                 isSucceed = true;
             } catch (FallbackException e1) {
-                Log.w(TAG, "Could not connectChannel FallbackBluetoothSocket class", e1);
+                Log.w(TAG, "Could not connectChannel FallbackBluetoothSocket class");
                 isSucceed = false;
             } catch (InterruptedException e1) {
-                Log.w(TAG, e1.getMessage(), e1);
+                Log.w(TAG, e1.getMessage());
                 isSucceed = false;
             } catch (IOException e1) {
-                Log.w(TAG, "Fallback failed. Cancelling it.", e1);
+                Log.w(TAG, "Fallback failed. Cancelling it.");
                 isSucceed = false;
             }
         }
