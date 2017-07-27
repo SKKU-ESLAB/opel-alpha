@@ -1,6 +1,8 @@
-package com.opel.cmfw.controller;
+package com.opel.cmfw.ports.wifidirect;
 
 import android.util.Log;
+
+import com.opel.cmfw.ports.CommPort;
 
 import java.io.IOException;
 import java.io.InputStream;

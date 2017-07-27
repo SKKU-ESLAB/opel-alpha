@@ -38,10 +38,10 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <service android:name="com.opel.cmfw.view.CommChannelService"/>
+        <service android:name="com.opel.cmfw.service.CommChannelService"/>
 
         <activity
-            android:name="com.opel.cmfw.view.BluetoothConnectorActivity"
+            android:name="com.opel.cmfw.devicecontrollers.bluetooth.BluetoothConnectorActivity"
             android:theme="@android:style/Theme.DeviceDefault.Dialog"/>
         <activity
             android:name=".view.CameraViewerActivity"

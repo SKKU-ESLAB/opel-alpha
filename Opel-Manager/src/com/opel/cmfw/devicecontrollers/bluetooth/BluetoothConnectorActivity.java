@@ -1,4 +1,4 @@
-package com.opel.cmfw.view;
+package com.opel.cmfw.devicecontrollers.bluetooth;
 
 import android.Manifest;
 import android.app.Activity;

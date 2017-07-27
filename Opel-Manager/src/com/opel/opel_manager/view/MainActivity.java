@@ -35,7 +35,7 @@ import android.widget.Toast;
 
 import com.opel.cmfw.glue.CommBroadcastReceiver;
 import com.opel.cmfw.glue.CommChannelEventListener;
-import com.opel.cmfw.view.CommChannelService;
+import com.opel.cmfw.service.CommChannelService;
 import com.opel.opel_manager.R;
 import com.opel.opel_manager.controller.JSONParser;
 import com.opel.opel_manager.controller.OPELAppCoreStub;
@@ -560,16 +560,6 @@ public class MainActivity extends Activity implements CommChannelEventListener {
                 }
                 break;
         }
-    }
-
-    @Override
-    public void onBluetoothDeviceStateChanged(boolean isConnected) {
-        // TODO: Deprecated. To be removed from CommChannelEventListener.
-    }
-
-    @Override
-    public void onWifiDirectDeviceStateChanged(boolean isWifiOn) {
-        // TODO: Deprecated. To be removed from CommChannelEventListener.
     }
 
     @Override

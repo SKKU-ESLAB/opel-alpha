@@ -1,4 +1,4 @@
-package com.opel.cmfw.controller;
+package com.opel.cmfw.ports;
 
 public interface CommPortListener {
     public void onReceivingRawMessage(byte[] data, int messageDataLength, String filePath);

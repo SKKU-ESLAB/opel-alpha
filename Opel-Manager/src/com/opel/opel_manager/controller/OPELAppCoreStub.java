@@ -7,7 +7,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
-import com.opel.cmfw.view.CommChannelService;
+import com.opel.cmfw.service.CommChannelService;
 import com.opel.opel_manager.model.OPELApplication;
 import com.opel.opel_manager.view.SensorViewerActivity;
 

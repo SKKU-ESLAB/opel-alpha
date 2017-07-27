@@ -1,13 +1,14 @@
-package com.opel.cmfw.controller;
+package com.opel.cmfw.ports.bluetooth;
 
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.util.Log;
 
-import com.opel.cmfw.controller.bluetooth.BluetoothSocketWrapper;
-import com.opel.cmfw.controller.bluetooth.FallbackBluetoothSocket;
-import com.opel.cmfw.controller.bluetooth.FallbackException;
-import com.opel.cmfw.controller.bluetooth.NativeBluetoothSocket;
+import com.opel.cmfw.ports.CommPort;
+import com.opel.cmfw.ports.bluetooth.socket.BluetoothSocketWrapper;
+import com.opel.cmfw.ports.bluetooth.socket.FallbackBluetoothSocket;
+import com.opel.cmfw.ports.bluetooth.socket.FallbackException;
+import com.opel.cmfw.ports.bluetooth.socket.NativeBluetoothSocket;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -1,4 +1,4 @@
-package com.opel.cmfw.view;
+package com.opel.cmfw.service;
 
 import android.app.Service;
 import android.bluetooth.BluetoothDevice;
@@ -8,12 +8,18 @@ import android.os.Environment;
 import android.os.IBinder;
 import android.util.Log;
 
-import com.opel.cmfw.controller.BluetoothCommPort;
-import com.opel.cmfw.controller.CommPort;
-import com.opel.cmfw.controller.CommPortListener;
-import com.opel.cmfw.controller.WifiDirectCommPort;
+import com.opel.cmfw.devicecontrollers.bluetooth.BluetoothConnectingResultListener;
+import com.opel.cmfw.devicecontrollers.bluetooth.BluetoothDeviceController;
+import com.opel.cmfw.devicecontrollers.bluetooth.BluetoothDeviceStateListener;
+import com.opel.cmfw.devicecontrollers.wifidirect.WifiDirectConnectingResultListener;
+import com.opel.cmfw.devicecontrollers.wifidirect.WifiDirectDeviceController;
+import com.opel.cmfw.devicecontrollers.wifidirect.WifiDirectDeviceStateListener;
 import com.opel.cmfw.glue.CommBroadcastReceiver;
-import com.opel.cmfw.glue.CommChannelEventListener;
+import com.opel.cmfw.glue.CommBroadcaster;
+import com.opel.cmfw.ports.CommPort;
+import com.opel.cmfw.ports.CommPortListener;
+import com.opel.cmfw.ports.bluetooth.BluetoothCommPort;
+import com.opel.cmfw.ports.wifidirect.WifiDirectCommPort;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
@@ -186,8 +192,17 @@ public class CommChannelService extends Service implements CommPortListener {
 
         if (this.isLargeDataPortAvailable()) {
             int res;
+            if (this.mLargeDataPort != null && this.mLargeDataPortWatcher.isAlive()) {
+                this.mLargeDataPortWatcher.startToUse();
+            }
+
             res = this.mLargeDataPort.sendRawMessage(messageData.getBytes(), messageData.getBytes
                     ().length, file);
+
+            if (this.mLargeDataPort != null && this.mLargeDataPortWatcher.isAlive()) {
+                this.mLargeDataPortWatcher.endToUse();
+            }
+
             if (res < 0) {
                 this.disableLargeDataMode();
             }
@@ -204,7 +219,7 @@ public class CommChannelService extends Service implements CommPortListener {
 
     // Connect CommChannelService = Connect Bluetooth Device + Open Default Port
     private class ConnectChannelProcedure {
-        private ConnectingResultListener mConnectingResultListener = null;
+        private BluetoothConnectingResultListener mConnectingResultListener = null;
 
         public void start() {
             // TODO: storing connection information and auto-connection
@@ -213,8 +228,7 @@ public class CommChannelService extends Service implements CommPortListener {
             mBluetoothDeviceController.connect(this.mConnectingResultListener);
         }
 
-        private class ConnectingResultListener implements BluetoothDeviceController
-                .ConnectingResultListener {
+        private class ConnectingResultListener implements BluetoothConnectingResultListener {
             @Override
             public void onConnectingBluetoothDeviceSuccess(BluetoothDevice bluetoothDevice) {
                 Log.d(TAG, "Connecting Bluetooth Device success");
@@ -319,8 +333,7 @@ public class CommChannelService extends Service implements CommPortListener {
             mWifiDirectDeviceController.connect(this.mConnectingResultListener, wifiDirectName);
         }
 
-        class ConnectingResultListener implements WifiDirectDeviceController
-                .ConnectingResultListener {
+        class ConnectingResultListener implements WifiDirectConnectingResultListener {
             @Override
             public void onConnectingWifiDirectDeviceSuccess() {
                 openLargeDataPort();
@@ -416,9 +429,12 @@ public class CommChannelService extends Service implements CommPortListener {
     }
 
     private class State {
-        private CommBroadcastReceiver mCommBroadcastReceiver;
-        private DeviceControllerListener mDeviceControllerListener;
         private int mState = STATE_DISCONNECTED;
+        private DeviceStateListener mDeviceStateListener;
+
+        public State() {
+            this.mDeviceStateListener = new DeviceStateListener();
+        }
 
         private void transitTo(int newState) {
             int prevState = this.mState;
@@ -463,20 +479,17 @@ public class CommChannelService extends Service implements CommPortListener {
         private void startToWatchDeviceState() {
             IntentFilter broadcastIntentFilter = new IntentFilter();
             broadcastIntentFilter.addAction(CommBroadcastReceiver.ACTION);
-            this.mDeviceControllerListener = new DeviceControllerListener();
-            this.mCommBroadcastReceiver = new CommBroadcastReceiver(this.mDeviceControllerListener);
-            self.registerReceiver(this.mCommBroadcastReceiver, broadcastIntentFilter);
+            mBluetoothDeviceController.addListener(this.mDeviceStateListener);
+            mWifiDirectDeviceController.addListener(this.mDeviceStateListener);
         }
 
         private void stopToWatchDeviceState() {
-            if (this.mCommBroadcastReceiver != null) {
-                self.unregisterReceiver(this.mCommBroadcastReceiver);
-                this.mCommBroadcastReceiver = null;
-            }
+            mBluetoothDeviceController.removeListener(this.mDeviceStateListener);
+            mWifiDirectDeviceController.removeListener(this.mDeviceStateListener);
         }
 
-        class DeviceControllerListener implements CommChannelEventListener {
-            // TODO: WFD or BT StateListener should be separated from CommChannelEventListener
+        class DeviceStateListener implements BluetoothDeviceStateListener,
+                WifiDirectDeviceStateListener {
             @Override
             public void onWifiDirectDeviceStateChanged(boolean isConnected) {
                 if (!isConnected) {
@@ -492,16 +505,6 @@ public class CommChannelService extends Service implements CommPortListener {
                     if (mState == STATE_CONNECTED_DEFAULT || mState == STATE_CONNECTED_LARGE_DATA)
                         transitToDisconnected();
                 }
-            }
-
-            @Override
-            public void onCommChannelStateChanged(int prevState, int newState) {
-                // not used
-            }
-
-            @Override
-            public void onReceivedRawMessage(String message, String filePath) {
-                // not used
             }
         }
 

@@ -1,4 +1,4 @@
-package com.opel.cmfw.view;
+package com.opel.cmfw.devicecontrollers.wifidirect;
 
 import android.app.Activity;
 import android.app.Service;
@@ -13,6 +13,8 @@ import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.util.Log;
+
+import java.util.ArrayList;
 
 public class WifiDirectDeviceController {
     static private String TAG = "WFDController";
@@ -40,26 +42,29 @@ public class WifiDirectDeviceController {
         return this.mState.isConnected();
     }
 
-    public void connect(ConnectingResultListener connectingResultListener, String wifiDirectName) {
+    public void connect(WifiDirectConnectingResultListener connectingResultListener, String
+            wifiDirectName) {
         this.mWifiDirectName = wifiDirectName;
 
         this.mConnectProcedure.start(connectingResultListener);
     }
 
     public void disconnect() {
-        // TODO: implement it
+        // TODO: not implemented yet
     }
 
-    interface ConnectingResultListener {
-        public void onConnectingWifiDirectDeviceSuccess();
+    public void addListener(WifiDirectDeviceStateListener deviceStateListener) {
+        this.mState.addListener(deviceStateListener);
+    }
 
-        public void onConnectingWifiDirectDeviceFail();
+    public void removeListener(WifiDirectDeviceStateListener deviceStateListener) {
+        this.mState.removeListener(deviceStateListener);
     }
 
     private class ConnectProcedure {
-        private ConnectingResultListener mConnectingResultListener;
+        private WifiDirectConnectingResultListener mConnectingResultListener;
 
-        public void start(ConnectingResultListener connectingResultListener) {
+        public void start(WifiDirectConnectingResultListener connectingResultListener) {
             this.mConnectingResultListener = connectingResultListener;
 
             this.discoverPeers();
@@ -171,9 +176,18 @@ public class WifiDirectDeviceController {
         private WifiDirectDeviceStatusReceiver mWifiDirectDeviceStatusReceiver;
 
         private boolean mIsConnected = false;
+        private ArrayList<WifiDirectDeviceStateListener> mDeviceStateListeners;
 
         public boolean isConnected() {
             return this.mIsConnected;
+        }
+
+        public void addListener(WifiDirectDeviceStateListener deviceStateListener) {
+            this.mDeviceStateListeners.add(deviceStateListener);
+        }
+
+        public void removeListener(WifiDirectDeviceStateListener deviceStateListener) {
+            this.mDeviceStateListeners.remove(deviceStateListener);
         }
 
         public void transitToConnected() {
@@ -182,8 +196,10 @@ public class WifiDirectDeviceController {
             // Start to watch Bluetooth device's status
             this.startToWatchDeviceState();
 
-            // Broadcast Wi-fi direct device connection event via CommBroadcaster
-            CommBroadcaster.onWifiDirectDeviceStateChanged(mService, this.mIsConnected);
+            // Notify Wi-fi direct device connection event to listeners
+            for (WifiDirectDeviceStateListener listener : this.mDeviceStateListeners) {
+                listener.onWifiDirectDeviceStateChanged(this.mIsConnected);
+            }
         }
 
         public void transitToDisconnected() {
@@ -192,8 +208,10 @@ public class WifiDirectDeviceController {
             // Stop to watch Bluetooth device's status
             this.stopToWatchDeviceState();
 
-            // Broadcast Wi-fi direct device disconnection event via CommBroadcaster
-            CommBroadcaster.onWifiDirectDeviceStateChanged(mService, this.mIsConnected);
+            // Notify Wi-fi direct device disconnection event to listeners
+            for (WifiDirectDeviceStateListener listener : this.mDeviceStateListeners) {
+                listener.onWifiDirectDeviceStateChanged(this.mIsConnected);
+            }
         }
 
         private void startToWatchDeviceState() {

@@ -4,7 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import com.opel.cmfw.view.CommChannelService;
+import com.opel.cmfw.service.CommChannelService;
 
 /* How to use CommBroadcastReceiver
 class A implements CommBroadcastReceiver {
@@ -30,18 +30,10 @@ public class CommBroadcastReceiver extends BroadcastReceiver {
     public static final String ACTION = "com.opel.cmfw.broadcastreceiver";
     public static final String KEY_EVENT_TYPE = "eventType";
 
-    public static final String EVENT_TYPE_ON_WIFI_DIRECT_DEVICE_STATE_CHANGED =
-            "onWifiDirectDeviceStateChanged";
-    public static final String KEY_IS_WIFI_ON = "isWifiOn";
-
     public static final String EVENT_TYPE_ON_COMM_CHANNEL_STATE_CHANGED =
             "onCommChannelStateChanged";
     public static final String KEY_COMM_CHANNEL_PREV_STATE = "commChannelPrevState";
     public static final String KEY_COMM_CHANNEL_NEW_STATE = "commChannelNewState";
-
-    public static final String EVENT_TYPE_ON_BLUETOOTH_DEVICE_STATE_CHANGED =
-            "onBluetoothDeviceStateChanged";
-    public static final String KEY_IS_CONNECTED = "isDefaultPortAvailable";
 
     public static final String EVENT_TYPE_ON_RECEIVED_RAW_MESSAGE = "onReceivedRawMessage";
     public static final String KEY_MESSAGE = "message";
@@ -64,12 +56,6 @@ public class CommBroadcastReceiver extends BroadcastReceiver {
                 int newState = intent.getIntExtra(KEY_COMM_CHANNEL_NEW_STATE,
                         CommChannelService.STATE_DISCONNECTED);
                 this.mListener.onCommChannelStateChanged(prevState, newState);
-            } else if (eventType.compareTo(EVENT_TYPE_ON_WIFI_DIRECT_DEVICE_STATE_CHANGED) == 0) {
-                boolean isWifiOn = intent.getBooleanExtra(KEY_IS_WIFI_ON, false);
-                this.mListener.onWifiDirectDeviceStateChanged(isWifiOn);
-            } else if (eventType.compareTo(EVENT_TYPE_ON_BLUETOOTH_DEVICE_STATE_CHANGED) == 0) {
-                boolean isConnected = intent.getBooleanExtra(KEY_IS_CONNECTED, false);
-                this.mListener.onBluetoothDeviceStateChanged(isConnected);
             } else if (eventType.compareTo(EVENT_TYPE_ON_RECEIVED_RAW_MESSAGE) == 0) {
                 String message = intent.getStringExtra(KEY_MESSAGE);
                 String filePath = intent.getStringExtra(KEY_FILE_PATH);

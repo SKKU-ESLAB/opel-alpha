@@ -1,4 +1,4 @@
-package com.opel.cmfw.view;
+package com.opel.cmfw.devicecontrollers.bluetooth;
 
 import android.app.Activity;
 import android.app.Service;
@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.os.ResultReceiver;
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.Set;
 
 import static android.content.ContentValues.TAG;
@@ -30,7 +31,7 @@ public class BluetoothDeviceController {
         return this.mState.isConnected();
     }
 
-    public void connect(ConnectingResultListener connectingResultListener) {
+    public void connect(BluetoothConnectingResultListener connectingResultListener) {
         this.mConnectProcedureProcedure.start(connectingResultListener);
     }
 
@@ -39,17 +40,19 @@ public class BluetoothDeviceController {
         this.mState.transitToDisconnected();
     }
 
-    interface ConnectingResultListener {
-        public void onConnectingBluetoothDeviceSuccess(BluetoothDevice bluetoothDevice);
+    public void addListener(BluetoothDeviceStateListener deviceStateListener) {
+        this.mState.addListener(deviceStateListener);
+    }
 
-        public void onConnectingBluetoothDeviceFail();
+    public void removeListener(BluetoothDeviceStateListener deviceStateListener) {
+        this.mState.removeListener(deviceStateListener);
     }
 
     class ConnectProcedure {
-        private ConnectingResultListener mConnectingResultListener = null;
+        private BluetoothConnectingResultListener mConnectingResultListener = null;
 
         // ConnectProcedure to Bluetooth device
-        public void start(ConnectingResultListener connectingResultListener) {
+        public void start(BluetoothConnectingResultListener connectingResultListener) {
             this.mConnectingResultListener = connectingResultListener;
 
             Intent bluetoothConnectorIntent = new Intent(mService, BluetoothConnectorActivity
@@ -131,11 +134,20 @@ public class BluetoothDeviceController {
 
     private class State {
         private boolean mIsConnected = false;
+        private ArrayList<BluetoothDeviceStateListener> mDeviceStateListeners = new ArrayList<>();
 
         private BluetoothDeviceStatusReceiver mBluetoothDeviceStatusReceiver = null;
 
         public boolean isConnected() {
             return this.mIsConnected;
+        }
+
+        public void addListener(BluetoothDeviceStateListener deviceStateListener) {
+            this.mDeviceStateListeners.add(deviceStateListener);
+        }
+
+        public void removeListener(BluetoothDeviceStateListener deviceStateListener) {
+            this.mDeviceStateListeners.remove(deviceStateListener);
         }
 
         public void transitToConnected(BluetoothDevice bluetoothDevice) {
@@ -144,8 +156,10 @@ public class BluetoothDeviceController {
             // Start to watch Bluetooth device's status
             this.startToWatchDeviceState(bluetoothDevice);
 
-            // Broadcast Bluetooth device connection event via CommBroadcaster
-            CommBroadcaster.onBluetoothDeviceStateChanged(mService, this.mIsConnected);
+            // Notify Bluetooth device connection event to listeners
+            for(BluetoothDeviceStateListener listener : this.mDeviceStateListeners) {
+                listener.onBluetoothDeviceStateChanged(this.mIsConnected);
+            }
         }
 
         public void transitToDisconnected() {
@@ -154,8 +168,10 @@ public class BluetoothDeviceController {
             // Stop to watch Bluetooth device's status
             this.stopToWatchDeviceState();
 
-            // Broadcast Bluetooth device disconnection event via CommBroadcaster
-            CommBroadcaster.onBluetoothDeviceStateChanged(mService, this.mIsConnected);
+            // Notify Bluetooth device disconnection event to listeners
+            for(BluetoothDeviceStateListener listener : this.mDeviceStateListeners) {
+                listener.onBluetoothDeviceStateChanged(this.mIsConnected);
+            }
         }
 
         private void startToWatchDeviceState(BluetoothDevice bluetoothDevice) {

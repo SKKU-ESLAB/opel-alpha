@@ -1,4 +1,4 @@
-package com.opel.cmfw.controller.bluetooth;
+package com.opel.cmfw.ports.bluetooth.socket;
 
 /**
  * Created by redcarrottt on 2017. 5. 9..
