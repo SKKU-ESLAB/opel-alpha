@@ -99,12 +99,12 @@ def on_did_initialize():
     run_command(gOpelDeleteSemPath)
 
     # Execute daemons
-    run_on_daemon(command=["./opel-appcore-manager"],
-            name="App/Sys Manager Daemon")
-    run_on_daemon(command=["./opel-camera-manager"],
+    run_on_daemon(command=["./opel-appcore"],
+            name="App-core Framework Daemon")
+    run_on_daemon(command=["./opel-camera"],
             name="Camera Framework Daemon")
-    run_on_daemon(command=["./opel-sensor-manager"],
-            name="Sensor Manager Daemon")
+    run_on_daemon(command=["./opel-sensor"],
+            name="Sensor Framework Daemon")
     return
 
 # on_did_halt_by_user: (event handler) user killed OPEL manager manually

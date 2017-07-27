@@ -18,13 +18,9 @@ cmake_install.cmake
 */cmake_install.cmake
 Makefile
 */Makefile
-node/*/build/*
-node/*/Release/*
-node/*.node
-node/sensfw
-node/sysfw
-node/src/camfw/facedetection/build
-node/src/camfw/OPELCameraAPI/build
+api/*/build/*
+api/*/Release/*
+api/*/*.node
 data
 node_modules
 out
