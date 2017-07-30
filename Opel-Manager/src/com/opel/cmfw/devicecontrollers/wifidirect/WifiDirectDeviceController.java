@@ -176,7 +176,7 @@ public class WifiDirectDeviceController {
         private WifiDirectDeviceStatusReceiver mWifiDirectDeviceStatusReceiver;
 
         private boolean mIsConnected = false;
-        private ArrayList<WifiDirectDeviceStateListener> mDeviceStateListeners;
+        private ArrayList<WifiDirectDeviceStateListener> mDeviceStateListeners = new ArrayList<>();
 
         public boolean isConnected() {
             return this.mIsConnected;

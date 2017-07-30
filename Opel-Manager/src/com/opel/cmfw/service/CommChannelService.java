@@ -71,8 +71,8 @@ public class CommChannelService extends Service implements CommPortListener {
     static public final int STATE_CONNECTING_LARGE_DATA = 3;
     static public final int STATE_CONNECTED_LARGE_DATA = 4;
 
-    static private String DEFAULT_PORT_BLUETOOTH_UUID = "0a1b2c3d-4e5f-6a1c-2d0e-1f2a3b4c5d6d";
-    static private String CONTROL_PORT_BLUETOOTH_UUID = "0a1b2c3d-4e5f-6a1c-2d0e-1f2a3b4c5d6e";
+    static private String DEFAULT_PORT_BLUETOOTH_UUID = "0a1b2c3d-4e5f-6a1c-2d0e-1f2a3b4c5d6e";
+    static private String CONTROL_PORT_BLUETOOTH_UUID = "0a1b2c3d-4e5f-6a1c-2d0e-1f2a3b4c5d6d";
     static private int LARGEDATA_PORT_TCP_PORT = 10001;
 
     public CommChannelService() {
@@ -189,6 +189,8 @@ public class CommChannelService extends Service implements CommPortListener {
         if (!this.isBluetoothDeviceConnected() || !this.isDefaultPortAvailable()) {
             return;
         }
+
+        Log.d(TAG, "sendRawMessage: " + messageData);
 
         if (this.isLargeDataPortAvailable()) {
             int res;
