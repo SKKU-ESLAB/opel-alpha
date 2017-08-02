@@ -6,10 +6,10 @@ include_directories(./inc)
 
 add_definitions(`pkg-config --libs --cflags dbus-1 glib-2.0 dbus-glib-1 gstreamer-1.0`)
 
-add_executable(opel-camera ${CAMFW_SRC_DIR}/main.cpp ${CAMFW_SRC_DIR}/OPELgstElement.cpp ${CAMFW_SRC_DIR}/OPELgstElementTx1.cpp ${CAMFW_SRC_DIR}/OPELcamProperty.cpp ${CAMFW_SRC_DIR}/OPELcamRequest.cpp ${CAMFW_SRC_DIR}/OPELcommonUtil.cpp ${CAMFW_SRC_DIR}/OPELglobalRequest.cpp ${CAMFW_SRC_DIR}/OPELrawRequest.cpp ${CAMFW_SRC_DIR}/OPELreplyDBus.cpp ${CAMFW_SRC_DIR}/OPELh264Streaming.cpp)
-	
-target_link_libraries(opel-camera dbus-1 glib-2.0 dbus-glib-1 gstreamer-1.0 gstapp-1.0 gobject-2.0 gmodule-2.0 boost_serialization pthread)
+add_executable(opel-camera ${CAMFW_SRC_DIR}/CameraManager.cpp ${CAMFW_SRC_DIR}/CameraController.cpp ${CAMFW_SRC_DIR}/CameraCommunicator.cpp ${CAMFW_SRC_DIR}/CameraConfigParser.cpp ${CAMFW_SRC_DIR}/CameraDevice.cpp ${CAMFW_SRC_DIR}/CameraRequest.cpp ${CAMFW_SRC_DIR}/cJSON.c ${CAMFW_SRC_DIR}/OPELRawRequest.cpp)
+
+target_link_libraries(opel-camera dbus-1 glib-2.0 dbus-glib-1 gstreamer-1.0 gstapp-1.0 gobject-2.0 gmodule-2.0 pthread)
 
 set_target_properties(opel-camera
 		PROPERTIES
-		RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/out/bin)
+        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/out/bin)

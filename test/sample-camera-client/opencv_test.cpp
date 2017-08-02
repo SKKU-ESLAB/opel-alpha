@@ -22,6 +22,11 @@ int main(int argc, char** argv){
     {
         Mat frame;
 				bool bSuccess = cap.read(frame);
+                if (!bSuccess)
+                {
+                    cout << "Cannot read a frame from camera" << endl;
+                    break;
+                }
 				imshow("result", frame);
 				if(waitKey(30) == 27){
 					break;

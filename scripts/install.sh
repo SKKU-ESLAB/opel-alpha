@@ -3,15 +3,15 @@
 ##########################################################################
 #
 # Copyright (c) 2015-2017 CISS, and contributors. All rights reserved.
-# 
+#
 # Contributor: Gyeonghwan Hong<redcarrottt@gmail.com>
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #  http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -157,7 +157,7 @@ determine_var() {
         if [ $IS_DIRECTORY = y ]
         then
           IS_CREATE_NEW=y
-          
+
           # If the environment variable's value should be directory path,
           # user can create a new directory.
           while [ : ];
@@ -213,7 +213,7 @@ print_progress() {
   WARN_COLO="\033[31;47m"
   INFO_COLO="\033[36m"
   INIT_COLO="\033[0m"
-  
+
   echo -e "${INFO_COLO}Step ${STEP_NUM}. ${STEP_DESC} ${INIT_COLO}"
 }
 
@@ -371,7 +371,7 @@ ln -s ${OPEL_BIN_DIR}/run_opel ${OPEL_SYSTEM_BIN_DIR}/run_opel
 # Install OPEL_CONFIG_DIR
 print_progress 5 "Install OPEL configs..."
 cp -R ${OPEL_OUT_DIR}/config/* ${OPEL_CONFIG_DIR}/
-cp ${TARGET_DIR}/camera-config.xml ${OPEL_CONFIG_DIR}/
+cp ${TARGET_DIR}/camera-config.json ${OPEL_CONFIG_DIR}/
 cp ${TARGET_DIR}/dhcpd.conf ${OPEL_CONFIG_DIR}/
 cp ${TARGET_DIR}/p2p.conf ${OPEL_CONFIG_DIR}/
 cp ${TARGET_DIR}/haarcascade_frontalface_alt.xml ${OPEL_CONFIG_DIR}/
