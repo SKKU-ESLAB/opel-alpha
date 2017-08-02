@@ -3,15 +3,15 @@
 ##########################################################################
 #
 # Copyright (c) 2015-2017 CISS, and contributors. All rights reserved.
-# 
+#
 # Contributor: Gyeonghwan Hong<redcarrottt@gmail.com>
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #  http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -33,7 +33,7 @@ print_progress() {
   WARN_COLO="\033[31;47m"
   INFO_COLO="\033[36m"
   INIT_COLO="\033[0m"
-  
+
   echo -e "${INFO_COLO}Step ${STEP_NUM}. ${STEP_DESC} ${INIT_COLO}"
 }
 
@@ -61,8 +61,8 @@ sudo apt-get remove bluez
 # Install bluez
 cd ${OPEL_REPO_DIR}/dep/bluez-4.101
 ./configure --prefix=/usr --mandir=/usr/share/man --sysconfdir=/etc \
-  --localstatedir=/var --libexecdir=/lib 
-make 
+  --localstatedir=/var --libexecdir=/lib
+make
 sudo make install
 # Unmask and restart bleutooth daemon
 sudo systemctl unmask bluetooth
@@ -90,7 +90,8 @@ mkdir build
 cd build
 cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/usr/local -D \
   BUILD_TESTS=OFF -D BUILD_PERF_TESTS=OFF ..
-make -j 4
+#make -j 4
+make -j 6
 sudo make install
 
 # Step 6. Build and install libuv-v1.7.5
@@ -126,12 +127,13 @@ git clone https://github.com/nodejs/node ${OPEL_REPO_DIR}/dep/nodejs-4.0.0 \
   -b v4.0.0 --depth=1
 cd ${OPEL_REPO_DIR}/dep/nodejs-4.0.0
 ./configure
-make -j4
+#make -j4
+make -j6
 sudo make install
 
 sudo npm install -g node-gyp
 
-# Step 10. Install nan package 
+# Step 10. Install nan package
 cd ${OPEL_REPO_DIR}
 npm install nan
 
