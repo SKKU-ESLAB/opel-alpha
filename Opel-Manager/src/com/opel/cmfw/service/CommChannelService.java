@@ -75,6 +75,9 @@ public class CommChannelService extends Service implements CommPortListener {
     static private String CONTROL_PORT_BLUETOOTH_UUID = "0a1b2c3d-4e5f-6a1c-2d0e-1f2a3b4c5d6d";
     static private int LARGEDATA_PORT_TCP_PORT = 10001;
 
+    static private final String kWifiDirectOnMessage = "on";
+    static private final String kWifiDirectOffMessage = "off";
+
     public CommChannelService() {
         this.mBinder = new CommBinder();
         this.mState = new State();
@@ -141,6 +144,9 @@ public class CommChannelService extends Service implements CommPortListener {
     }
 
     private void disableLargeDataMode() {
+        // Send turning on Wi-fi direct message
+        sendRawMessageOnControl(kWifiDirectOffMessage, null);
+
         // Finish listening threads
         if (this.mControlPort != null) this.mControlPort.stopListeningThread();
         if (this.mLargeDataPort != null) this.mLargeDataPort.stopListeningThread();
@@ -216,7 +222,19 @@ public class CommChannelService extends Service implements CommPortListener {
                 this.disconnectChannel();
             }
         }
+    }
 
+    private boolean sendRawMessageOnControl(String messageData, File file) {
+        if (!isBluetoothDeviceConnected() || !isDefaultPortAvailable()) {
+            return false;
+        }
+
+        int res = mControlPort.sendRawMessage(messageData.getBytes(), messageData.getBytes()
+                .length, file);
+        if (res < 0) {
+            return false;
+        }
+        return true;
     }
 
     // Connect CommChannelService = Connect Bluetooth Device + Open Default Port
@@ -277,7 +295,6 @@ public class CommChannelService extends Service implements CommPortListener {
         private ControlPortListener mControlPortListener = null;
         private ConnectingResultListener mConnectingResultListener = null;
         private String mIpAddress = null;
-        static private final String kWifiDirectOnMessage = "on";
 
         public void start() {
             // (Enable Largedata) Step 1. Notify Wi-fi direct ON Command
@@ -288,19 +305,9 @@ public class CommChannelService extends Service implements CommPortListener {
             this.mControlPortListener = new ControlPortListener();
             mControlPort.runListeningThread(this.mControlPortListener, mDownloadFilePath);
 
-            // Send Wi-fi direct on message
-            sendRawMessageOnControl(kWifiDirectOnMessage, null);
-        }
-
-        private void sendRawMessageOnControl(String messageData, File file) {
-            if (!isBluetoothDeviceConnected() || !isDefaultPortAvailable()) {
-                onFail();
-                return;
-            }
-
-            int res = mControlPort.sendRawMessage(messageData.getBytes(), messageData.getBytes()
-                    .length, file);
-            if (res < 0) {
+            // Send turning on Wi-fi direct message
+            boolean res = sendRawMessageOnControl(kWifiDirectOnMessage, null);
+            if(!res) {
                 onFail();
             }
         }

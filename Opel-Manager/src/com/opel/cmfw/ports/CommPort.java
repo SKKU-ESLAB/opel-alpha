@@ -12,8 +12,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.nio.ByteBuffer;
 
 abstract public class CommPort {
     static private String TAG = "CommPort";
@@ -78,9 +76,9 @@ abstract public class CommPort {
         final int kFileData = 4;
 
         boolean isMessageCompleted = false;
-        int expectedPacketType = kMessageMetadata;
-        CommMessageMetadata messageMetadata = null;
-        CommFileMetadata fileMetadata = null;
+        int expectedPayloadType = kMessageMetadata;
+        CommPayloadMessageMetadata messageMetadata = null;
+        CommPayloadFileMetadata fileMetadata = null;
         byte[] totalMessageData = null;
         BufferedOutputStream bufferedOutputStream = null;
         int loadedBytesSize = 0;
@@ -94,47 +92,53 @@ abstract public class CommPort {
                     return;
                 }
 
-                // Check if header is same as expected and Read payload
-                switch (expectedPacketType) {
+                // Read payload
+                switch (expectedPayloadType) {
                     case kMessageMetadata:
                         // Message metadata is expected
                         if (!header.getFlagIsMetadata()) return; // not expected
-                        messageMetadata = CommMessageMetadata.read(dataInputStream);
+                        messageMetadata = CommPayloadMessageMetadata.read(dataInputStream);
 
                         totalMessageData = new byte[messageMetadata.getMessageDataLength()];
-                        expectedPacketType = kMessageData;
+                        expectedPayloadType = kMessageData;
                         break;
 
                     case kMessageData:
                         // Message data is expected
+                        // TODO: not expected -> need some solution except "return"...
                         if (!header.getFlagIsData()) return; // not expected
-                        CommDataPayload messageData = CommDataPayload.read(dataInputStream,
+                        CommPayloadData messageData = CommPayloadData.read(dataInputStream,
                                 header.getPayloadSize());
                         byte[] messageDataBytes = messageData.toByteArray();
                         if (messageDataBytes == null) {
                             this.suddenlyClose("sendRawMessage: Failed to make message data " +
                                     "packet");
+                            return;
+                        }
+                        if(totalMessageData == null) {
+                            this.suddenlyClose("sendRawMessage: totalMessageData is null");
+                            return;
                         }
                         System.arraycopy(messageDataBytes, 0, totalMessageData, loadedBytesSize,
                                 messageData.getBytesSize());
                         loadedBytesSize += messageData.getBytesSize();
                         if (header.getFlagIsEndData()) {
                             if (messageMetadata.getIsFileAttached() != 0) {
-                                expectedPacketType = kFileMetadata;
+                                expectedPayloadType = kFileMetadata;
                             } else {
                                 // Message without file completed
-                                expectedPacketType = kMessageMetadata;
+                                expectedPayloadType = kMessageMetadata;
                                 isMessageCompleted = true;
                             }
                         } else {
-                            expectedPacketType = kMessageData;
+                            expectedPayloadType = kMessageData;
                         }
                         break;
 
                     case kFileMetadata:
                         // File metadata is expected
                         if (!header.getFlagIsMetadata()) return; // not expected
-                        fileMetadata = CommFileMetadata.read(dataInputStream);
+                        fileMetadata = CommPayloadFileMetadata.read(dataInputStream);
 
                         // Open file
                         String fileName = String.copyValueOf(fileMetadata.getSrcFileName());
@@ -150,16 +154,16 @@ abstract public class CommPort {
                         }
 
                         // Expect next packet
-                        expectedPacketType = kFileData;
+                        expectedPayloadType = kFileData;
                         break;
 
                     case kFileData:
                         // File data is expected
                         if (!header.getFlagIsFile()) return; // not expected
-                        CommDataPayload fileData = CommDataPayload.read(dataInputStream, header
+                        CommPayloadData fileData = CommPayloadData.read(dataInputStream, header
                                 .getPayloadSize());
 
-                        // Write to white
+                        // Write
                         byte[] fileDataBytes = fileData.toByteArray();
                         if (fileDataBytes == null) {
                             this.suddenlyClose("sendRawMessage: Failed to make file data packet");
@@ -169,10 +173,10 @@ abstract public class CommPort {
                         // Expect next packet
                         if (header.getFlagIsEndData()) {
                             // Message with file completed
-                            expectedPacketType = kMessageMetadata;
+                            expectedPayloadType = kMessageMetadata;
                             isMessageCompleted = true;
                         } else {
-                            expectedPacketType = kFileData;
+                            expectedPayloadType = kFileData;
                         }
                         break;
                 }
@@ -183,16 +187,19 @@ abstract public class CommPort {
 
             if (isMessageCompleted) {
                 // Notify the message
-                if (fileMetadata != null)
-                    this.mListener.onReceivingRawMessage(totalMessageData, messageMetadata
-                            .getMessageDataLength(), String.copyValueOf(fileMetadata
-                            .getSrcFileName()));
-                else
-                    this.mListener.onReceivingRawMessage(totalMessageData, messageMetadata
-                            .getMessageDataLength(), null);
+                if (this.mListener != null) {
+                    if (fileMetadata != null) {
+                        this.mListener.onReceivingRawMessage(totalMessageData, messageMetadata
+                                .getMessageDataLength(), String.copyValueOf(fileMetadata
+                                .getSrcFileName()));
+                    } else {
+                        this.mListener.onReceivingRawMessage(totalMessageData, messageMetadata
+                                .getMessageDataLength(), null);
+                    }
+                }
 
                 // Initialize variables
-                expectedPacketType = kMessageMetadata;
+                expectedPayloadType = kMessageMetadata;
                 messageMetadata = null;
                 fileMetadata = null;
                 totalMessageData = null;
@@ -340,281 +347,5 @@ abstract public class CommPort {
             }
         }
         return 0;
-    }
-}
-
-class CommRawPacket {
-    private CommRawPacketHeader mRawPacketHeader;
-    private CommRawPacketPayload mRawPacketPayload;
-
-    private CommRawPacket(CommRawPacketHeader header, CommRawPacketPayload payload) {
-        this.mRawPacketHeader = header;
-        this.mRawPacketPayload = payload;
-    }
-
-    static public CommRawPacket makeMessageMetadataPacket(byte headerId, int totalDataSize,
-                                                          boolean isFileAttached) {
-        CommMessageMetadata payload = new CommMessageMetadata(totalDataSize, isFileAttached);
-        CommRawPacketHeader header = new CommRawPacketHeader(headerId, payload.getBytesSize(), 0,
-                false, false, false, true);
-
-        return new CommRawPacket(header, payload);
-    }
-
-    static public CommRawPacket makeFileMetadataPacket(byte headerId, File srcFile) {
-        CommFileMetadata payload = new CommFileMetadata((int) srcFile.length(), (char) srcFile
-                .getName().length(), srcFile.getName().toCharArray());
-        CommRawPacketHeader header = new CommRawPacketHeader(headerId, payload.getBytesSize(), 0,
-                false, false, false, true);
-        return new CommRawPacket(header, payload);
-    }
-
-    static public CommRawPacket makeDataPacket(byte headerId, byte[] data, int currOffset, short
-            size, boolean isEnd, boolean isFile) {
-        CommDataPayload payload = new CommDataPayload(data, size);
-        CommRawPacketHeader header = new CommRawPacketHeader(headerId, (byte) payload
-                .getBytesSize(), currOffset, isFile, !isFile, isEnd, false);
-
-        return new CommRawPacket(header, payload);
-    }
-
-    public byte[] toByteArray() {
-        int resLength = this.getBytesSize();
-        byte resBytes[] = new byte[resLength];
-        byte headerBytes[] = null;
-        byte payloadBytes[] = null;
-
-        // Payload header
-        headerBytes = this.mRawPacketHeader.toByteArray();
-        if (headerBytes == null) return null;
-        System.arraycopy(headerBytes, 0, resBytes, 0, this.mRawPacketHeader.getBytesSize());
-
-        // Payload
-        payloadBytes = this.mRawPacketPayload.toByteArray();
-        if (headerBytes == null) return null;
-        System.arraycopy(payloadBytes, 0, resBytes, this.mRawPacketHeader.getBytesSize(), this
-                .mRawPacketPayload.getBytesSize());
-
-        return resBytes;
-    }
-
-    public int getBytesSize() {
-        return this.mRawPacketHeader.getBytesSize() + this.mRawPacketPayload.getBytesSize();
-    }
-}
-
-// Communication Framework Payload
-class CommRawPacketHeader {
-    public static final short kMaxPacketSize = 1008;
-    public static final short kPacketHeaderSize = 8;
-    public static final short kMaxPacketPayloadSize = kMaxPacketSize - kPacketHeaderSize;
-
-    private byte mHeaderId;
-    private byte mHeaderFlag;
-    private short mPayloadSize;
-    private int mCurrOffset;
-
-    public CommRawPacketHeader(byte headerId, short payloadSize, int currOffset, boolean isFile,
-                               boolean isData, boolean isEndData, boolean isMetadata) {
-        byte headerFlag = 0x00;
-
-        //0x80 : file, 0x40 : data, 0x20 : end data, 0x10 : metadata
-        if (isFile) headerFlag = (byte) (headerFlag | 0x80);
-        if (isData) headerFlag = (byte) (headerFlag | 0x40);
-        if (isEndData) headerFlag = (byte) (headerFlag | 0x20);
-        if (isMetadata) headerFlag = (byte) (headerFlag | 0x10);
-
-        this.mHeaderId = headerId;
-        this.mHeaderFlag = headerFlag;
-        this.mPayloadSize = payloadSize;
-        this.mCurrOffset = currOffset;
-    }
-
-    public CommRawPacketHeader(byte headerId, short payloadSize, int currOffset, byte headerFlag) {
-        this.mHeaderId = headerId;
-        this.mHeaderFlag = headerFlag;
-        this.mPayloadSize = payloadSize;
-        this.mCurrOffset = currOffset;
-    }
-
-    public byte[] toByteArray() {
-        ByteBuffer bb = ByteBuffer.allocate(this.getBytesSize());
-        bb.put(mHeaderId);
-        bb.put(mHeaderFlag);
-        bb.putShort(mPayloadSize);
-        bb.putInt(mCurrOffset);
-        return bb.array();
-    }
-
-    public static CommRawPacketHeader read(DataInputStream dataInputStream) throws IOException {
-        byte headerId = dataInputStream.readByte();
-        byte headerFlag = dataInputStream.readByte();
-        short payloadSize = dataInputStream.readShort();
-        int currOffset = dataInputStream.readInt();
-        CommRawPacketHeader header = new CommRawPacketHeader(headerId, payloadSize, currOffset,
-                headerFlag);
-        return header;
-    }
-
-    public byte getHeaderId() {
-        return this.mHeaderId;
-    }
-
-    public byte getHeaderInfo() {
-        return this.mHeaderFlag;
-    }
-
-    public boolean getFlagIsFile() {
-        return ((this.mHeaderFlag & 0x80) != 0);
-    }
-
-    public boolean getFlagIsData() {
-        return ((this.mHeaderFlag & 0x40) != 0);
-    }
-
-    public boolean getFlagIsEndData() {
-        return ((this.mHeaderFlag & 0x20) != 0);
-    }
-
-    public boolean getFlagIsMetadata() {
-        return ((this.mHeaderFlag & 0x10) != 0);
-    }
-
-    public short getPayloadSize() {
-        return this.mPayloadSize;
-    }
-
-    public int getCurrOffset() {
-        return this.mCurrOffset;
-    }
-
-    public short getBytesSize() {
-        return kPacketHeaderSize;
-    }
-}
-
-abstract class CommRawPacketPayload {
-    abstract public byte[] toByteArray();
-
-    abstract public short getBytesSize();
-}
-
-class CommMessageMetadata extends CommRawPacketPayload {
-    // TODO: (on OPEL device side) add 'isFileAttached'
-    public static final short kMessageHeaderSize = 8;
-    private int mMessageDataLength;
-    private int mIsFileAttached;
-
-    public CommMessageMetadata(int messageDataLength, boolean isFileAttached) {
-        this.mMessageDataLength = messageDataLength;
-        this.mIsFileAttached = (isFileAttached) ? 1 : 0;
-    }
-
-    public byte[] toByteArray() {
-        if (mMessageDataLength == 0) return null;
-        ByteBuffer bb = ByteBuffer.allocate(this.getBytesSize());
-        bb.putInt(mMessageDataLength);
-        bb.putInt(mIsFileAttached);
-        return bb.array();
-    }
-
-    public static CommMessageMetadata read(DataInputStream dataInputStream) throws IOException {
-        int messageDataLength = dataInputStream.readInt();
-        int isFileAttached = dataInputStream.readInt();
-        CommMessageMetadata messageMetadata = new CommMessageMetadata(messageDataLength,
-                (isFileAttached != 0));
-        return messageMetadata;
-    }
-
-    public short getBytesSize() {
-        return kMessageHeaderSize;
-    }
-
-    public int getMessageDataLength() {
-        return this.mMessageDataLength;
-    }
-
-    public int getIsFileAttached() {
-        return this.mIsFileAttached;
-    }
-}
-
-class CommFileMetadata extends CommRawPacketPayload {
-    // TODO: (on OPEL device side) shrink fields
-    private int mFileSize;
-    private char mFileNameLength;
-    private char mFileName[];
-
-    public CommFileMetadata(int fileSize, char fileNameLength, char[] fileName) {
-        mFileSize = fileSize;
-        mFileNameLength = fileNameLength;
-        mFileName = fileName;
-    }
-
-    public byte[] toByteArray() {
-        try {
-            ByteBuffer bb = ByteBuffer.allocate(this.getBytesSize());
-            bb.putInt(this.mFileSize);
-            bb.putChar(this.mFileNameLength);
-            bb.put(new String(this.mFileName).getBytes("UTF-8"));
-            return bb.array();
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    public static CommFileMetadata read(DataInputStream dataInputStream) throws IOException {
-        int fileSize = dataInputStream.readInt();
-        char fileNameLength = dataInputStream.readChar();
-        byte[] fileNameBytes = new byte[fileNameLength];
-        dataInputStream.readFully(fileNameBytes, 0, fileNameLength);
-        String fileNameStr = new String(fileNameBytes, "UTF-8");
-        char[] fileName = fileNameStr.toCharArray();
-
-        CommFileMetadata fileMetadata = new CommFileMetadata(fileSize, fileNameLength, fileName);
-        return fileMetadata;
-    }
-
-    public short getBytesSize() {
-        return (short) (4 + 1 + this.mFileNameLength);
-    }
-
-    public int getFileSize() {
-        return this.mFileSize;
-    }
-
-    public char getSrcFileNameLength() {
-        return this.mFileNameLength;
-    }
-
-    public char[] getSrcFileName() {
-        return this.mFileName;
-    }
-}
-
-class CommDataPayload extends CommRawPacketPayload {
-    private short mSize;
-    private byte mData[];
-
-    public CommDataPayload(byte[] data, short size) {
-        this.mData = data;
-        this.mSize = size;
-    }
-
-    public byte[] toByteArray() {
-        return this.mData;
-    }
-
-    public static CommDataPayload read(DataInputStream dataInputStream, short dataSize) throws
-            IOException {
-        byte[] data = new byte[dataSize];
-        dataInputStream.readFully(data, 0, dataSize);
-        CommDataPayload dataPayload = new CommDataPayload(data, dataSize);
-        return dataPayload;
-    }
-
-    public short getBytesSize() {
-        return this.mSize;
     }
 }
