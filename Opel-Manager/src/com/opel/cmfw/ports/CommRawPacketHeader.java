@@ -38,12 +38,12 @@ public class CommRawPacketHeader {
     }
 
     public byte[] toByteArray() {
-        ByteBuffer bb = ByteBuffer.allocate(this.getBytesSize());
-        bb.put(mHeaderId);
-        bb.put(mHeaderFlag);
-        bb.putShort(mPayloadSize);
-        bb.putInt(mCurrOffset);
-        return bb.array();
+        ByteBuffer byteArray = ByteBuffer.allocate(this.getBytesSize());
+        byteArray.put(mHeaderId);
+        byteArray.put(mHeaderFlag);
+        byteArray.putShort(mPayloadSize);
+        byteArray.putInt(mCurrOffset);
+        return byteArray.array();
     }
 
     public static CommRawPacketHeader read(DataInputStream dataInputStream) throws IOException {
@@ -60,7 +60,7 @@ public class CommRawPacketHeader {
         return this.mHeaderId;
     }
 
-    public byte getHeaderInfo() {
+    public byte getHeaderFlag() {
         return this.mHeaderFlag;
     }
 

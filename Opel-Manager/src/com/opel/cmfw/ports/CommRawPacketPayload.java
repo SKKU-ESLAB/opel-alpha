@@ -12,8 +12,7 @@ public abstract class CommRawPacketPayload {
 }
 
 class CommPayloadMessageMetadata extends CommRawPacketPayload {
-    // TODO: (on OPEL device side) add 'isFileAttached'
-    public static final short kMessageHeaderSize = 8;
+    private static final short kMessageHeaderSize = 8;
     private int mMessageDataLength;
     private int mIsFileAttached;
 
@@ -52,7 +51,6 @@ class CommPayloadMessageMetadata extends CommRawPacketPayload {
 }
 
 class CommPayloadFileMetadata extends CommRawPacketPayload {
-    // TODO: (on OPEL device side) shrink fields
     private int mFileSize;
     private char mFileNameLength;
     private char mFileName[];
@@ -68,7 +66,7 @@ class CommPayloadFileMetadata extends CommRawPacketPayload {
             ByteBuffer bb = ByteBuffer.allocate(this.getBytesSize());
             bb.putInt(this.mFileSize);
             bb.putChar(this.mFileNameLength);
-            bb.put(new String(this.mFileName).getBytes("UTF-8"));
+            bb.put(new String(this.mFileName).getBytes("UTF-8"), 0, this.mFileNameLength + 1);
             return bb.array();
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
@@ -79,8 +77,8 @@ class CommPayloadFileMetadata extends CommRawPacketPayload {
     public static CommPayloadFileMetadata read(DataInputStream dataInputStream) throws IOException {
         int fileSize = dataInputStream.readInt();
         char fileNameLength = dataInputStream.readChar();
-        byte[] fileNameBytes = new byte[fileNameLength];
-        dataInputStream.readFully(fileNameBytes, 0, fileNameLength);
+        byte[] fileNameBytes = new byte[fileNameLength + 1];
+        dataInputStream.readFully(fileNameBytes, 0, fileNameLength + 1);
         String fileNameStr = new String(fileNameBytes, "UTF-8");
         char[] fileName = fileNameStr.toCharArray();
 

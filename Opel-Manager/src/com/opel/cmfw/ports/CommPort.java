@@ -65,6 +65,7 @@ abstract public class CommPort {
         this.mListener.onSuddenlyClosed(this);
     }
 
+    // TODO: Fail handling
     public void listenRawMessage() {
         InputStream inputStream = this.getInputStream();
         if (inputStream == null) return;
@@ -88,7 +89,8 @@ abstract public class CommPort {
                 // Read header
                 CommRawPacketHeader header = CommRawPacketHeader.read(dataInputStream);
                 if (!header.getFlagIsMetadata()) {
-                    // Not expected
+                    suddenlyClose("listenRawMessage: unexpected packet type: " + header
+                            .getHeaderFlag());
                     return;
                 }
 
@@ -96,7 +98,11 @@ abstract public class CommPort {
                 switch (expectedPayloadType) {
                     case kMessageMetadata:
                         // Message metadata is expected
-                        if (!header.getFlagIsMetadata()) return; // not expected
+                        if (!header.getFlagIsMetadata()) {
+                            suddenlyClose("listenRawMessage: unexpected payload type: " + header
+                                    .getHeaderFlag());
+                            return;
+                        }
                         messageMetadata = CommPayloadMessageMetadata.read(dataInputStream);
 
                         totalMessageData = new byte[messageMetadata.getMessageDataLength()];
@@ -106,17 +112,21 @@ abstract public class CommPort {
                     case kMessageData:
                         // Message data is expected
                         // TODO: not expected -> need some solution except "return"...
-                        if (!header.getFlagIsData()) return; // not expected
+                        if (!header.getFlagIsData()) {
+                            suddenlyClose("listenRawMessage: unexpected payload type: " + header
+                                    .getHeaderFlag());
+                            return;
+                        }
                         CommPayloadData messageData = CommPayloadData.read(dataInputStream,
                                 header.getPayloadSize());
                         byte[] messageDataBytes = messageData.toByteArray();
                         if (messageDataBytes == null) {
-                            this.suddenlyClose("sendRawMessage: Failed to make message data " +
+                            this.suddenlyClose("listenRawMessage: Failed to make message data " +
                                     "packet");
                             return;
                         }
-                        if(totalMessageData == null) {
-                            this.suddenlyClose("sendRawMessage: totalMessageData is null");
+                        if (totalMessageData == null) {
+                            this.suddenlyClose("listenRawMessage: totalMessageData is null");
                             return;
                         }
                         System.arraycopy(messageDataBytes, 0, totalMessageData, loadedBytesSize,
@@ -137,7 +147,11 @@ abstract public class CommPort {
 
                     case kFileMetadata:
                         // File metadata is expected
-                        if (!header.getFlagIsMetadata()) return; // not expected
+                        if (!header.getFlagIsMetadata()) {
+                            suddenlyClose("listenRawMessage: unexpected payload type: " + header
+                                    .getHeaderFlag());
+                            return;
+                        }
                         fileMetadata = CommPayloadFileMetadata.read(dataInputStream);
 
                         // Open file
@@ -159,14 +173,18 @@ abstract public class CommPort {
 
                     case kFileData:
                         // File data is expected
-                        if (!header.getFlagIsFile()) return; // not expected
+                        if (!header.getFlagIsFile()) {
+                            suddenlyClose("listenRawMessage: unexpected payload type: " + header
+                                    .getHeaderFlag());
+                            return;
+                        }
                         CommPayloadData fileData = CommPayloadData.read(dataInputStream, header
                                 .getPayloadSize());
 
                         // Write
                         byte[] fileDataBytes = fileData.toByteArray();
                         if (fileDataBytes == null) {
-                            this.suddenlyClose("sendRawMessage: Failed to make file data packet");
+                            this.suddenlyClose("listenRawMessage: Failed to make file data packet");
                         }
                         bufferedOutputStream.write(fileDataBytes, 0, fileData.getBytesSize());
 
@@ -186,6 +204,15 @@ abstract public class CommPort {
             }
 
             if (isMessageCompleted) {
+                // Close the attached file if exists
+                if(bufferedOutputStream != null) {
+                    try {
+                        bufferedOutputStream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
                 // Notify the message
                 if (this.mListener != null) {
                     if (fileMetadata != null) {
@@ -199,6 +226,7 @@ abstract public class CommPort {
                 }
 
                 // Initialize variables
+                bufferedOutputStream = null;
                 expectedPayloadType = kMessageMetadata;
                 messageMetadata = null;
                 fileMetadata = null;
@@ -225,6 +253,7 @@ abstract public class CommPort {
             byte[] messageMetadataBytes = messageMetadataPacket.toByteArray();
             if (messageMetadataBytes == null) {
                 this.suddenlyClose("sendRawMessage: Failed to make message metadata packet");
+                return -1;
             }
             try {
                 dataOutputStream.write(messageMetadataBytes, 0, messageMetadataPacket
@@ -262,6 +291,7 @@ abstract public class CommPort {
                 byte[] messageDataPacketBytes = messageDataPacket.toByteArray();
                 if (messageDataPacketBytes == null) {
                     this.suddenlyClose("sendRawMessage: Failed to make message data packet");
+                    return -1;
                 }
                 try {
                     dataOutputStream.write(messageDataPacketBytes, 0, messageDataPacket
@@ -282,6 +312,7 @@ abstract public class CommPort {
             byte[] fileMetadataBytes = fileMetadataPacket.toByteArray();
             if (fileMetadataBytes == null) {
                 this.suddenlyClose("sendRawMessage: Failed to make file metadata packet");
+                return -1;
             }
             try {
                 dataOutputStream.write(fileMetadataBytes, 0, fileMetadataPacket.getBytesSize());
@@ -336,6 +367,7 @@ abstract public class CommPort {
                 byte[] fileDataPacketBytes = fileDataPacket.toByteArray();
                 if (fileDataPacketBytes == null) {
                     this.suddenlyClose("sendRawMessage: Failed to make file data packet");
+                    return -1;
                 }
                 try {
                     dataOutputStream.write(fileDataPacketBytes, 0, fileDataPacket.getBytesSize());

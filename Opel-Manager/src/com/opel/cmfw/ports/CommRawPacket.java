@@ -3,12 +3,12 @@ package com.opel.cmfw.ports;
 import java.io.File;
 
 public class CommRawPacket {
-    private CommRawPacketHeader mRawPacketHeader;
-    private CommRawPacketPayload mRawPacketPayload;
+    private CommRawPacketHeader mHeader;
+    private CommRawPacketPayload mPayload;
 
     private CommRawPacket(CommRawPacketHeader header, CommRawPacketPayload payload) {
-        this.mRawPacketHeader = header;
-        this.mRawPacketPayload = payload;
+        this.mHeader = header;
+        this.mPayload = payload;
     }
 
     static public CommRawPacket makeMessageMetadataPacket(byte headerId, int totalDataSize,
@@ -44,20 +44,20 @@ public class CommRawPacket {
         byte payloadBytes[] = null;
 
         // Payload header
-        headerBytes = this.mRawPacketHeader.toByteArray();
+        headerBytes = this.mHeader.toByteArray();
         if (headerBytes == null) return null;
-        System.arraycopy(headerBytes, 0, resBytes, 0, this.mRawPacketHeader.getBytesSize());
+        System.arraycopy(headerBytes, 0, resBytes, 0, this.mHeader.getBytesSize());
 
         // Payload
-        payloadBytes = this.mRawPacketPayload.toByteArray();
+        payloadBytes = this.mPayload.toByteArray();
         if (headerBytes == null) return null;
-        System.arraycopy(payloadBytes, 0, resBytes, this.mRawPacketHeader.getBytesSize(), this
-                .mRawPacketPayload.getBytesSize());
+        System.arraycopy(payloadBytes, 0, resBytes, this.mHeader.getBytesSize(), this
+                .mPayload.getBytesSize());
 
         return resBytes;
     }
 
     public int getBytesSize() {
-        return this.mRawPacketHeader.getBytesSize() + this.mRawPacketPayload.getBytesSize();
+        return this.mHeader.getBytesSize() + this.mPayload.getBytesSize();
     }
 }
