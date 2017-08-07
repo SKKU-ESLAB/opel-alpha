@@ -117,8 +117,7 @@ abstract public class CommPort {
                                     .getHeaderFlag());
                             return;
                         }
-                        CommPayloadData messageData = CommPayloadData.read(dataInputStream,
-                                header.getPayloadSize());
+                        CommPayloadData messageData = CommPayloadData.read(dataInputStream);
                         byte[] messageDataBytes = messageData.toByteArray();
                         if (messageDataBytes == null) {
                             this.suddenlyClose("listenRawMessage: Failed to make message data " +
@@ -178,8 +177,7 @@ abstract public class CommPort {
                                     .getHeaderFlag());
                             return;
                         }
-                        CommPayloadData fileData = CommPayloadData.read(dataInputStream, header
-                                .getPayloadSize());
+                        CommPayloadData fileData = CommPayloadData.read(dataInputStream);
 
                         // Write
                         byte[] fileDataBytes = fileData.toByteArray();
@@ -343,7 +341,7 @@ abstract public class CommPort {
                     isEnd = false;
                 } else {
                     // end data
-                    fileDataPayloadSize = (short) (fileDataLength - sentBytes);
+                    fileDataPayloadSize = fileDataLength - sentBytes;
                     isEnd = true;
                 }
                 byte[] fileDataPayloadBytes = new byte[fileDataPayloadSize];

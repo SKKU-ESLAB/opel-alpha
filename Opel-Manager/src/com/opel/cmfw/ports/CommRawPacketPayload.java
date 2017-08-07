@@ -116,8 +116,9 @@ class CommPayloadData extends CommRawPacketPayload {
         return this.mData;
     }
 
-    public static CommPayloadData read(DataInputStream dataInputStream, short dataSize) throws
+    public static CommPayloadData read(DataInputStream dataInputStream) throws
             IOException {
+        short dataSize = dataInputStream.readShort();
         byte[] data = new byte[dataSize];
         dataInputStream.readFully(data, 0, dataSize);
         CommPayloadData dataPayload = new CommPayloadData(data, dataSize);
