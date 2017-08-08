@@ -1,16 +1,25 @@
-set(CMFW_SRC_DIR ./src)
-
 include_directories(./inc)
-add_library(cmfw_bt OBJECT ${CMFW_SRC_DIR}/cmfw_bt.cpp)
-add_library(cmfw_wfd OBJECT ${CMFW_SRC_DIR}/cmfw_wfd.cpp)
-add_library(tmp_control OBJECT ${CMFW_SRC_DIR}/tmp_control.cpp)
 
-add_library(opel_cmfw STATIC ${CMFW_SRC_DIR}/opel_cmfw.cpp $<TARGET_OBJECTS:cmfw_bt> $<TARGET_OBJECTS:cmfw_wfd> $<TARGET_OBJECTS:tmp_control>)
-target_link_libraries(opel_cmfw bluetooth)
+set(CMAKE_CXX_STANDARD 11)
+set(CMFW_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
-set_target_properties(opel_cmfw
+add_library(BluetoothCommPort OBJECT ${CMFW_SOURCE_DIR}/BluetoothCommPort.cpp)
+add_library(WifiDirectCommPort OBJECT ${CMFW_SOURCE_DIR}/WifiDirectCommPort.cpp)
+add_library(CommRawPacket OBJECT ${CMFW_SOURCE_DIR}/CommRawPacket.cpp)
+add_library(DeviceController OBJECT ${CMFW_SOURCE_DIR}/DeviceController.cpp)
+add_library(TmpControl OBJECT ${CMFW_SOURCE_DIR}/TmpControl.cpp)
+add_library(opel-cmfw STATIC ${CMFW_SOURCE_DIR}/CommPort.cpp
+  $<TARGET_OBJECTS:BluetoothCommPort>
+  $<TARGET_OBJECTS:WifiDirectCommPort>
+  $<TARGET_OBJECTS:CommRawPacket>
+  $<TARGET_OBJECTS:DeviceController>
+  $<TARGET_OBJECTS:TmpControl>)
+
+target_link_libraries(opel-cmfw bluetooth)
+
+set_target_properties(opel-cmfw
 		PROPERTIES
-		ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/out/libs"
-		LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/out/lib"
-		RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/out/bin"
+		ARCHIVE_OUTPUT_DIRECTORY "../../out/libs"
+		LIBRARY_OUTPUT_DIRECTORY "../../out/lib"
+		RUNTIME_OUTPUT_DIRECTORY "../../out/bin"
 		COMPILE_FLAGS "-std=c++11")
