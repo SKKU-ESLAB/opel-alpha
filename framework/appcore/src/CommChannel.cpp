@@ -41,14 +41,22 @@
 #include "OPELdbugLog.h"
 #include "MessageRouter.h"
 #include "BaseMessage.h"
-#include "opel_cmfw.h"
+#include "CommPort.h"
 
 #define RAW_STRING_SIZE 1024
 #define EXT4_FILE_PATH_LENGTH 4097
 
+void CommChannelState::set(Value newValue) {
+  Value oldValue = this->mValue;
+  this->mValue = newValue;
+  if((this->mStateListener != NULL) && (oldValue != newValue)) {
+    this->mStateListener->onCommChannelStateChanged(this->mValue);
+  }
+}
+
 void CommChannel::run() {
   // Turn on Bluetooth
-  this->mBluetoothDeviceControlller.turnOn();
+  this->mBluetoothDeviceController.turnOn();
 
   // Start CommChannel
   this->start();
@@ -118,12 +126,12 @@ bool CommChannel::start() {
 
   // Run ListeningLoop of default/control ports on separate thread
   this->mDefaultPort->runListeningThread(
-      this->mDataListener, this->mFileTempDir);
+      this->mDataPortsListener, this->mFileTempDir);
   this->mControlPort->runListeningThread(
-      this->mControlListener, this->mFileTempDir);
+      this->mControlPortsListener, this->mFileTempDir);
 
   // Channel state goes to LISTENING_DEFAULT
-  this->mState->set(CommChannelState::LISTENING_DEFAULT);
+  this->mState.set(CommChannelState::LISTENING_DEFAULT);
 
   return true;
 }
@@ -137,12 +145,12 @@ void CommChannel::stop() {
   this->mControlPort->closeConnection();
 
   // Channel state goes to IDLE
-  this->mState->set(CommChannelState::IDLE);
+  this->mState.set(CommChannelState::IDLE);
 }
 
 bool CommChannel::enableLargeDataMode() {
   // Turn on Wi-fi Direct
-  bool wfdTurnOnRes = this->mWifiDirectDeviceControlller.turnOn();
+  bool wfdTurnOnRes = this->mWifiDirectDeviceController.turnOn();
   if(!wfdTurnOnRes) {
     OPEL_DBG_ERR("CommChannel enableLargeData: turning on Wi-fi Direct fail");
     return false;
@@ -156,11 +164,11 @@ bool CommChannel::enableLargeDataMode() {
   }
 
   // Channel state goes to LISTENING_LARGEDATA
-  this->mState->set(CommChannelState::LISTENING_LARGEDATA);
+  this->mState.set(CommChannelState::LISTENING_LARGEDATA);
 
   // Run ListeningLoop of largedata port on separate thread
   this->mLargeDataPort->runListeningThread(
-      this->mDataListener, this->mFileTempDir);
+      this->mDataPortsListener, this->mFileTempDir);
   return true;
 }
 
@@ -169,13 +177,13 @@ void CommChannel::disableLargeDataMode() {
   this->mLargeDataPort->stopListeningThread();
 
   // Turn on Wi-fi Direct
-  bool wfdTurnOffRes = this->mWifiDirectDeviceControlller.turnOff();
+  bool wfdTurnOffRes = this->mWifiDirectDeviceController.turnOff();
   if(!wfdTurnOffRes) {
     OPEL_DBG_ERR("CommChannel disableLargeData: turning off Wi-fi Direct fail");
   }
   
   // Channel state goes to CONNECTED_DEFAULT
-  this->mState->set(CommChannelState::CONNECTED_DEFAULT);
+  this->mState.set(CommChannelState::CONNECTED_DEFAULT);
 }
 
 bool CommChannel::checkMessageCompatible(BaseMessage* message) {
@@ -255,7 +263,7 @@ void DataPortsListener::onReceivedRawMessage(std::string messageData,
       messageData, filePath);
 
   // Parse rawString into base message
-  BaseMessage* message = BaseMessage::parse(messageData);
+  BaseMessage* message = BaseMessage::parse(messageData.c_str());
   if(message == NULL) {
     OPEL_DBG_ERR("Received message is not base message!: %s", messageData);
     return;
@@ -267,6 +275,10 @@ void DataPortsListener::onReceivedRawMessage(std::string messageData,
   this->mOwner->onReceivedMessage(message);
 }
 
+void ControlPortsListener::onReceivedRawMessage(std::string messageData,
+    std::string filePath) {
+  this->mOwner->onReceivedControlMessage(messageData);
+}
 
 #define WLAN_INTERFACE_NAME "wlan0"
 #define ETHERNET_INTERFACE_NAME "eth0"
@@ -274,7 +286,7 @@ void DataPortsListener::onReceivedRawMessage(std::string messageData,
 void CommChannel::onReceivedControlMessage(std::string messageData) {
   // Raw message from control port 
   OPEL_DBG_VERB("Received control message for CommChannel: %s / %s",
-      messageData, filePath);
+      messageData);
 
   if(messageData.compare("on") == 0) {
     // Enable largedata mode
@@ -310,9 +322,4 @@ void CommChannel::onReceivedControlMessage(std::string messageData) {
     OPEL_DBG_ERR("Unknown message has arrived via control port: %s",
         messageData.c_str());
   }
-}
-
-void ControlPortsListener::onReceivedRawMessage(std::string messageData,
-    std::string filePath) {
-  this->mOwner->onReceivedPortStateChanged(messageData);
 }

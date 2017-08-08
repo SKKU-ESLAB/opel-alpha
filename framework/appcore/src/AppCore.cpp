@@ -190,7 +190,7 @@ void AppCore::onAppCoreMessage(AppCoreMessage* message) {
 
 // It supports only single companion device
 #define COMPANION_DEVICE_URI "/comp0"
-virtual void onCommChannelStateChanged(CommChannelState::Value state) {
+void AppCore::onCommChannelStateChanged(CommChannelState::Value state) {
   switch(state) {
     case CommChannelState::IDLE:
       // Remove routing entry for CommChannel

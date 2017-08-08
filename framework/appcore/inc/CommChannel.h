@@ -38,8 +38,66 @@
 #include "CommPort.h"
 #include "DeviceController.h"
 
+class CommChannel;
 class CommChannelState;
 class CommChannelStateListener;
+
+class CommChannelState {
+  // State: IDLE -> LISTENING_DEFAULT -> CONNECTED_DEFAULT
+  //             -> LISTENING_LARGEDATA -> CONNECTED_LARGEDATA
+  public:
+    enum Value {
+      IDLE,
+      LISTENING_DEFAULT,
+      CONNECTED_DEFAULT,
+      LISTENING_LARGEDATA,
+      CONNECTED_LARGEDATA
+    };
+
+  public:
+    CommChannelState() : mValue(IDLE), mStateListener(NULL) { }
+
+    void set(Value newValue);
+
+    Value get() { return this->mValue; }
+
+    void setStateListener(CommChannelStateListener* stateListener) {
+      this->mStateListener = stateListener;
+    }
+
+  protected:
+    Value mValue;
+    CommChannelStateListener* mStateListener;
+};
+
+class CommChannelStateListener {
+  public:
+    virtual void onCommChannelStateChanged(CommChannelState::Value state) = 0;
+};
+
+class DataPortsListener : public CommPortListener {
+  public:
+    DataPortsListener(CommChannel* owner) : mOwner(owner) { }
+
+    // Receive raw message
+    virtual void onReceivedRawMessage(std::string messageData,
+        std::string filePath);
+
+  private:
+    CommChannel* mOwner;
+};
+
+class ControlPortsListener : public CommPortListener {
+  public:
+    ControlPortsListener(CommChannel* owner) : mOwner(owner) { }
+
+    // Receive raw message
+    virtual void onReceivedRawMessage(std::string messageData,
+        std::string filePath);
+
+  private:
+    CommChannel* mOwner;
+};
 
 class CommChannel : public Channel, CommPortStateListener {
   public:
@@ -71,7 +129,7 @@ class CommChannel : public Channel, CommPortStateListener {
 
       delete this->mDefaultPort;
       delete this->mControlPort;
-      delete this->mPort;
+      delete this->mLargeDataPort;
     }
 
     // Channel function
@@ -91,6 +149,9 @@ class CommChannel : public Channel, CommPortStateListener {
 
     void onReceivedControlMessage(std::string messageData);
 
+    // CommPortListener - Receive message
+    void onReceivedMessage(BaseMessage* message);
+
   protected:
     // Start/stop CommChannel
     bool start();
@@ -103,9 +164,6 @@ class CommChannel : public Channel, CommPortStateListener {
     // Channel function (RoutedThread) - Check compatibility & Send message
     virtual bool checkMessageCompatible(BaseMessage* message);
     virtual void onRoutedMessage(BaseMessage* message);
-
-    // CommPortListener - Receive message
-    void onReceivedMessage(BaseMessage* message);
 
     // Get IP Address
     int getIpAddress(const char * interfaceName, char* ipAddr);
@@ -127,69 +185,7 @@ class CommChannel : public Channel, CommPortStateListener {
     WifiDirectCommPort* mLargeDataPort;
 
     // CommPortListeners
-    DataPortsListener mDataPortsListener;
-    ControlPortsListener mControlPortsListener;
-};
-
-class DataPortsListener : public CommPortListener {
-  public:
-    DataPortsListener(CommChannel* owner) : mOwner(owner) { }
-
-    // Receive raw message
-    virtual void onReceivedRawMessage(std::string messageData,
-        std::string filePath);
-
-  private:
-    CommChannel* mOwner;
-};
-
-class ControlPortsListener : public CommPortListener {
-  public:
-    ControlPortsListener(CommChannel* owner) : mOwner(owner) { }
-
-    // Receive raw message
-    virtual void onReceivedRawMessage(std::string messageData,
-        std::string filePath);
-
-  private:
-    CommChannel* mOwner;
-};
-
-class CommChannelState {
-  // State: IDLE -> LISTENING_DEFAULT -> CONNECTED_DEFAULT
-  //             -> LISTENING_LARGEDATA -> CONNECTED_LARGEDATA
-  enum Value {
-    IDLE,
-    LISTENING_DEFAULT,
-    CONNECTED_DEFAULT,
-    LISTENING_LARGEDATA,
-    CONNECTED_LARGEDATA
-  };
-
-  public:
-    CommChannelState() : mValue(IDLE), mStateListener(NULL) { }
-
-    void set(Value newValue) {
-      Value oldValue = this->mValue;
-      this->mValue = newValue;
-      if((this->mStateListener != NULL) && (oldValue != newValue)) {
-        this->mStateListener->onCommChannelStateChanged(this->mValue);
-      }
-    }
-
-    Value get() { return this->mValue; }
-
-    void setStateListener(CommChannelStateListener* stateListener) {
-      this->mStateListener = stateListener;
-    }
-
-  protected:
-    Value mValue;
-    CommChannelStateListener* mStateListener;
-};
-
-class CommChannelStateListener {
-  public:
-    virtual void onCommChannelStateChanged(CommChannelState::Value state) = 0;
+    DataPortsListener* mDataPortsListener;
+    ControlPortsListener* mControlPortsListener;
 };
 #endif // !defined(__COMM_CHANNEL_H__)
