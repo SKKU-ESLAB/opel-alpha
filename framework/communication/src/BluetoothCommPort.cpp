@@ -15,6 +15,8 @@
 
 #include "CommPort.h"
 
+#define MIN_BLUETOOTH_PORT 1
+#define MAX_BLUETOOTH_PORT 30
 bool BluetoothCommPort::openConnection() {
   __ENTER__;
 
@@ -36,7 +38,7 @@ bool BluetoothCommPort::openConnection() {
   // Dynamic bind
   // Dynamically bind available bluetooth port to the socket
   int bluetoothPort = this->bindDynamically(newSocket);
-  if(bluetoothPort < 1 || bluetoothPort  > 30) {
+  if(MIN_BLUETOOTH_PORT < 1 || MAX_BLUETOOTH_PORT > 30) {
     CommLog("Bluetooth port open error: dynamic bind failed");
     __EXIT__;
     return false;
@@ -61,7 +63,7 @@ bool BluetoothCommPort::openConnection() {
     return false;
   }
 
-  // Set new SDP session and socket
+  // Set new SDP session and listened socket
   this->mSdpSession = sdpSession;
   this->setSocket(newSocket);
 
@@ -78,14 +80,18 @@ bool BluetoothCommPort::acceptConnection() {
   socklen_t optionLength = sizeof(clientAddress);
 
   // Accept connection
-  int acceptRes = accept(this->getSocket(),
+  int newSocket = accept(this->getSocket(),
       (struct sockaddr *)&clientAddress, &optionLength);
-  if(acceptRes < 0){
+  if(newSocket < 0){
     CommLog("Accept Failed");
     this->closeConnection();
     __EXIT__;
     return false;
   }
+
+  // Set new accpeted socket
+  // socket: NULL -> listened socket -> accepted socket
+  this->setSocket(newSocket);
 
   CommLog("Bluetooth port accepted");
 
@@ -121,7 +127,7 @@ int BluetoothCommPort::bindDynamically(int socket) {
 	sockaddr.rc_bdaddr = my_baddr_any;
 	sockaddr.rc_channel = (unsigned char) 0;
 
-	for (newPort = 1; newPort < 31; newPort++) {
+	for (newPort = MIN_BLUETOOTH_PORT; newPort <= MAX_BLUETOOTH_PORT; newPort++) {
 		sockaddr.rc_channel = newPort;
 		bindError = bind(socket, (struct sockaddr *)&sockaddr,
         sizeof(struct sockaddr_rc));
@@ -131,7 +137,7 @@ int BluetoothCommPort::bindDynamically(int socket) {
 		}
 		if(bindError == EINVAL) {
       __EXIT__;
-      return -2;
+      return bindError;
 		}
 	}
   __EXIT__;

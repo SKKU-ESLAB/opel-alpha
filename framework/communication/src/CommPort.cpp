@@ -81,26 +81,34 @@ void* CommPort::listeningLoop(void* data) {
       = CommRawPacketHeader::readFromSocket(self->getSocket());
     IF_NULL_(header) { } _BREAK()
     
+    CommLog("Expected type: %d", expectedPayloadType);
     // Read payload
     switch(expectedPayloadType) {
       case kMessageMetadata:
         {
           // Message metadata is expected
-          if(!header->getFlagIsMetadata()) break; // not expected
+          if(!header->getFlagIsMetadata()) {
+            CommLog("Expected MessageMetadata, but flag is: %d", header->getHeaderFlag());
+            break;
+          }
           messageMetadata
             = CommPayloadMessageMetadata::readFromSocket(self->getSocket());
           IF_NULL_(messageMetadata) { } _BREAK()
 
           totalMessageData = new char[messageMetadata->getMessageDataLength()];
           IF_NULL_(totalMessageData) { } _BREAK()
-            expectedPayloadType = kMessageData;
+          expectedPayloadType = kMessageData;
+          CommLog("Read complete: message metadata");
           break;
         }
 
       case kMessageData:
         {
           // Message data is expected
-          if(!header->getFlagIsData()) break; // not expected
+          if(!header->getFlagIsData()) {
+            CommLog("Expected Messagedata, but flag is: %d", header->getHeaderFlag());
+            break;
+          }
           CommPayloadData* messageData
             = CommPayloadData::readFromSocket(self->getSocket());
           IF_NULL_(messageData) { } _BREAK()
@@ -124,13 +132,17 @@ void* CommPort::listeningLoop(void* data) {
           } else {
             expectedPayloadType = kMessageData;
           }
+          CommLog("Read complete: message data");
           break;
         }
 
       case kFileMetadata:
         {
           // File metadata is expected
-          if(!header->getFlagIsMetadata()) break; // not expected
+          if(!header->getFlagIsMetadata()) {
+            CommLog("Expected File Metadata, but flag is: %d", header->getHeaderFlag());
+            break;
+          }
           fileMetadata
             = CommPayloadFileMetadata::readFromSocket(self->getSocket());
           IF_NULL_(fileMetadata) { } _BREAK()
@@ -150,13 +162,17 @@ void* CommPort::listeningLoop(void* data) {
 
           // Expect next packet
           expectedPayloadType = kFileData;
+          CommLog("Read complete: file metadata");
           break;
         }
 
       case kFileData:
         {
           // File data is expected
-          if(!header->getFlagIsFile()) break; // not expected
+          if(!header->getFlagIsFile()) {
+            CommLog("Expected File Data, but flag is: %d", header->getHeaderFlag());
+            break;
+          }
           CommPayloadData* fileData
             = CommPayloadData::readFromSocket(self->getSocket());
           IF_NULL_(fileData) { } _BREAK()
@@ -177,6 +193,7 @@ void* CommPort::listeningLoop(void* data) {
           } else {
             expectedPayloadType = kFileData;
           }
+          CommLog("Read complete: file data");
           break;
         }
     }

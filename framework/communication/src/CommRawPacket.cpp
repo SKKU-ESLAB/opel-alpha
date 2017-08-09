@@ -4,6 +4,8 @@
 
 #include <arpa/inet.h>
 
+#include "CommLog.h"
+
 #include "CommRawPacket.h"
 
 CommRawPacket* CommRawPacket::makeMessageMetadataPacket(
@@ -76,9 +78,13 @@ CommRawPacketHeader* CommRawPacketHeader::readFromSocket(int socketFd) {
   short payloadSize;
   int currOffset;
   READ_SOCKET_C(socketFd, headerId);
+  CommLog("headerId: %d", (int)headerId);
   READ_SOCKET_C(socketFd, headerFlag);
+  CommLog("headerFlag: %d", (int)headerFlag);
   READ_SOCKET_S(socketFd, payloadSize);
+  CommLog("payloadSize: %d", (int)payloadSize);
   READ_SOCKET_L(socketFd, currOffset);
+  CommLog("currOffset: %d", (int)currOffset);
   CommRawPacketHeader* header = new CommRawPacketHeader(
       headerId, payloadSize, currOffset, headerFlag);
   return header;
@@ -112,7 +118,9 @@ CommPayloadMessageMetadata* CommPayloadMessageMetadata::readFromSocket(
   int messageDataLength;
   int isFileAttached;
   READ_SOCKET_L(socketFd, messageDataLength);
+  CommLog("messageDataLength: %d", (int)messageDataLength);
   READ_SOCKET_L(socketFd, isFileAttached);
+  CommLog("isFileAttached: %d", (int)isFileAttached);
   CommPayloadMessageMetadata* messageMetadata = new CommPayloadMessageMetadata(
       messageDataLength, (isFileAttached != 0));
   return messageMetadata;
@@ -151,9 +159,11 @@ char* CommPayloadFileMetadata::toByteArray() {
 CommPayloadData* CommPayloadData::readFromSocket(int socketFd) {
   short dataSize;
   READ_SOCKET_S(socketFd, dataSize);
+  CommLog("dataSize: %d", dataSize);
 
   char* data = new char[dataSize];
   READ_SOCKET(socketFd, data, dataSize);
+  CommLog("data: %s", data);
   CommPayloadData* dataPayload = new CommPayloadData(data, dataSize);
   return dataPayload;
 }
