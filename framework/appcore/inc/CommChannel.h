@@ -113,11 +113,11 @@ class CommChannel : public Channel, CommPortStateListener {
         const int kLargeDataPortNum = 10001;
 
         this->mDefaultPort = new BluetoothCommPort(
-            "OPEL_DEF_PORT", this, defaultPortUUID);
+            "Default Port", this, defaultPortUUID);
         this->mControlPort = new BluetoothCommPort(
-            "OPEL_CTRL_PORT", this, controlPortUUID);
+            "Control Port", this, controlPortUUID);
         this->mLargeDataPort = new WifiDirectCommPort(
-            "OPEL_LARGEDATA_PORT", this, kLargeDataPortNum);
+            "LargeData Port", this, kLargeDataPortNum);
 
         // Initialize ports listeners
         this->mDataPortsListener = new DataPortsListener(this);

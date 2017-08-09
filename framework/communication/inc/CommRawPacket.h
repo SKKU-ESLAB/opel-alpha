@@ -107,7 +107,7 @@ class CommPayloadData : public CommRawPacketPayload {
       if(this->mData != NULL) delete this->mData;
     }
 
-    static CommPayloadData* readFromSocket(int socketFd);
+    static CommPayloadData* readFromSocket(int socketFd, short dataSize);
 
     virtual char* toByteArray();
     virtual short getBytesSize() { return this->mSize; }

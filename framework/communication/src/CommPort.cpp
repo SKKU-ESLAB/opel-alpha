@@ -43,7 +43,7 @@ void CommPort::stopListeningThread() {
 }
 
 #define IF_NULL_(x) if(x == NULL) {\
-  CommLog("%s: #x is NULL", __FUNCTION__); \
+  CommLog("%s: ##x is NULL", __FUNCTION__); \
   self->stopListeningThread();
 
 #define _RETURN_FALSE() __EXIT__;\
@@ -110,7 +110,7 @@ void* CommPort::listeningLoop(void* data) {
             break;
           }
           CommPayloadData* messageData
-            = CommPayloadData::readFromSocket(self->getSocket());
+            = CommPayloadData::readFromSocket(self->getSocket(), header->getPayloadSize());
           IF_NULL_(messageData) { } _BREAK()
             char* messageDataBytes = messageData->toByteArray();
           IF_NULL_(messageDataBytes) {
@@ -174,7 +174,7 @@ void* CommPort::listeningLoop(void* data) {
             break;
           }
           CommPayloadData* fileData
-            = CommPayloadData::readFromSocket(self->getSocket());
+            = CommPayloadData::readFromSocket(self->getSocket(), header->getPayloadSize());
           IF_NULL_(fileData) { } _BREAK()
 
           // Write
@@ -201,9 +201,9 @@ void* CommPort::listeningLoop(void* data) {
     if(isMessageCompleted) {
       // Notify message to CommPortListener
       std::string messageData(totalMessageData);
-      std::string filePath(fileMetadata->getSrcFileName());
       if(self->mListener != NULL) {
         if(fileMetadata != NULL) {
+          std::string filePath(fileMetadata->getSrcFileName());
           self->mListener->onReceivedRawMessage(messageData, filePath);
         } else {
           self->mListener->onReceivedRawMessage(messageData);
@@ -231,6 +231,7 @@ void* CommPort::listeningLoop(void* data) {
         fdToWrite = NULL;
       }
       loadedBytesSize = 0;
+      isMessageCompleted = false;
     }
 
     // Finalize (while)
