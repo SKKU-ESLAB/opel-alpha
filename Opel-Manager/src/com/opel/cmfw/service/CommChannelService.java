@@ -307,7 +307,7 @@ public class CommChannelService extends Service implements CommPortListener {
 
             // Send turning on Wi-fi direct message
             boolean res = sendRawMessageOnControl(kWifiDirectOnMessage, null);
-            if(!res) {
+            if (!res) {
                 onFail();
             }
         }

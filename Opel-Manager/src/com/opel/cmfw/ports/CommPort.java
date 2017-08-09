@@ -117,7 +117,8 @@ abstract public class CommPort {
                                     .getHeaderFlag());
                             return;
                         }
-                        CommPayloadData messageData = CommPayloadData.read(dataInputStream);
+                        CommPayloadData messageData = CommPayloadData.read(dataInputStream,
+                                header.getPayloadSize());
                         byte[] messageDataBytes = messageData.toByteArray();
                         if (messageDataBytes == null) {
                             this.suddenlyClose("listenRawMessage: Failed to make message data " +
@@ -177,7 +178,8 @@ abstract public class CommPort {
                                     .getHeaderFlag());
                             return;
                         }
-                        CommPayloadData fileData = CommPayloadData.read(dataInputStream);
+                        CommPayloadData fileData = CommPayloadData.read(dataInputStream, header
+                                .getPayloadSize());
 
                         // Write
                         byte[] fileDataBytes = fileData.toByteArray();
@@ -203,7 +205,7 @@ abstract public class CommPort {
 
             if (isMessageCompleted) {
                 // Close the attached file if exists
-                if(bufferedOutputStream != null) {
+                if (bufferedOutputStream != null) {
                     try {
                         bufferedOutputStream.close();
                     } catch (IOException e) {
@@ -230,6 +232,7 @@ abstract public class CommPort {
                 fileMetadata = null;
                 totalMessageData = null;
                 loadedBytesSize = 0;
+                isMessageCompleted = false;
             }
         }
     }
@@ -254,6 +257,7 @@ abstract public class CommPort {
                 return -1;
             }
             try {
+                Log.d(TAG, "metadata packet size: " + messageMetadataPacket.getBytesSize());
                 dataOutputStream.write(messageMetadataBytes, 0, messageMetadataPacket
                         .getBytesSize());
             } catch (Exception e) {

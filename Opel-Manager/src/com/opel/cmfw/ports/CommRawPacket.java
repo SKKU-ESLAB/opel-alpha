@@ -1,6 +1,10 @@
 package com.opel.cmfw.ports;
 
+import android.util.Log;
+
 import java.io.File;
+
+import static android.content.ContentValues.TAG;
 
 public class CommRawPacket {
     private CommRawPacketHeader mHeader;
@@ -13,7 +17,8 @@ public class CommRawPacket {
 
     static public CommRawPacket makeMessageMetadataPacket(byte headerId, int totalDataSize,
                                                           boolean isFileAttached) {
-        CommPayloadMessageMetadata payload = new CommPayloadMessageMetadata(totalDataSize, isFileAttached);
+        CommPayloadMessageMetadata payload = new CommPayloadMessageMetadata(totalDataSize,
+                isFileAttached);
         CommRawPacketHeader header = new CommRawPacketHeader(headerId, payload.getBytesSize(), 0,
                 false, false, false, true);
 
@@ -21,8 +26,8 @@ public class CommRawPacket {
     }
 
     static public CommRawPacket makeFileMetadataPacket(byte headerId, File srcFile) {
-        CommPayloadFileMetadata payload = new CommPayloadFileMetadata((int) srcFile.length(), (char) srcFile
-                .getName().length(), srcFile.getName().toCharArray());
+        CommPayloadFileMetadata payload = new CommPayloadFileMetadata((int) srcFile.length(),
+                (char) srcFile.getName().length(), srcFile.getName().toCharArray());
         CommRawPacketHeader header = new CommRawPacketHeader(headerId, payload.getBytesSize(), 0,
                 false, false, false, true);
         return new CommRawPacket(header, payload);
@@ -46,13 +51,16 @@ public class CommRawPacket {
         // Payload header
         headerBytes = this.mHeader.toByteArray();
         if (headerBytes == null) return null;
+        Log.d(TAG, "0 ~ " + this.mHeader.getBytesSize() + " / " + headerBytes.length);
         System.arraycopy(headerBytes, 0, resBytes, 0, this.mHeader.getBytesSize());
 
         // Payload
         payloadBytes = this.mPayload.toByteArray();
-        if (headerBytes == null) return null;
-        System.arraycopy(payloadBytes, 0, resBytes, this.mHeader.getBytesSize(), this
-                .mPayload.getBytesSize());
+        if (payloadBytes == null) return null;
+        Log.d(TAG, "" + this.mHeader.getBytesSize() + " ~ " + (this.mHeader.getBytesSize() + this
+                .mPayload.getBytesSize()) + " / " + payloadBytes.length);
+        System.arraycopy(payloadBytes, 0, resBytes, this.mHeader.getBytesSize(), this.mPayload
+                .getBytesSize());
 
         return resBytes;
     }

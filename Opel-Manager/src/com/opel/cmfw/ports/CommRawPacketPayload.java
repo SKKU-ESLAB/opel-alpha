@@ -1,9 +1,13 @@
 package com.opel.cmfw.ports;
 
+import android.util.Log;
+
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
+
+import static android.content.ContentValues.TAG;
 
 public abstract class CommRawPacketPayload {
     abstract public byte[] toByteArray();
@@ -24,16 +28,18 @@ class CommPayloadMessageMetadata extends CommRawPacketPayload {
     public byte[] toByteArray() {
         if (mMessageDataLength == 0) return null;
         ByteBuffer bb = ByteBuffer.allocate(this.getBytesSize());
+        Log.d(TAG, "MessageMetadata: " + mMessageDataLength + " / " + mIsFileAttached);
         bb.putInt(mMessageDataLength);
         bb.putInt(mIsFileAttached);
         return bb.array();
     }
 
-    public static CommPayloadMessageMetadata read(DataInputStream dataInputStream) throws IOException {
+    public static CommPayloadMessageMetadata read(DataInputStream dataInputStream) throws
+            IOException {
         int messageDataLength = dataInputStream.readInt();
         int isFileAttached = dataInputStream.readInt();
-        CommPayloadMessageMetadata messageMetadata = new CommPayloadMessageMetadata(messageDataLength,
-                (isFileAttached != 0));
+        CommPayloadMessageMetadata messageMetadata = new CommPayloadMessageMetadata
+                (messageDataLength, (isFileAttached != 0));
         return messageMetadata;
     }
 
@@ -64,6 +70,7 @@ class CommPayloadFileMetadata extends CommRawPacketPayload {
     public byte[] toByteArray() {
         try {
             ByteBuffer bb = ByteBuffer.allocate(this.getBytesSize());
+            Log.d(TAG, "FileMetadata: " + mFileSize + " / " + mFileNameLength + " / " + mFileName);
             bb.putInt(this.mFileSize);
             bb.putChar(this.mFileNameLength);
             bb.put(new String(this.mFileName).getBytes("UTF-8"), 0, this.mFileNameLength + 1);
@@ -82,7 +89,8 @@ class CommPayloadFileMetadata extends CommRawPacketPayload {
         String fileNameStr = new String(fileNameBytes, "UTF-8");
         char[] fileName = fileNameStr.toCharArray();
 
-        CommPayloadFileMetadata fileMetadata = new CommPayloadFileMetadata(fileSize, fileNameLength, fileName);
+        CommPayloadFileMetadata fileMetadata = new CommPayloadFileMetadata(fileSize,
+                fileNameLength, fileName);
         return fileMetadata;
     }
 
@@ -113,12 +121,12 @@ class CommPayloadData extends CommRawPacketPayload {
     }
 
     public byte[] toByteArray() {
+        Log.d(TAG, "Data: " + mData);
         return this.mData;
     }
 
-    public static CommPayloadData read(DataInputStream dataInputStream) throws
+    public static CommPayloadData read(DataInputStream dataInputStream, short dataSize) throws
             IOException {
-        short dataSize = dataInputStream.readShort();
         byte[] data = new byte[dataSize];
         dataInputStream.readFully(data, 0, dataSize);
         CommPayloadData dataPayload = new CommPayloadData(data, dataSize);

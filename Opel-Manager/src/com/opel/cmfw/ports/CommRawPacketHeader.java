@@ -1,8 +1,12 @@
 package com.opel.cmfw.ports;
 
+import android.util.Log;
+
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+
+import static android.content.ContentValues.TAG;
 
 public class CommRawPacketHeader {
     public static final short kMaxPacketSize = 1008;
@@ -39,6 +43,8 @@ public class CommRawPacketHeader {
 
     public byte[] toByteArray() {
         ByteBuffer byteArray = ByteBuffer.allocate(this.getBytesSize());
+        Log.d(TAG, "Header: " + mHeaderId + " / " + mHeaderFlag + " / " + mPayloadSize + " / " +
+                mCurrOffset);
         byteArray.put(mHeaderId);
         byteArray.put(mHeaderFlag);
         byteArray.putShort(mPayloadSize);
