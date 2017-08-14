@@ -18,6 +18,7 @@ set(ACM_sources
   ${ACM_SOURCE_DIR}/LocalChannel.cpp
   ${ACM_SOURCE_DIR}/MessageRouter.cpp
   ${ACM_SOURCE_DIR}/BaseMessage.cpp
+  ${ACM_SOURCE_DIR}/MessageFactory.cpp
   ${ACM_SOURCE_DIR}/Channel.cpp
   ${ACM_SOURCE_DIR}/cJSON.c)
 

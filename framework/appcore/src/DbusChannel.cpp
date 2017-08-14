@@ -27,6 +27,8 @@
 
 #include "DbusChannel.h"
 #include "OPELdbugLog.h"
+#include "MessageFactory.h"
+#include "BaseMessage.h"
 
 #define TERMINATION_SIGNAL "termination_event_driven"
 #define CONFIGURATION_SIGNAL "config_event_driven"
@@ -69,17 +71,17 @@ void DbusChannel::onRoutedMessage(BaseMessage* message) {
   // If the message did not routed at all, make a warning message
   if(targetDbusPath != NULL) {
     OPEL_DBG_VERB("Route to %s: %s",
-        targetUriString, message->toRawString());
-    this->sendRawStringToTarget(message->toRawString(), targetDbusPath);
+        targetUriString, message->toJSONString());
+    this->sendRawStringToTarget(message->toJSONString(), targetDbusPath);
   } else {
-    OPEL_DBG_WARN("Message did not routed!: %s", message->toRawString());
+    OPEL_DBG_WARN("Message did not routed!: %s", message->toJSONString());
   }
 }
 
 bool DbusChannel::checkMessageCompatible(BaseMessage* message) {
   if(message->isFileAttached() == true) {
     OPEL_DBG_WARN("DbusChannel does not support file attachment! %s",
-        message->toRawString());
+        message->toJSONString());
     return false;
   }
   return true;
@@ -208,7 +210,7 @@ DBusHandlerResult DbusChannel::onReceivedDbusMessage(DBusConnection* connection,
   }
 
   // Parse rawString into OPEL message
-  BaseMessage* message = BaseMessage::parse(rawString);
+  BaseMessage* message = MessageFactory::makeMessageFromJSONString(rawString);
   if(message == NULL) {
     OPEL_DBG_ERR("Received message is not OPEL message!: %s", rawString);
     return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;

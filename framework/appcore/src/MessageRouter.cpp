@@ -59,10 +59,10 @@ void MessageRouter::routeMessage(BaseMessage* message) {
   // If the message did not routed at all, make a warning message
   if(targetChannel != NULL) {
     OPEL_DBG_VERB("Route to %s: %s",
-        uriString, message->toRawString());
+        uriString, message->toJSONString());
     targetChannel->routeMessage(message);
   } else {
-    OPEL_DBG_WARN("Message did not routed!: %s", message->toRawString());
+    OPEL_DBG_WARN("Message did not routed!: %s", message->toJSONString());
   }
 }
 

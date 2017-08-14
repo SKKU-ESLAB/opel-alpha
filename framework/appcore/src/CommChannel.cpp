@@ -40,6 +40,7 @@
 #include "CommChannel.h"
 #include "OPELdbugLog.h"
 #include "MessageRouter.h"
+#include "MessageFactory.h"
 #include "BaseMessage.h"
 #include "CommPort.h"
 
@@ -195,7 +196,7 @@ void CommChannel::onRoutedMessage(BaseMessage* message) {
   // RedCarrottt: It works for only single companion.
 
   // Send message as raw string 
-  const char* rawString = message->toRawString();
+  const char* rawString = message->toJSONString();
 
   CommChannelState::Value state = this->mState.get();
   CommPort* targetPort = NULL;
@@ -220,10 +221,10 @@ void CommChannel::onRoutedMessage(BaseMessage* message) {
 
   bool sendRes;
   if(message->isFileAttached()) {
-    sendRes = targetPort->sendRawMessage(message->toRawString(),
+    sendRes = targetPort->sendRawMessage(message->toJSONString(),
         message->getFileName());
   } else {
-    sendRes = targetPort->sendRawMessage(message->toRawString());
+    sendRes = targetPort->sendRawMessage(message->toJSONString());
   }
 
   if(!sendRes) {
@@ -263,7 +264,8 @@ void DataPortsListener::onReceivedRawMessage(std::string messageData,
       messageData.c_str(), filePath.c_str());
 
   // Parse rawString into base message
-  BaseMessage* message = BaseMessage::parse(messageData.c_str());
+  BaseMessage* message = MessageFactory::makeMessageFromJSONString(
+      messageData.c_str());
   if(message == NULL) {
     OPEL_DBG_ERR("Received message is not base message!: %s",
         messageData.c_str());

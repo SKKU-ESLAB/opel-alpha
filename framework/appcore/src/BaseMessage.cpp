@@ -24,80 +24,115 @@
 #include "cJSON.h"
 #include "OPELdbugLog.h"
 
-#define RETURN_IF_INVALID_CJSON_OBJ(a, ret) \
+#define RETURN_IF_NULL(a, ret) \
   if((a) == NULL) { \
-    OPEL_DBG_ERR("JSON parsing error before: %s", cJSON_GetErrorPtr()); \
+    OPEL_DBG_ERR("JSON handling error: null pointer"); \
     return ret; \
   }
 
-#define OPEL_MESSAGE_KEY_URI "uri"
-#define OPEL_MESSAGE_KEY_TYPE "type"
-#define OPEL_MESSAGE_KEY_PAYLOAD "payload"
-#define OPEL_MESSAGE_KEY_IS_FILE_ATTACHED "isFileAttached"
-#define OPEL_MESSAGE_KEY_FILE_NAME "fileName"
+#define RETURN_IF_INVALID_CJSON_OBJ(a, ret) \
+  if((a) == NULL) { \
+    OPEL_DBG_ERR("JSON handling error: %s", cJSON_GetErrorPtr()); \
+    return ret; \
+  }
 
 #define EXT4_FILE_PATH_LENGTH 4097
 
-BaseMessage* BaseMessage::parse(const char* rawString) {
-  // Parse rawString in JSON
-  cJSON* rootObj = cJSON_Parse(rawString);
-  RETURN_IF_INVALID_CJSON_OBJ(rootObj, NULL);
+// encoding to JSON (BaseMessage)
+cJSON* BaseMessage::toJSON() {
+  cJSON* rootObj = cJSON_CreateObject();
+  char tempStr[20];
 
-  // Get properties
-  // URI
-  cJSON* uriObj = cJSON_GetObjectItem(rootObj, OPEL_MESSAGE_KEY_URI);
-  RETURN_IF_INVALID_CJSON_OBJ(uriObj, NULL);
-  std::string uri(uriObj->valuestring);
+  // messageId
+  sprintf(tempStr, "%d", this->mMessageId);
+  cJSON_AddStringToObject(rootObj, OPEL_MESSAGE_KEY_MESSAGE_NUM, tempStr);
 
-  // Type
-  cJSON* typeObj = cJSON_GetObjectItem(rootObj, OPEL_MESSAGE_KEY_TYPE);
-  RETURN_IF_INVALID_CJSON_OBJ(typeObj, NULL);
-  // BE AWARE: Since cJSON internally consider integer value as Number(double),
-  // I decided to use string-shaped integer in JSON.
-  // Once integer value is carried by Number variable, its value can be changed
-  // because there is a limit in mantissa's representation.
-  BaseMessageType::Value type
-    = static_cast<BaseMessageType::Value>(atoi(typeObj->valuestring));
+  // uri
+  cJSON_AddStringToObject(rootObj, OPEL_MESSAGE_KEY_URI, this->mUri.c_str());
+
+  // type
+  sprintf(tempStr, "%d", this->mType);
+  cJSON_AddStringToObject(rootObj, OPEL_MESSAGE_KEY_TYPE, tempStr);
 
   // isFileAttached
-  cJSON* isFileAttachedObj = cJSON_GetObjectItem(rootObj,
-      OPEL_MESSAGE_KEY_IS_FILE_ATTACHED);
-  RETURN_IF_INVALID_CJSON_OBJ(isFileAttachedObj, NULL);
-  int isFileAttachedNum = atoi(isFileAttachedObj->valuestring);
-  bool isFileAttached = (isFileAttachedNum == 0) ? false : true;
+  sprintf(tempStr, "%d", (this->mIsFileAttached) ? 1 : 0);
+  cJSON_AddStringToObject(rootObj, OPEL_MESSAGE_KEY_IS_FILE_ATTACHED, tempStr);
 
-  // FileName
-  std::string fileName("");
-  if(isFileAttachedNum) {
-    cJSON* fileNameObj = cJSON_GetObjectItem(rootObj,
-        OPEL_MESSAGE_KEY_FILE_NAME);
-    RETURN_IF_INVALID_CJSON_OBJ(fileNameObj, NULL);
-    fileName = fileNameObj->valuestring;
+  // fileName
+  if(this->mIsFileAttached) {
+    cJSON_AddStringToObject(rootObj, OPEL_MESSAGE_KEY_IS_FILE_ATTACHED,
+        this->mFileName.c_str());
   }
-
-  cJSON* payloadObj = cJSON_GetObjectItem(rootObj, OPEL_MESSAGE_KEY_PAYLOAD);
-  RETURN_IF_INVALID_CJSON_OBJ(payloadObj, NULL);
-
-  // Allocate and initialize a new BaseMessage
-  BaseMessage* newMessage = NULL;
-  switch(type) {
-    case BaseMessageType::AppCore:
-      newMessage = AppCoreMessage::jsonToMessage(payloadObj, uri, type,
-          isFileAttached, fileName);
-      break;
-    case BaseMessageType::App:
-      newMessage = AppMessage::jsonToMessage(payloadObj, uri, type,
-          isFileAttached, fileName);
-      break;
-    default:
-      // These types cannot be handled.
-      newMessage = new BaseMessage(uri, type, isFileAttached, fileName);
-      break;
-  }
-  return newMessage;
+  return rootObj;
 }
 
-// Used to attach file on message to be sent
+// encoding to JSON (AppCoreAckMessage)
+cJSON* AppCoreAckMessage::toJSON() {
+  cJSON* rootPayloadObj = cJSON_CreateObject();
+
+  // commandMessageId
+  char commandMessageIdStr[20];
+  sprintf(commandMessageIdStr, "%d", this->mCommandMessageId);
+  cJSON_AddStringToObject(rootPayloadObj,
+      APPCORE_ACK_MESSAGE_KEY_COMMAND_MESSAGE_NUM,
+      commandMessageIdStr);
+
+  // commandType
+  char commandTypeStr[20];
+  sprintf(commandTypeStr, "%d", this->mCommandType);
+  cJSON_AddStringToObject(rootPayloadObj, APPCORE_ACK_MESSAGE_KEY_COMMAND_TYPE,
+      commandTypeStr);
+
+  // payload (AppCoreAckMessage's)
+  cJSON_AddItemToObject(rootPayloadObj, APPCORE_ACK_MESSAGE_KEY_PAYLOAD,
+      this->mAppCoreAckPayloadObj);
+
+  cJSON* rootObj = BaseMessage::toJSON();
+  cJSON_AddItemToObject(rootObj, OPEL_MESSAGE_KEY_PAYLOAD, rootPayloadObj);
+  return rootObj;
+}
+
+// encoding to JSON (AppMessage)
+cJSON* AppMessage::toJSON() {
+  cJSON* rootPayloadObj = cJSON_CreateObject();
+
+  // commandType
+  char commandTypeStr[20];
+  sprintf(commandTypeStr, "%d", this->mCommandType);
+  cJSON_AddStringToObject(rootPayloadObj, APP_MESSAGE_KEY_COMMAND_TYPE,
+      commandTypeStr);
+
+  // payload (AppMessage's)
+  RETURN_IF_NULL(this->mAppPayloadObj, NULL);
+  cJSON_AddItemToObject(rootPayloadObj, APP_MESSAGE_KEY_PAYLOAD,
+      this->mAppPayloadObj);
+
+  cJSON* rootObj = BaseMessage::toJSON();
+  cJSON_AddItemToObject(rootObj, OPEL_MESSAGE_KEY_PAYLOAD, rootPayloadObj);
+  return rootObj;
+}
+
+// encoding to JSON (CompanionMessage)
+cJSON* CompanionMessage::toJSON() {
+  cJSON* rootPayloadObj = cJSON_CreateObject();
+
+  // commandType
+  char commandTypeStr[20];
+  sprintf(commandTypeStr, "%d", this->mCommandType);
+  cJSON_AddStringToObject(rootPayloadObj, COMPANION_MESSAGE_KEY_COMMAND_TYPE,
+      commandTypeStr);
+
+  // payload (CompanionMessage's)
+  RETURN_IF_NULL(this->mCompanionPayloadObj, NULL);
+  cJSON_AddItemToObject(rootPayloadObj, COMPANION_MESSAGE_KEY_PAYLOAD,
+      this->mCompanionPayloadObj);
+
+  cJSON* rootObj = BaseMessage::toJSON();
+  cJSON_AddItemToObject(rootObj, OPEL_MESSAGE_KEY_PAYLOAD, rootPayloadObj);
+  return rootObj;
+}
+
+// Attach file on message to be sent
 BaseMessage* BaseMessage::attachFile(std::string filePath) {
   char filePathBuffer[EXT4_FILE_PATH_LENGTH];
   snprintf(filePathBuffer, EXT4_FILE_PATH_LENGTH, "%s", filePath.c_str());
@@ -108,102 +143,7 @@ BaseMessage* BaseMessage::attachFile(std::string filePath) {
   return setStoredFilePath(filePath);
 }
 
-cJSON* BaseMessage::toJson() {
-  cJSON* rootObj = cJSON_CreateObject();
-  char tempStr[20];
-
-  // URI
-  cJSON_AddStringToObject(rootObj, OPEL_MESSAGE_KEY_URI, this->mUri.c_str());
-
-  // Type
-  sprintf(tempStr, "%d", this->mType);
-  cJSON_AddStringToObject(rootObj, OPEL_MESSAGE_KEY_TYPE, tempStr);
-
-  // isFileAttached
-  sprintf(tempStr, "%d", this->mIsFileAttached);
-  cJSON_AddStringToObject(rootObj, OPEL_MESSAGE_KEY_IS_FILE_ATTACHED, tempStr);
-
-  if(this->mIsFileAttached) {
-    // FileName
-    cJSON_AddStringToObject(rootObj, OPEL_MESSAGE_KEY_IS_FILE_ATTACHED,
-        this->mFileName.c_str());
-  }
-  return rootObj;
-}
-
-#define APPCORE_MESSAGE_KEY_COMMAND_TYPE "commandType"
-#define APPCORE_MESSAGE_KEY_PAYLOAD "payload"
-
-AppCoreMessage* AppCoreMessage::jsonToMessage(cJSON* messageObj,
-    std::string& uri, BaseMessageType::Value type, bool isFileAttached,
-    std::string fileName) {
-  // Allocate and initialize a new BaseMessage and return it
-  cJSON* commandTypeObj = cJSON_GetObjectItem(messageObj,
-      APPCORE_MESSAGE_KEY_COMMAND_TYPE);
-  RETURN_IF_INVALID_CJSON_OBJ(commandTypeObj, NULL);
-  AppCoreMessageCommandType::Value commandType
-    = static_cast<AppCoreMessageCommandType::Value>(atoi(
-          commandTypeObj->valuestring));
-
-  cJSON* appCorePayloadObj = cJSON_GetObjectItem(messageObj,
-      APPCORE_MESSAGE_KEY_PAYLOAD);
-  RETURN_IF_INVALID_CJSON_OBJ(appCorePayloadObj, NULL);
-  
-  // Allocate and initialize a new AppCoreMessage
-  AppCoreMessage* newMessage = new AppCoreMessage(uri, type, isFileAttached,
-      fileName, commandType, appCorePayloadObj);
-  return newMessage;
-}
-
-cJSON* AppCoreMessage::toJson() {
-  cJSON* rootPayloadObj = cJSON_CreateObject();
-  char commandTypeStr[20];
-  sprintf(commandTypeStr, "%d", this->mCommandType);
-  cJSON_AddStringToObject(rootPayloadObj, APPCORE_MESSAGE_KEY_COMMAND_TYPE,
-      commandTypeStr);
-  cJSON_AddItemToObject(rootPayloadObj, APPCORE_MESSAGE_KEY_PAYLOAD,
-      this->mAppCorePayloadObj);
-
-  cJSON* rootObj = BaseMessage::toJson();
-  cJSON_AddItemToObject(rootObj, OPEL_MESSAGE_KEY_PAYLOAD, rootPayloadObj);
-  return rootObj;
-}
-
-#define APP_MESSAGE_KEY_COMMAND_TYPE "commandType"
-#define APP_MESSAGE_KEY_PAYLOAD "payload"
-
-AppMessage* AppMessage::jsonToMessage(cJSON* messageObj, std::string& uri,
-    BaseMessageType::Value type, bool isFileAttached, std::string fileName) {
-  // Allocate and initialize a new BaseMessage and return it
-  cJSON* commandTypeObj = cJSON_GetObjectItem(messageObj, "commandType");
-  RETURN_IF_INVALID_CJSON_OBJ(commandTypeObj, NULL);
-  AppMessageCommandType::Value commandType
-    = static_cast<AppMessageCommandType::Value>(atoi(
-          commandTypeObj->valuestring));
-
-  cJSON* appPayloadObj = cJSON_GetObjectItem(messageObj, "payload");
-  RETURN_IF_INVALID_CJSON_OBJ(appPayloadObj, NULL);
-  
-  // Allocate and initialize a new AppMessage
-  AppMessage* newMessage = new AppMessage(uri, type, isFileAttached, fileName, 
-      commandType, appPayloadObj);
-  return newMessage;
-}
-
-cJSON* AppMessage::toJson() {
-  cJSON* rootPayloadObj = cJSON_CreateObject();
-  char commandTypeStr[20];
-  sprintf(commandTypeStr, "%d", this->mCommandType);
-  cJSON_AddStringToObject(rootPayloadObj, APP_MESSAGE_KEY_COMMAND_TYPE,
-      commandTypeStr);
-  cJSON_AddItemToObject(rootPayloadObj, APP_MESSAGE_KEY_PAYLOAD,
-      this->mAppPayloadObj);
-
-  cJSON* rootObj = BaseMessage::toJson();
-  cJSON_AddItemToObject(rootObj, OPEL_MESSAGE_KEY_PAYLOAD, rootPayloadObj);
-  return rootObj;
-}
-
+// Get command-specific parameters (AppCoreMessage)
 bool AppCoreMessage::getParamsListenAppState(int& appId) { 
   cJSON* appIdObj = cJSON_GetObjectItem(this->mAppCorePayloadObj, "appId");
   RETURN_IF_INVALID_CJSON_OBJ(appIdObj, false);
@@ -284,4 +224,90 @@ bool AppCoreMessage::getParamsGetFile(std::string& path) {
   path.assign(pathObj->valuestring);
 
   return true;
+}
+
+cJSON* ParamAppList::toJSON() {
+  cJSON* listObj = cJSON_CreateArray();
+
+  std::vector<ParamAppListEntry>::iterator iter;
+  for(iter = this->mAppList.begin();
+      iter != this->mAppList.end();
+      ++iter) {
+    cJSON* entryObj = cJSON_CreateObject();
+    char tempStr[20];
+
+    // appId
+    sprintf(tempStr, "%d", iter->getAppId());
+    cJSON_AddStringToObject(entryObj, "appId", tempStr);
+
+    // appName
+    std::string appName(iter->getAppName());
+    cJSON_AddStringToObject(entryObj, "appName", appName.c_str());
+
+    // isDefaultApp
+    sprintf(tempStr, "%d", (iter->isDefaultApp()) ? 1 : 0);
+    cJSON_AddStringToObject(entryObj, "isDefaultApp", tempStr);
+
+    cJSON_AddItemToArray(listObj, entryObj);
+  }
+
+  return listObj;
+}
+
+// Set command-specific parameters (AppCoreAckMessage)
+void AppCoreAckMessage::setParamsGetAppList(ParamAppList& appList) {
+  cJSON* payloadObj = cJSON_CreateObject();
+  cJSON_AddItemToObject(payloadObj, "appList", appList.toJSON());
+  this->mAppCoreAckPayloadObj = payloadObj; 
+}
+
+void AppCoreAckMessage::setParamsListenAppState(int appState) {
+  cJSON* payloadObj = cJSON_CreateObject();
+  char appStateStr[20];
+  sprintf(appStateStr, "%d", appState);
+  cJSON_AddStringToObject(payloadObj, "appState", appStateStr);
+
+  this->mAppCoreAckPayloadObj = payloadObj;
+}
+
+cJSON* ParamFileList::toJSON() {
+  cJSON* listObj = cJSON_CreateArray();
+
+  std::vector<std::string>::iterator iter;
+  for(iter = this->mFileList.begin();
+      iter != this->mFileList.end();
+      ++iter) {
+    cJSON* entryObj = cJSON_CreateString(iter->c_str());
+    cJSON_AddItemToArray(listObj, entryObj);
+  }
+
+  return listObj;
+}
+
+void AppCoreAckMessage::setParamsGetFileList(std::string path,
+    ParamFileList& fileList) {
+  cJSON* payloadObj = cJSON_CreateObject();
+  cJSON_AddStringToObject(payloadObj, "path", path.c_str());
+  cJSON_AddItemToObject(payloadObj, "fileList", fileList.toJSON());
+  this->mAppCoreAckPayloadObj = payloadObj; 
+}
+
+void AppCoreAckMessage::setParamsGetRootPath(std::string rootPath) {
+  cJSON* payloadObj = cJSON_CreateObject();
+  cJSON_AddStringToObject(payloadObj, "rootPath", rootPath.c_str());
+  this->mAppCoreAckPayloadObj = payloadObj; 
+}
+
+// Set command-specific parameters (CompanionMessage)
+void CompanionMessage::setParamsSendEventPage(std::string legacyData) {
+  cJSON* payloadObj = cJSON_CreateObject();
+  cJSON_AddStringToObject(payloadObj, "legacyData", legacyData.c_str());
+
+  this->mCompanionPayloadObj = payloadObj;
+}
+void CompanionMessage::setParamsSendConfigPage(std::string legacyData) {
+  cJSON* payloadObj = cJSON_CreateObject();
+  cJSON_AddStringToObject(payloadObj, "legacyData", legacyData.c_str());
+
+  this->mCompanionPayloadObj = payloadObj;
 }

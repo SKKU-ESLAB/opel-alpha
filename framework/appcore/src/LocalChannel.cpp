@@ -32,7 +32,7 @@ void LocalChannel::onRoutedMessage(BaseMessage* message) {
   } else {
     OPEL_DBG_WARN("LocalChannel's listener is not set!");
     OPEL_DBG_WARN("Therefore, a message is ignored: %s",
-        message->toRawString());
+        message->toJSONString());
   }
 }
 
@@ -46,7 +46,7 @@ bool LocalChannel::checkMessageCompatible(BaseMessage* message) {
     return true;
   } else {
     OPEL_DBG_WARN("Received message is not AppCoreMessage! %s",
-        message->toRawString());
+        message->toJSONString());
     return false;
   }
 }
