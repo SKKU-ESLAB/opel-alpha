@@ -1,5 +1,6 @@
 include_directories(./inc)
 include_directories(../communication/inc)
+include_directories(../message/inc)
 include_directories(/usr/local/xml/include/libxml2)
 link_directories(/usr/local/xml/lib)
 link_directories(../../out/libs)
@@ -17,15 +18,13 @@ set(ACM_sources
   ${ACM_SOURCE_DIR}/DbusChannel.cpp
   ${ACM_SOURCE_DIR}/LocalChannel.cpp
   ${ACM_SOURCE_DIR}/MessageRouter.cpp
-  ${ACM_SOURCE_DIR}/BaseMessage.cpp
-  ${ACM_SOURCE_DIR}/MessageFactory.cpp
   ${ACM_SOURCE_DIR}/Channel.cpp
   ${ACM_SOURCE_DIR}/cJSON.c)
 
 add_executable(opel-appcore ${ACM_sources})
 
 target_link_libraries(opel-appcore
-  opel-cmfw xml2 dbus-glib-1 dbus-1 glib-2.0 pthread bluetooth sqlite3)
+  opel-cmfw opel-message dbus-glib-1 dbus-1 glib-2.0 pthread bluetooth sqlite3)
 
 set_target_properties(opel-appcore
 		PROPERTIES
