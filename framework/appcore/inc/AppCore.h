@@ -54,7 +54,7 @@ class AppCore: public CommChannelStateListener, public LocalChannelListener {
     const char* getTempDir() { return this->mTempDir; }
 
     // LocalChannelListener
-    virtual void onAppCoreMessage(AppCoreMessage* message);
+    virtual void onReceivedMessage(BaseMessage* message);
 
     // CommStateListener
     virtual void onCommChannelStateChanged(CommChannelState::Value state);

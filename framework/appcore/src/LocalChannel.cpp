@@ -28,7 +28,7 @@ void LocalChannel::run() {
 
 void LocalChannel::onRoutedMessage(BaseMessage* message) {
   if(mListener != NULL) {
-    this->mListener->onAppCoreMessage((AppCoreMessage*)message);
+    this->mListener->onReceivedMessage(message);
   } else {
     OPEL_DBG_WARN("LocalChannel's listener is not set!");
     OPEL_DBG_WARN("Therefore, a message is ignored: %s",
@@ -36,7 +36,7 @@ void LocalChannel::onRoutedMessage(BaseMessage* message) {
   }
 }
 
-void LocalChannel::sendMessage(AppCoreMessage* message) {
+void LocalChannel::sendMessage(BaseMessage* message) {
   // Pass the given message to MessageRouter
   this->mMessageRouter->routeMessage(message);
 }
@@ -45,7 +45,7 @@ bool LocalChannel::checkMessageCompatible(BaseMessage* message) {
   if(message->getType() == BaseMessageType::AppCore) {
     return true;
   } else {
-    OPEL_DBG_WARN("Received message is not AppCoreMessage! %s",
+    OPEL_DBG_WARN("Received message is not for AppCore! %s",
         message->toJSONString());
     return false;
   }

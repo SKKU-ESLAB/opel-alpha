@@ -29,43 +29,26 @@ class MessageFactory {
 
   // Make AppCoreAckMessage from bottom
   static AppCoreAckMessage* makeAppCoreAckMessage(
-      int messageId, std::string uri,
       int commandMessageId, AppCoreMessageCommandType::Value commandType) {
-    return new AppCoreAckMessage(messageId, uri,
-        commandMessageId, commandType);
+    return new AppCoreAckMessage(commandMessageId, commandType);
   }
 
-  // Make AppMessage from bottom (without file)
-  static AppMessage* makeAppMessage(int messageId, std::string uri,
-      AppMessageCommandType::Value commandType) {
-    return new AppMessage(messageId, uri,
-        commandType);
-  }
-
-  // Make AppMessage from bottom (with file)
-  static AppMessage* makeAppMessage(int messageId, std::string uri,
-      bool isFileAttached, std::string fileName,
-      AppMessageCommandType::Value commandType) {
-    return new AppMessage(messageId, uri, isFileAttached, fileName,
-        commandType);
+  // Make AppMessage from bottom
+  static AppMessage* makeAppMessage(AppMessageCommandType::Value commandType) {
+    return new AppMessage(commandType);
   }
 
   // Make CompanionMesage from bottom
-  static CompanionMessage* makeCompanionMessage(int messageId, std::string uri,
+  static CompanionMessage* makeCompanionMessage(
       CompanionMessageCommandType::Value commandType) {
-    return new CompanionMessage(messageId, uri,
-        commandType);
+    return new CompanionMessage(commandType);
   }
 
   protected:
   // JSON -> BaseMessage / AppCoreMessage / AppMessage
   static BaseMessage* makeBaseMessageFromJSON(cJSON* messageObj);
-  static AppCoreMessage* makeAppCoreMessageFromJSON(cJSON* messageObj, 
-      int messageId, std::string& uri,
-      bool isFileAttached, std::string fileName);
-  static AppMessage* makeAppMessageFromJSON(cJSON* messageObj,
-      int messageId, std::string& uri,
-      bool isFileAttached, std::string fileName);
+  static AppCoreMessage* makeAppCoreMessageFromJSON(cJSON* messageObj);
+  static AppMessage* makeAppMessageFromJSON(cJSON* messageObj);
 };
 
 #endif // !defined(__MESSAGE_FACTORY_H__)

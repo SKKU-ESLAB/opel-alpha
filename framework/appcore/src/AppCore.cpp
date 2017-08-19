@@ -145,45 +145,54 @@ void AppCore::onSignalSIGCHLD() {
 }
 
 // Appcore Commands
-void AppCore::onAppCoreMessage(AppCoreMessage* message) {
+void AppCore::onReceivedMessage(BaseMessage* message) {
   if(message == NULL) {
     OPEL_DBG_ERR("Invalid AppCore Message");
     return;
   }
+  if(message->getType() == BaseMessageType::AppCore) {
+    OPEL_DBG_ERR("Not AppCore Message");
+    return;
+  }
+  AppCoreMessage* appcoreMessage = (AppCoreMessage*)message->getPayload();
+  if(appcoreMessage == NULL) {
+    OPEL_DBG_ERR("AppCoreMessage payload does not exist");
+    return;
+  }
 
-  switch(message->getCommandType()) {
+  switch(appcoreMessage->getCommandType()) {
     case AppCoreMessageCommandType::GetAppList:
-      this->getAppList(message);
+      this->getAppList(appcoreMessage);
       break;
     case AppCoreMessageCommandType::ListenAppState:
-      this->listenAppState(message);
+      this->listenAppState(appcoreMessage);
       break;
     case AppCoreMessageCommandType::InitializeApp:
-      this->initializeApp(message);
+      this->initializeApp(appcoreMessage);
       break;
     case AppCoreMessageCommandType::InstallApp:
-      this->installApp(message);
+      this->installApp(appcoreMessage);
       break;
     case AppCoreMessageCommandType::LaunchApp:
-      this->launchApp(message);
+      this->launchApp(appcoreMessage);
       break;
     case AppCoreMessageCommandType::CompleteLaunchingApp:
-      this->completeLaunchingApp(message);
+      this->completeLaunchingApp(appcoreMessage);
       break;
     case AppCoreMessageCommandType::TerminateApp:
-      this->terminateApp(message);
+      this->terminateApp(appcoreMessage);
       break;
     case AppCoreMessageCommandType::RemoveApp:
-      this->removeApp(message);
+      this->removeApp(appcoreMessage);
       break;
     case AppCoreMessageCommandType::GetFileList:
-      this->getFileList(message);
+      this->getFileList(appcoreMessage);
       break;
     case AppCoreMessageCommandType::GetFile:
-      this->getFile(message);
+      this->getFile(appcoreMessage);
       break;
     case AppCoreMessageCommandType::GetRootPath:
-      this->getRootPath(message);
+      this->getRootPath(appcoreMessage);
       break;
   }
 }

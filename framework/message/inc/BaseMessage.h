@@ -24,7 +24,23 @@
 
 #include "cJSON.h"
 
+// {
+//   // BaseMessage
+//   payload: {
+//     // BaseMessagePayload (AppCore, AppCoreAck, App, Companion)
+//     params: {
+//       // **Params
+//     }
+//   }
+// }
+
 class MessageFactory;
+
+class BaseMessagePayload {
+  public:
+    // encoding to JSON
+    virtual cJSON* toJSON() = 0;
+};
 
 // Use namespace + enum for readability
 namespace BaseMessageType {
@@ -71,7 +87,7 @@ class BaseMessage {
     }
 
     // encoding to JSON
-    virtual cJSON* toJSON();
+    cJSON* toJSON();
     char* toJSONString() {
       cJSON* jsonObj = this->toJSON();
       return cJSON_Print(jsonObj);
@@ -83,6 +99,10 @@ class BaseMessage {
     BaseMessageType::Value getType() { return this->mType; }
     bool isFileAttached() { return this->mIsFileAttached; }
     std::string& getFileName() { return this->mFileName; }
+
+    // Payload
+    void setPayload(BaseMessagePayload* payload) { this->mPayload = payload; }
+    BaseMessagePayload* getPayload() { return this->mPayload; }
 
   protected:
     BaseMessage(int messageId, std::string uri, BaseMessageType::Value type,
@@ -103,6 +123,7 @@ class BaseMessage {
     BaseMessageType::Value mType;
     bool mIsFileAttached;
     std::string mFileName;
+    BaseMessagePayload* mPayload;
 
     // Internal value
     // StoreFilePath: the local storage path of attached file
@@ -115,7 +136,7 @@ namespace AppCoreMessageCommandType {
     NotDetermined = 0,
     GetAppList = 1, // params: void (ACK params= ParamAppList)
     ListenAppState = 2, // params: int appId (ACK params: int appState)
-    InitializeApp = 3, // params: std::string name
+    InitializeApp = 3, // params: std::string name (ACK params: int appId)
     InstallApp = 4, // params: int appId
     LaunchApp = 5, // params: int appId
     CompleteLaunchingApp = 6, // params: int appId, int pid
@@ -133,7 +154,7 @@ namespace AppCoreMessageCommandType {
 // AppCoreMessage: message sent to AppCore Framework
 // - Decoding(makeFromJSON): C++
 // - Encoding(make, toJSON): Java
-class AppCoreMessage: public BaseMessage {
+class AppCoreMessage: public BaseMessagePayload {
   public:
     friend class MessageFactory;
 
@@ -144,6 +165,9 @@ class AppCoreMessage: public BaseMessage {
     }
 
     // encoding to JSON: not implemented for C++
+    virtual cJSON* toJSON() {
+      return NULL;
+    }
 
     // Get parameters
     AppCoreMessageCommandType::Value getCommandType() {
@@ -168,20 +192,9 @@ class AppCoreMessage: public BaseMessage {
     bool getParamsGetFile(std::string& path);
 
   protected:
-    // Initializer without file
-    AppCoreMessage(int messageId, std::string uri,
-        AppCoreMessageCommandType::Value commandType)
-      : BaseMessage(messageId, uri, BaseMessageType::AppCore),
-      mCommandType(commandType), mAppCorePayloadObj(NULL) {
-    }
-
-    // Initializer with file
-    AppCoreMessage(int messageId, std::string uri,
-        bool isFileAttached, std::string fileName,
-        AppCoreMessageCommandType::Value commandType)
-      : BaseMessage(messageId, uri, BaseMessageType::AppCore,
-          isFileAttached, fileName),
-      mCommandType(commandType), mAppCorePayloadObj(NULL) {
+    // Initializer
+    AppCoreMessage(AppCoreMessageCommandType::Value commandType)
+      : mCommandType(commandType), mAppCorePayloadObj(NULL) {
     }
 
     // JSON-exported values
@@ -253,7 +266,7 @@ class ParamFileList {
 // AppCoreAckMessage: ack message sent from AppCore Framework
 // - Decoding(makeFromJSON): Java
 // - Encoding(make, toJSON): C++
-class AppCoreAckMessage : public BaseMessage {
+class AppCoreAckMessage : public BaseMessagePayload {
   public:
     friend class MessageFactory;
 
@@ -274,16 +287,14 @@ class AppCoreAckMessage : public BaseMessage {
     // Set command-specific parameters
     void setParamsGetAppList(ParamAppList& appList);
     void setParamsListenAppState(int appState);
+    void setParamsInitializeApp(int appId);
     void setParamsGetFileList(std::string path, ParamFileList& fileList);
     void setParamsGetRootPath(std::string rootPath);
 
   protected:
-    // Initializer without file
-    AppCoreAckMessage(int messageId, std::string uri,
-        int commandMessageId,
+    AppCoreAckMessage(int commandMessageId,
         AppCoreMessageCommandType::Value commandType)
-      : BaseMessage(messageId, uri, BaseMessageType::AppCoreAck),
-      mCommandMessageId(commandMessageId),
+      : mCommandMessageId(commandMessageId),
       mCommandType(commandType), mAppCoreAckPayloadObj(NULL) { }
 
     // JSON-exported values
@@ -306,7 +317,7 @@ namespace AppMessageCommandType {
 // AppMessage: message sent to App
 // - Decoding(makeFromJSON): C++
 // - Encoding(make, toJSON): C++
-class AppMessage: public BaseMessage {
+class AppMessage: public BaseMessagePayload {
   public:
     friend class MessageFactory;
 
@@ -329,20 +340,9 @@ class AppMessage: public BaseMessage {
     }
 
   protected:
-    // Initializer without file
-    AppMessage(int messageId, std::string uri,
-        AppMessageCommandType::Value commandType)
-      : BaseMessage(messageId, uri, BaseMessageType::App),
-      mCommandType(commandType), mAppPayloadObj(NULL) {
-    }
-
-    // Initializer with file
-    AppMessage(int messageId, std::string uri,
-        bool isFileAttached, std::string fileName,
-        AppMessageCommandType::Value commandType)
-      : BaseMessage(messageId, uri, BaseMessageType::App,
-          isFileAttached, fileName),
-      mCommandType(commandType), mAppPayloadObj(NULL) {
+    // Initializer
+    AppMessage(AppMessageCommandType::Value commandType)
+      : mCommandType(commandType), mAppPayloadObj(NULL) {
     }
 
     // JSON-exported values
@@ -364,7 +364,7 @@ namespace CompanionMessageCommandType {
 // CompanionMessage: message sent to companion device
 // - Decoding(makeFromJSON): Java
 // - Encoding(make, toJSON): JavaScript
-class CompanionMessage: public BaseMessage {
+class CompanionMessage: public BaseMessagePayload {
   public:
     friend class MessageFactory;
 
@@ -388,11 +388,9 @@ class CompanionMessage: public BaseMessage {
     void setParamsSendConfigPage(std::string legacyData);
 
   protected:
-    // Initializer without file
-    CompanionMessage(int messageId, std::string uri,
-        CompanionMessageCommandType::Value commandType)
-      : BaseMessage(messageId, uri, BaseMessageType::Companion),
-      mCommandType(commandType), mCompanionPayloadObj(NULL) {
+    // Initializer
+    CompanionMessage(CompanionMessageCommandType::Value commandType)
+      : mCommandType(commandType), mCompanionPayloadObj(NULL) {
     }
 
     // JSON-exported values

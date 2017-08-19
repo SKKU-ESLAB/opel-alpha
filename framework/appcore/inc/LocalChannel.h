@@ -25,7 +25,7 @@
 
 class LocalChannelListener {
   public:
-    virtual void onAppCoreMessage(AppCoreMessage* message) = 0;
+    virtual void onReceivedMessage(BaseMessage* message) = 0;
 };
 
 class LocalChannel: public Channel {
@@ -38,7 +38,7 @@ class LocalChannel: public Channel {
     virtual void run();
 
     // LocalChannel-specific function
-    void sendMessage(AppCoreMessage* message);
+    void sendMessage(BaseMessage* message);
     void setListener(LocalChannelListener* listener) {
       this->mListener = listener;
     }

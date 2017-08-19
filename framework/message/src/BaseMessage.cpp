@@ -40,96 +40,94 @@
 
 // encoding to JSON (BaseMessage)
 cJSON* BaseMessage::toJSON() {
-  cJSON* rootObj = cJSON_CreateObject();
+  cJSON* thisObj = cJSON_CreateObject();
   char tempStr[20];
 
   // messageId
   sprintf(tempStr, "%d", this->mMessageId);
-  cJSON_AddStringToObject(rootObj, OPEL_MESSAGE_KEY_MESSAGE_NUM, tempStr);
+  cJSON_AddStringToObject(thisObj, OPEL_MESSAGE_KEY_MESSAGE_NUM, tempStr);
 
   // uri
-  cJSON_AddStringToObject(rootObj, OPEL_MESSAGE_KEY_URI, this->mUri.c_str());
+  cJSON_AddStringToObject(thisObj, OPEL_MESSAGE_KEY_URI, this->mUri.c_str());
 
   // type
   sprintf(tempStr, "%d", this->mType);
-  cJSON_AddStringToObject(rootObj, OPEL_MESSAGE_KEY_TYPE, tempStr);
+  cJSON_AddStringToObject(thisObj, OPEL_MESSAGE_KEY_TYPE, tempStr);
 
   // isFileAttached
   sprintf(tempStr, "%d", (this->mIsFileAttached) ? 1 : 0);
-  cJSON_AddStringToObject(rootObj, OPEL_MESSAGE_KEY_IS_FILE_ATTACHED, tempStr);
+  cJSON_AddStringToObject(thisObj, OPEL_MESSAGE_KEY_IS_FILE_ATTACHED, tempStr);
 
   // fileName
   if(this->mIsFileAttached) {
-    cJSON_AddStringToObject(rootObj, OPEL_MESSAGE_KEY_IS_FILE_ATTACHED,
+    cJSON_AddStringToObject(thisObj, OPEL_MESSAGE_KEY_IS_FILE_ATTACHED,
         this->mFileName.c_str());
   }
-  return rootObj;
+
+  // payload
+  cJSON_AddItemToObject(thisObj, OPEL_MESSAGE_KEY_PAYLOAD,
+      this->mPayload->toJSON());
+  return thisObj;
 }
 
 // encoding to JSON (AppCoreAckMessage)
 cJSON* AppCoreAckMessage::toJSON() {
-  cJSON* rootPayloadObj = cJSON_CreateObject();
+  cJSON* thisObj = cJSON_CreateObject();
 
   // commandMessageId
   char commandMessageIdStr[20];
   sprintf(commandMessageIdStr, "%d", this->mCommandMessageId);
-  cJSON_AddStringToObject(rootPayloadObj,
+  cJSON_AddStringToObject(thisObj,
       APPCORE_ACK_MESSAGE_KEY_COMMAND_MESSAGE_NUM,
       commandMessageIdStr);
 
   // commandType
   char commandTypeStr[20];
   sprintf(commandTypeStr, "%d", this->mCommandType);
-  cJSON_AddStringToObject(rootPayloadObj, APPCORE_ACK_MESSAGE_KEY_COMMAND_TYPE,
+  cJSON_AddStringToObject(thisObj, APPCORE_ACK_MESSAGE_KEY_COMMAND_TYPE,
       commandTypeStr);
 
   // payload (AppCoreAckMessage's)
-  cJSON_AddItemToObject(rootPayloadObj, APPCORE_ACK_MESSAGE_KEY_PAYLOAD,
+  cJSON_AddItemToObject(thisObj, APPCORE_ACK_MESSAGE_KEY_PAYLOAD,
       this->mAppCoreAckPayloadObj);
 
-  cJSON* rootObj = BaseMessage::toJSON();
-  cJSON_AddItemToObject(rootObj, OPEL_MESSAGE_KEY_PAYLOAD, rootPayloadObj);
-  return rootObj;
+  return thisObj;
 }
 
 // encoding to JSON (AppMessage)
 cJSON* AppMessage::toJSON() {
-  cJSON* rootPayloadObj = cJSON_CreateObject();
+  cJSON* thisObj = cJSON_CreateObject();
 
   // commandType
   char commandTypeStr[20];
   sprintf(commandTypeStr, "%d", this->mCommandType);
-  cJSON_AddStringToObject(rootPayloadObj, APP_MESSAGE_KEY_COMMAND_TYPE,
+  cJSON_AddStringToObject(thisObj, APP_MESSAGE_KEY_COMMAND_TYPE,
       commandTypeStr);
 
   // payload (AppMessage's)
   RETURN_IF_NULL(this->mAppPayloadObj, NULL);
-  cJSON_AddItemToObject(rootPayloadObj, APP_MESSAGE_KEY_PAYLOAD,
+  cJSON_AddItemToObject(thisObj, APP_MESSAGE_KEY_PAYLOAD,
       this->mAppPayloadObj);
 
-  cJSON* rootObj = BaseMessage::toJSON();
-  cJSON_AddItemToObject(rootObj, OPEL_MESSAGE_KEY_PAYLOAD, rootPayloadObj);
-  return rootObj;
+  return thisObj;
 }
 
 // encoding to JSON (CompanionMessage)
 cJSON* CompanionMessage::toJSON() {
-  cJSON* rootPayloadObj = cJSON_CreateObject();
+  cJSON* thisObj = cJSON_CreateObject();
 
   // commandType
   char commandTypeStr[20];
   sprintf(commandTypeStr, "%d", this->mCommandType);
-  cJSON_AddStringToObject(rootPayloadObj, COMPANION_MESSAGE_KEY_COMMAND_TYPE,
+  cJSON_AddStringToObject(thisObj, COMPANION_MESSAGE_KEY_COMMAND_TYPE,
       commandTypeStr);
 
   // payload (CompanionMessage's)
   RETURN_IF_NULL(this->mCompanionPayloadObj, NULL);
-  cJSON_AddItemToObject(rootPayloadObj, COMPANION_MESSAGE_KEY_PAYLOAD,
+  cJSON_AddItemToObject(thisObj, COMPANION_MESSAGE_KEY_PAYLOAD,
       this->mCompanionPayloadObj);
 
-  cJSON* rootObj = BaseMessage::toJSON();
-  cJSON_AddItemToObject(rootObj, OPEL_MESSAGE_KEY_PAYLOAD, rootPayloadObj);
-  return rootObj;
+  return thisObj;
 }
 
 // Attach file on message to be sent
@@ -266,6 +264,15 @@ void AppCoreAckMessage::setParamsListenAppState(int appState) {
   char appStateStr[20];
   sprintf(appStateStr, "%d", appState);
   cJSON_AddStringToObject(payloadObj, "appState", appStateStr);
+
+  this->mAppCoreAckPayloadObj = payloadObj;
+}
+
+void AppCoreAckMessage::setParamsInitializeApp(int appId) {
+  cJSON* payloadObj = cJSON_CreateObject();
+  char appIdStr[20];
+  sprintf(appIdStr, "%d", appId);
+  cJSON_AddStringToObject(payloadObj, "appId", appIdStr);
 
   this->mAppCoreAckPayloadObj = payloadObj;
 }
