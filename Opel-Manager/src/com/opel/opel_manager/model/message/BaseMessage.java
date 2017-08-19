@@ -17,6 +17,8 @@ package com.opel.opel_manager.model.message;
  * limitations under the License.
  */
 
+import com.google.gson.GsonBuilder;
+
 // BaseMessage: the root base message
 // - Decoding(makeFromJSON): C++, Java
 // - Encoding(make, toJSON): C++, Java
@@ -42,43 +44,38 @@ public class BaseMessage {
     }
 
     // encoding to JSON
-    public void toJSON() {
-        // TODO: implement it (return value should be changed)
-    }
-
     public String toJSONString() {
-        // TODO: implement it
-        return "";
-    }
+        return new GsonBuilder().create().toJson(this.mData);
+     }
 
     // Get parameters
     public int getMessageId() {
-        return this.mMessageId;
+        return Integer.parseInt(this.mData.messageIdStr);
     }
 
     public String getUri() {
-        return this.mUri;
+        return this.mData.uri;
     }
 
     public int getType() {
-        return this.mType;
+        return Integer.parseInt(this.mData.type);
     }
 
     public boolean isFileAttached() {
-        return this.mIsFileAttached;
+        return (this.mData.isFileAttachedStr.compareTo("1") == 0);
     }
 
     public String getFileName() {
-        return this.mFileName;
+        return this.mData.fileName;
     }
 
     public BaseMessage(int messageId, String uri, int type, boolean isFileAttached, String
             fileName) {
-        this.mMessageId = messageId;
-        this.mUri = uri;
-        this.mType = type;
-        this.mIsFileAttached = isFileAttached;
-        this.mFileName = fileName;
+        this.mData.messageIdStr = "" + messageId;
+        this.mData.uri = uri;
+        this.mData.type = "" + type;
+        this.mData.isFileAttachedStr = (isFileAttached) ? "1" : "0";
+        this.mData.fileName = fileName;
         this.mStoredFileName = "";
     }
 
@@ -86,12 +83,16 @@ public class BaseMessage {
         this(messageId, uri, type, false, "");
     }
 
-    protected int mMessageId;
-    protected String mUri;
-    protected int mType;
-    protected boolean mIsFileAttached;
-    protected String mFileName;
-    protected String mStoredFileName;
+    protected Data mData;
+    public String mStoredFileName;
+
+    class Data {
+        public String messageIdStr;
+        public String uri;
+        public String type;
+        public String isFileAttachedStr;
+        public String fileName;
+    }
 }
 
 // AppCoreMessage: message sent to AppCore Framework
