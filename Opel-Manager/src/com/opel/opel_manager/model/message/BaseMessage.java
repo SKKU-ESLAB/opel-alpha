@@ -16,8 +16,7 @@ package com.opel.opel_manager.model.message;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import com.google.gson.GsonBuilder;
+import java.io.File;
 
 // BaseMessage: the root base message
 // - Decoding(makeFromJSON): C++, Java
@@ -31,7 +30,8 @@ public class BaseMessage {
 
     // Attach file on message to be sent
     public void attachFile(String filePath) {
-        // TODO: implement it
+        File file = new File(filePath);
+        this.mData.fileName = file.getName();
     }
 
     // Set local file path when attached file has come
@@ -45,8 +45,9 @@ public class BaseMessage {
 
     // encoding to JSON
     public String toJSONString() {
-        return new GsonBuilder().create().toJson(this.mData);
-     }
+        // TODO: implement it
+        return "";
+    }
 
     // Get parameters
     public int getMessageId() {
@@ -69,6 +70,15 @@ public class BaseMessage {
         return this.mData.fileName;
     }
 
+    // Payload
+    void setPayload(BaseMessagePayload payload) {
+        this.mPayload = payload;
+    }
+
+    BaseMessagePayload getPayload() {
+        return this.mPayload;
+    }
+
     public BaseMessage(int messageId, String uri, int type, boolean isFileAttached, String
             fileName) {
         this.mData.messageIdStr = "" + messageId;
@@ -83,35 +93,86 @@ public class BaseMessage {
         this(messageId, uri, type, false, "");
     }
 
-    protected Data mData;
-    public String mStoredFileName;
+    protected BaseMessageData mData;
+    protected BaseMessagePayload mPayload;
+    protected String mStoredFileName;
+}
 
-    class Data {
-        public String messageIdStr;
-        public String uri;
-        public String type;
-        public String isFileAttachedStr;
-        public String fileName;
-    }
+class BaseMessageType {
+    public static final int NotDetermined = 0;
+    public static final int AppCore = 10;
+    public static final int AppCoreAck = 11;
+    public static final int App = 20;
+    public static final int Companion = 30;
+}
+
+class BaseMessageData {
+    public String messageIdStr;
+    public String uri;
+    public String type;
+    public String isFileAttachedStr;
+    public String fileName;
+}
+
+abstract class BaseMessagePayload {
+    abstract public String toJSONString();
 }
 
 // AppCoreMessage: message sent to AppCore Framework
 // - Decoding(makeFromJSON): C++
 // - Encoding(make, toJSON): Java
-class AppCoreMessage {
+class AppCoreMessage extends BaseMessagePayload {
     // TODO: implement it
+    public String toJSONString() {
+        // TODO: implement it
+        return "";
+    }
+
+    public AppCoreMessage(int commandType) {
+
+    }
+
+    protected AppCoreMessageData mData;
+}
+
+class AppCoreMessageData {
+    public String commandType;
+    public String appCorePayload;
+}
+
+class AppCoreMessageCommandType {
+    public static final int NotDetermined = 0;
+    public static final int GetAppList = 1; // params: void (ACK params= ParamAppList)
+    public static final int ListenAppState = 2; // params: int appId (ACK params: int appState)
+    public static final int InitializeApp = 3; // params: std::string name (ACK params: int appId)
+    public static final int InstallApp = 4; // params: int appId
+    public static final int LaunchApp = 5; // params: int appId
+    public static final int CompleteLaunchingApp = 6; // params: int appId, int pid
+    public static final int TerminateApp = 7; // params: int appId
+    public static final int RemoveApp = 8; // params: int appId
+    public static final int GetFileList = 9; // params: std::string path (ACK params: AckParamFileList)
+    public static final int GetFile = 10; // params: std::string path (ACK params: void)
+    public static final int GetRootPath = 11; // params: void (ACK params: std::string rootPath)
 }
 
 // AppCoreAckMessage: ack message sent from AppCore Framework
 // - Decoding(makeFromJSON): Java
 // - Encoding(make, toJSON): C++
-class AppCoreAckMessage {
+class AppCoreAckMessage extends BaseMessagePayload {
     // TODO: implement it
+    public String toJSONString() {
+        // TODO: implement it
+        return "";
+    }
 }
 
 // CompanionMessage: message sent to companion device
 // - Decoding(makeFromJSON): Java
 // - Encoding(make, toJSON): JavaScript
-class CompanionMessage {
+class CompanionMessage extends BaseMessagePayload {
     // TODO: implement it
+    public String toJSONString() {
+        // TODO: implement it
+        return "";
+    }
 }

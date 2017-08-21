@@ -18,4 +18,20 @@ package com.opel.opel_manager.model.message;
  */
 
 public class MessageFactory {
+    // string -> JSON -> BaseMessage
+    static public BaseMessage makeMessageFromJSONString(String rawString) {
+
+    }
+
+    // Make AppCoreAckMessage from bottom
+    static AppCoreAckMessage makeAppCoreAckMessage(int commandMessageId, AppcoreMessageCommandType commandType) {
+
+    }
+
+    // Make AppMessage from bottom
+
+    // Make CompanionMessage from bottom
+
+
+    // JSON -> BaseMessage / AppCoreMessage / AppMessage
 }
