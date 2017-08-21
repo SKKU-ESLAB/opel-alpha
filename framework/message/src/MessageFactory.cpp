@@ -44,17 +44,17 @@ BaseMessage* MessageFactory::makeBaseMessageFromJSON(cJSON* messageObj) {
   // Get properties
   // messageId
   cJSON* messageIdObj = cJSON_GetObjectItem(thisObj,
-      OPEL_MESSAGE_KEY_MESSAGE_NUM);
+      BASE_MESSAGE_KEY_MESSAGE_NUM);
   RETURN_IF_INVALID_CJSON_OBJ(messageIdObj, NULL);
   int messageId = atoi(messageIdObj->valuestring);
   
   // URI
-  cJSON* uriObj = cJSON_GetObjectItem(thisObj, OPEL_MESSAGE_KEY_URI);
+  cJSON* uriObj = cJSON_GetObjectItem(thisObj, BASE_MESSAGE_KEY_URI);
   RETURN_IF_INVALID_CJSON_OBJ(uriObj, NULL);
   std::string uri(uriObj->valuestring);
 
   // Type
-  cJSON* typeObj = cJSON_GetObjectItem(thisObj, OPEL_MESSAGE_KEY_TYPE);
+  cJSON* typeObj = cJSON_GetObjectItem(thisObj, BASE_MESSAGE_KEY_TYPE);
   RETURN_IF_INVALID_CJSON_OBJ(typeObj, NULL);
   // BE AWARE: Since cJSON internally consider integer value as Number(double),
   // I decided to use string-shaped integer in JSON.
@@ -65,7 +65,7 @@ BaseMessage* MessageFactory::makeBaseMessageFromJSON(cJSON* messageObj) {
 
   // isFileAttached
   cJSON* isFileAttachedObj = cJSON_GetObjectItem(thisObj,
-      OPEL_MESSAGE_KEY_IS_FILE_ATTACHED);
+      BASE_MESSAGE_KEY_IS_FILE_ATTACHED);
   RETURN_IF_INVALID_CJSON_OBJ(isFileAttachedObj, NULL);
   int isFileAttachedNum = atoi(isFileAttachedObj->valuestring);
   bool isFileAttached = (isFileAttachedNum == 0) ? false : true;
@@ -74,12 +74,12 @@ BaseMessage* MessageFactory::makeBaseMessageFromJSON(cJSON* messageObj) {
   std::string fileName("");
   if(isFileAttachedNum) {
     cJSON* fileNameObj = cJSON_GetObjectItem(thisObj,
-        OPEL_MESSAGE_KEY_FILE_NAME);
+        BASE_MESSAGE_KEY_FILE_NAME);
     RETURN_IF_INVALID_CJSON_OBJ(fileNameObj, NULL);
     fileName = fileNameObj->valuestring;
   }
 
-  cJSON* payloadObj = cJSON_GetObjectItem(thisObj, OPEL_MESSAGE_KEY_PAYLOAD);
+  cJSON* payloadObj = cJSON_GetObjectItem(thisObj, BASE_MESSAGE_KEY_PAYLOAD);
   RETURN_IF_INVALID_CJSON_OBJ(payloadObj, NULL);
 
   // Allocate and initialize a new BaseMessage
@@ -107,16 +107,18 @@ BaseMessage* MessageFactory::makeBaseMessageFromJSON(cJSON* messageObj) {
   return newMessage;
 }
 
-AppCoreMessage* MessageFactory::makeAppCoreMessageFromJSON(cJSON* messageObj) {
+AppCoreMessage* MessageFactory::makeAppCoreMessageFromJSON(cJSON* messagePayloadObj) {
+  cJSON* thisObj = messagePayloadObj;
+
   // Allocate and initialize a new BaseMessage and return it
-  cJSON* commandTypeObj = cJSON_GetObjectItem(messageObj,
+  cJSON* commandTypeObj = cJSON_GetObjectItem(thisObj,
       APPCORE_MESSAGE_KEY_COMMAND_TYPE);
   RETURN_IF_INVALID_CJSON_OBJ(commandTypeObj, NULL);
   AppCoreMessageCommandType::Value commandType
     = static_cast<AppCoreMessageCommandType::Value>(atoi(
           commandTypeObj->valuestring));
 
-  cJSON* appCorePayloadObj = cJSON_GetObjectItem(messageObj,
+  cJSON* appCorePayloadObj = cJSON_GetObjectItem(thisObj,
       APPCORE_MESSAGE_KEY_PAYLOAD);
   RETURN_IF_INVALID_CJSON_OBJ(appCorePayloadObj, NULL);
   
@@ -126,15 +128,17 @@ AppCoreMessage* MessageFactory::makeAppCoreMessageFromJSON(cJSON* messageObj) {
   return newMessage;
 }
 
-AppMessage* MessageFactory::makeAppMessageFromJSON(cJSON* messageObj) {
+AppMessage* MessageFactory::makeAppMessageFromJSON(cJSON* messagePayloadObj) {
+  cJSON* thisObj = messagePayloadObj;
+
   // Allocate and initialize a new BaseMessage and return it
-  cJSON* commandTypeObj = cJSON_GetObjectItem(messageObj, "commandType");
+  cJSON* commandTypeObj = cJSON_GetObjectItem(thisObj, "commandType");
   RETURN_IF_INVALID_CJSON_OBJ(commandTypeObj, NULL);
   AppMessageCommandType::Value commandType
     = static_cast<AppMessageCommandType::Value>(atoi(
           commandTypeObj->valuestring));
 
-  cJSON* appPayloadObj = cJSON_GetObjectItem(messageObj, "payload");
+  cJSON* appPayloadObj = cJSON_GetObjectItem(thisObj, "payload");
   RETURN_IF_INVALID_CJSON_OBJ(appPayloadObj, NULL);
   
   // Allocate and initialize a new AppMessage

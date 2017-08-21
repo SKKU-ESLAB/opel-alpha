@@ -47,8 +47,8 @@ class MessageFactory {
   protected:
   // JSON -> BaseMessage / AppCoreMessage / AppMessage
   static BaseMessage* makeBaseMessageFromJSON(cJSON* messageObj);
-  static AppCoreMessage* makeAppCoreMessageFromJSON(cJSON* messageObj);
-  static AppMessage* makeAppMessageFromJSON(cJSON* messageObj);
+  static AppCoreMessage* makeAppCoreMessageFromJSON(cJSON* messagePayloadObj);
+  static AppMessage* makeAppMessageFromJSON(cJSON* messagePayloadObj);
 };
 
 #endif // !defined(__MESSAGE_FACTORY_H__)

@@ -45,27 +45,27 @@ cJSON* BaseMessage::toJSON() {
 
   // messageId
   sprintf(tempStr, "%d", this->mMessageId);
-  cJSON_AddStringToObject(thisObj, OPEL_MESSAGE_KEY_MESSAGE_NUM, tempStr);
+  cJSON_AddStringToObject(thisObj, BASE_MESSAGE_KEY_MESSAGE_NUM, tempStr);
 
   // uri
-  cJSON_AddStringToObject(thisObj, OPEL_MESSAGE_KEY_URI, this->mUri.c_str());
+  cJSON_AddStringToObject(thisObj, BASE_MESSAGE_KEY_URI, this->mUri.c_str());
 
   // type
   sprintf(tempStr, "%d", this->mType);
-  cJSON_AddStringToObject(thisObj, OPEL_MESSAGE_KEY_TYPE, tempStr);
+  cJSON_AddStringToObject(thisObj, BASE_MESSAGE_KEY_TYPE, tempStr);
 
   // isFileAttached
   sprintf(tempStr, "%d", (this->mIsFileAttached) ? 1 : 0);
-  cJSON_AddStringToObject(thisObj, OPEL_MESSAGE_KEY_IS_FILE_ATTACHED, tempStr);
+  cJSON_AddStringToObject(thisObj, BASE_MESSAGE_KEY_IS_FILE_ATTACHED, tempStr);
 
   // fileName
   if(this->mIsFileAttached) {
-    cJSON_AddStringToObject(thisObj, OPEL_MESSAGE_KEY_IS_FILE_ATTACHED,
+    cJSON_AddStringToObject(thisObj, BASE_MESSAGE_KEY_IS_FILE_ATTACHED,
         this->mFileName.c_str());
   }
 
   // payload
-  cJSON_AddItemToObject(thisObj, OPEL_MESSAGE_KEY_PAYLOAD,
+  cJSON_AddItemToObject(thisObj, BASE_MESSAGE_KEY_PAYLOAD,
       this->mPayload->toJSON());
   return thisObj;
 }
@@ -308,13 +308,21 @@ void AppCoreAckMessage::setParamsGetRootPath(std::string rootPath) {
 // Set command-specific parameters (CompanionMessage)
 void CompanionMessage::setParamsSendEventPage(std::string legacyData) {
   cJSON* payloadObj = cJSON_CreateObject();
-  cJSON_AddStringToObject(payloadObj, "legacyData", legacyData.c_str());
+  cJSON* legacyDataObj = cJSON_Parse(legacyData);
+  if(legacyDataObj == NULL) {
+    OPEL_DBG_ERR("SendEventPage: cannot parse legacyData");
+  }
+  cJSON_AddItemToObject(payloadObj, "legacyData", legacyDataObj);
 
   this->mCompanionPayloadObj = payloadObj;
 }
 void CompanionMessage::setParamsSendConfigPage(std::string legacyData) {
   cJSON* payloadObj = cJSON_CreateObject();
-  cJSON_AddStringToObject(payloadObj, "legacyData", legacyData.c_str());
+  cJSON* legacyDataObj = cJSON_Parse(legacyData);
+  if(legacyDataObj == NULL) {
+    OPEL_DBG_ERR("SendEventPage: cannot parse legacyData");
+  }
+  cJSON_AddItemToObject(payloadObj, "legacyData", legacyDataObj);
 
   this->mCompanionPayloadObj = payloadObj;
 }

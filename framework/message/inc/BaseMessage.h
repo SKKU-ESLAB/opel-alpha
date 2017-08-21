@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-#ifndef __OPEL_MESSAGE_H__
-#define __OPEL_MESSAGE_H__
+#ifndef __BASE_MESSAGE_H__
+#define __BASE_MESSAGE_H__
 
 #include <iostream>
 #include <string>
@@ -53,12 +53,12 @@ namespace BaseMessageType {
   };
 }
 
-#define OPEL_MESSAGE_KEY_MESSAGE_NUM "messageId"
-#define OPEL_MESSAGE_KEY_URI "uri"
-#define OPEL_MESSAGE_KEY_TYPE "type"
-#define OPEL_MESSAGE_KEY_IS_FILE_ATTACHED "isFileAttached"
-#define OPEL_MESSAGE_KEY_FILE_NAME "fileName"
-#define OPEL_MESSAGE_KEY_PAYLOAD "payload"
+#define BASE_MESSAGE_KEY_MESSAGE_NUM "messageId"
+#define BASE_MESSAGE_KEY_URI "uri"
+#define BASE_MESSAGE_KEY_TYPE "type"
+#define BASE_MESSAGE_KEY_IS_FILE_ATTACHED "isFileAttached"
+#define BASE_MESSAGE_KEY_FILE_NAME "fileName"
+#define BASE_MESSAGE_KEY_PAYLOAD "payload"
 
 // BaseMessage: the root base message
 // - Decoding(makeFromJSON): C++, Java
@@ -134,7 +134,7 @@ class BaseMessage {
 namespace AppCoreMessageCommandType {
   enum Value {
     NotDetermined = 0,
-    GetAppList = 1, // params: void (ACK params= ParamAppList)
+    GetAppList = 1, // params: void (ACK params: ParamAppList)
     ListenAppState = 2, // params: int appId (ACK params: int appState)
     InitializeApp = 3, // params: std::string name (ACK params: int appId)
     InstallApp = 4, // params: int appId
@@ -398,4 +398,4 @@ class CompanionMessage: public BaseMessagePayload {
     cJSON* mCompanionPayloadObj;
 };
 
-#endif // !defined(__OPEL_MESSAGE_H__)
+#endif // !defined(__BASE_MESSAGE_H__)
