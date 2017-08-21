@@ -87,7 +87,7 @@ public class OPELAppCoreStub {
         this.mRegisteredSensorView = null;
     }
 
-    public void onReceivedMessage(String message) {
+    public void onReceivedMessage(String message, String filePath) {
         if (message.equals("")) {
             return;
         }

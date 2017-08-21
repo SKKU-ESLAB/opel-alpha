@@ -565,7 +565,7 @@ public class MainActivity extends Activity implements CommChannelEventListener {
     @Override
     public void onReceivedRawMessage(String message, String filePath) {
         // TODO: forward to OPELAppCoreStub
-        OPELContext.getAppCore().onReceivedMessage(message);
+        OPELContext.getAppCore().onReceivedMessage(message, filePath);
     }
 
     // TODO: Convert to CommServiceListener
