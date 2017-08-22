@@ -129,6 +129,7 @@ void AppCore::run() {
   // Main loop starts to run in LocalChannel::run()
   this->mLocalChannel->setListener(this);
   this->mLocalChannel->run();
+  this->mMessageRouter->addRoutingEntry("/thing/appcore", this->mLocalChannel);
 }
 
 // Signal handler

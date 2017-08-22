@@ -31,6 +31,8 @@
     return ret; \
   }
 
+int MessageFactory::currentMessageId = 0;
+
 BaseMessage* MessageFactory::makeMessageFromJSONString(const char* rawString) {
   // Parse rawString in JSON
   cJSON* thisObj = cJSON_Parse(rawString);

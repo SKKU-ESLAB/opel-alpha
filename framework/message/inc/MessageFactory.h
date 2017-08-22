@@ -28,20 +28,34 @@ class MessageFactory {
   static BaseMessage* makeMessageFromJSONString(const char* rawString);
 
   // Make AppCoreAckMessage from bottom
-  static AppCoreAckMessage* makeAppCoreAckMessage(
+  static BaseMessage* makeAppCoreAckMessage(std::string uri,
       int commandMessageId, AppCoreMessageCommandType::Value commandType) {
-    return new AppCoreAckMessage(commandMessageId, commandType);
+    AppCoreAckMessage* payload = new AppCoreAckMessage(commandMessageId,
+        commandType);
+    BaseMessage* message = new BaseMessage(currentMessageId++, uri,
+        BaseMessageType::AppCoreAck);
+    message->setPayload(payload);
+    return message;
   }
 
   // Make AppMessage from bottom
-  static AppMessage* makeAppMessage(AppMessageCommandType::Value commandType) {
-    return new AppMessage(commandType);
+  static BaseMessage* makeAppMessage(std::string uri,
+      AppMessageCommandType::Value commandType) {
+    AppMessage* payload = new AppMessage(commandType);
+    BaseMessage* message = new BaseMessage(currentMessageId++, uri,
+        BaseMessageType::App);
+    message->setPayload(payload);
+    return message;
   }
 
-  // Make CompanionMesage from bottom
-  static CompanionMessage* makeCompanionMessage(
+  // Make CompanionMessage from bottom
+  static BaseMessage* makeCompanionMessage(std::string uri,
       CompanionMessageCommandType::Value commandType) {
-    return new CompanionMessage(commandType);
+    CompanionMessage* payload = new CompanionMessage(commandType);
+    BaseMessage* message = new BaseMessage(currentMessageId++, uri,
+        BaseMessageType::Companion);
+    message->setPayload(payload);
+    return message;
   }
 
   protected:
@@ -49,6 +63,8 @@ class MessageFactory {
   static BaseMessage* makeBaseMessageFromJSON(cJSON* messageObj);
   static AppCoreMessage* makeAppCoreMessageFromJSON(cJSON* messagePayloadObj);
   static AppMessage* makeAppMessageFromJSON(cJSON* messagePayloadObj);
+
+  static int currentMessageId;
 };
 
 #endif // !defined(__MESSAGE_FACTORY_H__)

@@ -137,7 +137,7 @@ namespace AppCoreMessageCommandType {
     GetAppList = 1, // params: void (ACK params: ParamAppList)
     ListenAppState = 2, // params: int appId (ACK params: int appState)
     InitializeApp = 3, // params: std::string name (ACK params: int appId)
-    InstallApp = 4, // params: int appId
+    InstallApp = 4, // params: int appId, std::string packageFileName
     LaunchApp = 5, // params: int appId
     CompleteLaunchingApp = 6, // params: int appId, int pid
     TerminateApp = 7, // params: int appId

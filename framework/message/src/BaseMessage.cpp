@@ -308,7 +308,7 @@ void AppCoreAckMessage::setParamsGetRootPath(std::string rootPath) {
 // Set command-specific parameters (CompanionMessage)
 void CompanionMessage::setParamsSendEventPage(std::string legacyData) {
   cJSON* payloadObj = cJSON_CreateObject();
-  cJSON* legacyDataObj = cJSON_Parse(legacyData);
+  cJSON* legacyDataObj = cJSON_Parse(legacyData.c_str());
   if(legacyDataObj == NULL) {
     OPEL_DBG_ERR("SendEventPage: cannot parse legacyData");
   }
@@ -318,7 +318,7 @@ void CompanionMessage::setParamsSendEventPage(std::string legacyData) {
 }
 void CompanionMessage::setParamsSendConfigPage(std::string legacyData) {
   cJSON* payloadObj = cJSON_CreateObject();
-  cJSON* legacyDataObj = cJSON_Parse(legacyData);
+  cJSON* legacyDataObj = cJSON_Parse(legacyData.c_str());
   if(legacyDataObj == NULL) {
     OPEL_DBG_ERR("SendEventPage: cannot parse legacyData");
   }
