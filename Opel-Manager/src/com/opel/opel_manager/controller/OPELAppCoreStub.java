@@ -25,17 +25,8 @@ import com.opel.opel_manager.model.message.AppCoreMessage;
 import com.opel.opel_manager.model.message.BaseMessage;
 import com.opel.opel_manager.model.message.CompanionMessage;
 import com.opel.opel_manager.model.message.MessageFactory;
-import com.opel.opel_manager.model.message.params.ParamAppListEntry;
-import com.opel.opel_manager.model.message.params.ParamsGetAppList;
-import com.opel.opel_manager.model.message.params.ParamsGetFileList;
-import com.opel.opel_manager.model.message.params.ParamsGetRootPath;
-import com.opel.opel_manager.model.message.params.ParamsInitializeApp;
-import com.opel.opel_manager.model.message.params.ParamsListenAppState;
-import com.opel.opel_manager.model.message.params.ParamsSendConfigPage;
-import com.opel.opel_manager.model.message.params.ParamsSendEventPage;
 
 import java.io.File;
-import java.util.List;
 
 import static android.content.ContentValues.TAG;
 
@@ -60,8 +51,7 @@ public class OPELAppCoreStub {
     public int getAppList() {
         BaseMessage newMessage = MessageFactory.makeAppCoreMessage(kAppCoreURI, AppCoreMessage
                 .Type_GetAppList);
-        int messageId = this.sendAppCoreMessage(newMessage);
-        return messageId;
+        return this.sendAppCoreMessage(newMessage);
     }
 
     public int listenAppState(int appId) {
@@ -69,27 +59,22 @@ public class OPELAppCoreStub {
                 .Type_ListenAppState);
         AppCoreMessage appCorePayload = (AppCoreMessage) newMessage.getPayload();
         appCorePayload.setParamsListenAppState(appId);
-        int messageId = this.sendAppCoreMessage(newMessage);
-        return messageId;
+        return this.sendAppCoreMessage(newMessage);
     }
 
-    public int initializeApp(int appId, String name) {
+    public int initializeApp() {
         BaseMessage newMessage = MessageFactory.makeAppCoreMessage(kAppCoreURI, AppCoreMessage
                 .Type_InitializeApp);
-        AppCoreMessage appCorePayload = (AppCoreMessage) newMessage.getPayload();
-        appCorePayload.setParamsInitializeApp(appId, name);
-        int messageId = this.sendAppCoreMessage(newMessage);
-        return messageId;
+        return this.sendAppCoreMessage(newMessage);
     }
 
     public int installApp(int appId, File packageFile) {
-        BaseMessage newMessage = MessageFactory.makeAppCoreMessage(kAppCoreURI, AppCoreMessage
+        BaseMessage newMessage = MessageFactory.makeAppCoreMessage( kAppCoreURI, AppCoreMessage
                 .Type_InstallApp);
         AppCoreMessage appCorePayload = (AppCoreMessage) newMessage.getPayload();
         appCorePayload.setParamsInstallApp(appId, packageFile.getName());
         newMessage.attachFile(packageFile.getPath());
-        int messageId = this.sendAppCoreMessage(newMessage);
-        return messageId;
+        return this.sendAppCoreMessage(newMessage);
     }
 
     public int launchApp(int appId) {
@@ -97,8 +82,7 @@ public class OPELAppCoreStub {
                 .Type_LaunchApp);
         AppCoreMessage appCorePayload = (AppCoreMessage) newMessage.getPayload();
         appCorePayload.setParamsLaunchApp(appId);
-        int messageId = this.sendAppCoreMessage(newMessage);
-        return messageId;
+        return this.sendAppCoreMessage(newMessage);
     }
 
     public int terminateApp(int appId) {
@@ -106,8 +90,7 @@ public class OPELAppCoreStub {
                 .Type_TerminateApp);
         AppCoreMessage appCorePayload = (AppCoreMessage) newMessage.getPayload();
         appCorePayload.setParamsTerminateApp(appId);
-        int messageId = this.sendAppCoreMessage(newMessage);
-        return messageId;
+        return this.sendAppCoreMessage(newMessage);
     }
 
     public int removeApp(int appId) {
@@ -115,8 +98,7 @@ public class OPELAppCoreStub {
                 .Type_RemoveApp);
         AppCoreMessage appCorePayload = (AppCoreMessage) newMessage.getPayload();
         appCorePayload.setParamsRemoveApp(appId);
-        int messageId = this.sendAppCoreMessage(newMessage);
-        return messageId;
+        return this.sendAppCoreMessage(newMessage);
     }
 
     public int getFileList(String path) {
@@ -124,8 +106,7 @@ public class OPELAppCoreStub {
                 .Type_GetFileList);
         AppCoreMessage appCorePayload = (AppCoreMessage) newMessage.getPayload();
         appCorePayload.setParamsGetFileList(path);
-        int messageId = this.sendAppCoreMessage(newMessage);
-        return messageId;
+        return this.sendAppCoreMessage(newMessage);
     }
 
     public int getFile(String path) {
@@ -133,20 +114,21 @@ public class OPELAppCoreStub {
                 .Type_GetFile);
         AppCoreMessage appCorePayload = (AppCoreMessage) newMessage.getPayload();
         appCorePayload.setParamsGetFile(path);
-        int messageId = this.sendAppCoreMessage(newMessage);
-        return messageId;
+        return this.sendAppCoreMessage(newMessage);
     }
 
     public int getRootPath() {
         BaseMessage newMessage = MessageFactory.makeAppCoreMessage(kAppCoreURI, AppCoreMessage
                 .Type_GetRootPath);
-        int messageId = this.sendAppCoreMessage(newMessage);
-        return messageId;
+        return this.sendAppCoreMessage(newMessage);
     }
 
-    public int updateAppConfig() {
-        // TODO: implement it
-        return 0;
+    public int updateAppConfig(String legacyData) {
+        BaseMessage newMessage = MessageFactory.makeAppCoreMessage(kAppCoreURI, AppCoreMessage
+                .Type_UpdateAppConfig);
+        AppCoreMessage appCorePayload = (AppCoreMessage) newMessage.getPayload();
+        appCorePayload.setParamsGetFile(legacyData);
+        return this.sendAppCoreMessage(newMessage);
     }
 
     // AppCore Daemon (OPEL Device) -> OPEL Manager (Android)
@@ -172,35 +154,41 @@ public class OPELAppCoreStub {
         AppCoreAckMessage payload = (AppCoreAckMessage) message.getPayload();
         switch (payload.getCommandType()) {
             case AppCoreMessage.Type_GetAppList: {
-                ParamsGetAppList params = payload.getParamsGetAppList();
-                this.mListener.onAckGetAppList(payload.getCommandMessageId(), params.appList);
+//                ParamsGetAppList params = payload.getParamsGetAppList();
+//                this.mListener.onAckGetAppList(payload.getCommandMessageId(), params.appList);
+                this.mListener.onAckGetAppList(message);
                 break;
             }
             case AppCoreMessage.Type_ListenAppState: {
-                ParamsListenAppState params = payload.getParamsListenAppState();
-                this.mListener.onAckListenAppState(payload.getCommandMessageId(), params.appId,
-                        params.appState);
+//                ParamsListenAppState params = payload.getParamsListenAppState();
+//                this.mListener.onAckListenAppState(payload.getCommandMessageId(), params.appId,
+//                        params.appState);
+                this.mListener.onAckListenAppState(message);
                 break;
             }
             case AppCoreMessage.Type_InitializeApp: {
-                ParamsInitializeApp params = payload.getParamsInitializeApp();
-                this.mListener.onAckInitializeApp(payload.getCommandMessageId(), params.appId);
+//                ParamsInitializeApp params = payload.getParamsInitializeApp();
+//                this.mListener.onAckInitializeApp(payload.getCommandMessageId(), params.appId);
+                this.mListener.onAckInitializeApp(message);
                 break;
             }
             case AppCoreMessage.Type_GetFileList: {
-                ParamsGetFileList params = payload.getParamsGetFileList();
-                this.mListener.onAckGetFileList(payload.getCommandMessageId(), params.path,
-                        params.fileList);
+//                ParamsGetFileList params = payload.getParamsGetFileList();
+//                this.mListener.onAckGetFileList(payload.getCommandMessageId(), params.path,
+//                        params.fileList);
+                this.mListener.onAckGetFileList(message);
                 break;
             }
             case AppCoreMessage.Type_GetFile: {
-                File attachedFile = new File(message.getStoredFileName());
-                this.mListener.onAckGetFile(payload.getCommandMessageId(), attachedFile);
+//                File attachedFile = new File(message.getStoredFileName());
+//                this.mListener.onAckGetFile(payload.getCommandMessageId(), attachedFile);
+                this.mListener.onAckGetFile(message);
                 break;
             }
             case AppCoreMessage.Type_GetRootPath: {
-                ParamsGetRootPath params = payload.getParamsGetRootPath();
-                this.mListener.onAckGetRootPath(payload.getCommandMessageId(), params.rootPath);
+//                ParamsGetRootPath params = payload.getParamsGetRootPath();
+//                this.mListener.onAckGetRootPath(payload.getCommandMessageId(), params.rootPath);
+                this.mListener.onAckGetRootPath(message);
                 break;
             }
             case AppCoreMessage.Type_NotDetermined:
@@ -215,16 +203,22 @@ public class OPELAppCoreStub {
         CompanionMessage payload = (CompanionMessage) message.getPayload();
         switch (payload.getCommandType()) {
             case CompanionMessage.Type_SendConfigPage: {
-                ParamsSendConfigPage params = payload.getParamsSendConfigPage();
-                this.mListener.onSendConfigPage(message.getMessageId(), params.legacyData);
+//                ParamsSendConfigPage params = payload.getParamsSendConfigPage();
+//                this.mListener.onSendConfigPage(message.getMessageId(), params.legacyData);
+                this.mListener.onSendConfigPage(message);
                 break;
             }
             case CompanionMessage.Type_SendEventPage: {
-                ParamsSendEventPage params = payload.getParamsSendEventPage();
-                this.mListener.onSendEventPage(message.getMessageId(), params.legacyData);
+//                ParamsSendEventPage params = payload.getParamsSendEventPage();
+//                this.mListener.onSendEventPage(message.getMessageId(), params.legacyData);
+                this.mListener.onSendEventPage(message);
                 break;
             }
-            // TODO: onUpdateSensorData
+            case CompanionMessage.Type_UpdateSensorData: {
+//                ParamsUpdateSensorData params = payload.getParamsSendEventPage();
+//                this.mListener.onUpdateSensorData(message.getMessageId(), params.legacyData);
+                this.mListener.onUpdateSensorData(message);
+            }
             case CompanionMessage.Type_NotDetermined:
             default: {
                 Log.e(TAG, "Cannot receive that command!: " + message.toJSONString());
@@ -236,22 +230,22 @@ public class OPELAppCoreStub {
 
 interface OPELAppCoreListener {
     // AppCoreAckMessage
-    public void onAckGetAppList(int commandMessageId, List<ParamAppListEntry> appList);
+    public void onAckGetAppList(BaseMessage message);
 
-    public void onAckListenAppState(int commandMessageId, int appId, int appState);
+    public void onAckListenAppState(BaseMessage message);
 
-    public void onAckInitializeApp(int commandMessageId, int appId);
+    public void onAckInitializeApp(BaseMessage message);
 
-    public void onAckGetFileList(int commandMessageId, String path, List<String> fileList);
+    public void onAckGetFileList(BaseMessage message);
 
-    public void onAckGetFile(int commandMessageId, File file);
+    public void onAckGetFile(BaseMessage message);
 
-    public void onAckGetRootPath(int commandMessageId, String rootPath);
+    public void onAckGetRootPath(BaseMessage message);
 
     // CompanionMessage
-    public void onSendEventPage(int messageId, String legacyData);
+    public void onSendEventPage(BaseMessage message);
 
-    public void onSendConfigPage(int messageId, String legacyData);
+    public void onSendConfigPage(BaseMessage message);
 
-    public void onUpdateSensorData(int messageId, String legacyData);
+    public void onUpdateSensorData(BaseMessage message);
 }

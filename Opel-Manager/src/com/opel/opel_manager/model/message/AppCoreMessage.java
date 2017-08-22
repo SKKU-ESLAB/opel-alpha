@@ -27,8 +27,9 @@ public class AppCoreMessage extends BaseMessagePayload {
     // AppCoreMessageCommandType
     public static final int Type_NotDetermined = 0;
     public static final int Type_GetAppList = 1; // params: void (ACK params: AppList)
-    public static final int Type_ListenAppState = 2; // params: int appId (ACK params: int appState)
-    public static final int Type_InitializeApp = 3; // params: String name (ACK params: int appId)
+    public static final int Type_ListenAppState = 2; // params: int appId (ACK params: int appId,
+    //                                                                                 int appState)
+    public static final int Type_InitializeApp = 3; // params: void (ACK params: int appId)
     public static final int Type_InstallApp = 4; // params: int appId, String packageFileName
     public static final int Type_LaunchApp = 5; // params: int appId
     // public static final int Type_CompleteLaunchingApp = 6; // params: int appId, int pid
@@ -37,6 +38,8 @@ public class AppCoreMessage extends BaseMessagePayload {
     public static final int Type_GetFileList = 9; // params: String path (ACK params: FileList)
     public static final int Type_GetFile = 10; // params: String path (ACK params: void)
     public static final int Type_GetRootPath = 11; // params: void (ACK params: String rootPath)
+    public static final int Type_UpdateAppConfig = 12; // params: String legacyData
+    //                                                            (ACK params: boolean isSucceed)
 
     // JSON field name
     static final String APPCORE_MESSAGE_KEY_COMMAND_TYPE = "commandType";
@@ -57,13 +60,6 @@ public class AppCoreMessage extends BaseMessagePayload {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode payloadObj = mapper.createObjectNode();
         payloadObj.put("appId", "" + appId);
-        this.mAppCorePayload = payloadObj;
-    }
-
-    public void setParamsInitializeApp(String name) {
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectNode payloadObj = mapper.createObjectNode();
-        payloadObj.put("name", "" + name);
         this.mAppCorePayload = payloadObj;
     }
 
@@ -107,6 +103,13 @@ public class AppCoreMessage extends BaseMessagePayload {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode payloadObj = mapper.createObjectNode();
         payloadObj.put("path", "" + path);
+        this.mAppCorePayload = payloadObj;
+    }
+
+    public void setParamsUpdateAppConfig(String legacyData) {
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode payloadObj = mapper.createObjectNode();
+        payloadObj.put("legacyData", "" + legacyData);
         this.mAppCorePayload = payloadObj;
     }
 

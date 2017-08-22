@@ -20,6 +20,7 @@ package com.opel.opel_manager.model.message;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.opel.opel_manager.model.message.params.ParamsSendConfigPage;
 import com.opel.opel_manager.model.message.params.ParamsSendEventPage;
+import com.opel.opel_manager.model.message.params.ParamsUpdateSensorData;
 
 // CompanionMessage: message sent to companion device
 // - Decoding(makeFromJSON): Java
@@ -29,6 +30,7 @@ public class CompanionMessage extends BaseMessagePayload {
     public static final int Type_NotDetermined = 0;
     public static final int Type_SendEventPage = 1; // params: string legacyData
     public static final int Type_SendConfigPage = 2; // params: string legacyData
+    public static final int Type_UpdateSensorData = 3; //params: string legacyData
 
     // JSON field name
     static final String COMPANION_MESSAGE_KEY_COMMAND_TYPE = "commandType";
@@ -55,6 +57,14 @@ public class CompanionMessage extends BaseMessagePayload {
         String legacyData = paramsObj.get("legacyData").asText();
 
         return new ParamsSendConfigPage(legacyData);
+    }
+
+    public ParamsUpdateSensorData getParamsUpdateSensorData() {
+        ObjectNode paramsObj = (ObjectNode) this.mCompanionPayloadObj;
+
+        String legacyData = paramsObj.get("legacyData").asText();
+
+        return new ParamsUpdateSensorData(legacyData);
     }
 
     public int getCommandType() {

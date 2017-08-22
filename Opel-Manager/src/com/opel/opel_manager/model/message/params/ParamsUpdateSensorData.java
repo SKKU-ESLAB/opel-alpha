@@ -2,7 +2,7 @@ package com.opel.opel_manager.model.message.params;
 
 /* Copyright (c) 2015-2017 CISS, and contributors. All rights reserved.
  *
- * Contributor: Gyeonghwan Hong<redcarrottt@gmail.com>
+ * Contributor: 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,9 @@ package com.opel.opel_manager.model.message.params;
  * limitations under the License.
  */
 
-public class ParamsListenAppState {
-    public ParamsListenAppState(int appId, int appState) {
-        this.appid = appId;
-        this.appState = appState;
+public class ParamsUpdateSensorData {
+    public ParamsUpdateSensorData(String legacyData) {
+        this.legacyData = legacyData;
     }
-
-    public int appId;
-    public int appState;
+    public String legacyData;
 }

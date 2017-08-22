@@ -26,6 +26,7 @@ import com.opel.opel_manager.model.message.params.ParamsGetFileList;
 import com.opel.opel_manager.model.message.params.ParamsGetRootPath;
 import com.opel.opel_manager.model.message.params.ParamsInitializeApp;
 import com.opel.opel_manager.model.message.params.ParamsListenAppState;
+import com.opel.opel_manager.model.message.params.ParamsUpdateAppConfig;
 
 import java.util.ArrayList;
 
@@ -73,10 +74,13 @@ public class AppCoreAckMessage extends BaseMessagePayload {
     public ParamsListenAppState getParamsListenAppState() {
         ObjectNode paramsObj = (ObjectNode) this.mAppCoreAckPayloadObj;
 
+        String appIdStr = paramsObj.get("appId").asText();
+        int appId = Integer.parseInt(appIdStr);
+
         String appStateStr = paramsObj.get("appState").asText();
         int appState = Integer.parseInt(appStateStr);
 
-        return new ParamsListenAppState(appState);
+        return new ParamsListenAppState(appId, appState);
     }
 
     public ParamsInitializeApp getParamsInitializeApp() {
@@ -110,6 +114,15 @@ public class AppCoreAckMessage extends BaseMessagePayload {
         String rootPath = paramsObj.get("rootPath").asText();
 
         return new ParamsGetRootPath(rootPath);
+    }
+
+    public ParamsUpdateAppConfig getParamsUpdateAppConfig() {
+        ObjectNode paramsObj = (ObjectNode) this.mAppCoreAckPayloadObj;
+
+        String isSucceedStr = paramsObj.get("isSucceed").asText();
+        boolean isSucceed = (isSucceedStr.compareTo("1") == 0);
+
+        return new ParamsUpdateAppConfig(isSucceed);
     }
 
     public int getCommandMessageId() {
