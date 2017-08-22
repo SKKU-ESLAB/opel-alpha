@@ -61,8 +61,8 @@ class App {
 
     // App information
     AppState::Value mState;
-    char* mName; // determined at Initialized
     char* mPackageFilePath; // determined at Installing, reset at Ready
+    char* mName; // determined at Ready, reset at Removing
     char* mMainJSFilePath; // determined at Ready, reset at Removing
     int mPid; // determined at Launching, reset at Ready
 };

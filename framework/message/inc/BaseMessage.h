@@ -135,8 +135,8 @@ namespace AppCoreMessageCommandType {
   enum Value {
     NotDetermined = 0,
     GetAppList = 1, // params: void (ACK params: ParamAppList)
-    ListenAppState = 2, // params: int appId (ACK params: int appState)
-    InitializeApp = 3, // params: std::string name (ACK params: int appId)
+    ListenAppState = 2, // params: int appId (ACK params: int appId, int appState)
+    InitializeApp = 3, // params: void (ACK params: int appId)
     InstallApp = 4, // params: int appId, std::string packageFileName
     LaunchApp = 5, // params: int appId
     CompleteLaunchingApp = 6, // params: int appId, int pid
@@ -144,7 +144,8 @@ namespace AppCoreMessageCommandType {
     RemoveApp = 8, // params: int appId
     GetFileList = 9, // params: std::string path (ACK params: AckParamFileList)
     GetFile = 10, // params: std::string path (ACK params: void)
-    GetRootPath = 11 // params: void (ACK params: std::string rootPath)
+    GetRootPath = 11, // params: void (ACK params: std::string rootPath)
+    UpdateAppConfig = 12 // params: string legacyData (ACK params: bool isSucceed)
   };
 }
 
@@ -182,7 +183,6 @@ class AppCoreMessage: public BaseMessagePayload {
 
     // Get command-specific parameters
     bool getParamsListenAppState(int& appId);
-    bool getParamsInitializeApp(std::string& name);
     bool getParamsInstallApp(int& appId, std::string& packgeFileName);
     bool getParamsLaunchApp(int& appId);
     bool getParamsCompleteLaunchingApp(int& appId, int& pid);
@@ -190,6 +190,7 @@ class AppCoreMessage: public BaseMessagePayload {
     bool getParamsRemoveApp(int& appId);
     bool getParamsGetFileList(std::string& path);
     bool getParamsGetFile(std::string& path);
+    bool getParamsUpdateAppConfig(std::string& legacyData);
 
   protected:
     // Initializer
@@ -286,10 +287,11 @@ class AppCoreAckMessage : public BaseMessagePayload {
 
     // Set command-specific parameters
     void setParamsGetAppList(ParamAppList& appList);
-    void setParamsListenAppState(int appState);
+    void setParamsListenAppState(int appId, int appState);
     void setParamsInitializeApp(int appId);
     void setParamsGetFileList(std::string path, ParamFileList& fileList);
     void setParamsGetRootPath(std::string rootPath);
+    void setParamsUpdateAppConfig(bool isSucceed);
 
   protected:
     AppCoreAckMessage(int commandMessageId,
@@ -354,7 +356,8 @@ namespace CompanionMessageCommandType {
   enum Value {
     NotDetermined = 0,
     SendEventPage = 1, // params: string legacyData
-    SendConfigPage = 2 // params: string legacyData
+    SendConfigPage = 2, // params: string legacyData
+    UpdateSensorData = 3 // params: string legacyData
   };
 }
 
@@ -386,6 +389,7 @@ class CompanionMessage: public BaseMessagePayload {
     // Set command-specific parameters
     void setParamsSendEventPage(std::string legacyData);
     void setParamsSendConfigPage(std::string legacyData);
+    void setParamsUpdateSensorData(std::string legacyData);
 
   protected:
     // Initializer

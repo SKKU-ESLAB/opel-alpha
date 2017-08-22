@@ -150,14 +150,6 @@ bool AppCoreMessage::getParamsListenAppState(int& appId) {
   return true;
 }
 
-bool AppCoreMessage::getParamsInitializeApp(std::string& name) { 
-  cJSON* nameObj = cJSON_GetObjectItem(this->mAppCorePayloadObj, "name");
-  RETURN_IF_INVALID_CJSON_OBJ(nameObj, false);
-  name.assign(nameObj->valuestring);
-
-  return true;
-}
-
 bool AppCoreMessage::getParamsInstallApp(int& appId,
     std::string& packageFileName) { 
   cJSON* appIdObj = cJSON_GetObjectItem(this->mAppCorePayloadObj, "appId");
@@ -224,6 +216,14 @@ bool AppCoreMessage::getParamsGetFile(std::string& path) {
   return true;
 }
 
+bool AppCoreMessage::getParamsUpdateAppConfig(std::string& legacyData) {
+  cJSON* legacyDataObj = cJSON_GetObjectItem(this->mAppCorePayloadObj, "legacyData");
+  RETURN_IF_INVALID_CJSON_OBJ(legacyDataObj, false);
+  legacyData.assign(legacyDataObj->valuestring);
+
+  return true;
+}
+
 cJSON* ParamAppList::toJSON() {
   cJSON* listObj = cJSON_CreateArray();
 
@@ -259,8 +259,12 @@ void AppCoreAckMessage::setParamsGetAppList(ParamAppList& appList) {
   this->mAppCoreAckPayloadObj = payloadObj; 
 }
 
-void AppCoreAckMessage::setParamsListenAppState(int appState) {
+void AppCoreAckMessage::setParamsListenAppState(int appId, int appState) {
   cJSON* payloadObj = cJSON_CreateObject();
+  char appIdStr[20];
+  sprintf(appIdStr, "%d", appId);
+  cJSON_AddStringToObject(payloadObj, "appId", appIdStr);
+
   char appStateStr[20];
   sprintf(appStateStr, "%d", appState);
   cJSON_AddStringToObject(payloadObj, "appState", appStateStr);
@@ -305,6 +309,12 @@ void AppCoreAckMessage::setParamsGetRootPath(std::string rootPath) {
   this->mAppCoreAckPayloadObj = payloadObj; 
 }
 
+void AppCoreAckMessage::setParamsUpdateAppConfig(bool isSucceed) {
+  cJSON* payloadObj = cJSON_CreateObject();
+  cJSON_AddStringToObject(payloadObj, "isSucceed", (isSucceed) ? "1" : "0");
+  this->mAppCoreAckPayloadObj = payloadObj; 
+}
+
 // Set command-specific parameters (CompanionMessage)
 void CompanionMessage::setParamsSendEventPage(std::string legacyData) {
   cJSON* payloadObj = cJSON_CreateObject();
@@ -317,6 +327,16 @@ void CompanionMessage::setParamsSendEventPage(std::string legacyData) {
   this->mCompanionPayloadObj = payloadObj;
 }
 void CompanionMessage::setParamsSendConfigPage(std::string legacyData) {
+  cJSON* payloadObj = cJSON_CreateObject();
+  cJSON* legacyDataObj = cJSON_Parse(legacyData.c_str());
+  if(legacyDataObj == NULL) {
+    OPEL_DBG_ERR("SendEventPage: cannot parse legacyData");
+  }
+  cJSON_AddItemToObject(payloadObj, "legacyData", legacyDataObj);
+
+  this->mCompanionPayloadObj = payloadObj;
+}
+void CompanionMessage::setParamsUpdateSensorData(std::string legacyData) {
   cJSON* payloadObj = cJSON_CreateObject();
   cJSON* legacyDataObj = cJSON_Parse(legacyData.c_str());
   if(legacyDataObj == NULL) {

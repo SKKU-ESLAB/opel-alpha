@@ -239,13 +239,8 @@ void AppCore::listenAppState(AppCoreMessage* message) {
 }
 
 void AppCore::initializeApp(AppCoreMessage* message) {
-  // Get arguments
-  std::string name;
-  if(message->getParamsInitializeApp(name) == false) {
-    OPEL_DBG_ERR("Invalid AppCoreMessage! (commandType: %d)",
-        message->getCommandType());
-    return;
-  }
+  // No arguments
+  
   // TODO: not yet implemented
 }
 
