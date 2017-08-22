@@ -25,7 +25,7 @@ class A implements CommBroadcastReceiver {
 }
  */
 
-public class CommBroadcastReceiver extends BroadcastReceiver {
+abstract public class CommBroadcastReceiver extends BroadcastReceiver {
     private static final String TAG = "CommBroadcastReceiver";
     public static final String ACTION = "com.opel.cmfw.broadcastreceiver";
     public static final String KEY_EVENT_TYPE = "eventType";
@@ -39,12 +39,6 @@ public class CommBroadcastReceiver extends BroadcastReceiver {
     public static final String KEY_MESSAGE = "message";
     public static final String KEY_FILE_PATH = "filePath";
 
-    private CommChannelEventListener mListener;
-
-    public CommBroadcastReceiver(CommChannelEventListener listener) {
-        this.mListener = listener;
-    }
-
     @Override
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
@@ -55,12 +49,15 @@ public class CommBroadcastReceiver extends BroadcastReceiver {
                         CommChannelService.STATE_DISCONNECTED);
                 int newState = intent.getIntExtra(KEY_COMM_CHANNEL_NEW_STATE,
                         CommChannelService.STATE_DISCONNECTED);
-                this.mListener.onCommChannelStateChanged(prevState, newState);
+                this.onCommChannelStateChanged(prevState, newState);
             } else if (eventType.compareTo(EVENT_TYPE_ON_RECEIVED_RAW_MESSAGE) == 0) {
                 String message = intent.getStringExtra(KEY_MESSAGE);
                 String filePath = intent.getStringExtra(KEY_FILE_PATH);
-                this.mListener.onReceivedRawMessage(message, filePath);
+                this.onReceivedRawMessage(message, filePath);
             }
         }
     }
+
+    abstract public void onCommChannelStateChanged(int prevState, int newState);
+    abstract public void onReceivedRawMessage(String message, String filePath);
 }

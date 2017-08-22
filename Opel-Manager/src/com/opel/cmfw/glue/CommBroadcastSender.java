@@ -3,7 +3,7 @@ package com.opel.cmfw.glue;
 import android.app.Service;
 import android.content.Intent;
 
-public class CommBroadcaster {
+public class CommBroadcastSender {
     public static void onCommChannelStateChanged(Service service, int prevState, int newState) {
         Intent broadcastIntent = new Intent();
         broadcastIntent.setAction(CommBroadcastReceiver.ACTION);

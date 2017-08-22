@@ -6,18 +6,14 @@ import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 import android.support.v4.app.ActivityCompat;
@@ -33,18 +29,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.opel.cmfw.glue.CommBroadcastReceiver;
-import com.opel.cmfw.glue.CommChannelEventListener;
-import com.opel.cmfw.service.CommChannelService;
 import com.opel.opel_manager.R;
 import com.opel.opel_manager.controller.LegacyAppCoreStub;
 import com.opel.opel_manager.controller.LegacyJSONParser;
-import com.opel.opel_manager.controller.OPELAppCoreStub;
 import com.opel.opel_manager.controller.OPELContext;
 import com.opel.opel_manager.model.OPELAppList;
 import com.opel.opel_manager.model.OPELApplication;
 import com.opel.opel_manager.model.message.BaseMessage;
-import com.opel.opel_manager.controller.OPELAppCoreListener;
+import com.opel.opel_manager.controller.OPELControllerBroadcastReceiver;
 
 import java.util.ArrayList;
 
@@ -52,13 +44,6 @@ import static com.opel.opel_manager.controller.OPELContext.getAppList;
 
 public class MainActivity extends Activity {
     private static final String TAG = "MainActivity";
-    // RPC on CommChannelService
-    private CommChannelService mCommChannelService = null;
-    private CommBroadcastReceiver mCommBroadcastReceiver;
-    private PrivateCommChannelEventListener mCommChannelEventListener;
-    private OPELAppCoreStub mAppCoreStub = null;
-    private PrivateAppCoreListener mAppCoreListener = null;
-    private final MainActivity self = this;
 
     // IconGridView
     private GridView mIconGridView;
@@ -150,6 +135,11 @@ public class MainActivity extends Activity {
                 .bluetooth_disabled, R.drawable.bluetooth);
         this.mLargeDataPortIndicator = new PortIndicator(R.id.indicatorWFD, R.drawable
                 .wifidirect_disabled, R.drawable.wifidirect);
+    }
+
+    public void initializeCommunication() {
+        // TODO: implement it
+        // TODO: bind OPELControllerService and call its initializeConnection
     }
 
     private GridView.OnItemClickListener mItemClickListener = new GridView.OnItemClickListener() {
@@ -472,122 +462,6 @@ public class MainActivity extends Activity {
         }
     }
 
-    // CommChannelService, AppCoreStub
-    private void initializeCommunication() {
-        // Launch CommChannelService for setting connection with target OPEL device.
-        Intent serviceIntent = new Intent(this, CommChannelService.class);
-        this.bindService(serviceIntent, this.mCommServiceConnection, Context.BIND_AUTO_CREATE);
-    }
-
-    private ServiceConnection mCommServiceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName componentName, IBinder inputBinder) {
-            CommChannelService.CommBinder serviceBinder = (CommChannelService.CommBinder)
-                    inputBinder;
-            mCommChannelService = serviceBinder.getService();
-
-            // Set CommBroadcastReceiver and CommChannelEventListener
-            IntentFilter broadcastIntentFilter = new IntentFilter();
-            broadcastIntentFilter.addAction(CommBroadcastReceiver.ACTION);
-            mCommChannelEventListener = new PrivateCommChannelEventListener();
-            mCommBroadcastReceiver = new CommBroadcastReceiver(mCommChannelEventListener);
-            registerReceiver(mCommBroadcastReceiver, broadcastIntentFilter);
-
-            // Request to connect channel
-            OPELContext.getAppCore().setCommService(mCommChannelService);
-            mCommChannelService.connectChannel(); // RPC to CommChannelService
-
-            // AppCoreStub
-            if (mAppCoreListener != null) mAppCoreListener = new PrivateAppCoreListener();
-            if (mAppCoreStub != null)
-                mAppCoreStub = new OPELAppCoreStub(mCommChannelService, mAppCoreListener);
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-            Log.d (TAG, "onServiceDisconnected()");
-            unregisterReceiver(mCommBroadcastReceiver);
-            mCommChannelService = null;
-            mCommChannelEventListener = null;
-
-            mAppCoreListener = null;
-            mAppCoreStub = null;
-        }
-    };
-
-    class PrivateCommChannelEventListener implements CommChannelEventListener {
-        // CommChannelEventListener
-        @Override
-        public void onCommChannelStateChanged(int prevState, int newState) {
-            Log.d(TAG, "CommChannel State change: " + prevState + " -> " + newState);
-            switch (newState) {
-                case CommChannelService.STATE_DISCONNECTED:
-                    mDefaultPortIndicator.setDisconnected();
-                    mLargeDataPortIndicator.setDisconnected();
-
-                    switch (prevState) {
-                        case CommChannelService.STATE_CONNECTING_DEFAULT:
-                            Toast.makeText(getApplicationContext(), "Failed connecting to OPEL "
-                                    + "device. Retry it.", Toast.LENGTH_LONG).show();
-
-                            break;
-                        case CommChannelService.STATE_CONNECTED_DEFAULT:
-                        case CommChannelService.STATE_CONNECTING_LARGE_DATA:
-                        case CommChannelService.STATE_CONNECTED_LARGE_DATA:
-                            Toast.makeText(getApplicationContext(), "OPEL device is disconnected" +
-                                    ".", Toast.LENGTH_LONG).show();
-                            break;
-                    }
-                    break;
-                case CommChannelService.STATE_CONNECTING_DEFAULT:
-                    mDefaultPortIndicator.setConnecting();
-                    mLargeDataPortIndicator.setDisconnected();
-                    break;
-                case CommChannelService.STATE_CONNECTED_DEFAULT:
-                    mDefaultPortIndicator.setConnected();
-                    mLargeDataPortIndicator.setDisconnected();
-
-                    switch (prevState) {
-                        case CommChannelService.STATE_CONNECTING_DEFAULT:
-                            Toast.makeText(getApplicationContext(), "OPEL device is connected.",
-                                    Toast.LENGTH_LONG).show();
-                            OPELContext.getAppCore().requestUpdateAppInfomation();
-                            break;
-                        case CommChannelService.STATE_CONNECTING_LARGE_DATA:
-                            Toast.makeText(getApplicationContext(), "Opening large data port is "
-                                    + "failed.", Toast.LENGTH_LONG).show();
-                            break;
-                        case CommChannelService.STATE_CONNECTED_LARGE_DATA:
-                            Toast.makeText(getApplicationContext(), "Large data port is closed.",
-                                    Toast.LENGTH_LONG).show();
-                            break;
-                    }
-                    break;
-                case CommChannelService.STATE_CONNECTING_LARGE_DATA:
-                    mDefaultPortIndicator.setConnected();
-                    mLargeDataPortIndicator.setConnecting();
-                    break;
-                case CommChannelService.STATE_CONNECTED_LARGE_DATA:
-                    mDefaultPortIndicator.setConnected();
-                    mLargeDataPortIndicator.setConnected();
-
-                    Toast.makeText(getApplicationContext(), "Large data port is opened.", Toast
-                            .LENGTH_LONG).show();
-
-                    if (mIsWaitingWifiDirectOnForCamera) {
-                        launchCameraAfterWifiDirectConnected();
-                        mIsWaitingWifiDirectOnForCamera = false;
-                    }
-                    break;
-            }
-        }
-
-        @Override
-        public void onReceivedRawMessage(String message, String filePath) {
-            mAppCoreStub.onReceivedMessage(message, filePath);
-        }
-    }
-
     // TODO: Convert to CommServiceListener
     // TODO: Convert to Comm-related callbacks
     private android.os.Handler mHandler = new android.os.Handler(Looper.getMainLooper()) {
@@ -627,7 +501,7 @@ public class MainActivity extends Activity {
         }
     };
 
-    class PrivateAppCoreListener implements OPELAppCoreListener {
+    class PrivateControllerBroadcastReceiver extends OPELControllerBroadcastReceiver {
 
         @Override
         public void onAckGetAppList(BaseMessage message) {

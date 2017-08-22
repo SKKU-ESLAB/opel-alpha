@@ -15,7 +15,7 @@ import com.opel.cmfw.devicecontrollers.wifidirect.WifiDirectConnectingResultList
 import com.opel.cmfw.devicecontrollers.wifidirect.WifiDirectDeviceController;
 import com.opel.cmfw.devicecontrollers.wifidirect.WifiDirectDeviceStateListener;
 import com.opel.cmfw.glue.CommBroadcastReceiver;
-import com.opel.cmfw.glue.CommBroadcaster;
+import com.opel.cmfw.glue.CommBroadcastSender;
 import com.opel.cmfw.ports.CommPort;
 import com.opel.cmfw.ports.CommPortListener;
 import com.opel.cmfw.ports.bluetooth.BluetoothCommPort;
@@ -171,7 +171,7 @@ public class CommChannelService extends Service implements CommPortListener {
         String listenedMessage = null;
         try {
             listenedMessage = new String(messageData, "UTF-8");
-            CommBroadcaster.onReceivedRawMessage(self, listenedMessage, filePath);
+            CommBroadcastSender.onReceivedRawMessage(self, listenedMessage, filePath);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
@@ -449,9 +449,9 @@ public class CommChannelService extends Service implements CommPortListener {
             int prevState = this.mState;
             this.mState = newState;
 
-            // Broadcast CommChannel disconnection event via CommBroadcaster
+            // Broadcast CommChannel disconnection event via CommBroadcastSender
             if (prevState != newState)
-                CommBroadcaster.onCommChannelStateChanged(self, prevState, newState);
+                CommBroadcastSender.onCommChannelStateChanged(self, prevState, newState);
         }
 
         public void transitToDisconnected() {
