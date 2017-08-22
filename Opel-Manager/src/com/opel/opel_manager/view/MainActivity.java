@@ -39,19 +39,25 @@ import com.opel.cmfw.service.CommChannelService;
 import com.opel.opel_manager.R;
 import com.opel.opel_manager.controller.LegacyAppCoreStub;
 import com.opel.opel_manager.controller.LegacyJSONParser;
+import com.opel.opel_manager.controller.OPELAppCoreStub;
 import com.opel.opel_manager.controller.OPELContext;
 import com.opel.opel_manager.model.OPELAppList;
 import com.opel.opel_manager.model.OPELApplication;
+import com.opel.opel_manager.model.message.BaseMessage;
+import com.opel.opel_manager.controller.OPELAppCoreListener;
 
 import java.util.ArrayList;
 
 import static com.opel.opel_manager.controller.OPELContext.getAppList;
 
-public class MainActivity extends Activity implements CommChannelEventListener {
+public class MainActivity extends Activity {
     private static final String TAG = "MainActivity";
     // RPC on CommChannelService
     private CommChannelService mCommChannelService = null;
     private CommBroadcastReceiver mCommBroadcastReceiver;
+    private PrivateCommChannelEventListener mCommChannelEventListener;
+    private OPELAppCoreStub mAppCoreStub = null;
+    private PrivateAppCoreListener mAppCoreListener = null;
     private final MainActivity self = this;
 
     // IconGridView
@@ -145,37 +151,6 @@ public class MainActivity extends Activity implements CommChannelEventListener {
         this.mLargeDataPortIndicator = new PortIndicator(R.id.indicatorWFD, R.drawable
                 .wifidirect_disabled, R.drawable.wifidirect);
     }
-
-    private void initializeCommunication() {
-        // Launch CommChannelService for setting connection with target OPEL device.
-        Intent serviceIntent = new Intent(this, CommChannelService.class);
-        this.bindService(serviceIntent, this.mCommServiceConnection, Context.BIND_AUTO_CREATE);
-    }
-
-    private ServiceConnection mCommServiceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName componentName, IBinder inputBinder) {
-            CommChannelService.CommBinder serviceBinder = (CommChannelService.CommBinder)
-                    inputBinder;
-            mCommChannelService = serviceBinder.getService();
-
-            // Set CommBroadcastReceiver and CommChannelEventListener
-            IntentFilter broadcastIntentFilter = new IntentFilter();
-            broadcastIntentFilter.addAction(CommBroadcastReceiver.ACTION);
-            mCommBroadcastReceiver = new CommBroadcastReceiver(self);
-            registerReceiver(mCommBroadcastReceiver, broadcastIntentFilter);
-
-            // Request to connect channel
-            OPELContext.getAppCore().setCommService(mCommChannelService);
-            mCommChannelService.connectChannel(); // RPC to CommChannelService
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-            unregisterReceiver(mCommBroadcastReceiver);
-            mCommChannelService = null;
-        }
-    };
 
     private GridView.OnItemClickListener mItemClickListener = new GridView.OnItemClickListener() {
         @Override
@@ -497,75 +472,120 @@ public class MainActivity extends Activity implements CommChannelEventListener {
         }
     }
 
-    // CommChannelEventListener
-    @Override
-    public void onCommChannelStateChanged(int prevState, int newState) {
-        Log.d(TAG, "CommChannel State change: " + prevState + " -> " + newState);
-        switch (newState) {
-            case CommChannelService.STATE_DISCONNECTED:
-                mDefaultPortIndicator.setDisconnected();
-                mLargeDataPortIndicator.setDisconnected();
-
-                switch (prevState) {
-                    case CommChannelService.STATE_CONNECTING_DEFAULT:
-                        Toast.makeText(getApplicationContext(), "Failed connecting to OPEL " +
-                                "device. Retry it.", Toast.LENGTH_LONG).show();
-                        break;
-                    case CommChannelService.STATE_CONNECTED_DEFAULT:
-                    case CommChannelService.STATE_CONNECTING_LARGE_DATA:
-                    case CommChannelService.STATE_CONNECTED_LARGE_DATA:
-                        Toast.makeText(getApplicationContext(), "OPEL device is disconnected.",
-                                Toast.LENGTH_LONG).show();
-                        break;
-                }
-                break;
-            case CommChannelService.STATE_CONNECTING_DEFAULT:
-                mDefaultPortIndicator.setConnecting();
-                mLargeDataPortIndicator.setDisconnected();
-                break;
-            case CommChannelService.STATE_CONNECTED_DEFAULT:
-                mDefaultPortIndicator.setConnected();
-                mLargeDataPortIndicator.setDisconnected();
-
-                switch (prevState) {
-                    case CommChannelService.STATE_CONNECTING_DEFAULT:
-                        Toast.makeText(getApplicationContext(), "OPEL device is connected.",
-                                Toast.LENGTH_LONG).show();
-                        OPELContext.getAppCore().requestUpdateAppInfomation();
-                        break;
-                    case CommChannelService.STATE_CONNECTING_LARGE_DATA:
-                        Toast.makeText(getApplicationContext(), "Opening large data port is " +
-                                "failed.", Toast.LENGTH_LONG).show();
-                        break;
-                    case CommChannelService.STATE_CONNECTED_LARGE_DATA:
-                        Toast.makeText(getApplicationContext(), "Large data port is closed.",
-                                Toast.LENGTH_LONG).show();
-                        break;
-                }
-                break;
-            case CommChannelService.STATE_CONNECTING_LARGE_DATA:
-                mDefaultPortIndicator.setConnected();
-                mLargeDataPortIndicator.setConnecting();
-                break;
-            case CommChannelService.STATE_CONNECTED_LARGE_DATA:
-                mDefaultPortIndicator.setConnected();
-                mLargeDataPortIndicator.setConnected();
-
-                Toast.makeText(getApplicationContext(), "Large data port is opened.", Toast
-                        .LENGTH_LONG).show();
-
-                if (this.mIsWaitingWifiDirectOnForCamera) {
-                    this.launchCameraAfterWifiDirectConnected();
-                    this.mIsWaitingWifiDirectOnForCamera = false;
-                }
-                break;
-        }
+    // CommChannelService, AppCoreStub
+    private void initializeCommunication() {
+        // Launch CommChannelService for setting connection with target OPEL device.
+        Intent serviceIntent = new Intent(this, CommChannelService.class);
+        this.bindService(serviceIntent, this.mCommServiceConnection, Context.BIND_AUTO_CREATE);
     }
 
-    @Override
-    public void onReceivedRawMessage(String message, String filePath) {
-        // TODO: forward to LegacyAppCoreStub
-        OPELContext.getAppCore().onReceivedMessage(message, filePath);
+    private ServiceConnection mCommServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder inputBinder) {
+            CommChannelService.CommBinder serviceBinder = (CommChannelService.CommBinder)
+                    inputBinder;
+            mCommChannelService = serviceBinder.getService();
+
+            // Set CommBroadcastReceiver and CommChannelEventListener
+            IntentFilter broadcastIntentFilter = new IntentFilter();
+            broadcastIntentFilter.addAction(CommBroadcastReceiver.ACTION);
+            mCommChannelEventListener = new PrivateCommChannelEventListener();
+            mCommBroadcastReceiver = new CommBroadcastReceiver(mCommChannelEventListener);
+            registerReceiver(mCommBroadcastReceiver, broadcastIntentFilter);
+
+            // Request to connect channel
+            OPELContext.getAppCore().setCommService(mCommChannelService);
+            mCommChannelService.connectChannel(); // RPC to CommChannelService
+
+            // AppCoreStub
+            if (mAppCoreListener != null) mAppCoreListener = new PrivateAppCoreListener();
+            if (mAppCoreStub != null)
+                mAppCoreStub = new OPELAppCoreStub(mCommChannelService, mAppCoreListener);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            Log.d (TAG, "onServiceDisconnected()");
+            unregisterReceiver(mCommBroadcastReceiver);
+            mCommChannelService = null;
+            mCommChannelEventListener = null;
+
+            mAppCoreListener = null;
+            mAppCoreStub = null;
+        }
+    };
+
+    class PrivateCommChannelEventListener implements CommChannelEventListener {
+        // CommChannelEventListener
+        @Override
+        public void onCommChannelStateChanged(int prevState, int newState) {
+            Log.d(TAG, "CommChannel State change: " + prevState + " -> " + newState);
+            switch (newState) {
+                case CommChannelService.STATE_DISCONNECTED:
+                    mDefaultPortIndicator.setDisconnected();
+                    mLargeDataPortIndicator.setDisconnected();
+
+                    switch (prevState) {
+                        case CommChannelService.STATE_CONNECTING_DEFAULT:
+                            Toast.makeText(getApplicationContext(), "Failed connecting to OPEL "
+                                    + "device. Retry it.", Toast.LENGTH_LONG).show();
+
+                            break;
+                        case CommChannelService.STATE_CONNECTED_DEFAULT:
+                        case CommChannelService.STATE_CONNECTING_LARGE_DATA:
+                        case CommChannelService.STATE_CONNECTED_LARGE_DATA:
+                            Toast.makeText(getApplicationContext(), "OPEL device is disconnected" +
+                                    ".", Toast.LENGTH_LONG).show();
+                            break;
+                    }
+                    break;
+                case CommChannelService.STATE_CONNECTING_DEFAULT:
+                    mDefaultPortIndicator.setConnecting();
+                    mLargeDataPortIndicator.setDisconnected();
+                    break;
+                case CommChannelService.STATE_CONNECTED_DEFAULT:
+                    mDefaultPortIndicator.setConnected();
+                    mLargeDataPortIndicator.setDisconnected();
+
+                    switch (prevState) {
+                        case CommChannelService.STATE_CONNECTING_DEFAULT:
+                            Toast.makeText(getApplicationContext(), "OPEL device is connected.",
+                                    Toast.LENGTH_LONG).show();
+                            OPELContext.getAppCore().requestUpdateAppInfomation();
+                            break;
+                        case CommChannelService.STATE_CONNECTING_LARGE_DATA:
+                            Toast.makeText(getApplicationContext(), "Opening large data port is "
+                                    + "failed.", Toast.LENGTH_LONG).show();
+                            break;
+                        case CommChannelService.STATE_CONNECTED_LARGE_DATA:
+                            Toast.makeText(getApplicationContext(), "Large data port is closed.",
+                                    Toast.LENGTH_LONG).show();
+                            break;
+                    }
+                    break;
+                case CommChannelService.STATE_CONNECTING_LARGE_DATA:
+                    mDefaultPortIndicator.setConnected();
+                    mLargeDataPortIndicator.setConnecting();
+                    break;
+                case CommChannelService.STATE_CONNECTED_LARGE_DATA:
+                    mDefaultPortIndicator.setConnected();
+                    mLargeDataPortIndicator.setConnected();
+
+                    Toast.makeText(getApplicationContext(), "Large data port is opened.", Toast
+                            .LENGTH_LONG).show();
+
+                    if (mIsWaitingWifiDirectOnForCamera) {
+                        launchCameraAfterWifiDirectConnected();
+                        mIsWaitingWifiDirectOnForCamera = false;
+                    }
+                    break;
+            }
+        }
+
+        @Override
+        public void onReceivedRawMessage(String message, String filePath) {
+            mAppCoreStub.onReceivedMessage(message, filePath);
+        }
     }
 
     // TODO: Convert to CommServiceListener
@@ -606,6 +626,54 @@ public class MainActivity extends Activity implements CommChannelEventListener {
             }
         }
     };
+
+    class PrivateAppCoreListener implements OPELAppCoreListener {
+
+        @Override
+        public void onAckGetAppList(BaseMessage message) {
+            // TODO: implement it
+        }
+
+        @Override
+        public void onAckListenAppState(BaseMessage message) {
+            // TODO: implement it
+        }
+
+        @Override
+        public void onAckInitializeApp(BaseMessage message) {
+            // TODO: implement it
+        }
+
+        @Override
+        public void onAckGetFileList(BaseMessage message) {
+            // TODO: implement it
+        }
+
+        @Override
+        public void onAckGetFile(BaseMessage message) {
+            // TODO: implement it
+        }
+
+        @Override
+        public void onAckGetRootPath(BaseMessage message) {
+            // TODO: implement it
+        }
+
+        @Override
+        public void onSendEventPage(BaseMessage message) {
+            // TODO: implement it
+        }
+
+        @Override
+        public void onSendConfigPage(BaseMessage message) {
+            // TODO: implement it
+        }
+
+        @Override
+        public void onUpdateSensorData(BaseMessage message) {
+            // TODO: implement it
+        }
+    }
 }
 
 

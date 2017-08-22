@@ -29,7 +29,6 @@ import java.util.Date;
 import java.util.Locale;
 
 public class AppMarketActivity extends Activity {
-
     private WebView mWebView;
 
     DownloadManager manager;

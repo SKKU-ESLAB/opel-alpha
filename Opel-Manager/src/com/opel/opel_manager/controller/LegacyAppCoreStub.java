@@ -127,12 +127,12 @@ public class LegacyAppCoreStub {
             handleUpdateFileManager(jp);
         } else if (req.equals(RemoteFileManager_requestFile)) {
             handleRequestFileManager_requestFile(jp);
-        } else if (req.equals(RemoteFileManager_requestFile_Preload)) {
-            handleRequestFileManager_requestFile_Preload(jp);
-        } else if (req.equals(CloudService_faceRecognition)) {
-            handleCloudService(jp);
-        } else if (req.equals(CloudService_faceRecognition_preload)) {
-            handleCloudService_File_Preload(jp);
+//        } else if (req.equals(RemoteFileManager_requestFile_Preload)) {
+//            handleRequestFileManager_requestFile_Preload(jp);
+//        } else if (req.equals(CloudService_faceRecognition)) {
+//            handleCloudService(jp);
+//        } else if (req.equals(CloudService_faceRecognition_preload)) {
+//            handleCloudService_File_Preload(jp);
         } else {
             Log.d(TAG, "Unexpected response/request:  " + req);
         }
@@ -310,56 +310,56 @@ public class LegacyAppCoreStub {
         return "";
     }
 
-    void handleCloudService(LegacyJSONParser jp) {
+//    void handleCloudService(LegacyJSONParser jp) {
+//
+//        int fileSize;
+//        BufferedInputStream bis;
+//        try {
+//
+//            File fd = new File(OPELContext.getSettings().getCloudDir(), jp.getValueByKey("img"));
+//            bis = new BufferedInputStream(new FileInputStream(fd));
+//            fileSize = (int) fd.length();
+//            int len;
+//            int size = 4096;
+//
+//            //meta = meta + "dd";
+//            String meta = jp.getValueByKey("img");
+//
+////				meta += "!";
+//            int totalLen = 0;
+//
+//            byte[] data = new byte[fileSize];
+//            byte[] metadata = meta.getBytes();
+//
+//            len = bis.read(data, 0, Integer.valueOf(fileSize));
+//
+//            byte[] res = new byte[data.length + metadata.length];
+//
+//            for (int i = 0; i < metadata.length; i++) {
+//                res[i] = metadata[i];
+//            }
+//
+//            for (int j = 0; j < data.length; j++) {
+//                res[metadata.length + j] = data[j];
+//            }
+//
+//            //OPELContext.getMQTTController().mqttSendFile("opel/img", res);
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            Log.d("OPEL", "Exception: MQTT Send file exception");
+//
+//            return;
+//        }
+//
+//    }
 
-        int fileSize;
-        BufferedInputStream bis;
-        try {
 
-            File fd = new File(OPELContext.getSettings().getCloudDir(), jp.getValueByKey("img"));
-            bis = new BufferedInputStream(new FileInputStream(fd));
-            fileSize = (int) fd.length();
-            int len;
-            int size = 4096;
-
-            //meta = meta + "dd";
-            String meta = jp.getValueByKey("img");
-
-//				meta += "!";
-            int totalLen = 0;
-
-            byte[] data = new byte[fileSize];
-            byte[] metadata = meta.getBytes();
-
-            len = bis.read(data, 0, Integer.valueOf(fileSize));
-
-            byte[] res = new byte[data.length + metadata.length];
-
-            for (int i = 0; i < metadata.length; i++) {
-                res[i] = metadata[i];
-            }
-
-            for (int j = 0; j < data.length; j++) {
-                res[metadata.length + j] = data[j];
-            }
-
-            OPELContext.getMQTTController().mqttSendFile("opel/img", res);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            Log.d("OPEL", "Exception: MQTT Send file exception");
-
-            return;
-        }
-
-    }
-
-
-    String handleCloudService_File_Preload(LegacyJSONParser jp) {
-        // TODO: remake from the bottom
-        //return rcvFile(OPELContext.getSettings().getCloudDir(), jp);
-        return null;
-    }
+//    String handleCloudService_File_Preload(LegacyJSONParser jp) {
+//        // TODO: remake from the bottom
+//        //return rcvFile(OPELContext.getSettings().getCloudDir(), jp);
+//        return null;
+//    }
 
     private void updateMainUIThread(int what) {
         Message msg = Message.obtain();

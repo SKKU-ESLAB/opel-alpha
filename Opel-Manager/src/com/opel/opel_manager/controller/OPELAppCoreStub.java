@@ -30,6 +30,7 @@ import java.io.File;
 
 import static android.content.ContentValues.TAG;
 
+// TODO: Convert to OPELControllerService
 public class OPELAppCoreStub {
     private CommChannelService mServiceStub;
     private OPELAppCoreListener mListener;
@@ -69,7 +70,7 @@ public class OPELAppCoreStub {
     }
 
     public int installApp(int appId, File packageFile) {
-        BaseMessage newMessage = MessageFactory.makeAppCoreMessage( kAppCoreURI, AppCoreMessage
+        BaseMessage newMessage = MessageFactory.makeAppCoreMessage(kAppCoreURI, AppCoreMessage
                 .Type_InstallApp);
         AppCoreMessage appCorePayload = (AppCoreMessage) newMessage.getPayload();
         appCorePayload.setParamsInstallApp(appId, packageFile.getName());
@@ -226,26 +227,4 @@ public class OPELAppCoreStub {
             }
         }
     }
-}
-
-interface OPELAppCoreListener {
-    // AppCoreAckMessage
-    public void onAckGetAppList(BaseMessage message);
-
-    public void onAckListenAppState(BaseMessage message);
-
-    public void onAckInitializeApp(BaseMessage message);
-
-    public void onAckGetFileList(BaseMessage message);
-
-    public void onAckGetFile(BaseMessage message);
-
-    public void onAckGetRootPath(BaseMessage message);
-
-    // CompanionMessage
-    public void onSendEventPage(BaseMessage message);
-
-    public void onSendConfigPage(BaseMessage message);
-
-    public void onUpdateSensorData(BaseMessage message);
 }
