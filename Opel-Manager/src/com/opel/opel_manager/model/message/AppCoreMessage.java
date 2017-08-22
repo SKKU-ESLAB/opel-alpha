@@ -29,7 +29,7 @@ public class AppCoreMessage extends BaseMessagePayload {
     public static final int Type_GetAppList = 1; // params: void (ACK params: AppList)
     public static final int Type_ListenAppState = 2; // params: int appId (ACK params: int appState)
     public static final int Type_InitializeApp = 3; // params: String name (ACK params: int appId)
-    public static final int Type_InstallApp = 4; // params: int appId
+    public static final int Type_InstallApp = 4; // params: int appId, String packageFileName
     public static final int Type_LaunchApp = 5; // params: int appId
     // public static final int Type_CompleteLaunchingApp = 6; // params: int appId, int pid
     public static final int Type_TerminateApp = 7; // params: int appId
@@ -53,56 +53,57 @@ public class AppCoreMessage extends BaseMessagePayload {
     }
 
     // set parameters
-    void setParamsListenAppState(int appId) {
+    public void setParamsListenAppState(int appId) {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode payloadObj = mapper.createObjectNode();
         payloadObj.put("appId", "" + appId);
         this.mAppCorePayload = payloadObj;
     }
 
-    void setParamsInitializeApp(String name) {
+    public void setParamsInitializeApp(String name) {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode payloadObj = mapper.createObjectNode();
         payloadObj.put("name", "" + name);
         this.mAppCorePayload = payloadObj;
     }
 
-    void setParamsInstallApp(int appId) {
+    public void setParamsInstallApp(int appId, String packageFileName) {
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode payloadObj = mapper.createObjectNode();
+        payloadObj.put("appId", "" + appId);
+        payloadObj.put("packageFileName", "" + packageFileName);
+        this.mAppCorePayload = payloadObj;
+    }
+
+    public void setParamsLaunchApp(int appId) {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode payloadObj = mapper.createObjectNode();
         payloadObj.put("appId", "" + appId);
         this.mAppCorePayload = payloadObj;
     }
 
-    void setParamsLaunchApp(int appId) {
+    public void setParamsTerminateApp(int appId) {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode payloadObj = mapper.createObjectNode();
         payloadObj.put("appId", "" + appId);
         this.mAppCorePayload = payloadObj;
     }
 
-    void setParamsTerminateApp(int appId) {
+    public void setParamsRemoveApp(int appId) {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode payloadObj = mapper.createObjectNode();
         payloadObj.put("appId", "" + appId);
         this.mAppCorePayload = payloadObj;
     }
 
-    void setParamsRemoveApp(int appId) {
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectNode payloadObj = mapper.createObjectNode();
-        payloadObj.put("appId", "" + appId);
-        this.mAppCorePayload = payloadObj;
-    }
-
-    void setParamsGetFileList(String path) {
+    public void setParamsGetFileList(String path) {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode payloadObj = mapper.createObjectNode();
         payloadObj.put("path", "" + path);
         this.mAppCorePayload = payloadObj;
     }
 
-    void setParamsGetFile(String path) {
+    public void setParamsGetFile(String path) {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode payloadObj = mapper.createObjectNode();
         payloadObj.put("path", "" + path);

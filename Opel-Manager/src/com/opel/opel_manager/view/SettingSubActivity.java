@@ -20,7 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.opel.opel_manager.R;
-import com.opel.opel_manager.controller.JSONParser;
+import com.opel.opel_manager.controller.LegacyJSONParser;
 
 import java.util.ArrayList;
 
@@ -134,7 +134,7 @@ public class SettingSubActivity extends Activity{
 		String temp = "";
 		int jsonControl = 0;
 		
-		JSONParser jp = new JSONParser(jsonData);
+		LegacyJSONParser jp = new LegacyJSONParser(jsonData);
 		
 		 while(jp.hasMoreValue()){
 		    	String ret[] = new String[2];

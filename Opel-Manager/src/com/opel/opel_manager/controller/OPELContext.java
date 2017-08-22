@@ -14,7 +14,7 @@ public class OPELContext {
     private OPELEventList mOPELEventList;
 
     // Controllers
-    private OPELAppCoreStub mOPELAppCoreStub;
+    private LegacyAppCoreStub mLegacyAppCoreStub;
     private MQTTController mMQTTController;
 
     // State
@@ -27,7 +27,7 @@ public class OPELContext {
 
         this.mSettings = new Settings();
 
-        this.mOPELAppCoreStub = new OPELAppCoreStub();
+        this.mLegacyAppCoreStub = new LegacyAppCoreStub();
         this.mOPELAppList = new OPELAppList();
         this.mOPELEventList = new OPELEventList();
         this.mMQTTController = new MQTTController();
@@ -78,8 +78,8 @@ public class OPELContext {
         return OPELContext.get().mOPELEventList;
     }
 
-    public static OPELAppCoreStub getAppCore() {
-        return OPELContext.get().mOPELAppCoreStub;
+    public static LegacyAppCoreStub getAppCore() {
+        return OPELContext.get().mLegacyAppCoreStub;
     }
 
     public static MQTTController getMQTTController() {

@@ -19,8 +19,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.opel.opel_manager.R;
+import com.opel.opel_manager.controller.LegacyJSONParser;
 import com.opel.opel_manager.controller.OPELContext;
-import com.opel.opel_manager.controller.JSONParser;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -41,8 +41,8 @@ public class FileManagerActivity extends Activity {
 
         listView = (ListView) findViewById(com.opel.opel_manager.R.id
                 .listView1);
-        JSONParser jp = new JSONParser("{\"type\":\"1014\"}");
-        //JSONParser jp = new JSONParser("{\"type\":\"1014\",
+        LegacyJSONParser jp = new LegacyJSONParser("{\"type\":\"1014\"}");
+        //LegacyJSONParser jp = new LegacyJSONParser("{\"type\":\"1014\",
         // \"bin\":\"DIR/4096/16-00-15 10:51\",\"boot\":\"DIR/16384/70-00-01
         // 00:00\",\"boot.bak\":\"REG/4096/16-00-15 10:51\"}");
 
@@ -89,7 +89,7 @@ public class FileManagerActivity extends Activity {
 
                 if (files.exists() == true) {
 
-                    JSONParser jp = new JSONParser();
+                    LegacyJSONParser jp = new LegacyJSONParser();
                     jp.makeNewJson();
                     jp.addJsonKeyValue("type", "DuplicatedFile");
                     jp.addJsonKeyValue("filename", transformOfFilename
@@ -130,7 +130,7 @@ public class FileManagerActivity extends Activity {
 
                 if (files.exists() == true) {
 
-                    JSONParser jp = new JSONParser();
+                    LegacyJSONParser jp = new LegacyJSONParser();
                     jp.makeNewJson();
                     jp.addJsonKeyValue("type", "DuplicatedFile");
                     jp.addJsonKeyValue("filename", transformOfFilename
@@ -183,7 +183,7 @@ public class FileManagerActivity extends Activity {
         startActivity(intent);*/
     }
 
-    public static void updateDisplay(JSONParser jp) {
+    public static void updateDisplay(LegacyJSONParser jp) {
 
         if (ca == null) {
 
@@ -213,7 +213,7 @@ public class FileManagerActivity extends Activity {
 
     }
 
-    public static void runRequestedFile(Context ctx, JSONParser jp) {
+    public static void runRequestedFile(Context ctx, LegacyJSONParser jp) {
 
         if (ca == null) {
 
@@ -296,7 +296,7 @@ public class FileManagerActivity extends Activity {
         }
     }
 
-    public static void runSharingFile(Context ctx, JSONParser jp) {
+    public static void runSharingFile(Context ctx, LegacyJSONParser jp) {
         if (ca == null) {
 
         } else {
@@ -368,11 +368,11 @@ class ListAdapter_fileManager extends BaseAdapter implements OnClickListener {
     private Activity mActivity;
     private ArrayList<ListItem_fileManager> arr;
     private int pos;
-    private JSONParser jp;
+    private LegacyJSONParser jp;
 
     //	private Typeface myFont;
     public ListAdapter_fileManager(Context mContext, Activity mActivity,
-                                   JSONParser jp) {
+                                   LegacyJSONParser jp) {
         this.mContext = mContext;
         this.mActivity = mActivity;
         this.jp = jp;
@@ -479,7 +479,7 @@ class ListAdapter_fileManager extends BaseAdapter implements OnClickListener {
 
     }
 
-    public void updateDisplay(JSONParser jp) {
+    public void updateDisplay(LegacyJSONParser jp) {
         this.jp = jp;
         this.arr = getSettingMenuList(); //[MORE]
         this.notifyDataSetChanged();

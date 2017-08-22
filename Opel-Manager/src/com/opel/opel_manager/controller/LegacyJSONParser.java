@@ -5,7 +5,7 @@ import android.util.Log;
 
 //Make new json string
 /*
- * 	JSONParser jp2 = new JSONParser();
+ * 	LegacyJSONParser jp2 = new LegacyJSONParser();
 	jp2.makeNewJson();
 
 	jp2.addJsonKeyValue("key1", "value1");
@@ -18,7 +18,7 @@ import android.util.Log;
 
 //Use existing json to parse
 /*
- * 	JSONParser jp = new JSONParser("{\"noti\":\"_appid\",\"appTitle\":\"noti example\",\"dateTime\":\"2015-08-15, 11:58 am\",\"description\":\"OPELEvent detected\",\"text\":\"eventDetected\",\"img\":\"fileName.jpg\"}");
+ * 	LegacyJSONParser jp = new LegacyJSONParser("{\"noti\":\"_appid\",\"appTitle\":\"noti example\",\"dateTime\":\"2015-08-15, 11:58 am\",\"description\":\"OPELEvent detected\",\"text\":\"eventDetected\",\"img\":\"fileName.jpg\"}");
 
 	Log.d("OPEL", jp.getValueByKey("noti"));
 	Log.d("OPEL", jp.getValueByKey("img"));
@@ -31,15 +31,15 @@ import android.util.Log;
 	}
 */
 
-public class JSONParser {
+public class LegacyJSONParser {
 	
 	private String jsonData;
 	
-	public JSONParser(){
+	public LegacyJSONParser(){
 		jsonData="";
 	}
 	
-	public JSONParser(String str){
+	public LegacyJSONParser(String str){
 		jsonData=str;
 	}
 	

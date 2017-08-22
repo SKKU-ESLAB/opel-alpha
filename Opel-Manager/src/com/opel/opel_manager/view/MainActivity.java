@@ -37,8 +37,8 @@ import com.opel.cmfw.glue.CommBroadcastReceiver;
 import com.opel.cmfw.glue.CommChannelEventListener;
 import com.opel.cmfw.service.CommChannelService;
 import com.opel.opel_manager.R;
-import com.opel.opel_manager.controller.JSONParser;
-import com.opel.opel_manager.controller.OPELAppCoreStub;
+import com.opel.opel_manager.controller.LegacyAppCoreStub;
+import com.opel.opel_manager.controller.LegacyJSONParser;
 import com.opel.opel_manager.controller.OPELContext;
 import com.opel.opel_manager.model.OPELAppList;
 import com.opel.opel_manager.model.OPELApplication;
@@ -336,7 +336,7 @@ public class MainActivity extends Activity implements CommChannelEventListener {
         PendingIntent contentIntent = PendingIntent.getActivity(this, 1, notificationIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
-        JSONParser jp = new JSONParser(JsonData);
+        LegacyJSONParser jp = new LegacyJSONParser(JsonData);
         String appId = jp.getValueByKey("appID");
         OPELApplication targetApp = OPELContext.getAppList().getApp(appId);
 
@@ -475,8 +475,8 @@ public class MainActivity extends Activity implements CommChannelEventListener {
     }
 
     private void launchUserApp(String appId, String appName) {
-        OPELAppCoreStub opelAppCoreStub = OPELContext.getAppCore();
-        opelAppCoreStub.requestStart(appId, appName);
+        LegacyAppCoreStub legacyAppCoreStub = OPELContext.getAppCore();
+        legacyAppCoreStub.requestStart(appId, appName);
     }
 
     private void showRemoteConfigUI(OPELApplication app) {
@@ -564,7 +564,7 @@ public class MainActivity extends Activity implements CommChannelEventListener {
 
     @Override
     public void onReceivedRawMessage(String message, String filePath) {
-        // TODO: forward to OPELAppCoreStub
+        // TODO: forward to LegacyAppCoreStub
         OPELContext.getAppCore().onReceivedMessage(message, filePath);
     }
 
@@ -573,7 +573,7 @@ public class MainActivity extends Activity implements CommChannelEventListener {
     private android.os.Handler mHandler = new android.os.Handler(Looper.getMainLooper()) {
         @Override
         public void handleMessage(Message inputMessage) {
-            if (inputMessage.what == OPELAppCoreStub.HANDLER_UPDATE_UI) {
+            if (inputMessage.what == LegacyAppCoreStub.HANDLER_UPDATE_UI) {
                 //String msg = (String) inputMessage.obj;
                 updateUI();
                 // TODO: convert to CommBroadcastReceiver
@@ -581,27 +581,27 @@ public class MainActivity extends Activity implements CommChannelEventListener {
                 EventLoggerActivity.updateDisplay();
 
                 //update All of the UI page
-            } else if (inputMessage.what == OPELAppCoreStub.HANDLER_UPDATE_TOAST) {
+            } else if (inputMessage.what == LegacyAppCoreStub.HANDLER_UPDATE_TOAST) {
                 String toastMsg = (String) inputMessage.obj;
                 Toast.makeText(getApplicationContext(), toastMsg, Toast.LENGTH_SHORT).show();
                 //update All of the UI page
-            } else if (inputMessage.what == OPELAppCoreStub.HANDLER_MAKE_NOTI) {
+            } else if (inputMessage.what == LegacyAppCoreStub.HANDLER_MAKE_NOTI) {
                 String notiJson = (String) inputMessage.obj;
                 updateUI();
                 AppManagerActivity.updateDisplay();
                 makeNotification(notiJson);
 
                 //update All of the UI page
-            } else if (inputMessage.what == OPELAppCoreStub.HANDLER_UPDATE_FILEMANAGER) {
-                JSONParser jp = (JSONParser) inputMessage.obj;
+            } else if (inputMessage.what == LegacyAppCoreStub.HANDLER_UPDATE_FILEMANAGER) {
+                LegacyJSONParser jp = (LegacyJSONParser) inputMessage.obj;
                 FileManagerActivity.updateDisplay(jp);
 
-            } else if (inputMessage.what == OPELAppCoreStub.HANDLER_EXE_FILE) {
-                JSONParser jp = (JSONParser) inputMessage.obj;
+            } else if (inputMessage.what == LegacyAppCoreStub.HANDLER_EXE_FILE) {
+                LegacyJSONParser jp = (LegacyJSONParser) inputMessage.obj;
                 FileManagerActivity.runRequestedFile(getApplicationContext(), jp);
 
-            } else if (inputMessage.what == OPELAppCoreStub.HANDLER_SHARE_FILE) {
-                JSONParser jp = (JSONParser) inputMessage.obj;
+            } else if (inputMessage.what == LegacyAppCoreStub.HANDLER_SHARE_FILE) {
+                LegacyJSONParser jp = (LegacyJSONParser) inputMessage.obj;
                 FileManagerActivity.runSharingFile(getApplicationContext(), jp);
             }
         }

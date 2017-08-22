@@ -19,7 +19,7 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 
 import com.opel.opel_manager.R;
-import com.opel.opel_manager.controller.JSONParser;
+import com.opel.opel_manager.controller.LegacyJSONParser;
 import com.opel.opel_manager.controller.OPELContext;
 import com.opel.opel_manager.model.OPELApplication;
 
@@ -43,7 +43,7 @@ public class RemoteNotiUIActivity extends Activity {
         checkNoti = extras.getString("checkNoti");
 
 
-        JSONParser jp = new JSONParser(jsonString);
+        LegacyJSONParser jp = new LegacyJSONParser(jsonString);
 
         String appId = jp.getValueByKey("appID");
 

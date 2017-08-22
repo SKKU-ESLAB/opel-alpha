@@ -29,7 +29,7 @@ import android.widget.Toast;
 
 import com.opel.opel_manager.controller.OPELContext;
 import com.opel.opel_manager.model.OPELApplication;
-import com.opel.opel_manager.controller.JSONParser;
+import com.opel.opel_manager.controller.LegacyJSONParser;
 import com.opel.opel_manager.R;
 
 import java.util.ArrayList;
@@ -42,7 +42,7 @@ public class RemoteConfigUIActivity extends Activity {
 
     ArrayList<ConfigListItem> arr;
     String inputJson;
-    JSONParser jp;
+    LegacyJSONParser jp;
 
     String appID;
     String rqID;
@@ -61,7 +61,7 @@ public class RemoteConfigUIActivity extends Activity {
                 .show();
         inputJson = getIntent().getStringExtra("jsonData");
 
-        jp = new JSONParser(inputJson);
+        jp = new LegacyJSONParser(inputJson);
         appID = jp.getValueByKey("appID");
         rqID = jp.getValueByKey("rqID");
         pid = jp.getValueByKey("pid");
@@ -118,7 +118,7 @@ public class RemoteConfigUIActivity extends Activity {
 
             case com.opel.opel_manager.R.id.action_config_ok:
                 if (completeConfigSetting()) {
-                    JSONParser jp = new JSONParser();
+                    LegacyJSONParser jp = new LegacyJSONParser();
                     jp.makeNewJson();
 
                     jp.addJsonKeyValue("appID", appID);

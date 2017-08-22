@@ -82,11 +82,11 @@ public class BaseMessage {
     }
 
     // Payload
-    void setPayload(BaseMessagePayload payload) {
+    public void setPayload(BaseMessagePayload payload) {
         this.mPayload = payload;
     }
 
-    BaseMessagePayload getPayload() {
+    public BaseMessagePayload getPayload() {
         return this.mPayload;
     }
 

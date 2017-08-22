@@ -175,7 +175,7 @@ public class MQTTController {
 
                 if (message.getTopic().getName().equals("opel/msg")) {
                     //     Log.d("OPEL","DONGIGIGIG");
-                    JSONParser jp = new JSONParser(content);
+                    LegacyJSONParser jp = new LegacyJSONParser(content);
                     String name = jp.getValueByKey("Name");
                     String age = jp.getValueByKey("age");
                     String gender = jp.getValueByKey("gender");
@@ -201,7 +201,7 @@ public class MQTTController {
                     String txt = school + " - " + gender;
 
 
-                    JSONParser sendJson = new JSONParser();
+                    LegacyJSONParser sendJson = new LegacyJSONParser();
                     sendJson.makeNewJson();
                     sendJson.addJsonKeyValue("type", "1005");
                     sendJson.addJsonKeyValue("appID", appID);

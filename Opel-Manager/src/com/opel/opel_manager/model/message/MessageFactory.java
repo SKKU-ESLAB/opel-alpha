@@ -29,7 +29,7 @@ public class MessageFactory {
     private static final String TAG = "MessageFactory";
 
     // string -> JSON -> BaseMessage
-    static public BaseMessage makeMessageFromJSONString(String rawString) {
+    public static BaseMessage makeMessageFromJSONString(String rawString) {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode rootNode = null;
         try {
@@ -42,12 +42,15 @@ public class MessageFactory {
     }
 
     // Make AppCoreMessage from bottom
-    static AppCoreMessage makeAppCoreMessage(int commandType) {
-        return new AppCoreMessage(commandType);
+    public static BaseMessage makeAppCoreMessage(String uri, int commandType) {
+        AppCoreMessage payload = new AppCoreMessage(commandType);
+        BaseMessage message = new BaseMessage(currentMessageId++, uri, BaseMessage.Type_AppCore);
+        message.setPayload(payload);
+        return message;
     }
 
     // JSON -> BaseMessage / AppCoreAckMessage / CompanionMessage
-    static BaseMessage makeBaseMessageFromJSON(JsonNode messageObj) {
+    private static BaseMessage makeBaseMessageFromJSON(JsonNode messageObj) {
         ObjectNode thisObj = (ObjectNode) messageObj;
 
         // messageId
@@ -96,7 +99,7 @@ public class MessageFactory {
         return newMessage;
     }
 
-    static AppCoreAckMessage makeAppCoreAckMessageFromJSON(JsonNode messagePayloadObj) {
+    private static AppCoreAckMessage makeAppCoreAckMessageFromJSON(JsonNode messagePayloadObj) {
         ObjectNode thisObj = (ObjectNode) messagePayloadObj;
 
         // commandMessageId
@@ -120,7 +123,7 @@ public class MessageFactory {
         return newMessage;
     }
 
-    static CompanionMessage makeCompanionMessageFromJSON(JsonNode messagePayloadObj) {
+    private static CompanionMessage makeCompanionMessageFromJSON(JsonNode messagePayloadObj) {
         ObjectNode thisObj = (ObjectNode) messagePayloadObj;
 
         // commandType
@@ -138,4 +141,6 @@ public class MessageFactory {
 
         return newMessage;
     }
+
+    private static int currentMessageId = 0;
 }

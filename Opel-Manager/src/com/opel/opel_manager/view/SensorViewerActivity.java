@@ -13,7 +13,7 @@ import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 import com.opel.opel_manager.R;
-import com.opel.opel_manager.controller.JSONParser;
+import com.opel.opel_manager.controller.LegacyJSONParser;
 import com.opel.opel_manager.controller.OPELContext;
 
 public class SensorViewerActivity extends Activity {
@@ -90,7 +90,7 @@ public class SensorViewerActivity extends Activity {
 
     public void onMsgToSensorViewer(String message) {
         Log.d(TAG, "Message coming : " + message);
-        JSONParser jp = new JSONParser(message);
+        LegacyJSONParser jp = new LegacyJSONParser(message);
 
         Double val1 = Double.parseDouble(jp.getValueByKey(sensor1
                 .getSensorName()));
