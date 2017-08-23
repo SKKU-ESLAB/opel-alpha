@@ -63,7 +63,7 @@ public class CameraViewerActivity extends Activity implements SurfaceHolder.Call
     // Surface about to be destroyed
     private native void nativeSurfaceFinalize();
 
-    // Native code will use this to keep private data
+    // Native code will use this to keep private mMainIconList
     private long native_custom_data;
 
 
@@ -302,10 +302,10 @@ public class CameraViewerActivity extends Activity implements SurfaceHolder.Call
         } else {
             int commChannelState = mControllerServiceStub.getCommChannelState();
             if (commChannelState != CommChannelService.STATE_CONNECTED_LARGE_DATA) {
-                // If large data mode is not enabled, request to enable large data mode
+                // If large mMainIconList mode is not enabled, request to enable large mMainIconList mode
                 mControllerServiceStub.enableLargeDataMode();
             } else {
-                // If large data mode has already been enabled, launch and initialize camera viewer
+                // If large mMainIconList mode has already been enabled, launch and initialize camera viewer
                 launchAndConnectToCameraViewer();
             }
         }
@@ -346,12 +346,12 @@ public class CameraViewerActivity extends Activity implements SurfaceHolder.Call
         @Override
         public void onCommChannelStateChanged(int prevState, int newState) {
             if (newState == CommChannelService.STATE_CONNECTED_LARGE_DATA) {
-                // Succeed to connect large data port
+                // Succeed to connect large mMainIconList port
                 launchAndConnectToCameraViewer();
             } else if (newState == CommChannelService.STATE_CONNECTING_LARGE_DATA) {
-                Log.d(TAG, "Connecting large data port...");
+                Log.d(TAG, "Connecting large mMainIconList port...");
             } else {
-                Log.d(TAG, "Large data port disconnected or failed to connect");
+                Log.d(TAG, "Large mMainIconList port disconnected or failed to connect");
             }
         }
     }
@@ -361,7 +361,7 @@ public class CameraViewerActivity extends Activity implements SurfaceHolder.Call
         this.mControllerServiceStub.launchAppAsync(mAppId);
         this.mControllerServiceStub.lockLargeDataMode();
 
-        // Request to get large data(Wi-fi Direct) IP address
+        // Request to get large mMainIconList(Wi-fi Direct) IP address
         String ipAddress = this.mControllerServiceStub.getLargeDataIPAddress();
 
         // Initialize Gstreamer connection

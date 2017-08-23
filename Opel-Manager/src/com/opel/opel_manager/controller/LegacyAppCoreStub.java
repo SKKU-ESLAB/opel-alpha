@@ -9,16 +9,13 @@ import android.os.Message;
 import android.util.Log;
 
 import com.opel.cmfw.service.CommChannelService;
-import com.opel.opel_manager.model.OPELApplication;
+import com.opel.opel_manager.model.OPELApp;
 import com.opel.opel_manager.view.AppMarketActivity;
 import com.opel.opel_manager.view.SensorViewerActivity;
 
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-
-import static com.opel.opel_manager.controller.OPELContext.getAppList;
 
 public class LegacyAppCoreStub {
     BluetoothSocket mBluetoothSocket;
@@ -116,9 +113,9 @@ public class LegacyAppCoreStub {
             }
         } else if (req.equals(NOTI_PRELOAD_IMG)) {
             handleNotiPreLoadImg(jp);
-        } else if (req.equals(NIL_TERMINATION)) {
-            String appID = jp.getValueByKey("appID");
-            getAppList().getApp(appID).setTerminationJson(jp.getJsonData());
+//        } else if (req.equals(NIL_TERMINATION)) {
+//            String appID = jp.getValueByKey("appID");
+//            getAppList().getApp(appID).setTerminationJson(jp.getJsonData());
         } else if (req.equals(NIL_MSG_TO_SENSOR_VIEWER)) {
             handleMsgToSensorViewer(message);
         } else if (req.equals(CONFIG_REGISTER)) {
@@ -163,7 +160,7 @@ public class LegacyAppCoreStub {
             e.printStackTrace();
         }
 
-        OPELContext.getAppList().installApplication(new OPELApplication(appID, appName, bitmap, 0));
+        OPELContext.getAppList().installApplication(new OPELApp(appID, appName, bitmap, 0));
 
         //AppMarketActivity release
         AppMarketActivity.marketProgDialog.dismiss();
@@ -215,7 +212,7 @@ public class LegacyAppCoreStub {
             String appID = ret[0].substring(0, ret[0].length() - 2);
             int type = Integer.parseInt(ret[0].substring(ret[0].length() - 1, ret[0].length()));
 
-            OPELContext.getAppList().add(new OPELApplication(appID, ret[1], bitmap, type));
+            OPELContext.getAppList().add(new OPELApp(appID, ret[1], bitmap, type));
         }
         updateMainUIThread(HANDLER_UPDATE_UI);
         OPELContext.setIsAppInfoLoading(true);
@@ -224,7 +221,7 @@ public class LegacyAppCoreStub {
     void handleUninstall(LegacyJSONParser jp) {
         String appID = jp.getValueByKey("appID");
 
-        OPELApplication deleteTargetApp = OPELContext.getAppList().getApp(appID);
+        OPELApp deleteTargetApp = OPELContext.getAppList().getApp(appID);
 
         //Remove the item of app list
         OPELContext.getAppList().uninstallApplication(deleteTargetApp);
@@ -242,17 +239,17 @@ public class LegacyAppCoreStub {
     void handleStart(LegacyJSONParser jp) {
 
         String appID = jp.getValueByKey("appID");
-        OPELContext.getAppList().getApp(appID).setTypeToRunning();
+        OPELContext.getAppList().getApp(appID).setLegacyTypeToRunning();
         updateMainUIThread(HANDLER_UPDATE_UI);
-        updateMainUIThread(HANDLER_UPDATE_TOAST, "Run OPELApplication : " + OPELContext
-                .getAppList().getApp(appID).getTitle());
+        updateMainUIThread(HANDLER_UPDATE_TOAST, "Run OPELApp : " + OPELContext
+                .getAppList().getApp(appID).getName());
     }
 
     //{type:EXIXAPP, appID:id, .....}
     void handleTermination(LegacyJSONParser jp) {
         Log.d("OPEL", "handTermination > json : " + jp.getJsonData());
         String appID = jp.getValueByKey("appID");
-        OPELContext.getAppList().getApp(appID).setTypeToInstalled();
+        OPELContext.getAppList().getApp(appID).setLegacyTypeToInstalled();
         updateMainUIThread(HANDLER_UPDATE_UI);
 
         //set termination js to N/A
@@ -261,7 +258,7 @@ public class LegacyAppCoreStub {
     void handleRegisterConfig(LegacyJSONParser jp) {
 
         String appID = jp.getValueByKey("appID");
-        OPELContext.getAppList().getApp(appID).setConfigJson(jp.getJsonData());
+        OPELContext.getAppList().getApp(appID).setConfigJSONString(jp.getJsonData());
     }
 
     void handleEventWithNoti(LegacyJSONParser jp) {

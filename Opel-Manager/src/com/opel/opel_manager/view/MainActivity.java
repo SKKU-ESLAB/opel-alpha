@@ -3,6 +3,7 @@ package com.opel.opel_manager.view;
 /* Copyright (c) 2015-2017 CISS, and contributors. All rights reserved.
  *
  * Contributor: Gyeonghwan Hong<redcarrottt@gmail.com>
+ *              Dongig Sin<dongig@skku.edu>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,14 +26,11 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Looper;
@@ -58,12 +56,11 @@ import com.opel.opel_manager.controller.LegacyJSONParser;
 import com.opel.opel_manager.controller.OPELContext;
 import com.opel.opel_manager.controller.OPELControllerBroadcastReceiver;
 import com.opel.opel_manager.controller.OPELControllerService;
+import com.opel.opel_manager.model.OPELApp;
 import com.opel.opel_manager.model.OPELAppList;
-import com.opel.opel_manager.model.OPELApplication;
+import com.opel.opel_manager.view.main.MainIcon;
 
 import java.util.ArrayList;
-
-import static com.opel.opel_manager.controller.OPELContext.getAppList;
 
 public class MainActivity extends Activity {
     private static final String TAG = "MainActivity";
@@ -71,10 +68,6 @@ public class MainActivity extends Activity {
     // OPELControllerService
     private OPELControllerService mControllerServiceStub;
     private PrivateControllerBroadcastReceiver mControllerBroadcastReceiver;
-
-    // IconGridView
-    private GridView mIconGridView;
-    private IconListAdapter mIconListAdapter;
 
     private PortIndicator mDefaultPortIndicator;
     private PortIndicator mLargeDataPortIndicator;
@@ -145,12 +138,11 @@ public class MainActivity extends Activity {
     }
 
     private void initializeUIContents() {
-        //Create IconListAdapter
+        //Create MainIconListAdapter
         this.mIconGridView = (GridView) findViewById(R.id.iconGridView);
-        OPELAppList list = getAppList();
-        this.mIconListAdapter = new IconListAdapter(this, R.layout.template_gridview_icon_main,
-                list.getList());
-        this.mIconGridView.setAdapter(mIconListAdapter);
+        this.mMainIconListAdapter = new MainIconListAdapter(this, R.layout.template_gridview_icon_main,
+                this.mMainIconList);
+        this.mIconGridView.setAdapter(mMainIconListAdapter);
         this.mIconGridView.setOnItemClickListener(mItemClickListener);
         this.mIconGridView.setOnItemLongClickListener(mItemLongClickListener);
 
@@ -181,7 +173,7 @@ public class MainActivity extends Activity {
             registerReceiver(mControllerBroadcastReceiver, broadcastIntentFilter);
 
             // Request to initialize connection
-            launchConnect();
+            connectTargetDevice();
         }
 
         @Override
@@ -199,43 +191,43 @@ public class MainActivity extends Activity {
             OPELAppList appList = getAppList();
 
             // Native Menu Handling
-            int appType = appList.getList().get(position).getType();
-            String appName = appList.getList().get(position).getTitle();
+            int appType = appList.getList().get(position).getLegacyType();
+            String appName = appList.getList().get(position).getName();
             if (appType == -1) {
                 launchDefaultApp(appName);
             } else if (appType == 0) {
-                //Run OPELApplication if it is not running
+                //Run OPELApp if it is not running
                 int appId = appList.getList().get(position).getAppId();
-                launchUserApp(appId);
+                launchApp(appId);
             } else if (appType == 1) {
-                Toast.makeText(getApplicationContext(), appList.getList().get(position).getTitle
+                Toast.makeText(getApplicationContext(), appList.getList().get(position).getName
                         () + " is " + "OPEN", Toast.LENGTH_SHORT).show();
-                OPELApplication app = appList.getList().get(position);
+                OPELApp app = appList.getList().get(position);
                 showRemoteConfigUI(app);
             }
         }
     };
 
-    private GridView.OnItemLongClickListener mItemLongClickListener = new GridView
-            .OnItemLongClickListener() {
-        public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
-            final OPELAppList appList = getAppList();
-            OPELApplication app = OPELContext.getAppList().getList().get(position);
-            int appType = app.getType();
-            if (appType == -1) {
-                // Default Apps
-                Toast.makeText(getApplicationContext(), "[Native app]" + appList.getList().get
-                        (position).getTitle(), Toast.LENGTH_SHORT).show();
-            } else if (appType == 0) {
-                // Apps Not Running
-                Toast.makeText(getApplicationContext(), "[Installed]" + appList.getList().get
-                        (position).getTitle(), Toast.LENGTH_SHORT).show();
-            } else if (appType == 1) {
-                terminateUserApp(app);
-            }
-            return true;
-        }
-    };
+//    private GridView.OnItemLongClickListener mItemLongClickListener = new GridView
+//            .OnItemLongClickListener() {
+//        public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
+//            final OPELAppList appList = getAppList();
+//            OPELApp app = OPELContext.getAppList().getList().get(position);
+//            int appType = app.getLegacyType();
+//            if (appType == -1) {
+//                // Default Apps
+//                Toast.makeText(getApplicationContext(), "[Native app]" + appList.getList().get
+//                        (position).getName(), Toast.LENGTH_SHORT).show();
+//            } else if (appType == 0) {
+//                // Apps Not Running
+//                Toast.makeText(getApplicationContext(), "[Installed]" + appList.getList().get
+//                        (position).getName(), Toast.LENGTH_SHORT).show();
+//            } else if (appType == 1) {
+//                //terminateApp(app);
+//            }
+//            return true;
+//        }
+//    };
 
     class PortIndicator {
         public static final int STATE_DISCONNECTED = 0;
@@ -353,12 +345,12 @@ public class MainActivity extends Activity {
 
         LegacyJSONParser jp = new LegacyJSONParser(JsonData);
         String appId = jp.getValueByKey("appID");
-        OPELApplication targetApp = OPELContext.getAppList().getApp(appId);
+        OPELApp targetApp = OPELContext.getAppList().getApp(appId);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this).setCategory
-                (appId).setContentTitle(targetApp.getTitle()).setContentText(jp.getValueByKey
+                (appId).setContentTitle(targetApp.getName()).setContentText(jp.getValueByKey
                 ("description")).setTicker(" " + jp.getValueByKey("appTitle")).setLargeIcon
-                (OPELContext.getAppList().getApp(appId).getImage()).setSmallIcon(R.drawable.opel)
+                (OPELContext.getAppList().getApp(appId).getIconImage()).setSmallIcon(R.drawable.opel)
                 .setContentIntent(contentIntent).setAutoCancel(true).setWhen(System
                         .currentTimeMillis()).setDefaults(Notification.DEFAULT_SOUND |
                         Notification.DEFAULT_VIBRATE | Notification.DEFAULT_LIGHTS).setNumber(1);
@@ -367,40 +359,10 @@ public class MainActivity extends Activity {
     }
 
     public void updateUI() {
-        mIconListAdapter.updateDisplay();
+        mMainIconListAdapter.updateUI();
     }
 
-    private void terminateUserApp(OPELApplication app) {
-        // Apps Running
-        AlertDialog.Builder alt_bld = new AlertDialog.Builder(MainActivity
-                .this);
-        final OPELApplication fApp = app;
-        alt_bld.setMessage("Terminate this App ?").setCancelable(false).setPositiveButton("Yes",
-                new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                // Action for 'Yes' Button
-                if (mControllerServiceStub == null) {
-                    Log.e(TAG, "ControllerService is not connected");
-                    return;
-                }
-                mControllerServiceStub.terminateAppAsync(fApp.getAppId());
-                Log.d(TAG, "Request to kill ");
-            }
-        }).setNegativeButton("No", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                // Action for 'NO' Button
-                dialog.cancel();
-            }
-        });
-
-        AlertDialog alert = alt_bld.create();
-        alert.setTitle(app.getTitle());
-        Drawable d = new BitmapDrawable(getResources(), app.getImage());
-        alert.setIcon(d);
-        alert.show();
-    }
-
-    private boolean isTargetDeviceConnected() {
+    public boolean isTargetDeviceConnected() {
         if (this.mControllerServiceStub == null) return false;
 
         int commChannelState = this.mControllerServiceStub.getCommChannelState();
@@ -428,7 +390,7 @@ public class MainActivity extends Activity {
         startActivity(intent);
     }
 
-    private void launchConnect() {
+    public void connectTargetDevice() {
         if (isTargetDeviceConnected()) {
             Toast.makeText(getApplicationContext(), "Already connected to target device", Toast
                     .LENGTH_SHORT).show();
@@ -449,7 +411,7 @@ public class MainActivity extends Activity {
         startActivity(intent);
     }
 
-    private void launchCameraViewer() {
+    public void launchCameraViewer() {
         if (!isTargetDeviceConnected()) {
             Toast.makeText(getApplicationContext(), "Target device is not connected", Toast
                     .LENGTH_SHORT).show();
@@ -481,7 +443,7 @@ public class MainActivity extends Activity {
         } else if (appName.compareTo("App Market") == 0) {
             launchAppMarket();
         } else if (appName.compareTo("Connect") == 0) {
-            launchConnect();
+            connectTargetDevice();
         } else if (appName.compareTo("File Manager") == 0) {
             launchFileManager();
         } else if (appName.compareTo("Camera") == 0) {
@@ -493,7 +455,7 @@ public class MainActivity extends Activity {
         }
     }
 
-    private void launchUserApp(int appId) {
+    public void launchApp(int appId) {
         if (mControllerServiceStub == null) {
             Log.e(TAG, "ControllerService is not connected");
             return;
@@ -501,19 +463,27 @@ public class MainActivity extends Activity {
         mControllerServiceStub.launchAppAsync(appId);
     }
 
+    public void terminateApp(int appId) {
+        if (mControllerServiceStub == null) {
+            Log.e(TAG, "ControllerService is not connected");
+            return;
+        }
+        mControllerServiceStub.terminateAppAsync(appId);
+    }
+
     // TODO: Use OPELControllerServiceStub
-    private void showRemoteConfigUI(OPELApplication app) {
+    private void showRemoteConfigUI(OPELApp app) {
         //Open configuration view if it is running
-        if (app.getConfigJson().equals("N/A")) {
-            Toast.makeText(getApplicationContext(), "Configurable " + "data " + "is N/A", Toast
+        if (app.getConfigJSONString().equals("")) {
+            Toast.makeText(getApplicationContext(), "Configurable " + "mMainIconList " + "is N/A", Toast
                     .LENGTH_SHORT).show();
         } else {
             Intent intent = new Intent(MainActivity.this, RemoteConfigUIActivity.class);
 
             Bundle extras = new Bundle();
-            extras.putString("title", app.getTitle());
+            extras.putString("title", app.getName());
             extras.putString("appID", "" + app.getAppId());
-            extras.putString("jsonData", app.getConfigJson());
+            extras.putString("jsonData", app.getConfigJSONString());
 
             intent.putExtras(extras);
             startActivity(intent);
@@ -606,11 +576,11 @@ public class MainActivity extends Activity {
                             mControllerServiceStub.getAppListAsync();
                             break;
                         case CommChannelService.STATE_CONNECTING_LARGE_DATA:
-                            Toast.makeText(getApplicationContext(), "Opening large data mPort is "
+                            Toast.makeText(getApplicationContext(), "Opening large mMainIconList mPort is "
                                     + "failed.", Toast.LENGTH_LONG).show();
                             break;
                         case CommChannelService.STATE_CONNECTED_LARGE_DATA:
-                            Toast.makeText(getApplicationContext(), "Large data mPort is closed.",
+                            Toast.makeText(getApplicationContext(), "Large mMainIconList mPort is closed.",
                                     Toast.LENGTH_LONG).show();
                             break;
                     }
@@ -623,28 +593,30 @@ public class MainActivity extends Activity {
                     mDefaultPortIndicator.setConnected();
                     mLargeDataPortIndicator.setConnected();
 
-                    Toast.makeText(getApplicationContext(), "Large data mPort is opened.", Toast
+                    Toast.makeText(getApplicationContext(), "Large mMainIconList mPort is opened.", Toast
                             .LENGTH_LONG).show();
                     break;
             }
         }
     }
 
-    class IconListAdapter extends ArrayAdapter<OPELApplication> {
-        Context context;
-        int layoutResourceId;
-        ArrayList<OPELApplication> data;
+    // IconGridView
+    private GridView mIconGridView;
+    private MainIconListAdapter mMainIconListAdapter;
+    // TODO: add/remove item
+    private ArrayList<MainIcon> mMainIconList = new ArrayList<>();
 
+    class MainIconListAdapter extends ArrayAdapter<MainIcon> {
+        Context mContext;
+        int mLayoutResourceId;
 
-        IconListAdapter(Context context, int layoutResourceId, ArrayList<OPELApplication> data) {
-            super(context, layoutResourceId, data);
-            this.layoutResourceId = layoutResourceId;
-            this.context = context;
-            this.data = data;
+        public MainIconListAdapter(Context context, int layoutResourceId, ArrayList<MainIcon> mainIconList) {
+            super(context, layoutResourceId, mainIconList);
+            this.mLayoutResourceId = layoutResourceId;
+            this.mContext = context;
         }
 
-        void updateDisplay() {
-            this.data = getAppList().getList();
+        public void updateUI() {
             this.notifyDataSetChanged();
         }
 
@@ -655,26 +627,25 @@ public class MainActivity extends Activity {
             RecordHolder holder = null;
 
             if (row == null) {
-                LayoutInflater inflater = ((Activity) context).getLayoutInflater();
-                row = inflater.inflate(layoutResourceId, parent, false);
+                LayoutInflater inflater = ((Activity) mContext).getLayoutInflater();
+                row = inflater.inflate(mLayoutResourceId, parent, false);
 
                 holder = new RecordHolder();
-                holder.txtTitle = (TextView) row.findViewById(R.id.item_text);
+                holder.title = (TextView) row.findViewById(R.id.item_text);
                 holder.imageItem = (ImageView) row.findViewById(R.id.item_image);
                 row.setTag(holder);
             } else {
                 holder = (RecordHolder) row.getTag();
             }
 
-            OPELApplication item = data.get(position);
-            holder.txtTitle.setText(item.getTitle());
-            holder.imageItem.setImageBitmap(item.getImage());
+            MainIcon item = mMainIconList.get(position);
+            holder.title.setText(item.getTitle());
+            holder.imageItem.setImageBitmap(item.getIconBitmap());
             return row;
-
         }
 
         class RecordHolder {
-            TextView txtTitle;
+            TextView title;
             ImageView imageItem;
         }
     }

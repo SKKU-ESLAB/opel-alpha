@@ -24,7 +24,7 @@ import android.widget.TextView;
 
 import com.opel.opel_manager.controller.OPELContext;
 import com.opel.opel_manager.R;
-import com.opel.opel_manager.model.OPELApplication;
+import com.opel.opel_manager.model.OPELApp;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -247,16 +247,16 @@ class AppListAdapter extends BaseAdapter implements OnClickListener{
 	public ArrayList<ListApp> updateItemList(){
 		ArrayList<ListApp> arr = new ArrayList<ListApp>();
 
-		ArrayList<OPELApplication> appArray = OPELContext.getAppList().getList();
+		ArrayList<OPELApp> appArray = OPELContext.getAppList().getList();
 
 		for (int i = 0; i < appArray.size(); i++) {
-			OPELApplication tmpApp = appArray.get(i);
-			if (tmpApp.getType() == -1) {
+			OPELApp tmpApp = appArray.get(i);
+			if (tmpApp.getLegacyType() == -1) {
 				continue;
 			}
 			else{
-				arr.add(new ListApp( "" + tmpApp.getAppId(), tmpApp.getTitle(),
-						tmpApp.getImage(),tmpApp.getType())  );
+				arr.add(new ListApp( "" + tmpApp.getAppId(), tmpApp.getName(),
+						tmpApp.getIconImage(),tmpApp.getLegacyType())  );
 			}
 		}
 

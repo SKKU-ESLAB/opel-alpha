@@ -24,7 +24,7 @@ import android.util.Log;
 import android.util.SparseArray;
 
 import com.opel.cmfw.service.CommChannelService;
-import com.opel.opel_manager.model.OPELApplication;
+import com.opel.opel_manager.model.OPELApp;
 import com.opel.opel_manager.model.message.AppCoreAckMessage;
 import com.opel.opel_manager.model.message.BaseMessage;
 import com.opel.opel_manager.model.message.params.ParamsInitializeApp;
@@ -182,13 +182,13 @@ public class OPELControllerService extends Service {
 
             if (isListening) {
                 switch (appState) {
-                    case OPELApplication.State_Installing:
+                    case OPELApp.State_Installing:
                         onProcessing(appId);
                         break;
-                    case OPELApplication.State_Ready:
+                    case OPELApp.State_Ready:
                         onSuccess(appId);
                         break;
-                    case OPELApplication.State_Removed:
+                    case OPELApp.State_Removed:
                         onFail(appId);
                         break;
                 }

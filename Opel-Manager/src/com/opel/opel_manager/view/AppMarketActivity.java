@@ -206,7 +206,7 @@ public class AppMarketActivity extends Activity {
         Uri apkUri = Uri.fromFile(apkfile);
         try {
             Intent packageinstaller = new Intent(Intent.ACTION_VIEW);
-            packageinstaller.setDataAndType(apkUri, "OPELApplication/vnd" + "" +
+            packageinstaller.setDataAndType(apkUri, "OPELApp/vnd" + "" +
                     ".android.package-archive");
             startActivity(packageinstaller);
         } catch (Exception e) {

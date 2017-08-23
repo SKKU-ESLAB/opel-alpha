@@ -28,7 +28,7 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.opel.opel_manager.controller.OPELContext;
-import com.opel.opel_manager.model.OPELApplication;
+import com.opel.opel_manager.model.OPELApp;
 import com.opel.opel_manager.controller.LegacyJSONParser;
 import com.opel.opel_manager.R;
 
@@ -79,17 +79,17 @@ public class RemoteConfigUIActivity extends Activity {
         listView.setAdapter(ca);
         listView.setOnItemClickListener(mItemClickListener);
 
-        OPELApplication targetApp = OPELContext.getAppList().getApp
+        OPELApp targetApp = OPELContext.getAppList().getApp
                 (appID);
 
         try {
             ActionBar actionBar = getActionBar();
-            actionBar.setTitle(targetApp.getTitle());
+            actionBar.setTitle(targetApp.getName());
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setDisplayShowCustomEnabled(true);
             Drawable dr = new BitmapDrawable(getResources(), OPELContext
-                    .getAppList().getApp(appID).getImage());
+                    .getAppList().getApp(appID).getIconImage());
             actionBar.setIcon(dr);
             actionBar.setDisplayUseLogoEnabled(true);
 
@@ -271,7 +271,7 @@ public class RemoteConfigUIActivity extends Activity {
 
                             } catch (NumberFormatException e) {
                                 Toast.makeText(getApplicationContext(),
-                                        "Input data is not number format",
+                                        "Input mMainIconList is not number format",
                                         Toast.LENGTH_LONG)
                                         .show();
 

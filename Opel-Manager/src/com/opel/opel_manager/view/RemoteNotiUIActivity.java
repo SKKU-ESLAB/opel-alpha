@@ -21,7 +21,7 @@ import android.widget.TextView;
 import com.opel.opel_manager.R;
 import com.opel.opel_manager.controller.LegacyJSONParser;
 import com.opel.opel_manager.controller.OPELContext;
-import com.opel.opel_manager.model.OPELApplication;
+import com.opel.opel_manager.model.OPELApp;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -47,17 +47,17 @@ public class RemoteNotiUIActivity extends Activity {
 
         String appId = jp.getValueByKey("appID");
 
-        OPELApplication targetApp = OPELContext.getAppList().getApp
+        OPELApp targetApp = OPELContext.getAppList().getApp
                 (appId);
 
 
         try {
             ActionBar actionBar = getActionBar();
-            actionBar.setTitle(targetApp.getTitle());
+            actionBar.setTitle(targetApp.getName());
             actionBar.setDisplayHomeAsUpEnabled(true);
 
             Drawable dr = new BitmapDrawable(getResources(), OPELContext
-                    .getAppList().getApp(appId).getImage());
+                    .getAppList().getApp(appId).getIconImage());
             actionBar.setIcon(dr);
             actionBar.setDisplayUseLogoEnabled(true);
 

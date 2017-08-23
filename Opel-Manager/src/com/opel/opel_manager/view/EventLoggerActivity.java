@@ -25,7 +25,7 @@ import android.widget.TextView;
 
 import com.opel.opel_manager.R;
 import com.opel.opel_manager.controller.OPELContext;
-import com.opel.opel_manager.model.OPELApplication;
+import com.opel.opel_manager.model.OPELApp;
 import com.opel.opel_manager.model.OPELEvent;
 
 import java.util.ArrayList;
@@ -91,15 +91,15 @@ public class EventLoggerActivity extends Activity{
 			case com.opel.opel_manager.R.id.action_filter:
 
 				AlertDialog.Builder ab = new AlertDialog.Builder(EventLoggerActivity.this);
-				ab.setTitle("OPELApplication Filtering");
+				ab.setTitle("OPELApp Filtering");
 
-				ArrayList <OPELApplication> apList = OPELContext.getAppList().getList();
+				ArrayList <OPELApp> apList = OPELContext.getAppList().getList();
 				
 		/*		String[] strItems = { "Alert Item 1", "Alert Item 2", "Alert Item 3" };
 
 				AlertDialog alert = new AlertDialog.Builder( this )
 				    .setIcon( R.drawable.appmanager )
-				    .setTitle( "OPELApplication Filtering" )
+				    .setTitle( "OPELApp Filtering" )
 				    .setPositiveButton( "OK", new DialogInterface.OnClickListener()
 				    {
 				        @Override
@@ -198,7 +198,7 @@ public class EventLoggerActivity extends Activity{
 			AlertDialog alert = alt_bld.create();
 
 			alert.setTitle(item.getEventAppName());
-			Drawable d = new BitmapDrawable(getResources(), OPELContext.getAppList().getApp(item.getEventAppID()).getImage());
+			Drawable d = new BitmapDrawable(getResources(), OPELContext.getAppList().getApp(item.getEventAppID()).getIconImage());
 			alert.setIcon(d);
 			alert.show();
 
@@ -284,7 +284,7 @@ class EventLoggerAdapter extends BaseAdapter implements OnClickListener{
 			}
 
 			ImageView iv = (ImageView) convertView.findViewById(R.id.imageView11);
-			iv.setImageBitmap( OPELContext.getAppList().getApp(arr.get(pos).getEventAppID()).getImage() );
+			iv.setImageBitmap( OPELContext.getAppList().getApp(arr.get(pos).getEventAppID()).getIconImage() );
 
 
 		}
@@ -305,7 +305,7 @@ class EventLoggerAdapter extends BaseAdapter implements OnClickListener{
                  }
             });
             alertDlg.setNegativeButton("占쏙옙占?, null);
-            alertDlg.setTitle("OPELApplication 占쏙옙占쏙옙");
+            alertDlg.setTitle("OPELApp 占쏙옙占쏙옙");
             alertDlg.setMessage("占쏙옙占쏙옙 占쏙옙占쏙옙 占싹시겠쏙옙占싹깍옙?");
             alertDlg.show();
 			break;*/

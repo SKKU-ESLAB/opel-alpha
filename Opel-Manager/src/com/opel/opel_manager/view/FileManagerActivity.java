@@ -167,16 +167,16 @@ public class FileManagerActivity extends Activity {
 
         ListItem_fileManager data = (ListItem_fileManager) parent
                 .getItemAtPosition(position);
-        //    Data data = mList.get(position);
+        //    Data mMainIconList = mList.get(position);
 
 /*
-        Log.d("OPEL", "Click " + data.getTitle());
+        Log.d("OPEL", "Click " + mMainIconList.getName());
 
         Bundle extras = new Bundle();
-        extras.putString("title", data.getTitle());
+        extras.putString("title", mMainIconList.getName());
 
 
-        extras.putString("description", data.getTitle());
+        extras.putString("description", mMainIconList.getName());
 
         Intent intent = new Intent(this, SettingSubActivity.class);
         intent.putExtras(extras);
@@ -259,19 +259,19 @@ public class FileManagerActivity extends Activity {
                 fileLinkIntent.setDataAndType(Uri.fromFile(to), "text/*");
             } else if (fileExtend.equals("doc") || fileExtend.equals("docx")) {
                 fileLinkIntent.setDataAndType(Uri.fromFile(to),
-                        "OPELApplication/msword");
+                        "OPELApp/msword");
             } else if (fileExtend.equals("xls") || fileExtend.equals("xlsx")) {
                 fileLinkIntent.setDataAndType(Uri.fromFile(to),
-                        "OPELApplication/vnd.ms-excel");
+                        "OPELApp/vnd.ms-excel");
             } else if (fileExtend.equals("ppt") || fileExtend.equals("pptx")) {
                 fileLinkIntent.setDataAndType(Uri.fromFile(to),
-                        "OPELApplication/vnd.ms-powerpoint");
+                        "OPELApp/vnd.ms-powerpoint");
             } else if (fileExtend.equals("pdf")) {
                 fileLinkIntent.setDataAndType(Uri.fromFile(to),
-                        "OPELApplication/pdf");
+                        "OPELApp/pdf");
             } else if (fileExtend.equals("hwp")) {
                 fileLinkIntent.setDataAndType(Uri.fromFile(to),
-                        "OPELApplication/haansofthwp");
+                        "OPELApp/haansofthwp");
             } else if (fileExtend.equals("mjpg") || fileExtend.equals
                     ("mjpeg")) {
 
@@ -287,7 +287,7 @@ public class FileManagerActivity extends Activity {
                 fileLinkIntent.setDataAndType(Uri.fromFile(aviFile), "video/*");
             } else {
                 fileLinkIntent.setDataAndType(Uri.fromFile(to),
-                        "OPELApplication/*");
+                        "OPELApp/*");
             }
 
             fileLinkIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -328,7 +328,7 @@ public class FileManagerActivity extends Activity {
 
 			/*
             Intent intentShareFile = new Intent(Intent.ACTION_SEND);
-			intentShareFile.setType("OPELApplication/*");
+			intentShareFile.setType("OPELApp/*");
 			intentShareFile.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://"
 			+ fileStr));
 
