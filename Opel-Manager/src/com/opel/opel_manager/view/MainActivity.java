@@ -1,21 +1,43 @@
 package com.opel.opel_manager.view;
 
+/* Copyright (c) 2015-2017 CISS, and contributors. All rights reserved.
+ *
+ * Contributor: Gyeonghwan Hong<redcarrottt@gmail.com>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
@@ -29,14 +51,15 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.opel.cmfw.service.CommChannelService;
 import com.opel.opel_manager.R;
 import com.opel.opel_manager.controller.LegacyAppCoreStub;
 import com.opel.opel_manager.controller.LegacyJSONParser;
 import com.opel.opel_manager.controller.OPELContext;
+import com.opel.opel_manager.controller.OPELControllerBroadcastReceiver;
+import com.opel.opel_manager.controller.OPELControllerService;
 import com.opel.opel_manager.model.OPELAppList;
 import com.opel.opel_manager.model.OPELApplication;
-import com.opel.opel_manager.model.message.BaseMessage;
-import com.opel.opel_manager.controller.OPELControllerBroadcastReceiver;
 
 import java.util.ArrayList;
 
@@ -45,12 +68,13 @@ import static com.opel.opel_manager.controller.OPELContext.getAppList;
 public class MainActivity extends Activity {
     private static final String TAG = "MainActivity";
 
+    // OPELControllerService
+    private OPELControllerService mControllerServiceStub;
+    private PrivateControllerBroadcastReceiver mControllerBroadcastReceiver;
+
     // IconGridView
     private GridView mIconGridView;
     private IconListAdapter mIconListAdapter;
-
-    // Wi-fi Direct
-    private boolean mIsWaitingWifiDirectOnForCamera = false;
 
     private PortIndicator mDefaultPortIndicator;
     private PortIndicator mLargeDataPortIndicator;
@@ -70,8 +94,8 @@ public class MainActivity extends Activity {
         // Initialize UI Contents
         this.initializeUIContents();
 
-        // Initialize Communication
-        this.initializeCommunication();
+        // Initialize OPELControllerService
+        this.initializeControllerService();
     }
 
     protected void onRestart() {
@@ -91,7 +115,6 @@ public class MainActivity extends Activity {
 
     protected void onDestroy() {
         super.onDestroy();
-        unbindService(this.mCommServiceConnection);
         OPELContext.finish();
     }
 
@@ -137,10 +160,37 @@ public class MainActivity extends Activity {
                 .wifidirect_disabled, R.drawable.wifidirect);
     }
 
-    public void initializeCommunication() {
-        // TODO: implement it
-        // TODO: bind OPELControllerService and call its initializeConnection
+    public void initializeControllerService() {
+        // Launch OPELControllerService for setting connection with target OPEL device.
+        Intent serviceIntent = new Intent(this, MainActivity.class);
+        this.bindService(serviceIntent, this.mControllerServiceConnection, Context
+                .BIND_AUTO_CREATE);
     }
+
+    private ServiceConnection mControllerServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder inputBinder) {
+            OPELControllerService.ControllerBinder serviceBinder = (OPELControllerService
+                    .ControllerBinder) inputBinder;
+            mControllerServiceStub = serviceBinder.getService();
+
+            // Set BroadcastReceiver
+            IntentFilter broadcastIntentFilter = new IntentFilter();
+            broadcastIntentFilter.addAction(OPELControllerBroadcastReceiver.ACTION);
+            mControllerBroadcastReceiver = new PrivateControllerBroadcastReceiver();
+            registerReceiver(mControllerBroadcastReceiver, broadcastIntentFilter);
+
+            // Request to initialize connection
+            launchConnect();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            Log.d(TAG, "onServiceDisconnected()");
+            unregisterReceiver(mControllerBroadcastReceiver);
+            mControllerServiceStub = null;
+        }
+    };
 
     private GridView.OnItemClickListener mItemClickListener = new GridView.OnItemClickListener() {
         @Override
@@ -155,8 +205,8 @@ public class MainActivity extends Activity {
                 launchDefaultApp(appName);
             } else if (appType == 0) {
                 //Run OPELApplication if it is not running
-                String appId = "" + appList.getList().get(position).getAppId();
-                launchUserApp(appId, appName);
+                int appId = appList.getList().get(position).getAppId();
+                launchUserApp(appId);
             } else if (appType == 1) {
                 Toast.makeText(getApplicationContext(), appList.getList().get(position).getTitle
                         () + " is " + "OPEN", Toast.LENGTH_SHORT).show();
@@ -329,8 +379,12 @@ public class MainActivity extends Activity {
                 new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 // Action for 'Yes' Button
-                OPELContext.getAppCore().requestTermination("" + fApp.getAppId());
-                Log.d("OPEL", "Request to kill ");
+                if (mControllerServiceStub == null) {
+                    Log.e(TAG, "ControllerService is not connected");
+                    return;
+                }
+                mControllerServiceStub.terminateAppAsync(fApp.getAppId());
+                Log.d(TAG, "Request to kill ");
             }
         }).setNegativeButton("No", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
@@ -346,69 +400,69 @@ public class MainActivity extends Activity {
         alert.show();
     }
 
+    private boolean isTargetDeviceConnected() {
+        if (this.mControllerServiceStub == null) return false;
+
+        int commChannelState = this.mControllerServiceStub.getCommChannelState();
+        return (commChannelState != CommChannelService.STATE_DISCONNECTED) && (commChannelState
+                != CommChannelService.STATE_CONNECTING_DEFAULT);
+    }
+
     private void launchAppManager() {
-        if (this.mCommChannelService != null && !this.mCommChannelService.isDefaultPortAvailable
-                ()) {
-            Toast.makeText(getApplicationContext(), "Disconnected to OPEL", Toast.LENGTH_SHORT)
-                    .show();
+        if (!isTargetDeviceConnected()) {
+            Toast.makeText(getApplicationContext(), "Target device is not connected", Toast
+                    .LENGTH_SHORT).show();
+            return;
         }
         Intent intent = new Intent(MainActivity.this, AppManagerActivity.class);
         startActivity(intent);
     }
 
     private void launchAppMarket() {
-        if (this.mCommChannelService != null && !this.mCommChannelService.isDefaultPortAvailable
-                ()) {
-            Toast.makeText(getApplicationContext(), "Disconnected to OPEL", Toast.LENGTH_SHORT)
-                    .show();
+        if (!isTargetDeviceConnected()) {
+            Toast.makeText(getApplicationContext(), "Target device is not connected", Toast
+                    .LENGTH_SHORT).show();
+            return;
         }
         Intent intent = new Intent(MainActivity.this, AppMarketActivity.class);
         startActivity(intent);
     }
 
     private void launchConnect() {
-        if (this.mCommChannelService != null && !this.mCommChannelService.isDefaultPortAvailable
-                ()) {
-            this.mCommChannelService.connectChannel();
-        } else
-            Toast.makeText(getApplicationContext(), "Already connected to OPEL device", Toast
+        if (isTargetDeviceConnected()) {
+            Toast.makeText(getApplicationContext(), "Already connected to target device", Toast
                     .LENGTH_SHORT).show();
-        return;
-    }
-
-    private void launchFileManager() {
-        if (this.mCommChannelService != null && !this.mCommChannelService.isDefaultPortAvailable
-                ()) {
-            Toast.makeText(getApplicationContext(), "Disconnected to OPEL", Toast.LENGTH_SHORT)
-                    .show();
             return;
         }
 
+        // Request to initialize connection
+        mControllerServiceStub.initializeConnectionAsync();
+    }
+
+    private void launchFileManager() {
+        if (!isTargetDeviceConnected()) {
+            Toast.makeText(getApplicationContext(), "Target device is not connected", Toast
+                    .LENGTH_SHORT).show();
+            return;
+        }
         Intent intent = new Intent(MainActivity.this, FileManagerActivity.class);
         startActivity(intent);
     }
 
-    private void launchCameraBeforeWifiDirectConnected() {
-        if (this.mCommChannelService != null && !this.mCommChannelService.isDefaultPortAvailable
-                ()) {
-            Toast.makeText(getApplicationContext(), "Disconnected to OPEL", Toast.LENGTH_SHORT)
-                    .show();
+    private void launchCameraViewer() {
+        if (!isTargetDeviceConnected()) {
+            Toast.makeText(getApplicationContext(), "Target device is not connected", Toast
+                    .LENGTH_SHORT).show();
             return;
         }
 
-        mIsWaitingWifiDirectOnForCamera = true;
-        this.mCommChannelService.enableLargeDataMode();
-    }
-
-    private void launchCameraAfterWifiDirectConnected() {
         Intent intent = new Intent(MainActivity.this, CameraViewerActivity.class);
         startActivity(intent);
     }
 
-    private void launchSensor() {
-        if (this.mCommChannelService != null && !this.mCommChannelService.isDefaultPortAvailable
-                ()) {
-            Toast.makeText(getApplicationContext(), "Disconnected" + " to " + "OPEL", Toast
+    private void launchSensorViewer() {
+        if (!isTargetDeviceConnected()) {
+            Toast.makeText(getApplicationContext(), "Target device is not connected", Toast
                     .LENGTH_SHORT).show();
             return;
         }
@@ -431,19 +485,23 @@ public class MainActivity extends Activity {
         } else if (appName.compareTo("File Manager") == 0) {
             launchFileManager();
         } else if (appName.compareTo("Camera") == 0) {
-            launchCameraBeforeWifiDirectConnected();
+            launchCameraViewer();
         } else if (appName.compareTo("Sensor") == 0) {
-            launchSensor();
+            launchSensorViewer();
         } else if (appName.compareTo("Event Logger") == 0) {
             launchEventLogger();
         }
     }
 
-    private void launchUserApp(String appId, String appName) {
-        LegacyAppCoreStub legacyAppCoreStub = OPELContext.getAppCore();
-        legacyAppCoreStub.requestStart(appId, appName);
+    private void launchUserApp(int appId) {
+        if (mControllerServiceStub == null) {
+            Log.e(TAG, "ControllerService is not connected");
+            return;
+        }
+        mControllerServiceStub.launchAppAsync(appId);
     }
 
+    // TODO: Use OPELControllerServiceStub
     private void showRemoteConfigUI(OPELApplication app) {
         //Open configuration view if it is running
         if (app.getConfigJson().equals("N/A")) {
@@ -462,24 +520,29 @@ public class MainActivity extends Activity {
         }
     }
 
-    // TODO: Convert to CommServiceListener
-    // TODO: Convert to Comm-related callbacks
+    // TODO: Convert to OPELControllerBraodcastReceiver
     private android.os.Handler mHandler = new android.os.Handler(Looper.getMainLooper()) {
         @Override
         public void handleMessage(Message inputMessage) {
             if (inputMessage.what == LegacyAppCoreStub.HANDLER_UPDATE_UI) {
+                // TODO: implement it in this Activity
                 //String msg = (String) inputMessage.obj;
                 updateUI();
-                // TODO: convert to CommBroadcastReceiver
+
+                // TODO: move to AppManagerActivity
                 AppManagerActivity.updateDisplay();
+
+                // TODO: move to EventLoggerActivity
                 EventLoggerActivity.updateDisplay();
 
                 //update All of the UI page
             } else if (inputMessage.what == LegacyAppCoreStub.HANDLER_UPDATE_TOAST) {
+                // TODO: implement it in this Activity
                 String toastMsg = (String) inputMessage.obj;
                 Toast.makeText(getApplicationContext(), toastMsg, Toast.LENGTH_SHORT).show();
                 //update All of the UI page
             } else if (inputMessage.what == LegacyAppCoreStub.HANDLER_MAKE_NOTI) {
+                // TODO: implement it in this Activity
                 String notiJson = (String) inputMessage.obj;
                 updateUI();
                 AppManagerActivity.updateDisplay();
@@ -487,14 +550,17 @@ public class MainActivity extends Activity {
 
                 //update All of the UI page
             } else if (inputMessage.what == LegacyAppCoreStub.HANDLER_UPDATE_FILEMANAGER) {
+                // TODO: move to FileManagerActivity
                 LegacyJSONParser jp = (LegacyJSONParser) inputMessage.obj;
                 FileManagerActivity.updateDisplay(jp);
 
             } else if (inputMessage.what == LegacyAppCoreStub.HANDLER_EXE_FILE) {
+                // TODO: move to FileManagerActivity
                 LegacyJSONParser jp = (LegacyJSONParser) inputMessage.obj;
                 FileManagerActivity.runRequestedFile(getApplicationContext(), jp);
 
             } else if (inputMessage.what == LegacyAppCoreStub.HANDLER_SHARE_FILE) {
+                // TODO: move to FileManagerActivity
                 LegacyJSONParser jp = (LegacyJSONParser) inputMessage.obj;
                 FileManagerActivity.runSharingFile(getApplicationContext(), jp);
             }
@@ -502,100 +568,114 @@ public class MainActivity extends Activity {
     };
 
     class PrivateControllerBroadcastReceiver extends OPELControllerBroadcastReceiver {
-
         @Override
-        public void onAckGetAppList(BaseMessage message) {
-            // TODO: implement it
-        }
+        public void onCommChannelStateChanged(int prevState, int newState) {
+            // When connection state with target device is changed, indicator UI should be changed
+            Log.d(TAG, "CommChannel State change: " + prevState + " -> " + newState);
+            switch (newState) {
+                case CommChannelService.STATE_DISCONNECTED:
+                    mDefaultPortIndicator.setDisconnected();
+                    mLargeDataPortIndicator.setDisconnected();
 
-        @Override
-        public void onAckListenAppState(BaseMessage message) {
-            // TODO: implement it
-        }
+                    switch (prevState) {
+                        case CommChannelService.STATE_CONNECTING_DEFAULT:
+                            Toast.makeText(getApplicationContext(), "Failed connecting to OPEL "
+                                    + "device. Retry it.", Toast.LENGTH_LONG).show();
 
-        @Override
-        public void onAckInitializeApp(BaseMessage message) {
-            // TODO: implement it
-        }
+                            break;
+                        case CommChannelService.STATE_CONNECTED_DEFAULT:
+                        case CommChannelService.STATE_CONNECTING_LARGE_DATA:
+                        case CommChannelService.STATE_CONNECTED_LARGE_DATA:
+                            Toast.makeText(getApplicationContext(), "OPEL device is disconnected"
+                                    + ".", Toast.LENGTH_LONG).show();
+                            break;
+                    }
+                    break;
+                case CommChannelService.STATE_CONNECTING_DEFAULT:
+                    mDefaultPortIndicator.setConnecting();
+                    mLargeDataPortIndicator.setDisconnected();
+                    break;
+                case CommChannelService.STATE_CONNECTED_DEFAULT:
+                    mDefaultPortIndicator.setConnected();
+                    mLargeDataPortIndicator.setDisconnected();
 
-        @Override
-        public void onAckGetFileList(BaseMessage message) {
-            // TODO: implement it
-        }
+                    switch (prevState) {
+                        case CommChannelService.STATE_CONNECTING_DEFAULT:
+                            Toast.makeText(getApplicationContext(), "OPEL device is connected.",
+                                    Toast.LENGTH_LONG).show();
+                            mControllerServiceStub.getAppListAsync();
+                            break;
+                        case CommChannelService.STATE_CONNECTING_LARGE_DATA:
+                            Toast.makeText(getApplicationContext(), "Opening large data mPort is "
+                                    + "failed.", Toast.LENGTH_LONG).show();
+                            break;
+                        case CommChannelService.STATE_CONNECTED_LARGE_DATA:
+                            Toast.makeText(getApplicationContext(), "Large data mPort is closed.",
+                                    Toast.LENGTH_LONG).show();
+                            break;
+                    }
+                    break;
+                case CommChannelService.STATE_CONNECTING_LARGE_DATA:
+                    mDefaultPortIndicator.setConnected();
+                    mLargeDataPortIndicator.setConnecting();
+                    break;
+                case CommChannelService.STATE_CONNECTED_LARGE_DATA:
+                    mDefaultPortIndicator.setConnected();
+                    mLargeDataPortIndicator.setConnected();
 
-        @Override
-        public void onAckGetFile(BaseMessage message) {
-            // TODO: implement it
-        }
-
-        @Override
-        public void onAckGetRootPath(BaseMessage message) {
-            // TODO: implement it
-        }
-
-        @Override
-        public void onSendEventPage(BaseMessage message) {
-            // TODO: implement it
-        }
-
-        @Override
-        public void onSendConfigPage(BaseMessage message) {
-            // TODO: implement it
-        }
-
-        @Override
-        public void onUpdateSensorData(BaseMessage message) {
-            // TODO: implement it
+                    Toast.makeText(getApplicationContext(), "Large data mPort is opened.", Toast
+                            .LENGTH_LONG).show();
+                    break;
+            }
         }
     }
-}
+
+    class IconListAdapter extends ArrayAdapter<OPELApplication> {
+        Context context;
+        int layoutResourceId;
+        ArrayList<OPELApplication> data;
 
 
-class IconListAdapter extends ArrayAdapter<OPELApplication> {
-    Context context;
-    int layoutResourceId;
-    ArrayList<OPELApplication> data;
-
-
-    public IconListAdapter(Context context, int layoutResourceId, ArrayList<OPELApplication> data) {
-        super(context, layoutResourceId, data);
-        this.layoutResourceId = layoutResourceId;
-        this.context = context;
-        this.data = data;
-    }
-
-    public void updateDisplay() {
-        this.data = getAppList().getList();
-        this.notifyDataSetChanged();
-    }
-
-
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        View row = convertView;
-        RecordHolder holder = null;
-
-        if (row == null) {
-            LayoutInflater inflater = ((Activity) context).getLayoutInflater();
-            row = inflater.inflate(layoutResourceId, parent, false);
-
-            holder = new RecordHolder();
-            holder.txtTitle = (TextView) row.findViewById(R.id.item_text);
-            holder.imageItem = (ImageView) row.findViewById(R.id.item_image);
-            row.setTag(holder);
-        } else {
-            holder = (RecordHolder) row.getTag();
+        IconListAdapter(Context context, int layoutResourceId, ArrayList<OPELApplication> data) {
+            super(context, layoutResourceId, data);
+            this.layoutResourceId = layoutResourceId;
+            this.context = context;
+            this.data = data;
         }
 
-        OPELApplication item = data.get(position);
-        holder.txtTitle.setText(item.getTitle());
-        holder.imageItem.setImageBitmap(item.getImage());
-        return row;
+        void updateDisplay() {
+            this.data = getAppList().getList();
+            this.notifyDataSetChanged();
+        }
 
-    }
+        @NonNull
+        @Override
+        public View getView(int position, View convertView, @NonNull ViewGroup parent) {
+            View row = convertView;
+            RecordHolder holder = null;
 
-    static class RecordHolder {
-        TextView txtTitle;
-        ImageView imageItem;
+            if (row == null) {
+                LayoutInflater inflater = ((Activity) context).getLayoutInflater();
+                row = inflater.inflate(layoutResourceId, parent, false);
+
+                holder = new RecordHolder();
+                holder.txtTitle = (TextView) row.findViewById(R.id.item_text);
+                holder.imageItem = (ImageView) row.findViewById(R.id.item_image);
+                row.setTag(holder);
+            } else {
+                holder = (RecordHolder) row.getTag();
+            }
+
+            OPELApplication item = data.get(position);
+            holder.txtTitle.setText(item.getTitle());
+            holder.imageItem.setImageBitmap(item.getImage());
+            return row;
+
+        }
+
+        class RecordHolder {
+            TextView txtTitle;
+            ImageView imageItem;
+        }
     }
 }

@@ -13,9 +13,6 @@ public class OPELContext {
     private OPELAppList mOPELAppList;
     private OPELEventList mOPELEventList;
 
-    // Controllers
-    private LegacyAppCoreStub mLegacyAppCoreStub;
-
     // State
     private boolean mIsInitialized;
     private boolean mIsAppInfoLoading;
@@ -26,7 +23,6 @@ public class OPELContext {
 
         this.mSettings = new Settings();
 
-        this.mLegacyAppCoreStub = new LegacyAppCoreStub();
         this.mOPELAppList = new OPELAppList();
         this.mOPELEventList = new OPELEventList();
     }
@@ -52,8 +48,6 @@ public class OPELContext {
             // Restore EventList
             OPELContext.getEventList().open(context);
 
-            OPELContext.getAppCore().setMainUIHandler(handler);
-
             OPELContext.initComplete();
         }
     }
@@ -74,10 +68,6 @@ public class OPELContext {
 
     public static OPELEventList getEventList() {
         return OPELContext.get().mOPELEventList;
-    }
-
-    public static LegacyAppCoreStub getAppCore() {
-        return OPELContext.get().mLegacyAppCoreStub;
     }
 
     public static boolean isAppInfoLoading() {

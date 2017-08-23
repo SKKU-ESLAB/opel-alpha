@@ -108,7 +108,7 @@ public class EventLoggerActivity extends Activity{
 				            dialog.dismiss();
 				        }
 				    })
-				    .setNegativeButton( "Cancel", new DialogInterface.OnClickListener()
+				    .setNegativeButton( "cancel", new DialogInterface.OnClickListener()
 				    {
 				        @Override
 				        public void onClick(DialogInterface dialog, int which)

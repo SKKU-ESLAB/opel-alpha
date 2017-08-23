@@ -165,6 +165,35 @@ public class CommChannelService extends Service implements CommPortListener {
         this.mState.transitToConnectedDefault();
     }
 
+    public void lockLargeDataMode() {
+        if (this.mLargeDataPortWatcher == null || !this.mLargeDataPortWatcher.isAlive()) {
+            Log.e(TAG, "Since large data port is not being watched, cannot lock large data mode");
+            return;
+        } else if (this.mLargeDataPort == null) {
+            Log.e(TAG, "Since large data port is not initialized, cannot lock large data mode");
+            return;
+        }
+        this.mLargeDataPortWatcher.startToUse();
+    }
+
+    public void unlockLargeDataMode() {
+        if (this.mLargeDataPortWatcher == null || !this.mLargeDataPortWatcher.isAlive()) {
+            Log.e(TAG, "Since large data port is not being watched, cannot unlock large data mode");
+            return;
+        } else if (this.mLargeDataPort == null) {
+            Log.e(TAG, "Since large data port is not initialized, cannot unlock large data mode");
+            return;
+        }
+        this.mLargeDataPortWatcher.endToUse();
+    }
+
+    public String getLargeDataIPAddress() {
+        if(this.mLargeDataPort == null)
+            return "";
+
+        return this.mLargeDataPort.getIPAddress();
+    }
+
     // On received raw message (via default or largedata port)
     @Override
     public void onReceivingRawMessage(byte[] messageData, int messageDataLength, String filePath) {
@@ -405,13 +434,11 @@ public class CommChannelService extends Service implements CommPortListener {
             this.mIsEnabled = false;
         }
 
-        // TODO:
         public void startToUse() {
             this.mLastAccess = new Date();
             this.mNumInUse++;
         }
 
-        // TODO:
         public void endToUse() {
             this.mLastAccess = new Date();
             this.mNumInUse--;
@@ -435,6 +462,11 @@ public class CommChannelService extends Service implements CommPortListener {
                 }
             }
         }
+    }
+
+    // State
+    public int getCommChannelState() {
+        return this.mState.get();
     }
 
     private class State {
@@ -522,6 +554,7 @@ public class CommChannelService extends Service implements CommPortListener {
         }
     }
 
+    // Android Service
     @Override
     public void onCreate() {
         super.onCreate();

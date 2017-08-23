@@ -54,7 +54,7 @@ public class BluetoothConnectorActivity extends Activity {
 
     @Override
     public void onBackPressed() {
-        // Cancel Bluetooth initialization
+        // cancel Bluetooth initialization
         this.resultInFail("User canceled Bluetooth connection!");
     }
 

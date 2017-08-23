@@ -21,69 +21,33 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import com.opel.opel_manager.model.message.BaseMessage;
+import com.opel.cmfw.service.CommChannelService;
 
 abstract public class OPELControllerBroadcastReceiver extends BroadcastReceiver {
-    private static final String TAG = "CommBroadcastReceiver";
+    private static final String TAG = "OPELControllerBroadcastReceiver";
     public static final String ACTION = "com.opel.controller.broadcastreceiver";
     public static final String KEY_EVENT_TYPE = "eventType";
 
-    public static final String EVENT_TYPE_ON_ACK_GET_APP_LIST = "onAckGetAppList";
-    public static final String EVENT_TYPE_ON_ACK_LISTEN_APP_STATE = "onAckListenAppState";
-    public static final String EVENT_TYPE_ON_ACK_INITIALIZE_APP = "onAckInitializeApp";
-    public static final String EVENT_TYPE_ON_ACK_GET_FILE_LIST = "onAckGetFileList";
-    public static final String EVENT_TYPE_ON_ACK_GET_FILE = "onAckGetFile";
-    public static final String EVENT_TYPE_ON_ACK_GET_ROOT_PATH = "onAckGetRootPath";
-    public static final String EVENT_TYPE_ON_SEND_EVENT_PAGE = "onSendEventPage";
-    public static final String EVENT_TYPE_ON_SEND_CONFIG_PAGE = "onSendConfigPage";
-    public static final String EVENT_TYPE_ON_UPDATE_SENSOR_DATA = "onUpdateSensorData";
-    public static final String KEY_COMM_MESSAGE = "message";
+    public static final String EVENT_TYPE_ON_COMM_CHANNEL_STATE_CHANGED =
+            "onCommChannelStateChanged";
+    public static final String KEY_ON_COMM_CHANNEL_STATE_CHANGED_PREV_STATE = "prevState";
+    public static final String KEY_ON_COMM_CHANNEL_STATE_CHANGED_NEW_STATE = "newState";
 
     @Override
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
         if (action.compareTo(ACTION) == 0) {
             String eventType = intent.getStringExtra(KEY_EVENT_TYPE);
-            BaseMessage message = (BaseMessage) intent.getParcelableExtra(KEY_COMM_MESSAGE);
-            if (eventType.compareTo(EVENT_TYPE_ON_ACK_GET_APP_LIST) == 0) {
-                this.onAckGetAppList(message);
-            } else if (eventType.compareTo(EVENT_TYPE_ON_ACK_LISTEN_APP_STATE) == 0) {
-                this.onAckListenAppState(message);
-            } else if (eventType.compareTo(EVENT_TYPE_ON_ACK_INITIALIZE_APP) == 0) {
-                this.onAckInitializeApp(message);
-            } else if (eventType.compareTo(EVENT_TYPE_ON_ACK_GET_FILE_LIST) == 0) {
-                this.onAckGetFileList(message);
-            } else if (eventType.compareTo(EVENT_TYPE_ON_ACK_GET_FILE) == 0) {
-                this.onAckGetFile(message);
-            } else if (eventType.compareTo(EVENT_TYPE_ON_ACK_GET_ROOT_PATH) == 0) {
-                this.onAckGetRootPath(message);
-            } else if (eventType.compareTo(EVENT_TYPE_ON_SEND_EVENT_PAGE) == 0) {
-                this.onSendEventPage(message);
-            } else if (eventType.compareTo(EVENT_TYPE_ON_SEND_CONFIG_PAGE) == 0) {
-                this.onSendConfigPage(message);
-            } else if (eventType.compareTo(EVENT_TYPE_ON_UPDATE_SENSOR_DATA) == 0) {
-                this.onUpdateSensorData(message);
+            if (eventType.compareTo(EVENT_TYPE_ON_COMM_CHANNEL_STATE_CHANGED) == 0) {
+                // TODO: implement it
+                int prevState = intent.getIntExtra(KEY_ON_COMM_CHANNEL_STATE_CHANGED_PREV_STATE,
+                        CommChannelService.STATE_DISCONNECTED);
+                int newState = intent.getIntExtra(KEY_ON_COMM_CHANNEL_STATE_CHANGED_NEW_STATE,
+                        CommChannelService.STATE_DISCONNECTED);
+                this.onCommChannelStateChanged(prevState, newState);
             }
         }
     }
 
-    // AppCoreAckMessage
-    abstract public void onAckGetAppList(BaseMessage message);
-
-    abstract public void onAckListenAppState(BaseMessage message);
-
-    abstract public void onAckInitializeApp(BaseMessage message);
-
-    abstract public void onAckGetFileList(BaseMessage message);
-
-    abstract public void onAckGetFile(BaseMessage message);
-
-    abstract public void onAckGetRootPath(BaseMessage message);
-
-    // CompanionMessage
-    abstract public void onSendEventPage(BaseMessage message);
-
-    abstract public void onSendConfigPage(BaseMessage message);
-
-    abstract public void onUpdateSensorData(BaseMessage message);
+    abstract public void onCommChannelStateChanged(int prevState, int newState);
 }

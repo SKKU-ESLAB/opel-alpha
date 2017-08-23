@@ -17,6 +17,9 @@ package com.opel.opel_manager.model.message;
  * limitations under the License.
  */
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -26,7 +29,7 @@ import java.io.File;
 // BaseMessage: the root base message
 // - Decoding(makeFromJSON): C++, Java
 // - Encoding(make, toJSON): C++, Java
-public class BaseMessage {
+public class BaseMessage implements Parcelable {
     // BaseMessageType
     public static final int Type_NotDetermined = 0;
     public static final int Type_AppCore = 10;
@@ -116,6 +119,38 @@ public class BaseMessage {
         this.mStoredFileName = "";
         this.mPayload = null;
     }
+
+    // Android Parcelable
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel out, int flags) {
+        // BaseMessage -> Parcel
+        // JSON
+        out.writeString(this.toJSONString());
+
+        // Private parameter
+        out.writeString(this.mStoredFileName);
+    }
+
+    public static final Parcelable.Creator<BaseMessage> CREATOR
+            = new Parcelable.Creator<BaseMessage>() {
+        public BaseMessage createFromParcel(Parcel in) {
+            // Parcel -> BaseMessage
+            String jsonString = in.readString();
+            String storedFileName = in.readString();
+            BaseMessage message =  MessageFactory.makeMessageFromJSONString(jsonString);
+            message.setStoredFilePath(storedFileName);
+            return message;
+        }
+
+        public BaseMessage[] newArray(int size) {
+            return new BaseMessage[size];
+        }
+    };
 
     // Initializer
     public BaseMessage(int messageId, String uri, int type) {

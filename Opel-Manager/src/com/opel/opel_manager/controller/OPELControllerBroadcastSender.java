@@ -20,19 +20,17 @@ package com.opel.opel_manager.controller;
 import android.app.Service;
 import android.content.Intent;
 
-import com.opel.cmfw.glue.CommBroadcastReceiver;
+public class OPELControllerBroadcastSender {
 
-public class OPELControllerBroadcastSender extends {
-
-    public static void onCommChannelStateChanged(Service service, int prevState, int newState) {
+    static public void onCommChannelStateChanged(Service service, int prevState, int newState) {
         Intent broadcastIntent = new Intent();
-        broadcastIntent.setAction(CommBroadcastReceiver.ACTION);
-        broadcastIntent.putExtra(CommBroadcastReceiver.KEY_EVENT_TYPE,
-                CommBroadcastReceiver.EVENT_TYPE_ON_COMM_CHANNEL_STATE_CHANGED);
-        broadcastIntent.putExtra(CommBroadcastReceiver.KEY_COMM_CHANNEL_PREV_STATE,
-                prevState);
-        broadcastIntent.putExtra(CommBroadcastReceiver.KEY_COMM_CHANNEL_NEW_STATE,
-                newState);
+        broadcastIntent.setAction(OPELControllerBroadcastReceiver.ACTION);
+        broadcastIntent.putExtra(OPELControllerBroadcastReceiver.KEY_EVENT_TYPE,
+                OPELControllerBroadcastReceiver.EVENT_TYPE_ON_COMM_CHANNEL_STATE_CHANGED);
+        broadcastIntent.putExtra(OPELControllerBroadcastReceiver
+                .KEY_ON_COMM_CHANNEL_STATE_CHANGED_PREV_STATE, prevState);
+        broadcastIntent.putExtra(OPELControllerBroadcastReceiver
+                .KEY_ON_COMM_CHANNEL_STATE_CHANGED_NEW_STATE, newState);
         service.sendBroadcast(broadcastIntent);
     }
 }

@@ -1,4 +1,4 @@
-package com.opel.opel_manager.view;
+package com.opel.opel_manager.view.cameraviewer;
 
 import android.content.Context;
 import android.util.AttributeSet;

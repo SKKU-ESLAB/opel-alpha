@@ -2,125 +2,105 @@ package com.opel.opel_manager.view;
 
 
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
+import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.StrictMode;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.opel.cmfw.service.CommChannelService;
 import com.opel.opel_manager.R;
-import com.opel.opel_manager.controller.OPELContext;
+import com.opel.opel_manager.controller.OPELControllerBroadcastReceiver;
+import com.opel.opel_manager.controller.OPELControllerService;
+import com.opel.opel_manager.view.cameraviewer.GStreamerSurfaceView;
 
 import org.freedesktop.gstreamer.GStreamer;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.Socket;
-import java.net.SocketAddress;
 
+public class CameraViewerActivity extends Activity implements SurfaceHolder.Callback {
+    private static final String TAG = "CameraViewerActivity";
 
-public class CameraViewerActivity extends Activity implements SurfaceHolder
-        .Callback {
+    // Intent
+    private static final String INTENT_KEY_APP_ID = "appId";
 
-    private String mWifiDirectIPAddress = "";
+    // OPELControllerService
+    private OPELControllerService mControllerServiceStub = null;
+    private PrivateControllerBroadcastReceiver mControllerBroadcastReceiver;
 
-    private native void nativeInit(String addr, String vport);     //
+    private int mAppId;
+
     // Initialize native code, build pipeline, etc
+    private native void nativeInit(String addr, String vport);
 
-    private native void nativeFinalize(); // Destroy pipeline and shutdown
-    // native code
+    // Destroy pipeline and shutdown native code
+    private native void nativeFinalize();
 
-    private native void nativeSetUri(String uri); // Set the URI of the media
-    // to play
+    // Set the URI of the media to play
+    private native void nativeSetUri(String uri);
 
-    private native void nativePlay();     // Set pipeline to PLAYING
+    // Set pipeline to PLAYING
+    private native void nativePlay();
 
-    private native void nativePause();    // Set pipeline to PAUSED
+    // Set pipeline to PAUSED
+    private native void nativePause();
 
-    private static native boolean nativeClassInit(); // Initialize native
-    // class: cache Method IDs for callbacks
+    // Initialize native class: cache Method IDs for callbacks
+    private static native boolean nativeClassInit();
 
-    private native void nativeSurfaceInit(Object surface); // A new surface
-    // is available
+    // A new surface is available
+    private native void nativeSurfaceInit(Object surface);
 
-    private native void nativeSurfaceFinalize(); // Surface about to be
-    // destroyed
+    // Surface about to be destroyed
+    private native void nativeSurfaceFinalize();
 
-    private long native_custom_data;      // Native code will use this to
-    // keep private data
+    // Native code will use this to keep private data
+    private long native_custom_data;
 
 
-    private boolean is_playing_desired;   // Whether the user asked to go to
-    // PLAYING
-    private int position;                 // Current position, reported by
-    // native code
-    private int duration;                 // Current clip duration, reported
-    // by native code
-    private boolean is_local_media;       // Whether this clip is stored
-    // locally or is being streamed
-    private int desired_position;         // Position where the users wants
-    // to seek to
-    private String mediaUri;              // URI of the clip being played
+    // Whether the user asked to go to PLAYING
+    private boolean is_playing_desired;
 
-    private final String defaultMediaUri = "http://docs.gstreamer" + "" +
-            ".com/media/sintel_trailer-368p.ogv";
-    private String vport = "5000";
+    // Current position, reported by native code
+    private int position;
 
-    private EditText editTextIPAddress;
+    // Current clip duration, reported by native code
+    private int duration;
+
+    // Whether this clip is stored locally or is being streamed
+    private boolean is_local_media;
+
+    // Position where the users want to seek to
+    private int desired_position;
+
+    // URI of the clip being played
+    private String mediaUri;
+
     private InputMethodManager imm;
-    private int port = 5000;
-
-    private Button buttonRecord;
-    private Button buttonCapture;
+    private final int kOPELCameraPort = 5000;
 
     private Object mDelayedSurface;
 
-    // TCP Handling
-    TCPStreaming mTCPStreaming;
-    private byte[] frame; // Maximum 1Frame JPEG SIZE of 1080P
-    private TcpHandler handler;
-
-    class TcpHandler extends Handler {
-        public boolean processing;
-
-        public TcpHandler() {
-            processing = false;
-        }
-
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case MSG_TYPE_STAT_CHANGED:
-                    break;
-                case MSG_TYPE_STAT_READ:
-                    processing = true;
-                    processing = false;
-                    break;
-            }
-        }
-    }
+    // Maximum 1 frame JPEG, size of 1080p
+    private byte[] frame;
 
     // WakeLock
     private PowerManager.WakeLock mCpuWakeLock;
 
     private void acquireCpuWakeLock() {
         Context context = this;
-        PowerManager pm = (PowerManager) context.getSystemService(Context
-                .POWER_SERVICE);
-        mCpuWakeLock = pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK |
-                PowerManager.ACQUIRE_CAUSES_WAKEUP | PowerManager
-                .ON_AFTER_RELEASE, "OPEL Camera Wakelock");
+        PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+        mCpuWakeLock = pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK | PowerManager
+                .ACQUIRE_CAUSES_WAKEUP | PowerManager.ON_AFTER_RELEASE, "OPEL Camera Wakelock");
         mCpuWakeLock.acquire();
     }
 
@@ -133,19 +113,12 @@ public class CameraViewerActivity extends Activity implements SurfaceHolder
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Initialize TCP handling
-        handler = new TcpHandler();
-
-        // Get Target IP Address
-        // TODO: Fix it!
-        this.mWifiDirectIPAddress = "N/A";
-        if (this.mWifiDirectIPAddress.compareTo("N/A") == 0) {
+        Intent intent = this.getIntent();
+        this.mAppId = intent.getIntExtra(INTENT_KEY_APP_ID, -1);
+        if (this.mAppId < 0) {
+            Log.e(TAG, "Invalid application id!");
             this.finish();
         }
-
-        mTCPStreaming = new TCPStreaming(this.mWifiDirectIPAddress, port,
-                handler);
-        mTCPStreaming.start();
 
         // Initialize GStreamer and warn if it fails
         try {
@@ -155,7 +128,7 @@ public class CameraViewerActivity extends Activity implements SurfaceHolder
 
         } catch (Exception e) {
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
-            finish();
+            this.finish();
             return;
         }
 
@@ -163,8 +136,8 @@ public class CameraViewerActivity extends Activity implements SurfaceHolder
         setContentView(R.layout.activity_camera_viewer);
 
         if (android.os.Build.VERSION.SDK_INT > 9) {
-            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy
-                    .Builder().permitAll().build();
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll()
+                    .build();
             StrictMode.setThreadPolicy(policy);
         }
 
@@ -182,20 +155,19 @@ public class CameraViewerActivity extends Activity implements SurfaceHolder
         } else {
             is_playing_desired = false;
             position = duration = 0;
-            mediaUri = defaultMediaUri;
+            mediaUri = "http://docs.gstreamer.com/media/sintel_trailer-368p.ogv";
             Log.i("GStreamer", "Activity created with no saved state:");
         }
         is_local_media = false;
-        Log.i("GStreamer", "  playing:" + is_playing_desired + " position:" +
-                position +
-                " duration: " + duration + " uri: " + mediaUri);
+        Log.i("GStreamer", "  playing:" + is_playing_desired + " position:" + position + " " +
+                "duration: " + duration + " uri: " + mediaUri);
 
     }
 
     // Initialize Gstreamer connection
-    public void initializeGstreamerConnection() {
+    public void initializeGstreamerConnection(String ipAddress, int port) {
         Log.d("CameraViewerActivity", "initializeGstreamerConnection()");
-        nativeInit(this.mWifiDirectIPAddress, vport);
+        nativeInit(ipAddress, "" + port);
 
         try {
             Thread.sleep(2000);
@@ -206,30 +178,25 @@ public class CameraViewerActivity extends Activity implements SurfaceHolder
         nativeSurfaceInit(mDelayedSurface);
 
         is_playing_desired = true;
-        imm = (InputMethodManager) getSystemService(Context
-                .INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(editTextIPAddress.getWindowToken(), 0);
+        imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(findViewById(R.id.editTextIPAddress).getWindowToken(), 0);
         nativePlay();
     }
 
 
     protected void onSaveInstanceState(Bundle outState) {
-        Log.d("GStreamer", "Saving state, playing:" + is_playing_desired + " " +
-                "position:" + position +
-                " duration: " + duration + " uri: " + mediaUri);
+        Log.d("GStreamer", "Saving state, playing:" + is_playing_desired + " " + "position:" +
+                position + " duration: " + duration + " uri: " + mediaUri);
         outState.putBoolean("playing", is_playing_desired);
         outState.putString("mediaUri", mediaUri);
     }
 
     @Override
     protected void onResume() {
-        // Initialize TCP handling
-        OPELContext.getAppCore().requestRunNativeJSAppCameraViewer();
-        if (mTCPStreaming == null) {
-            mTCPStreaming.start();
-        }
-
         super.onResume();
+
+        // Initialize camera viewer's connection
+        this.initializeCameraViewer();
 
         // Acquire wakelock
         this.acquireCpuWakeLock();
@@ -238,14 +205,9 @@ public class CameraViewerActivity extends Activity implements SurfaceHolder
     @Override
     protected void onPause() {
         super.onPause();
-        OPELContext.getAppCore().requestTermNativeJSAppCameraViewer();
+        mControllerServiceStub.terminateAppAsync(this.mAppId);
+        mControllerServiceStub.unlockLargeDataMode();
         this.releaseCpuWakeLock();
-
-        // Finalize TCP handling
-        if (mTCPStreaming != null) {
-            mTCPStreaming.Cancel();
-            mTCPStreaming = null;
-        }
     }
 
     @Override
@@ -277,8 +239,8 @@ public class CameraViewerActivity extends Activity implements SurfaceHolder
     // commands.
     private void onGStreamerInitialized() {
         Log.i("GStreamer", "GStreamer initialized:");
-        Log.i("GStreamer", "  playing:" + is_playing_desired + " position:" +
-                position + " uri: " + mediaUri);
+        Log.i("GStreamer", "  playing:" + is_playing_desired + " position:" + position + " uri: "
+                + mediaUri);
 
         // Restore previous playing state
         setMediaUri();
@@ -296,10 +258,9 @@ public class CameraViewerActivity extends Activity implements SurfaceHolder
         nativeClassInit();
     }
 
-    public void surfaceChanged(SurfaceHolder holder, int format, int width,
-                               int height) {
-        Log.d("GStreamer", "Surface changed to format " + format + " width "
-                + width + " height " + height);
+    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+        Log.d("GStreamer", "Surface changed to format " + format + " width " + width + " height "
+                + height);
         Log.d("GStreamer", "GetSurface(): " + holder.getSurface());
         //nativeSurfaceInit(holder.getSurface());
         this.mDelayedSurface = holder.getSurface();
@@ -321,8 +282,8 @@ public class CameraViewerActivity extends Activity implements SurfaceHolder
     // Inform the video surface about the new size and recalculate the layout.
     private void onMediaSizeChanged(int width, int height) {
         Log.i("GStreamer", "Media size changed to " + width + "x" + height);
-        final GStreamerSurfaceView gsv = (GStreamerSurfaceView) this
-                .findViewById(R.id.surface_video);
+        final GStreamerSurfaceView gsv = (GStreamerSurfaceView) this.findViewById(R.id
+                .surface_video);
         gsv.media_width = width;
         gsv.media_height = height;
         runOnUiThread(new Runnable() {
@@ -335,94 +296,75 @@ public class CameraViewerActivity extends Activity implements SurfaceHolder
     void exitFromRunLoop() {
     }
 
-    public static final short STAT_DISCON = 0;
-    public static final short STAT_CONNECTING = 1;
-    public static final short STAT_CONNECTED = 2;
-
-    public static final int MSG_TYPE_STAT_CHANGED = 0;
-    public static final int MSG_TYPE_STAT_READ = 1;
-
-    class TCPStreaming extends Thread {
-        private Socket tcpSocket;
-        private InputStream mInStream;
-        String ip;
-        int port;
-        boolean sch;
-        private short stat;
-
-        private CameraViewerActivity.TcpHandler mHandler;
-        public byte frames[][];
-
-        public TCPStreaming(String ip, int port, CameraViewerActivity
-                .TcpHandler handler) {
-            mHandler = handler;
-            this.ip = new String(ip);
-            this.port = port;
-            stat = STAT_DISCON;
-            frames = new byte[2][];
-            sch = false;
-        }
-
-        public void onStatChanged(short stat) {
-        }
-
-        public void onReceived(byte[] frame) {
-            if (mHandler.processing == false)
-                mHandler.obtainMessage(MSG_TYPE_STAT_READ, frame)
-                        .sendToTarget();
-        }
-
-        public void Cancel() {
-            sch = false;
-        }
-
-        public void run() {
-
-            short prev_stat = stat;
-            sch = true;
-            while (sch) {
-                if (tcpSocket == null) {
-                    // Forward to GStreamer RPI Viewer
-                    initializeGstreamerConnection();
-                    if (tcpSocket == null || tcpSocket.isConnected() == false)
-                        break;
-                }
-                if (prev_stat != stat) {
-                    prev_stat = stat;
-                    onStatChanged(stat);
-                }
-
-                byte[] frame = null;
-                while (sch && stat == STAT_CONNECTED) {
-                    if (tcpSocket.isConnected() == false) {
-                        stat = STAT_DISCON;
-                        break;
-                    }
-                    try {
-                        ByteArrayOutputStream baos = new
-                                ByteArrayOutputStream();
-                        DataInputStream bis = new DataInputStream(mInStream);
-                        int len = bis.readInt();
-                        Log.d("Streaming", "Frame Len:" + Integer.toString
-                                (len));
-                        frame = new byte[len];
-                        bis.readFully(frame);
-                        onReceived(frame);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-
-            try {
-                if (null != tcpSocket) {
-                    tcpSocket.close();
-                    tcpSocket = null;
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
+    private void initializeCameraViewer() {
+        if(this.mControllerServiceStub == null) {
+            this.connectControllerService();
+        } else {
+            int commChannelState = mControllerServiceStub.getCommChannelState();
+            if (commChannelState != CommChannelService.STATE_CONNECTED_LARGE_DATA) {
+                // If large data mode is not enabled, request to enable large data mode
+                mControllerServiceStub.enableLargeDataMode();
+            } else {
+                // If large data mode has already been enabled, launch and initialize camera viewer
+                launchAndConnectToCameraViewer();
             }
         }
     }
 
+    private void connectControllerService() {
+        Intent serviceIntent = new Intent(this, CameraViewerActivity.class);
+        this.bindService(serviceIntent, this.mControllerServiceConnection, Context
+                .BIND_AUTO_CREATE);
+    }
+
+    private ServiceConnection mControllerServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder inputBinder) {
+            OPELControllerService.ControllerBinder serviceBinder = (OPELControllerService
+                    .ControllerBinder) inputBinder;
+            mControllerServiceStub = serviceBinder.getService();
+
+            // Set BroadcastReceiver
+            IntentFilter broadcastIntentFilter = new IntentFilter();
+            broadcastIntentFilter.addAction(OPELControllerBroadcastReceiver.ACTION);
+            mControllerBroadcastReceiver = new PrivateControllerBroadcastReceiver();
+            registerReceiver(mControllerBroadcastReceiver, broadcastIntentFilter);
+
+            // Initialize connection with camera viewer
+            initializeCameraViewer();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            Log.d(TAG, "onServiceDisconnected()");
+            unregisterReceiver(mControllerBroadcastReceiver);
+            mControllerServiceStub = null;
+        }
+    };
+
+    class PrivateControllerBroadcastReceiver extends OPELControllerBroadcastReceiver {
+        @Override
+        public void onCommChannelStateChanged(int prevState, int newState) {
+            if (newState == CommChannelService.STATE_CONNECTED_LARGE_DATA) {
+                // Succeed to connect large data port
+                launchAndConnectToCameraViewer();
+            } else if (newState == CommChannelService.STATE_CONNECTING_LARGE_DATA) {
+                Log.d(TAG, "Connecting large data port...");
+            } else {
+                Log.d(TAG, "Large data port disconnected or failed to connect");
+            }
+        }
+    }
+
+    private void launchAndConnectToCameraViewer() {
+        // Request to launch camera viewer app
+        this.mControllerServiceStub.launchAppAsync(mAppId);
+        this.mControllerServiceStub.lockLargeDataMode();
+
+        // Request to get large data(Wi-fi Direct) IP address
+        String ipAddress = this.mControllerServiceStub.getLargeDataIPAddress();
+
+        // Initialize Gstreamer connection
+        initializeGstreamerConnection(ipAddress, kOPELCameraPort);
+    }
 }

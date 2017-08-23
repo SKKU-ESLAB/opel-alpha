@@ -50,7 +50,6 @@
             android:theme="@android:style/Theme.NoTitleBar">
         </activity>
         <activity android:name="com.opel.opel_manager.view.AppMarketActivity"/>
-        <activity android:name="com.opel.opel_manager.view.SettingSubActivity"/>
         <activity android:name="com.opel.opel_manager.view.RemoteNotiUIActivity"/>
         <activity android:name="com.opel.opel_manager.view.AppManagerActivity"/>
         <activity android:name="com.opel.opel_manager.view.RemoteConfigUIActivity"/>

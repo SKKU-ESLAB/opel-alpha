@@ -14,7 +14,7 @@
        	android:text="@string/IP" />
     
     
-    <com.opel.opel_manager.view.GStreamerSurfaceView
+    <com.opel.opel_manager.view.cameraviewer.GStreamerSurfaceView
         android:id="@+id/surface_video"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

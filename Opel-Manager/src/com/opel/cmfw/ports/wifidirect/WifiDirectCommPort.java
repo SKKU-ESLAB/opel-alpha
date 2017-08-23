@@ -17,6 +17,7 @@ public class WifiDirectCommPort extends CommPort {
     private boolean mIsOpened = false;
     private Socket mSocket = null;
 
+    private String mIPAddress = "";
     private int mTcpPortNum;
 
     public WifiDirectCommPort(String portName, int tcpPortNum) {
@@ -29,6 +30,7 @@ public class WifiDirectCommPort extends CommPort {
     }
 
     public boolean open(String ipAddress) {
+        this.mIPAddress = ipAddress;
         this.mSocket = new Socket();
 
         try {
@@ -93,5 +95,9 @@ public class WifiDirectCommPort extends CommPort {
         } else {
             return null;
         }
+    }
+
+    public String getIPAddress() {
+        return this.mIPAddress;
     }
 }

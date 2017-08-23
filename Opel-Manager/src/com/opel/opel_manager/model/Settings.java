@@ -1,10 +1,12 @@
 package com.opel.opel_manager.model;
 
 import android.os.Environment;
+import android.util.Log;
 
 import java.io.File;
 
 public class Settings {
+    private static final String TAG = "Settings";
     // Settings
     // TODO: determine whether OpelDataDir should be string or file
     private String mOpelDataDir;
@@ -16,32 +18,40 @@ public class Settings {
 
     public void initializeDirectories() {
 
-        File opelDir = new File(Environment.getExternalStorageDirectory()
-                .getPath() + "/OPEL");
-        File opelRUIDir = new File(Environment.getExternalStorageDirectory()
-                .getPath() + "/OPEL/RemoteUI");
-        File opelRemoteStorageDir = new File(Environment
-                .getExternalStorageDirectory().getPath() +
-                "/OPEL/RemoteStorage");
-        File opelIconDir = new File(Environment.getExternalStorageDirectory()
-                .getPath() + "/OPEL/Icon");
-        File opelCloudDir = new File(Environment.getExternalStorageDirectory
-                ().getPath() + "/OPEL/CloudService");
+        File opelDir = new File(Environment.getExternalStorageDirectory().getPath() + "/OPEL");
+        File opelRUIDir = new File(Environment.getExternalStorageDirectory().getPath() +
+                "/OPEL/RemoteUI");
+        File opelRemoteStorageDir = new File(Environment.getExternalStorageDirectory().getPath()
+                + "/OPEL/RemoteStorage");
+        File opelIconDir = new File(Environment.getExternalStorageDirectory().getPath() +
+                "/OPEL/Icon");
+        File opelCloudDir = new File(Environment.getExternalStorageDirectory().getPath() +
+                "/OPEL/CloudService");
 
         if (!opelDir.exists()) {
-            opelDir.mkdir();
+            if (!opelDir.mkdir()) {
+                Log.e(TAG, "Failed to make OPEL root directory");
+            }
         }
         if (!opelRUIDir.exists()) {
-            opelRUIDir.mkdir();
+            if (!opelRUIDir.mkdir()) {
+                Log.e(TAG, "Failed to make OPEL remote UI directory");
+            }
         }
         if (!opelRemoteStorageDir.exists()) {
-            opelRemoteStorageDir.mkdir();
+            if (!opelRemoteStorageDir.mkdir()) {
+                Log.e(TAG, "Failed to make OPEL remote storage directory");
+            }
         }
         if (!opelIconDir.exists()) {
-            opelIconDir.mkdir();
+            if (!opelIconDir.mkdir()) {
+                Log.e(TAG, "Failed to make OPEL icon directory");
+            }
         }
         if (!opelCloudDir.exists()) {
-            opelCloudDir.mkdir();
+            if (!opelCloudDir.mkdir()) {
+                Log.e(TAG, "Failed to make OPEL cloud service directory");
+            }
         }
 
         this.setOpelDir(opelDir);
