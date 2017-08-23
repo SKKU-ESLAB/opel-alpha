@@ -23,15 +23,15 @@
 // Use namespace + enum for readability
 namespace AppState {
   enum Value {
-    Initializing,
-    Initialized,
-    Installing,
-    Ready,
-    Launching,
-    Running,
-    Terminating,
-    Removing,
-    Removed
+    Initializing = 1,
+    Initialized = 2,
+    Installing = 3,
+    Ready = 4,
+    Launching = 5,
+    Running = 6,
+    Terminating = 7,
+    Removing = 8,
+    Removed = 9
   };
 }
 
