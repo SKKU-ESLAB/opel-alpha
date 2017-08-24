@@ -1,4 +1,4 @@
-package com.opel.opel_manager.view;
+package com.opel.opel_manager.view.remoteui;
 
 import android.app.ActionBar;
 import android.app.Activity;

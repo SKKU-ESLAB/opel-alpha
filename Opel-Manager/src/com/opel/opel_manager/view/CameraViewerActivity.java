@@ -113,6 +113,7 @@ public class CameraViewerActivity extends Activity implements SurfaceHolder.Call
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // Parameters
         Intent intent = this.getIntent();
         this.mAppId = intent.getIntExtra(INTENT_KEY_APP_ID, -1);
         if (this.mAppId < 0) {
@@ -205,7 +206,7 @@ public class CameraViewerActivity extends Activity implements SurfaceHolder.Call
     @Override
     protected void onPause() {
         super.onPause();
-        mControllerServiceStub.terminateAppAsync(this.mAppId);
+        mControllerServiceStub.terminateOneWay(this.mAppId);
         mControllerServiceStub.unlockLargeDataMode();
         this.releaseCpuWakeLock();
     }
@@ -297,15 +298,17 @@ public class CameraViewerActivity extends Activity implements SurfaceHolder.Call
     }
 
     private void initializeCameraViewer() {
-        if(this.mControllerServiceStub == null) {
+        if (this.mControllerServiceStub == null) {
             this.connectControllerService();
         } else {
             int commChannelState = mControllerServiceStub.getCommChannelState();
             if (commChannelState != CommChannelService.STATE_CONNECTED_LARGE_DATA) {
-                // If large mMainIconList mode is not enabled, request to enable large mMainIconList mode
+                // If large mMainIconList mode is not enabled, request to enable large
+                // mMainIconList mode
                 mControllerServiceStub.enableLargeDataMode();
             } else {
-                // If large mMainIconList mode has already been enabled, launch and initialize camera viewer
+                // If large mMainIconList mode has already been enabled, launch and initialize
+                // camera viewer
                 launchAndConnectToCameraViewer();
             }
         }
@@ -343,22 +346,26 @@ public class CameraViewerActivity extends Activity implements SurfaceHolder.Call
     };
 
     class PrivateControllerBroadcastReceiver extends OPELControllerBroadcastReceiver {
-        @Override
-        public void onCommChannelStateChanged(int prevState, int newState) {
-            if (newState == CommChannelService.STATE_CONNECTED_LARGE_DATA) {
-                // Succeed to connect large mMainIconList port
-                launchAndConnectToCameraViewer();
-            } else if (newState == CommChannelService.STATE_CONNECTING_LARGE_DATA) {
-                Log.d(TAG, "Connecting large mMainIconList port...");
-            } else {
-                Log.d(TAG, "Large mMainIconList port disconnected or failed to connect");
-            }
+        PrivateControllerBroadcastReceiver() {
+            this.setOnCommChannelStateChangedListener(new OnCommChannelStateChangedListener() {
+                @Override
+                public void onCommChannelStateChanged(int prevState, int newState) {
+                    if (newState == CommChannelService.STATE_CONNECTED_LARGE_DATA) {
+                        // Succeed to connect large mMainIconList port
+                        launchAndConnectToCameraViewer();
+                    } else if (newState == CommChannelService.STATE_CONNECTING_LARGE_DATA) {
+                        Log.d(TAG, "Connecting large mMainIconList port...");
+                    } else {
+                        Log.d(TAG, "Large mMainIconList port disconnected or failed to connect");
+                    }
+                }
+            });
         }
     }
 
     private void launchAndConnectToCameraViewer() {
         // Request to launch camera viewer app
-        this.mControllerServiceStub.launchAppAsync(mAppId);
+        this.mControllerServiceStub.launchAppOneWay(mAppId);
         this.mControllerServiceStub.lockLargeDataMode();
 
         // Request to get large mMainIconList(Wi-fi Direct) IP address

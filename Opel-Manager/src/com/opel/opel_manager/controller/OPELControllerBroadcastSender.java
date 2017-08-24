@@ -20,6 +20,8 @@ package com.opel.opel_manager.controller;
 import android.app.Service;
 import android.content.Intent;
 
+import com.opel.opel_manager.model.OPELApp;
+
 public class OPELControllerBroadcastSender {
 
     static public void onCommChannelStateChanged(Service service, int prevState, int newState) {
@@ -31,6 +33,102 @@ public class OPELControllerBroadcastSender {
                 .KEY_ON_COMM_CHANNEL_STATE_CHANGED_PREV_STATE, prevState);
         broadcastIntent.putExtra(OPELControllerBroadcastReceiver
                 .KEY_ON_COMM_CHANNEL_STATE_CHANGED_NEW_STATE, newState);
+        service.sendBroadcast(broadcastIntent);
+    }
+
+    static public void onAppStateChanged(Service service, int appId, int appState) {
+        Intent broadcastIntent = new Intent();
+        broadcastIntent.setAction(OPELControllerBroadcastReceiver.ACTION);
+        broadcastIntent.putExtra(OPELControllerBroadcastReceiver.KEY_EVENT_TYPE,
+                OPELControllerBroadcastReceiver.EVENT_TYPE_ON_APP_STATE_CHANGED);
+        broadcastIntent.putExtra(OPELControllerBroadcastReceiver.KEY_ON_APP_STATE_CHANGED_APP_ID,
+                appId);
+        broadcastIntent.putExtra(OPELControllerBroadcastReceiver
+                .KEY_ON_APP_STATE_CHANGED_APP_STATE, appState);
+        service.sendBroadcast(broadcastIntent);
+    }
+
+    static public void onReceivedEvent(Service service, String legacyData) {
+        Intent broadcastIntent = new Intent();
+        broadcastIntent.setAction(OPELControllerBroadcastReceiver.ACTION);
+        broadcastIntent.putExtra(OPELControllerBroadcastReceiver.KEY_EVENT_TYPE,
+                OPELControllerBroadcastReceiver.EVENT_TYPE_ON_RECEIVED_EVENT);
+        broadcastIntent.putExtra(OPELControllerBroadcastReceiver
+                .KEY_ON_RECEIVED_EVENT_LEGACY_DATA, legacyData);
+        service.sendBroadcast(broadcastIntent);
+    }
+
+    static public void onReceivedSensorData(Service service, String legacyData) {
+        Intent broadcastIntent = new Intent();
+        broadcastIntent.setAction(OPELControllerBroadcastReceiver.ACTION);
+        broadcastIntent.putExtra(OPELControllerBroadcastReceiver.KEY_EVENT_TYPE,
+                OPELControllerBroadcastReceiver.EVENT_TYPE_ON_RECEIVED_SENSOR_DATA);
+        broadcastIntent.putExtra(OPELControllerBroadcastReceiver
+                .KEY_ON_RECEIVED_SENSOR_DATA_LEGACY_DATA, legacyData);
+        service.sendBroadcast(broadcastIntent);
+    }
+
+    static public void onReceivedAppConfig(Service service, String legacyData) {
+        Intent broadcastIntent = new Intent();
+        broadcastIntent.setAction(OPELControllerBroadcastReceiver.ACTION);
+        broadcastIntent.putExtra(OPELControllerBroadcastReceiver.KEY_EVENT_TYPE,
+                OPELControllerBroadcastReceiver.EVENT_TYPE_ON_RECEIVED_APP_CONFIG);
+        broadcastIntent.putExtra(OPELControllerBroadcastReceiver
+                .KEY_ON_RECEIVED_APP_CONFIG_LEGACY_DATA, legacyData);
+        service.sendBroadcast(broadcastIntent);
+    }
+
+    static public void onResultUpdateAppList(Service service, int commandMessageId, OPELApp[]
+            appList) {
+        Intent broadcastIntent = new Intent();
+        broadcastIntent.setAction(OPELControllerBroadcastReceiver.ACTION);
+        broadcastIntent.putExtra(OPELControllerBroadcastReceiver.KEY_EVENT_TYPE,
+                OPELControllerBroadcastReceiver.EVENT_TYPE_ON_RESULT_UPDATE_APP_LIST);
+        broadcastIntent.putExtra(OPELControllerBroadcastReceiver
+                .KEY_ON_RESULT_UPDATE_APP_LIST_COMMAND_MESSAGE_ID, commandMessageId);
+        broadcastIntent.putExtra(OPELControllerBroadcastReceiver
+                .KEY_ON_RESULT_UPDATE_APP_LIST_APP_LIST, appList);
+        service.sendBroadcast(broadcastIntent);
+    }
+
+    static public void onResultGetFileList(Service service, int commandMessageId, String path,
+                                           String[] fileList) {
+        Intent broadcastIntent = new Intent();
+        broadcastIntent.setAction(OPELControllerBroadcastReceiver.ACTION);
+        broadcastIntent.putExtra(OPELControllerBroadcastReceiver.KEY_EVENT_TYPE,
+                OPELControllerBroadcastReceiver.EVENT_TYPE_ON_RESULT_GET_FILE_LIST);
+        broadcastIntent.putExtra(OPELControllerBroadcastReceiver
+                .KEY_ON_RESULT_GET_FILE_LIST_COMMAND_MESSAGE_ID, commandMessageId);
+        broadcastIntent.putExtra(OPELControllerBroadcastReceiver
+                .KEY_ON_RESULT_GET_FILE_LIST_PATH, path);
+        broadcastIntent.putExtra(OPELControllerBroadcastReceiver
+                .KEY_ON_RESULT_GET_FILE_LIST_FILE_LIST, fileList);
+        service.sendBroadcast(broadcastIntent);
+    }
+
+    static public void onResultGetFile(Service service, int commandMessageId, String
+            storedFilePath) {
+        Intent broadcastIntent = new Intent();
+        broadcastIntent.setAction(OPELControllerBroadcastReceiver.ACTION);
+        broadcastIntent.putExtra(OPELControllerBroadcastReceiver.KEY_EVENT_TYPE,
+                OPELControllerBroadcastReceiver.EVENT_TYPE_ON_RESULT_GET_FILE);
+        broadcastIntent.putExtra(OPELControllerBroadcastReceiver
+                .KEY_ON_RESULT_GET_FILE_COMMAND_MESSAGE_ID, commandMessageId);
+        broadcastIntent.putExtra(OPELControllerBroadcastReceiver
+                .KEY_ON_RESULT_GET_FILE_STORED_FILE_PATH, storedFilePath);
+        service.sendBroadcast(broadcastIntent);
+    }
+
+    static public void onResultGetTargetRootPath(Service service, int commandMessageId, String
+            path) {
+        Intent broadcastIntent = new Intent();
+        broadcastIntent.setAction(OPELControllerBroadcastReceiver.ACTION);
+        broadcastIntent.putExtra(OPELControllerBroadcastReceiver.KEY_EVENT_TYPE,
+                OPELControllerBroadcastReceiver.EVENT_TYPE_ON_RESULT_GET_TARGET_ROOT_PATH);
+        broadcastIntent.putExtra(OPELControllerBroadcastReceiver
+                .KEY_ON_RESULT_GET_TARGET_ROOT_PATH_COMMAND_MESSAGE_ID, commandMessageId);
+        broadcastIntent.putExtra(OPELControllerBroadcastReceiver
+                .KEY_ON_RESULT_GET_TARGET_ROOT_PATH_PATH, path);
         service.sendBroadcast(broadcastIntent);
     }
 }

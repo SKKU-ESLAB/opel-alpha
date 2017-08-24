@@ -18,7 +18,10 @@ package com.opel.opel_manager.model;
  * limitations under the License.
  */
 
-public class OPELApp {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class OPELApp implements Parcelable {
     // AppState
     public static final int State_Initializing = 1;
     public static final int State_Initialized = 2;
@@ -37,24 +40,30 @@ public class OPELApp {
     private int mState;
     private boolean mIsDefaultApp;
 
-    public OPELApp(int appID, String name, String iconImagePath, boolean mIsDefaultApp) {
-        super();
-        this.mAppId = appID;
+    public OPELApp(int appId, String name, String iconImagePath, boolean isDefaultApp) {
+        this(appId, name, iconImagePath, "", State_Initialized, isDefaultApp);
+    }
+
+    public OPELApp(int appId, String name, String iconImagePath, String configJSONString, int
+            state, boolean isDefaultApp) {
+        this.mAppId = appId;
         this.mName = name;
         this.mIconImagePath = iconImagePath;
-        this.mConfigJSONString = "";
+        this.mConfigJSONString = configJSONString;
+        this.mState = state;
+        this.mIsDefaultApp = isDefaultApp;
     }
 
     public int getAppId() {
         return mAppId;
     }
 
-    public String getIconImagePath() {
-        return this.mIconImagePath;
-    }
-
     public String getName() {
         return mName;
+    }
+
+    public String getIconImagePath() {
+        return this.mIconImagePath;
     }
 
     public String getConfigJSONString() {
@@ -77,4 +86,61 @@ public class OPELApp {
     public boolean isDefaultApp() {
         return this.mIsDefaultApp;
     }
+
+    // Android Parcelable
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel out, int flags) {
+        // OPELApp -> Parcel
+        // appId
+        out.writeInt(this.mAppId);
+
+        // name
+        out.writeString(this.mName);
+
+        // iconImagePath
+        out.writeString(this.mIconImagePath);
+
+        // configJSONString
+        out.writeString(this.mConfigJSONString);
+
+        // state
+        out.writeInt(this.mState);
+
+        // isDefaultApp
+        out.writeString(Boolean.toString(mIsDefaultApp));
+    }
+
+    public static final Parcelable.Creator<OPELApp> CREATOR = new Parcelable.Creator<OPELApp>() {
+        public OPELApp createFromParcel(Parcel in) {
+            // Parcel -> OPELApp
+            // appId
+            int appId = in.readInt();
+
+            // name
+            String name = in.readString();
+
+            // iconImagePath
+            String iconImagePath = in.readString();
+
+            // configJSONString
+            String configJSONString = in.readString();
+
+            // state
+            int state = in.readInt();
+
+            // isDefaultApp
+            boolean isDefaultApp = Boolean.parseBoolean(in.readString());
+
+            return new OPELApp(appId, name, iconImagePath, configJSONString, state, isDefaultApp);
+        }
+
+        public OPELApp[] newArray(int size) {
+            return new OPELApp[size];
+        }
+    };
 }

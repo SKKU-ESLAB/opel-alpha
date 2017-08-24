@@ -3,9 +3,15 @@ package com.opel.opel_manager.view;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.util.Log;
 import android.widget.TextView;
 
@@ -14,9 +20,18 @@ import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 import com.opel.opel_manager.R;
 import com.opel.opel_manager.controller.LegacyJSONParser;
-import com.opel.opel_manager.controller.OPELContext;
+import com.opel.opel_manager.controller.OPELControllerBroadcastReceiver;
+import com.opel.opel_manager.controller.OPELControllerService;
 
 public class SensorViewerActivity extends Activity {
+    // OPELControllerService
+    private OPELControllerService mControllerServiceStub = null;
+    private PrivateControllerBroadcastReceiver mControllerBroadcastReceiver;
+
+    // Intent
+    private static final String INTENT_KEY_APP_ID = "appId";
+
+    private int mAppId;
 
     private final Handler mHandler = new Handler();
 
@@ -25,13 +40,13 @@ public class SensorViewerActivity extends Activity {
     private LineGraphSeries<DataPoint> mSeries2;
     private double graph2LastXValue = 5d;
 
-    perSensorData sensor1;
-    perSensorData sensor2;
-    perSensorData sensor3;
-    perSensorData sensor4;
-    perSensorData sensor5;
-    perSensorData sensor6;
-    perSensorData sensor7;
+    SensorData sensor1;
+    SensorData sensor2;
+    SensorData sensor3;
+    SensorData sensor4;
+    SensorData sensor5;
+    SensorData sensor6;
+    SensorData sensor7;
 
     String sensorName1 = "Touch";
     String sensorName2 = "Accelerometer";
@@ -46,9 +61,16 @@ public class SensorViewerActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sensor_viewer);
+
+        // Parameters
+        Intent intent = this.getIntent();
+        this.mAppId = intent.getIntExtra(INTENT_KEY_APP_ID, -1);
+        if (this.mAppId < 0) {
+            Log.e(TAG, "Invalid application id!");
+            this.finish();
+        }
 
         ActionBar actionBar = getActionBar();
         actionBar.setTitle("Sensor Viewer");
@@ -57,27 +79,20 @@ public class SensorViewerActivity extends Activity {
         actionBar.setDisplayUseLogoEnabled(true);
 
 
-        sensor1 = new perSensorData(0, 100, sensorName1, (GraphView)
-                findViewById(R.id.graph1), (TextView) findViewById(R.id
-                .textView11));
-        sensor2 = new perSensorData(0, 100, sensorName2, (GraphView)
-                findViewById(R.id.graph2), (TextView) findViewById(R.id
-                .textView22));
-        sensor3 = new perSensorData(0, 100, sensorName3, (GraphView)
-                findViewById(R.id.graph3), (TextView) findViewById(R.id
-                .textView33));
-        sensor4 = new perSensorData(0, 100, sensorName4, (GraphView)
-                findViewById(R.id.graph4), (TextView) findViewById(R.id
-                .textView4));
-        sensor5 = new perSensorData(0, 100, sensorName5, (GraphView)
-                findViewById(R.id.graph5), (TextView) findViewById(R.id
-                .textView5));
-        sensor6 = new perSensorData(0, 100, sensorName6, (GraphView)
-                findViewById(R.id.graph6), (TextView) findViewById(R.id
-                .textView6));
-        sensor7 = new perSensorData(0, 100, sensorName7, (GraphView)
-                findViewById(R.id.graph7), (TextView) findViewById(R.id
-                .textView7));
+        sensor1 = new SensorData(0, 100, sensorName1, (GraphView) findViewById(R.id.graph1),
+                (TextView) findViewById(R.id.textView11));
+        sensor2 = new SensorData(0, 100, sensorName2, (GraphView) findViewById(R.id.graph2),
+                (TextView) findViewById(R.id.textView22));
+        sensor3 = new SensorData(0, 100, sensorName3, (GraphView) findViewById(R.id.graph3),
+                (TextView) findViewById(R.id.textView33));
+        sensor4 = new SensorData(0, 100, sensorName4, (GraphView) findViewById(R.id.graph4),
+                (TextView) findViewById(R.id.textView4));
+        sensor5 = new SensorData(0, 100, sensorName5, (GraphView) findViewById(R.id.graph5),
+                (TextView) findViewById(R.id.textView5));
+        sensor6 = new SensorData(0, 100, sensorName6, (GraphView) findViewById(R.id.graph6),
+                (TextView) findViewById(R.id.textView6));
+        sensor7 = new SensorData(0, 100, sensorName7, (GraphView) findViewById(R.id.graph7),
+                (TextView) findViewById(R.id.textView7));
 
         sensor1.setGraphLineColor(Color.RED);
         sensor2.setGraphLineColor(Color.BLUE);
@@ -92,20 +107,13 @@ public class SensorViewerActivity extends Activity {
         Log.d(TAG, "Message coming : " + message);
         LegacyJSONParser jp = new LegacyJSONParser(message);
 
-        Double val1 = Double.parseDouble(jp.getValueByKey(sensor1
-                .getSensorName()));
-        Double val2 = Double.parseDouble(jp.getValueByKey(sensor2
-                .getSensorName()));
-        Double val3 = Double.parseDouble(jp.getValueByKey(sensor3
-                .getSensorName()));
-        Double val4 = Double.parseDouble(jp.getValueByKey(sensor4
-                .getSensorName()));
-        Double val5 = Double.parseDouble(jp.getValueByKey(sensor5
-                .getSensorName()));
-        Double val6 = Double.parseDouble(jp.getValueByKey(sensor6
-                .getSensorName()));
-        Double val7 = Double.parseDouble(jp.getValueByKey(sensor7
-                .getSensorName()));
+        Double val1 = Double.parseDouble(jp.getValueByKey(sensor1.getSensorName()));
+        Double val2 = Double.parseDouble(jp.getValueByKey(sensor2.getSensorName()));
+        Double val3 = Double.parseDouble(jp.getValueByKey(sensor3.getSensorName()));
+        Double val4 = Double.parseDouble(jp.getValueByKey(sensor4.getSensorName()));
+        Double val5 = Double.parseDouble(jp.getValueByKey(sensor5.getSensorName()));
+        Double val6 = Double.parseDouble(jp.getValueByKey(sensor6.getSensorName()));
+        Double val7 = Double.parseDouble(jp.getValueByKey(sensor7.getSensorName()));
 
         if (this.mIsUIReady == true) {
             if (val1 >= 0) {
@@ -155,8 +163,8 @@ public class SensorViewerActivity extends Activity {
 
     public void onResume() {
         super.onResume();
-        OPELContext.getAppCore().registerSensorView(this);
-        OPELContext.getAppCore().requestRunNativeJSAppSensorViewer();
+
+        connectControllerService();
 
         mTimer2 = new Runnable() {
             @Override
@@ -171,20 +179,20 @@ public class SensorViewerActivity extends Activity {
                 Double sensor6Data = sensor6.getCurValue();
                 Double sensor7Data = sensor7.getCurValue();
 
-                sensor1.appendData(new DataPoint(graph2LastXValue,
-                        sensor1Data), true, sensor1.getMax());
-                sensor2.appendData(new DataPoint(graph2LastXValue,
-                        sensor2Data), true, sensor2.getMax());
-                sensor3.appendData(new DataPoint(graph2LastXValue,
-                        sensor3Data), true, sensor3.getMax());
-                sensor4.appendData(new DataPoint(graph2LastXValue,
-                        sensor4Data), true, sensor4.getMax());
-                sensor5.appendData(new DataPoint(graph2LastXValue,
-                        sensor5Data), true, sensor5.getMax());
-                sensor6.appendData(new DataPoint(graph2LastXValue,
-                        sensor6Data), true, sensor6.getMax());
-                sensor7.appendData(new DataPoint(graph2LastXValue,
-                        sensor7Data), true, sensor7.getMax());
+                sensor1.appendData(new DataPoint(graph2LastXValue, sensor1Data), true,
+                        sensor1.getMax());
+                sensor2.appendData(new DataPoint(graph2LastXValue, sensor2Data), true,
+                        sensor2.getMax());
+                sensor3.appendData(new DataPoint(graph2LastXValue, sensor3Data), true,
+                        sensor3.getMax());
+                sensor4.appendData(new DataPoint(graph2LastXValue, sensor4Data), true,
+                        sensor4.getMax());
+                sensor5.appendData(new DataPoint(graph2LastXValue, sensor5Data), true,
+                        sensor5.getMax());
+                sensor6.appendData(new DataPoint(graph2LastXValue, sensor6Data), true,
+                        sensor6.getMax());
+                sensor7.appendData(new DataPoint(graph2LastXValue, sensor7Data), true,
+                        sensor7.getMax());
 
                 //mSeries2.appendData(new DataPoint(graph2LastXValue,
                 // randNum), true, 40);
@@ -205,13 +213,54 @@ public class SensorViewerActivity extends Activity {
 
     public void onPause() {
         super.onPause();
-        OPELContext.getAppCore().unregisterSensorView();
-        OPELContext.getAppCore().requestTermNativeJSAppSensorViewer();
+        mControllerServiceStub.terminateOneWay(this.mAppId);
         mHandler.removeCallbacks(mTimer2);
         this.mIsUIReady = false;
     }
 
-    class perSensorData {
+    private void connectControllerService() {
+        Intent serviceIntent = new Intent(this, CameraViewerActivity.class);
+        this.bindService(serviceIntent, this.mControllerServiceConnection, Context
+                .BIND_AUTO_CREATE);
+    }
+
+    private ServiceConnection mControllerServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder inputBinder) {
+            OPELControllerService.ControllerBinder serviceBinder = (OPELControllerService
+                    .ControllerBinder) inputBinder;
+            mControllerServiceStub = serviceBinder.getService();
+
+            // Set BroadcastReceiver
+            IntentFilter broadcastIntentFilter = new IntentFilter();
+            broadcastIntentFilter.addAction(OPELControllerBroadcastReceiver.ACTION);
+            mControllerBroadcastReceiver = new PrivateControllerBroadcastReceiver();
+            registerReceiver(mControllerBroadcastReceiver, broadcastIntentFilter);
+
+            // Initialize connection with camera viewer
+            mControllerServiceStub.launchAppOneWay(mAppId);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            Log.d(TAG, "onServiceDisconnected()");
+            unregisterReceiver(mControllerBroadcastReceiver);
+            mControllerServiceStub = null;
+        }
+    };
+
+    class PrivateControllerBroadcastReceiver extends OPELControllerBroadcastReceiver {
+        PrivateControllerBroadcastReceiver() {
+            this.setOnReceivedSensorDataListener(new OnReceivedSensorDataListener() {
+                @Override
+                public void onReceivedSensorData(String legacyData) {
+                    onMsgToSensorViewer(legacyData);
+                }
+            });
+        }
+    }
+
+    class SensorData {
         int min;
         int max;
         double curValue;
@@ -224,8 +273,7 @@ public class SensorViewerActivity extends Activity {
         int mUniqueColor;
         boolean mIsEnabled = false;
 
-        public perSensorData(int min, int max, String sensorName, GraphView
-                graph, TextView textV) {
+        public SensorData(int min, int max, String sensorName, GraphView graph, TextView textV) {
             this.min = min;
             this.max = max;
             this.graph = graph;

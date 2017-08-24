@@ -1,5 +1,22 @@
 package com.opel.opel_manager.model;
 
+/* Copyright (c) 2015-2017 CISS, and contributors. All rights reserved.
+ *
+ * Contributor: Dongig Sin<dongig@skku.edu>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -10,57 +27,38 @@ import android.provider.BaseColumns;
 import android.util.Log;
 
 import java.util.ArrayList;
-import java.util.concurrent.Semaphore;
 
 public class OPELEventList {
 
     private static final String DATABASE_NAME = "eventList.db";
     private static final int DATABASE_VERSION = 1;
     public static SQLiteDatabase mDB;
-    private DatabaseHelper eventDatabaseHelper;
-    private Context mCtx;
-
-    private Semaphore eventListLock = new Semaphore(1);
+    private DatabaseHelper mEventDBHelper;
 
     ArrayList<OPELEvent> evList = new ArrayList<OPELEvent>();
 
     private class DatabaseHelper extends SQLiteOpenHelper {
-
-        public DatabaseHelper(Context context, String name, SQLiteDatabase
-                .CursorFactory factory, int version) {
+        public DatabaseHelper(Context context, String name, SQLiteDatabase.CursorFactory factory,
+                              int version) {
             super(context, name, factory, version);
         }
 
         public void onCreate(SQLiteDatabase db) {
-            db.execSQL(DataBases.CreateDB._CREATE);
+            db.execSQL(EventListDBColumn._CREATE);
         }
 
         @Override
-        public void onUpgrade(SQLiteDatabase db, int oldVersion, int
-                newVersion) {
-            db.execSQL("DROP TABLE IF EXISTS " + DataBases.CreateDB.TABLENAME);
+        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+            db.execSQL("DROP TABLE IF EXISTS " + EventListDBColumn.TABLENAME);
             onCreate(db);
         }
     }
 
-    public OPELEventList() {
+    public OPELEventList open(Context context) throws SQLException {
+        mEventDBHelper = new DatabaseHelper(context, DATABASE_NAME, null, DATABASE_VERSION);
 
-
-    }
-
-    public OPELEventList(Context context) {
-        this.mCtx = context;
-
-    }
-
-    public OPELEventList open(Context mContext) throws SQLException {
-        eventDatabaseHelper = new DatabaseHelper(mContext, DATABASE_NAME,
-                null, DATABASE_VERSION);
-
-        mDB = eventDatabaseHelper.getWritableDatabase();
+        mDB = mEventDBHelper.getWritableDatabase();
         evList = getAllEventArrayList();
-
-        this.mCtx = mContext;
         return this;
     }
 
@@ -69,96 +67,58 @@ public class OPELEventList {
         evList.clear();
     }
 
-    // Insert DB
-    public ArrayList<OPELEvent> addEvent(String eventAppID, String
-            eventAppName, String eventDescription, String eventTime, String
-            eventJsonData) {
+    public ArrayList<OPELEvent> addEvent(String eventAppID, String eventAppName, String
+            eventDescription, String eventTime, String eventJsonData) {
         ContentValues values = new ContentValues();
 
-        values.put(DataBases.CreateDB.eventAppID, eventAppID);
-        values.put(DataBases.CreateDB.eventAppName, eventAppName);
-        values.put(DataBases.CreateDB.eventDescription, eventDescription);
-        values.put(DataBases.CreateDB.eventTime, eventTime);
-        values.put(DataBases.CreateDB.eventJsonData, eventJsonData);
+        values.put(EventListDBColumn.eventAppID, eventAppID);
+        values.put(EventListDBColumn.eventAppName, eventAppName);
+        values.put(EventListDBColumn.eventDescription, eventDescription);
+        values.put(EventListDBColumn.eventTime, eventTime);
+        values.put(EventListDBColumn.eventJsonData, eventJsonData);
 
-        long id = mDB.insert(DataBases.CreateDB.TABLENAME, null, values);
+        long id = mDB.insert(EventListDBColumn.TABLENAME, null, values);
 
-        //success
+        // success
         if (id != -1) {
-            evList.add(0, new OPELEvent(id, eventAppID, eventAppName,
-                    eventDescription, eventTime, eventJsonData));
+            evList.add(0, new OPELEvent(id, eventAppID, eventAppName, eventDescription,
+                    eventTime, eventJsonData));
 
             Log.d("OPEL", "SUCCESS ADD EVENT");
         }
 
         return this.evList;
     }
-/*
-    // Update DB
-	public boolean updateColumn(long id ,String eventAppID, String
-	eventAppName, String eventDescription, String eventTime, String
-	eventJsonData){
-		ContentValues values = new ContentValues();
 
-		values.put(DataBases.CreateDB.eventAppID, eventAppID);
-		values.put(DataBases.CreateDB.eventAppName, eventAppName);
-		values.put(DataBases.CreateDB.eventDescription, eventDescription);
-		values.put(DataBases.CreateDB.eventTime, eventTime);
-		values.put(DataBases.CreateDB.eventJsonData, eventJsonData);
-
-		return mDB.update(DataBases.CreateDB.TABLENAME, values, "_id="+id,
-		null) > 0;
-	}
-*/
-
-    // Delete ID
-    // TODO : erase img file that the noti page involve
-    public ArrayList<OPELEvent> deleteEvent(long id) {
-        int _id = mDB.delete(DataBases.CreateDB.TABLENAME, "_id=" + id, null);
-
+    public ArrayList<OPELEvent> removeEvent(long id) {
+        // TODO : erase img file that the noti page involve
+        int _id = mDB.delete(EventListDBColumn.TABLENAME, "_id=" + id, null);
         if (_id > 0) {
-
             for (int i = 0; i < evList.size(); i++) {
-
-                if (evList.get(i).getEventID() == id) {
+                if (evList.get(i).getEventId() == id) {
                     evList.remove(i);
-
                     break;
                 }
             }
         }
-
         return this.evList;
     }
 
     // Select All
     private Cursor getAllEvents() {
-        return mDB.query(DataBases.CreateDB.TABLENAME, null, null, null,
-                null, null, "eventTime desc");
-    }
-
-    private Cursor getEvent(long id) {
-        Cursor c = mDB.query(DataBases.CreateDB.TABLENAME, null, "_id=" + id,
-                null, null, null, null);
-        if (c != null && c.getCount() != 0) c.moveToFirst();
-        return c;
-    }
-
-    private Cursor getMatchApp(String appID) {
-        Cursor c = mDB.rawQuery("select * from " + DataBases.CreateDB
-                .TABLENAME + " where eventAppID=" + "'" + appID + "'" +
-                "order by eventTime desc", null);
-        return c;
+        return mDB.query(EventListDBColumn.TABLENAME, null, null, null, null, null, "eventTime "
+                + "desc");
     }
 
     public ArrayList<OPELEvent> eventAllClear() {
-        if (mDB.delete(DataBases.CreateDB.TABLENAME, null, null) > 0) {
+        if (mDB.delete(EventListDBColumn.TABLENAME, null, null) > 0) {
             evList.clear();
 
         }
         return this.evList;
     }
 
+    // Get event
     public ArrayList<OPELEvent> getCurEventArrayList() {
         return this.evList;
     }
@@ -171,64 +131,31 @@ public class OPELEventList {
 
         while (mCursor.moveToNext()) {
 
-            OPELEvent e = new OPELEvent(mCursor.getLong(mCursor
-                    .getColumnIndex("_id")), mCursor.getString(mCursor
-                    .getColumnIndex("eventAppID")), mCursor.getString(mCursor
-                    .getColumnIndex("eventAppName")), mCursor.getString
-                    (mCursor.getColumnIndex("eventDescription")), mCursor
-                    .getString(mCursor.getColumnIndex("eventTime")), mCursor
-                    .getString(mCursor.getColumnIndex("eventJsonData")));
+            OPELEvent e = new OPELEvent(mCursor.getLong(mCursor.getColumnIndex("_id")), mCursor
+                    .getString(mCursor.getColumnIndex("eventAppID")), mCursor.getString(mCursor
+                    .getColumnIndex("eventAppName")), mCursor.getString(mCursor.getColumnIndex
+                    ("eventDescription")), mCursor.getString(mCursor.getColumnIndex("eventTime"))
+                    , mCursor.getString(mCursor.getColumnIndex("eventJsonData")));
 
             list.add(e);
         }
 
         mCursor.close();
-        this.evList = list;
-        return this.evList;
-    }
-
-    public ArrayList<OPELEvent> getAppEventArrayList(String appID) {
-        Cursor mCursor;
-        ArrayList<OPELEvent> list = new ArrayList<OPELEvent>();
-        mCursor = null;
-        mCursor = getMatchApp(appID);
-
-        while (mCursor.moveToNext()) {
-
-            OPELEvent e = new OPELEvent(mCursor.getLong(mCursor
-                    .getColumnIndex("_id")), mCursor.getString(mCursor
-                    .getColumnIndex("eventAppID")), mCursor.getString(mCursor
-                    .getColumnIndex("eventAppName")), mCursor.getString
-                    (mCursor.getColumnIndex("eventDescription")), mCursor
-                    .getString(mCursor.getColumnIndex("eventTime")), mCursor
-                    .getString(mCursor.getColumnIndex("eventJsonData")));
-
-            list.add(e);
-        }
-
-        mCursor.close();
-
         this.evList = list;
         return this.evList;
     }
 }
 
-class DataBases {
+class EventListDBColumn implements BaseColumns {
+    public static final String eventAppID = "eventAppID";
+    public static final String eventAppName = "eventAppName";
+    public static final String eventDescription = "eventDescription";
+    public static final String eventTime = "eventTime";
+    public static final String eventJsonData = "eventJsonData";
 
-    public static final class CreateDB implements BaseColumns {
-
-        public static final String eventAppID = "eventAppID";
-        public static final String eventAppName = "eventAppName";
-        public static final String eventDescription = "eventDescription";
-        public static final String eventTime = "eventTime";
-        public static final String eventJsonData = "eventJsonData";
-
-        public static final String TABLENAME = "EVENTTABLE";
-        public static final String _CREATE = "create table " + TABLENAME + "" +
-                "(" + _ID + " integer primary key autoincrement, " +
-                eventAppID + " text not null , " + eventAppName + " text not " +
-                "null , " + eventDescription + " text not null , " +
-                eventTime + " text not null , " + eventJsonData + " text not " +
-                "null )";
-    }
+    public static final String TABLENAME = "EVENTTABLE";
+    public static final String _CREATE = "create table " + TABLENAME + "" + "(" + _ID + " " +
+            "integer primary key autoincrement, " + eventAppID + " text not null , " +
+            eventAppName + " text not " + "null , " + eventDescription + " text not null , " +
+            eventTime + " text not null , " + eventJsonData + " text not " + "null )";
 }

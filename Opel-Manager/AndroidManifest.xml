@@ -6,7 +6,7 @@
 
     <uses-sdk
         android:minSdkVersion="23"
-        android:targetSdkVersion="23"/>
+        android:targetSdkVersion="26"/>
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
@@ -21,14 +21,14 @@
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
-
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
 
     <application
         android:allowBackup="true"
         android:icon="@drawable/opel"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        android:fullBackupContent="false">
         <activity
             android:name="com.opel.opel_manager.view.MainActivity"
             android:label="@string/app_name"
@@ -38,7 +38,9 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+
         <service android:name="com.opel.cmfw.service.CommChannelService"/>
+        <service android:name="com.opel.opel_manager.controller.OPELControllerService"/>
 
         <activity
             android:name="com.opel.cmfw.devicecontrollers.bluetooth.BluetoothConnectorActivity"
@@ -50,17 +52,12 @@
             android:theme="@android:style/Theme.NoTitleBar">
         </activity>
         <activity android:name="com.opel.opel_manager.view.AppMarketActivity"/>
-        <activity android:name="com.opel.opel_manager.view.RemoteNotiUIActivity"/>
+        <activity android:name="com.opel.opel_manager.view.remoteui.RemoteNotiUIActivity"/>
         <activity android:name="com.opel.opel_manager.view.AppManagerActivity"/>
-        <activity android:name="com.opel.opel_manager.view.RemoteConfigUIActivity"/>
+        <activity android:name="com.opel.opel_manager.view.remoteui.RemoteConfigUIActivity"/>
         <activity android:name="com.opel.opel_manager.view.SensorViewerActivity"/>
         <activity android:name="com.opel.opel_manager.view.FileManagerActivity"/>
-        <activity android:name="com.opel.opel_manager.view.EventLoggerActivity"/>
-
-        <service
-            android:name=".controller.mqtt.MQTTBroadCastService"
-            android:enabled="true"
-            android:exported="true"/>
+        <activity android:name="com.opel.opel_manager.view.EventLogViewerActivity"/>
     </application>
 
 </manifest>

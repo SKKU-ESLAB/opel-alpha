@@ -233,8 +233,8 @@ public class OPELAppCoreStub {
         this.mCommChannelServiceStub.unlockLargeDataMode();
     }
 
-    public void getLargeDataIPAddress() {
-        this.mCommChannelServiceStub.getLargeDataIPAddress();
+    public String getLargeDataIPAddress() {
+        return this.mCommChannelServiceStub.getLargeDataIPAddress();
     }
 
     private ServiceConnection mCommServiceConnection = new ServiceConnection() {

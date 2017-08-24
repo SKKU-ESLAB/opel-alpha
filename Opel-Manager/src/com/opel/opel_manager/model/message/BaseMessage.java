@@ -136,13 +136,13 @@ public class BaseMessage implements Parcelable {
         out.writeString(this.mStoredFileName);
     }
 
-    public static final Parcelable.Creator<BaseMessage> CREATOR
-            = new Parcelable.Creator<BaseMessage>() {
+    public static final Parcelable.Creator<BaseMessage> CREATOR = new Parcelable
+            .Creator<BaseMessage>() {
         public BaseMessage createFromParcel(Parcel in) {
             // Parcel -> BaseMessage
             String jsonString = in.readString();
             String storedFileName = in.readString();
-            BaseMessage message =  MessageFactory.makeMessageFromJSONString(jsonString);
+            BaseMessage message = MessageFactory.makeMessageFromJSONString(jsonString);
             message.setStoredFilePath(storedFileName);
             return message;
         }

@@ -2,7 +2,6 @@ package com.opel.opel_manager.controller;
 
 import android.content.Context;
 
-import com.opel.opel_manager.model.OPELAppList;
 import com.opel.opel_manager.model.OPELEventList;
 import com.opel.opel_manager.model.Settings;
 

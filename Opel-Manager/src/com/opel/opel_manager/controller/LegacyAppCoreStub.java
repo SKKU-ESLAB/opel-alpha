@@ -116,8 +116,8 @@ public class LegacyAppCoreStub {
 //        } else if (req.equals(NIL_TERMINATION)) {
 //            String appID = jp.getValueByKey("appID");
 //            getAppList().getApp(appID).setTerminationJson(jp.getJsonData());
-        } else if (req.equals(NIL_MSG_TO_SENSOR_VIEWER)) {
-            handleMsgToSensorViewer(message);
+//        } else if (req.equals(NIL_MSG_TO_SENSOR_VIEWER)) {
+//            handleMsgToSensorViewer(message);
         } else if (req.equals(CONFIG_REGISTER)) {
             handleRegisterConfig(jp);
         } else if (req.equals(RemoteFileManager_getListOfCurPath)) {
@@ -135,11 +135,11 @@ public class LegacyAppCoreStub {
         }
     }
 
-    void handleMsgToSensorViewer(String message) {
-        if (mRegisteredSensorView != null) {
-            mRegisteredSensorView.onMsgToSensorViewer(message);
-        }
-    }
+//    void handleMsgToSensorViewer(String message) {
+//        if (mRegisteredSensorView != null) {
+//            mRegisteredSensorView.onMsgToSensorViewer(message);
+//        }
+//    }
 
     void handleInstall(LegacyJSONParser jp) {
         // TODO: remake form the bottom

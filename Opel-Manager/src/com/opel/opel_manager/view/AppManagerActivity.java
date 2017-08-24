@@ -49,10 +49,10 @@ public class AppManagerActivity extends Activity {
 		arr = new ArrayList<ListApp>();
 
 		ca = new AppListAdapter(getApplicationContext(), AppManagerActivity.this );
-		//ca.sortingArrayByState();	
+		//mEventListAdapter.sortingArrayByState();
 		listView.setAdapter(ca);
 
-		//listView.setOnItemClickListener(mItemClickListener);
+		//mEventLogListView.setOnItemClickListener(mItemClickListener);
 		listView.setOnItemLongClickListener(mItemLongClickListener);
 
 	}
