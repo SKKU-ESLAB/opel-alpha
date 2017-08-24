@@ -57,8 +57,7 @@ public class RemoteConfigUIActivity extends Activity {
         setContentView(com.opel.opel_manager.R.layout.template_listview);
 
         String title = getIntent().getStringExtra("title");
-        Toast.makeText(getApplicationContext(), title, Toast.LENGTH_LONG)
-                .show();
+        Toast.makeText(getApplicationContext(), title, Toast.LENGTH_LONG).show();
         inputJson = getIntent().getStringExtra("jsonData");
 
         jp = new LegacyJSONParser(inputJson);
@@ -66,21 +65,17 @@ public class RemoteConfigUIActivity extends Activity {
         rqID = jp.getValueByKey("rqID");
         pid = jp.getValueByKey("pid");
 
-        int iconId = getIntent().getIntExtra("iconID", com.opel.opel_manager
-                .R.drawable.app);
+        int iconId = getIntent().getIntExtra("iconID", com.opel.opel_manager.R.drawable.app);
 
-        listView = (ListView) findViewById(com.opel.opel_manager.R.id
-                .listView1);
+        listView = (ListView) findViewById(com.opel.opel_manager.R.id.listView1);
 
         arr = getSettingMenuList(inputJson);
 
-        ca = new ConfigListAdapter(getApplicationContext(),
-                RemoteConfigUIActivity.this, arr);
+        ca = new ConfigListAdapter(getApplicationContext(), RemoteConfigUIActivity.this, arr);
         listView.setAdapter(ca);
         listView.setOnItemClickListener(mItemClickListener);
 
-        OPELApp targetApp = OPELContext.getAppList().getApp
-                (appID);
+        OPELApp targetApp = OPELContext.getAppList().getApp(appID);
 
         try {
             ActionBar actionBar = getActionBar();
@@ -88,8 +83,8 @@ public class RemoteConfigUIActivity extends Activity {
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setDisplayShowCustomEnabled(true);
-            Drawable dr = new BitmapDrawable(getResources(), OPELContext
-                    .getAppList().getApp(appID).getIconImage());
+            Drawable dr = new BitmapDrawable(getResources(), OPELContext.getAppList().getApp
+                    (appID).getIconImage());
             actionBar.setIcon(dr);
             actionBar.setDisplayUseLogoEnabled(true);
 
@@ -103,8 +98,7 @@ public class RemoteConfigUIActivity extends Activity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(com.opel.opel_manager.R.menu
-                .menu_remote_config_ui, menu);
+        getMenuInflater().inflate(com.opel.opel_manager.R.menu.menu_remote_config_ui, menu);
         return true;
     }
 
@@ -126,8 +120,7 @@ public class RemoteConfigUIActivity extends Activity {
                     jp.addJsonKeyValue("pid", pid);
                     for (int i = 0; i < arr.size(); i++) {
 
-                        jp.addJsonKeyValue(arr.get(i).getTitle(), arr.get(i)
-                                .getStatus());
+                        jp.addJsonKeyValue(arr.get(i).getTitle(), arr.get(i).getStatus());
 
                     }
 
@@ -160,26 +153,23 @@ public class RemoteConfigUIActivity extends Activity {
         for (int i = 0; i < arr.size(); i++) {
 
             if (arr.get(i).getStatus().equals(defaultStatus)) {
-                Toast.makeText(getApplicationContext(), "Select all of the "
-                        + "option!", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "Select all of the " + "option!", Toast
+                        .LENGTH_LONG).show();
                 return false;
             }
         }
 
-        Toast.makeText(getApplicationContext(), "Set this configuration",
-                Toast.LENGTH_LONG).show();
+        Toast.makeText(getApplicationContext(), "Set this configuration", Toast.LENGTH_LONG).show();
         return true;
 
     }
 
     private String selected;
-    private AdapterView.OnItemClickListener mItemClickListener = new
-            AdapterView.OnItemClickListener() {
+    private AdapterView.OnItemClickListener mItemClickListener = new AdapterView
+            .OnItemClickListener() {
         @Override
-        public void onItemClick(AdapterView<?> parent, View view, int
-                position, long l_position) {
-            final ConfigListItem item = (ConfigListItem) parent.getAdapter()
-                    .getItem(position);
+        public void onItemClick(AdapterView<?> parent, View view, int position, long l_position) {
+            final ConfigListItem item = (ConfigListItem) parent.getAdapter().getItem(position);
 
             selected = item.getStatus();
 
@@ -191,37 +181,30 @@ public class RemoteConfigUIActivity extends Activity {
                 // Str textBox - constrain >> length
                 if (item.getAlterList().size() == 1) {
                     final String length = item.getAlterList().get(0);
-                    AlertDialog.Builder alert = new AlertDialog.Builder
-                            (RemoteConfigUIActivity.this);
+                    AlertDialog.Builder alert = new AlertDialog.Builder(RemoteConfigUIActivity
+                            .this);
                     alert.setTitle(item.getTitle()); // Set Alert dialog title
                     // here
                     alert.setMessage("Length : " + length); // Message here
 
-                    final EditText input = new EditText
-                            (RemoteConfigUIActivity.this);
+                    final EditText input = new EditText(RemoteConfigUIActivity.this);
                     alert.setView(input);
 
-                    alert.setPositiveButton("OK", new DialogInterface
-                            .OnClickListener() {
-                        public void onClick(DialogInterface dialog, int
-                                whichButton) {
+                    alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
 
-                            String inputStr = input.getEditableText()
-                                    .toString();
+                            String inputStr = input.getEditableText().toString();
                             if (inputStr.length() < Integer.parseInt(length)) {
                                 item.setStatus(inputStr);
                             } else {
-                                Toast.makeText(getApplicationContext(),
-                                        "Input str length is too long", Toast
-                                                .LENGTH_LONG).show();
+                                Toast.makeText(getApplicationContext(), "Input str length is too " +
+                                        "long", Toast.LENGTH_LONG).show();
                             }
 
                         }
                     });
-                    alert.setNegativeButton("CANCEL", new DialogInterface
-                            .OnClickListener() {
-                        public void onClick(DialogInterface dialog, int
-                                whichButton) {
+                    alert.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
                             dialog.cancel();
                         }
                     });
@@ -234,54 +217,44 @@ public class RemoteConfigUIActivity extends Activity {
                 // Number textBox - constrain >> range
                 else if (item.getAlterList().size() == 2) {
 
-                    AlertDialog.Builder alert = new AlertDialog.Builder
-                            (RemoteConfigUIActivity.this);
+                    AlertDialog.Builder alert = new AlertDialog.Builder(RemoteConfigUIActivity
+                            .this);
                     alert.setTitle(item.getTitle()); // Set Alert dialog title
                     // here
-                    alert.setMessage("Range : " + item.getAlterList().get(0)
-                            + " ~ " + item.getAlterList().get(1)); // Message
+                    alert.setMessage("Range : " + item.getAlterList().get(0) + " ~ " + item
+                            .getAlterList().get(1)); // Message
                     // here
 
-                    final EditText input = new EditText
-                            (RemoteConfigUIActivity.this);
+                    final EditText input = new EditText(RemoteConfigUIActivity.this);
                     alert.setView(input);
 
-                    alert.setPositiveButton("OK", new DialogInterface
-                            .OnClickListener() {
-                        public void onClick(DialogInterface dialog, int
-                                whichButton) {
+                    alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
 
-                            String inputStr = input.getEditableText()
-                                    .toString();
+                            String inputStr = input.getEditableText().toString();
                             Double inputNumber = 0.0;
 
                             try {
                                 inputNumber = Double.parseDouble(inputStr);
 
-                                if (Double.parseDouble(item.getAlterList()
-                                        .get(0)) < inputNumber && inputNumber
-                                        < Double.parseDouble(item
-                                        .getAlterList().get(1))) {
+                                if (Double.parseDouble(item.getAlterList().get(0)) < inputNumber
+                                        && inputNumber < Double.parseDouble(item.getAlterList()
+                                        .get(1))) {
                                     item.setStatus(inputStr);
                                 } else {
-                                    Toast.makeText(getApplicationContext(),
-                                            "Input Number is out of range",
-                                            Toast.LENGTH_LONG).show();
+                                    Toast.makeText(getApplicationContext(), "Input Number is out " +
+                                            "of range", Toast.LENGTH_LONG).show();
                                 }
 
                             } catch (NumberFormatException e) {
-                                Toast.makeText(getApplicationContext(),
-                                        "Input mMainIconList is not number format",
-                                        Toast.LENGTH_LONG)
-                                        .show();
+                                Toast.makeText(getApplicationContext(), "Input mMainIconList is " +
+                                        "not number format", Toast.LENGTH_LONG).show();
 
                             }
                         }
                     });
-                    alert.setNegativeButton("CANCEL", new DialogInterface
-                            .OnClickListener() {
-                        public void onClick(DialogInterface dialog, int
-                                whichButton) {
+                    alert.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
                             dialog.cancel();
                         }
                     });
@@ -297,23 +270,18 @@ public class RemoteConfigUIActivity extends Activity {
             // single choice dialog
             else if (selectedFlag == 2) {
 
-                AlertDialog.Builder ab = new AlertDialog.Builder
-                        (RemoteConfigUIActivity.this);
+                AlertDialog.Builder ab = new AlertDialog.Builder(RemoteConfigUIActivity.this);
                 ab.setTitle(item.getTitle());
 
-                ab.setSingleChoiceItems(item.getListArray(), item
-                        .getListPosition(selected), new DialogInterface
-                        .OnClickListener() {
+                ab.setSingleChoiceItems(item.getListArray(), item.getListPosition(selected), new
+                        DialogInterface.OnClickListener() {
 
-                    public void onClick(DialogInterface dialog, int
-                            whichButton) {
+                    public void onClick(DialogInterface dialog, int whichButton) {
                         selected = item.getListArray()[whichButton];
                     }
-                }).setPositiveButton(com.opel.opel_manager.R.string
-                        .alert_dialog_ok, new DialogInterface.OnClickListener
-                        () {
-                    public void onClick(DialogInterface dialog, int
-                            whichButton) {
+                }).setPositiveButton(com.opel.opel_manager.R.string.alert_dialog_ok, new
+                        DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
                         if (item.getStatus().equals(defaultStatus)) {
                             item.setStatus(item.getListArray()[0]);
                         } else {
@@ -322,11 +290,9 @@ public class RemoteConfigUIActivity extends Activity {
                         ca.updateDisplay();
 
                     }
-                }).setNegativeButton(com.opel.opel_manager.R.string
-                        .alert_dialog_cancel, new DialogInterface
-                        .OnClickListener() {
-                    public void onClick(DialogInterface dialog, int
-                            whichButton) {
+                }).setNegativeButton(com.opel.opel_manager.R.string.alert_dialog_cancel, new
+                        DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
                         dialog.cancel();
                     }
                 });
@@ -339,31 +305,25 @@ public class RemoteConfigUIActivity extends Activity {
             //*9****************Not implemented***********************
             else if (selectedFlag == 3) {
 
-                AlertDialog.Builder builder = new AlertDialog.Builder
-                        (RemoteConfigUIActivity.this);
-                builder.setTitle(item.getTitle()).setMultiChoiceItems(item
-                        .getListArray(), null, new DialogInterface
-                        .OnMultiChoiceClickListener() {
+                AlertDialog.Builder builder = new AlertDialog.Builder(RemoteConfigUIActivity.this);
+                builder.setTitle(item.getTitle()).setMultiChoiceItems(item.getListArray(), null,
+                        new DialogInterface.OnMultiChoiceClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which,
-                                        boolean isChecked) {
+                    public void onClick(DialogInterface dialog, int which, boolean isChecked) {
                         if (isChecked) {
 
                         }
                     }
                 })
 
-                        .setPositiveButton(com.opel.opel_manager.R.string
-                                .alert_dialog_ok, new DialogInterface
-                                .OnClickListener() {
+                        .setPositiveButton(com.opel.opel_manager.R.string.alert_dialog_ok, new
+                                DialogInterface.OnClickListener() {
                             @Override
-                            public void onClick(DialogInterface dialog, int
-                                    id) {
+                            public void onClick(DialogInterface dialog, int id) {
                                 //Create onlcick method
                             }
-                        }).setNegativeButton(com.opel.opel_manager.R.string
-                        .alert_dialog_cancel, new DialogInterface
-                        .OnClickListener() {
+                        }).setNegativeButton(com.opel.opel_manager.R.string.alert_dialog_cancel,
+                        new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
                         //Create onlcick method
@@ -378,13 +338,12 @@ public class RemoteConfigUIActivity extends Activity {
                 int mMonth = c.get(Calendar.MONTH);
                 int mDay = c.get(Calendar.DAY_OF_MONTH);
 
-                DatePickerDialog dpd = new DatePickerDialog
-                        (RemoteConfigUIActivity.this, new DatePickerDialog
-                                .OnDateSetListener() {
+                DatePickerDialog dpd = new DatePickerDialog(RemoteConfigUIActivity.this, new
+                        DatePickerDialog.OnDateSetListener() {
 
                     @Override
-                    public void onDateSet(DatePicker view, int year, int
-                            monthOfYear, int dayOfMonth) {
+                    public void onDateSet(DatePicker view, int year, int monthOfYear, int
+                            dayOfMonth) {
 
                         String _year, _month, _day;
                         _year = String.valueOf(year);
@@ -406,13 +365,11 @@ public class RemoteConfigUIActivity extends Activity {
                 int mHour = 10;
                 int mMinute = 10;
 
-                TimePickerDialog tpd = new TimePickerDialog
-                        (RemoteConfigUIActivity.this, new TimePickerDialog
-                                .OnTimeSetListener() {
+                TimePickerDialog tpd = new TimePickerDialog(RemoteConfigUIActivity.this, new
+                        TimePickerDialog.OnTimeSetListener() {
 
                     @Override
-                    public void onTimeSet(TimePicker view, int hourOfDay, int
-                            minute) {
+                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
 
                         String hour, min;
 
@@ -458,26 +415,20 @@ public class RemoteConfigUIActivity extends Activity {
 
             if (ret[0].equals("strTB")) {
 
-                arr.add(new ConfigListItem(key, description, defaultStatus,
-                        1, strTemp));
+                arr.add(new ConfigListItem(key, description, defaultStatus, 1, strTemp));
             } else if (ret[0].equals("numTB")) {
 
-                arr.add(new ConfigListItem(key, description, defaultStatus,
-                        1, strTemp));
+                arr.add(new ConfigListItem(key, description, defaultStatus, 1, strTemp));
             } else if (ret[0].equals("sDialog")) {
-                arr.add(new ConfigListItem(key, description, defaultStatus,
-                        2, strTemp));
+                arr.add(new ConfigListItem(key, description, defaultStatus, 2, strTemp));
 
             } else if (ret[0].equals("mDialog")) {
-                arr.add(new ConfigListItem(key, description, defaultStatus,
-                        3, strTemp));
+                arr.add(new ConfigListItem(key, description, defaultStatus, 3, strTemp));
 
             } else if (ret[0].equals("dateDialog")) {
-                arr.add(new ConfigListItem(key, description, defaultStatus,
-                        4, strTemp));
+                arr.add(new ConfigListItem(key, description, defaultStatus, 4, strTemp));
             } else if (ret[0].equals("timeDialog")) {
-                arr.add(new ConfigListItem(key, description, defaultStatus,
-                        5, strTemp));
+                arr.add(new ConfigListItem(key, description, defaultStatus, 5, strTemp));
             } else {
                 Log.d("OPEL", "Config other item : " + ret[0]);
             }
@@ -522,8 +473,8 @@ class ConfigListAdapter extends BaseAdapter implements OnClickListener {
     private LinearLayout layout;
 
     //	private Typeface myFont;
-    public ConfigListAdapter(Context mContext, Activity mActivity,
-                             ArrayList<ConfigListItem> arr_item) {
+    public ConfigListAdapter(Context mContext, Activity mActivity, ArrayList<ConfigListItem>
+            arr_item) {
         this.mContext = mContext;
         this.mActivity = mActivity;
         this.arr = arr_item;
@@ -549,8 +500,8 @@ class ConfigListAdapter extends BaseAdapter implements OnClickListener {
         if (convertView == null) {
             int res = 0;
             res = com.opel.opel_manager.R.layout.template_listview_item_no_icon;
-            LayoutInflater mInflater = (LayoutInflater) mContext
-                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            LayoutInflater mInflater = (LayoutInflater) mContext.getSystemService(Context
+                    .LAYOUT_INFLATER_SERVICE);
             convertView = mInflater.inflate(res, parent, false);
         }
 
@@ -558,14 +509,12 @@ class ConfigListAdapter extends BaseAdapter implements OnClickListener {
         if (arr.size() != 0) {
             TextView title = (TextView) convertView.findViewById(R.id.tv_title);
             title.setText(arr.get(pos).getTitle());
-            TextView subtitle = (TextView) convertView.findViewById(R.id
-                    .tv_subTitle);
+            TextView subtitle = (TextView) convertView.findViewById(R.id.tv_subTitle);
             subtitle.setText(arr.get(pos).getSubtitle());
             if (arr.get(pos).getSubtitle().equals(null)) {
 
             }
-            TextView status = (TextView) convertView.findViewById(R.id
-                    .tv_status);
+            TextView status = (TextView) convertView.findViewById(R.id.tv_status);
             status.setText(arr.get(pos).getStatus());
 
         }
@@ -622,8 +571,7 @@ class ConfigListItem {
     }
 
 
-    public ConfigListItem(String main, String sub, String status, int flag,
-                          ArrayList<String> arr) {
+    public ConfigListItem(String main, String sub, String status, int flag, ArrayList<String> arr) {
         this.mainTitle = main;
         this.subTitle = sub;
         this.status = status;
@@ -634,8 +582,7 @@ class ConfigListItem {
     }
 
 
-    public ConfigListItem(String main, String sub, String status,
-                          ArrayList<String> arr) {
+    public ConfigListItem(String main, String sub, String status, ArrayList<String> arr) {
         this.mainTitle = main;
         this.subTitle = sub;
         this.status = status;
