@@ -18,12 +18,10 @@ import android.view.MenuItem;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 
 import com.opel.opel_manager.R;
 import com.opel.opel_manager.controller.LegacyJSONParser;
-import com.opel.opel_manager.controller.OPELContext;
 import com.opel.opel_manager.controller.OPELControllerService;
 import com.opel.opel_manager.model.OPELApp;
 import com.opel.opel_manager.view.EventLogViewerActivity;
@@ -50,15 +48,16 @@ public class RemoteNotiUIActivity extends Activity {
         Bundle extras = getIntent().getExtras();
         int id = extras.getInt("notificationId");
         String jsonString = extras.getString("jsonData");
-        mIsCheckNoti = extras.getString("mIsCheckNoti");
+        this.mIsCheckNoti = extras.getString("mIsCheckNoti");
 
         LegacyJSONParser jp = new LegacyJSONParser(jsonString);
-        String appId = jp.getValueByKey("appID");
+        String appId = jp.getValueByKey("mAppID");
         this.mAppId = Integer.parseInt(appId);
-
-        mLayout = (LinearLayout) findViewById(R.id.dynamicLayout);
-
         String isNoti = jp.getValueByKey("isNoti");
+
+        this.mLayout = (LinearLayout) findViewById(R.id.dynamicLayout);
+
+        // Initialize UI
         while (jp.hasMoreValue()) {
             String ret[] = new String[2];
             ret = jp.getNextKeyValue();
@@ -70,8 +69,8 @@ public class RemoteNotiUIActivity extends Activity {
                 tview.setTextColor(Color.WHITE);
                 tview.setGravity(Gravity.CENTER);
 
-                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LayoutParams
-                        .WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout
+                        .LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
                 lp.gravity = Gravity.CENTER;
                 lp.setMargins(60, 20, 60, 20);
 
@@ -86,17 +85,17 @@ public class RemoteNotiUIActivity extends Activity {
 
 
                     if (isNoti.equals("2")) {
-                        is = new FileInputStream(new File(OPELContext.getSettings().getCloudDir()
-                                , ret[1]));
+                        File cloudDir = mControllerServiceStub.getSettings().getCloudDir();
+                        is = new FileInputStream(new File(cloudDir, ret[1]));
                     } else {
-                        is = new FileInputStream(new File(OPELContext.getSettings()
-                                .getRemoteUIDir(), ret[1]));
+                        File remoteUIDir = mControllerServiceStub.getSettings().getRemoteUIDir();
+                        is = new FileInputStream(new File(remoteUIDir, ret[1]));
 
                     }
                     iv.setImageDrawable(Drawable.createFromStream(is, ret[1]));
 
-                    LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LayoutParams
-                            .MATCH_PARENT, LayoutParams.MATCH_PARENT);
+                    LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout
+                            .LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
                     lp.gravity = Gravity.CENTER;
                     lp.setMargins(0, 0, 0, 0);
 
@@ -121,8 +120,8 @@ public class RemoteNotiUIActivity extends Activity {
                 tview.setTextColor(Color.RED);
                 tview.setGravity(Gravity.CENTER);
 
-                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LayoutParams
-                        .WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout
+                        .LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
                 lp.gravity = Gravity.CENTER;
                 lp.setMargins(60, 20, 60, 20);
                 tview.setLayoutParams(lp);
@@ -133,22 +132,23 @@ public class RemoteNotiUIActivity extends Activity {
                 tview.setTextSize(20);
                 tview.setTextColor(Color.RED);
                 tview.setGravity(Gravity.CENTER);
-                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LayoutParams
-                        .WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout
+                        .LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
                 lp.gravity = Gravity.CENTER;
                 lp.setMargins(60, 20, 60, 20);
                 tview.setLayoutParams(lp);
                 mLayout.addView(tview);
             } else {
-                //Do Nothing [appID, appName, etc]
+                //Do Nothing [mAppID, appName, etc]
             }
-
         }
 
         NotificationManager nm = (NotificationManager) getSystemService(Context
                 .NOTIFICATION_SERVICE);
         nm.cancel(id);
 
+        // Connect controller service
+        connectControllerService();
     }
 
     private void initializeActionBar() {
@@ -188,7 +188,7 @@ public class RemoteNotiUIActivity extends Activity {
     }
 
     private void connectControllerService() {
-        Intent serviceIntent = new Intent(this, EventLogViewerActivity.class);
+        Intent serviceIntent = new Intent(this, OPELControllerService.class);
         this.bindService(serviceIntent, this.mControllerServiceConnection, Context
                 .BIND_AUTO_CREATE);
     }
@@ -199,7 +199,6 @@ public class RemoteNotiUIActivity extends Activity {
             OPELControllerService.ControllerBinder serviceBinder = (OPELControllerService
                     .ControllerBinder) inputBinder;
             mControllerServiceStub = serviceBinder.getService();
-
 
             // Update UI
             initializeActionBar();

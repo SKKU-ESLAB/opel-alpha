@@ -43,6 +43,8 @@ import com.opel.opel_manager.model.message.params.ParamsUpdateSensorData;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class OPELControllerService extends Service {
     private static String TAG = "OPELControllerService";
@@ -54,7 +56,7 @@ public class OPELControllerService extends Service {
     private PrivateAppCoreStubListener mAppCoreStubListener = null;
 
     // Models
-    private SparseArray<OPELApp> mAppList = new SparseArray<>(); // TODO: add/remove
+    private HashMap<Integer, OPELApp> mAppList = new HashMap<>();
     private OPELEventList mEventList; // TODO: initialize
     private Settings mSettings; // TODO: initialize
 
@@ -104,8 +106,21 @@ public class OPELControllerService extends Service {
         return this.mAppList.get(appId);
     }
 
+    public ArrayList<OPELApp> getAppList() {
+        ArrayList<OPELApp> appList = new ArrayList<>();
+        for (Map.Entry<Integer, OPELApp> appListEntry : this.mAppList.entrySet()) {
+            OPELApp app = appListEntry.getValue();
+            appList.add(app);
+        }
+        return appList;
+    }
+
     public ArrayList<OPELEvent> getEventList() {
         return this.mEventList.getAllEventArrayList();
+    }
+
+    public Settings getSettings() {
+        return this.mSettings;
     }
 
     // Control functions (Async)
@@ -142,6 +157,10 @@ public class OPELControllerService extends Service {
         this.mAppCoreStub.terminateApp(appId);
     }
 
+    public void updateAppConfig(String legacyData) {
+        this.mAppCoreStub.updateAppConfig(legacyData);
+    }
+
     private InstallProcedure mInstallProcedure = new InstallProcedure();
 
     private class InstallProcedure {
@@ -160,6 +179,15 @@ public class OPELControllerService extends Service {
             String packageFilePath = this.mInitializeTransactions.get(initializeMessageId);
             if (packageFilePath == null) return;
             this.mInitializeTransactions.remove(initializeMessageId);
+
+            // TODO: check app archive
+            // TODO: unarchive app archive and get its information
+            String name = "";
+            String iconFilePath = "";
+            boolean isDefaultApp = false;
+
+            // Insert to app list
+            mAppList.put(appId, new OPELApp(appId, name, iconFilePath, isDefaultApp));
 
             // Command 2: listen app state
             mAppCoreStub.listenAppState(appId);

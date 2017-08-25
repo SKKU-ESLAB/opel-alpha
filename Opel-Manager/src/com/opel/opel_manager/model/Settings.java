@@ -7,9 +7,7 @@ import java.io.File;
 
 public class Settings {
     private static final String TAG = "Settings";
-    // Settings
-    // TODO: determine whether OpelDataDir should be string or file
-    private String mOpelDataDir;
+
     private File mOPELDir;
     private File mOPELIconDir;
     private File mOPELRemoteUIDir;
@@ -62,14 +60,6 @@ public class Settings {
     }
 
     // Getters/Setters
-    public String getOpelDataDir() {
-        return this.mOpelDataDir;
-    }
-
-    public void setOpelDataDir(String opelDataDir) {
-        this.mOpelDataDir = opelDataDir;
-    }
-
     public File getOpelDir() {
         return mOPELDir;
     }

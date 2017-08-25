@@ -38,7 +38,7 @@ public class RemoteNotiUI {
     // Input Json Format
     /*{
      * 		"appTitle":"collision detector",
-     * 		appID: "2",
+     * 		mAppID: "2",
     		time: "2015-08-02. 15:02",
     		description: "collision detection!!!",
     		text: "collision is detected!!",
@@ -60,7 +60,7 @@ public class RemoteNotiUI {
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
         LegacyJSONParser jp = new LegacyJSONParser(legacyData);
-        int appId = Integer.parseInt(jp.getValueByKey("appID"));
+        int appId = Integer.parseInt(jp.getValueByKey("mAppID"));
         OPELApp targetApp = ownerActivity.getApp(appId);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(ownerActivity);

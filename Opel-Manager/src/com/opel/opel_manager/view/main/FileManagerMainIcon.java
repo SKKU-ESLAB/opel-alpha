@@ -22,6 +22,7 @@ import android.graphics.BitmapFactory;
 import android.widget.Toast;
 
 import com.opel.opel_manager.R;
+import com.opel.opel_manager.view.FileManagerActivity;
 import com.opel.opel_manager.view.MainActivity;
 
 public class FileManagerMainIcon extends MainIcon {
@@ -37,7 +38,7 @@ public class FileManagerMainIcon extends MainIcon {
                     "Target device is not connected", Toast.LENGTH_SHORT).show();
             return;
         }
-        Intent intent = new Intent(this.mOwnerActivity, FileManagerMainIcon.class);
+        Intent intent = new Intent(this.mOwnerActivity, FileManagerActivity.class);
         mOwnerActivity.startActivity(intent);
     }
 

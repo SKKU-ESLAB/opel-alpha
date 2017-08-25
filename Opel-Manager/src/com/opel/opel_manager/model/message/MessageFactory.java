@@ -69,7 +69,7 @@ public class MessageFactory {
                 .asText();
         boolean isFileAttached = (Integer.parseInt(isFileAttachedStr) == 1);
 
-        // fileName
+        // mFileName
         String fileName = thisObj.get(BaseMessage.OPEL_MESSAGE_KEY_FILE_NAME).asText();
 
         // payload

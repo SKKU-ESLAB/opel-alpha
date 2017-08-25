@@ -315,7 +315,7 @@ public class CameraViewerActivity extends Activity implements SurfaceHolder.Call
     }
 
     private void connectControllerService() {
-        Intent serviceIntent = new Intent(this, CameraViewerActivity.class);
+        Intent serviceIntent = new Intent(this, OPELControllerService.class);
         this.bindService(serviceIntent, this.mControllerServiceConnection, Context
                 .BIND_AUTO_CREATE);
     }

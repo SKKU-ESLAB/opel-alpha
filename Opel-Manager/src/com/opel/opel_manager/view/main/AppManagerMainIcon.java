@@ -22,6 +22,7 @@ import android.graphics.BitmapFactory;
 import android.widget.Toast;
 
 import com.opel.opel_manager.R;
+import com.opel.opel_manager.view.AppManagerActivity;
 import com.opel.opel_manager.view.MainActivity;
 
 public class AppManagerMainIcon extends MainIcon {
@@ -37,7 +38,7 @@ public class AppManagerMainIcon extends MainIcon {
                     "Target device is not connected", Toast.LENGTH_SHORT).show();
             return;
         }
-        Intent intent = new Intent(this.mOwnerActivity, AppManagerMainIcon.class);
+        Intent intent = new Intent(this.mOwnerActivity, AppManagerActivity.class);
         mOwnerActivity.startActivity(intent);
     }
 

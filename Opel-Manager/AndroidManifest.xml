@@ -25,10 +25,10 @@
 
     <application
         android:allowBackup="true"
+        android:fullBackupContent="false"
         android:icon="@drawable/opel"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme"
-        android:fullBackupContent="false">
+        android:theme="@style/AppTheme">
         <activity
             android:name="com.opel.opel_manager.view.MainActivity"
             android:label="@string/app_name"

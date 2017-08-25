@@ -3,18 +3,21 @@ package com.opel.opel_manager.view;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
@@ -22,290 +25,258 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.opel.opel_manager.controller.OPELContext;
 import com.opel.opel_manager.R;
+import com.opel.opel_manager.controller.OPELControllerBroadcastReceiver;
+import com.opel.opel_manager.controller.OPELControllerService;
 import com.opel.opel_manager.model.OPELApp;
 
 import java.util.ArrayList;
-import java.util.Comparator;
+
+import static android.content.ContentValues.TAG;
 
 public class AppManagerActivity extends Activity {
-	ListView listView;
-	static AppListAdapter ca;
-	ArrayList<ListApp> arr;
+    // OPELControllerService
+    private OPELControllerService mControllerServiceStub = null;
+    private AppManagerActivity self = this;
 
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(com.opel.opel_manager.R.layout.template_listview);
+    private ListView mAppListView;
+    private AppListAdapter mAppListAdapter;
+    private ArrayList<AppListItem> mAppList = new ArrayList<AppListItem>();
 
-		ActionBar actionBar = getActionBar();
-		actionBar.setTitle("App Manager");
-		actionBar.setDisplayHomeAsUpEnabled(true);
-		actionBar.setLogo(com.opel.opel_manager.R.drawable.icon_app_manager);
-		actionBar.setDisplayUseLogoEnabled(true);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(com.opel.opel_manager.R.layout.template_listview);
 
-		listView = (ListView) findViewById(com.opel.opel_manager.R.id.listView1);
+        // Initialize UI
+        this.initializeUI();
 
-		arr = new ArrayList<ListApp>();
+        // Connect controller service
+        this.connectControllerService();
+    }
 
-		ca = new AppListAdapter(getApplicationContext(), AppManagerActivity.this );
-		//mEventListAdapter.sortingArrayByState();
-		listView.setAdapter(ca);
+    private void initializeUI() {
+        ActionBar actionBar = getActionBar();
+        actionBar.setTitle("App Manager");
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setLogo(com.opel.opel_manager.R.drawable.icon_app_manager);
+        actionBar.setDisplayUseLogoEnabled(true);
 
-		//mEventLogListView.setOnItemClickListener(mItemClickListener);
-		listView.setOnItemLongClickListener(mItemLongClickListener);
+        this.mAppListView = (ListView) findViewById(com.opel.opel_manager.R.id.listView1);
+        this.mAppListAdapter = new AppListAdapter();
+        this.mAppListView.setAdapter(mAppListAdapter);
+        this.mAppListView.setOnItemClickListener(mItemClickListener);
+    }
 
-	}
+    protected void onResume() {
+        super.onResume();
+        mAppListAdapter.updateUI();
+    }
 
-	protected void onRestart() {
-		super.onRestart();
-		ca.updateDisplay();
+    private AdapterView.OnItemClickListener mItemClickListener = new AdapterView
+            .OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long l_position) {
+            final AppListItem item = (AppListItem) parent.getAdapter().getItem(position);
 
-	}
+            AlertDialog.Builder alt_bld = new AlertDialog.Builder(AppManagerActivity.this);
+            alt_bld.setMessage("Delete this app ?").setCancelable(false).setPositiveButton("Yes",
+                    new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    // Action for 'Yes' Button
+                    int appId = item.getAppID();
+                    if (mControllerServiceStub != null)
+                        mControllerServiceStub.removeAppOneWay(appId);
+                }
+            }).setNegativeButton("No", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    // Action for 'NO' Button
+                    dialog.cancel();
+                }
+            });
 
-	protected void onPause() {
-		super.onPause();
-	}
+            AlertDialog alert = alt_bld.create();
+            alert.setTitle(item.getAppName());
+            Drawable d = new BitmapDrawable(getResources(), item.getAppIcon());
+            alert.setIcon(d);
+            alert.show();
+        }
 
-	protected void onResume() {
-		super.onResume();
-		ca.updateDisplay();
-	}
+    };
 
+    public void updateUI() {
+        if (this.mAppListAdapter != null) {
+            this.mAppListAdapter.updateUI();
+        }
+    }
 
-	//back button
-	public boolean onOptionsItemSelected(MenuItem item) {
+    class AppListAdapter extends BaseAdapter {
+        private int pos;
 
+        @Override
+        public int getCount() {
+            return mAppList.size();
+        }
 
-		switch (item.getItemId()) {
-			case android.R.id.home:
-				this.finish();
-				return true;
+        @Override
+        public Object getItem(int position) {
+            return mAppList.get(position);
+        }
 
-			default:
-				return super.onOptionsItemSelected(item);
-		}
-	}
+        public long getItemId(int position) {
+            return position;
+        }
 
-	private AdapterView.OnItemClickListener mItemClickListener = new AdapterView.OnItemClickListener() {
-		@Override
-		public void onItemClick(AdapterView<?> parent, View view, int position,	long l_position) {
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            if (convertView == null) {
+                int res = 0;
+                res = com.opel.opel_manager.R.layout.template_listview_item_icon;
+                LayoutInflater mInflater = (LayoutInflater) self.getSystemService(Context
+                        .LAYOUT_INFLATER_SERVICE);
 
-			ListApp item = (ListApp) parent.getAdapter().getItem(position);
-			Log.d("OPEL", "Select list item : " + item.getTitle());
-		}
-
-	};
-
-	private AdapterView.OnItemLongClickListener mItemLongClickListener = new AdapterView.OnItemLongClickListener() {
-		@Override
-		public boolean onItemLongClick(AdapterView<?> parent, View arg1, int pos, long id) {
-
-			// Log.v("long clicked","pos: " + pos);
-			final ListApp item = (ListApp) parent.getAdapter().getItem(pos);
-
-			AlertDialog.Builder alt_bld = new AlertDialog.Builder(AppManagerActivity.this);
-			alt_bld.setMessage("Delete this app ?")
-					.setCancelable(false)
-					.setPositiveButton("Yes",
-							new DialogInterface.OnClickListener() {
-								public void onClick(DialogInterface dialog,	int id) {
-									// Action for 'Yes' Button									
-									OPELContext.getAppCore().requestUninstall(item
-											.getAppID());
-								}
-							})
-					.setNegativeButton("No",
-							new DialogInterface.OnClickListener() {
-								public void onClick(DialogInterface dialog,	int id) {
-									// Action for 'NO' Button
-
-									dialog.cancel();
-								}
-							});
-			AlertDialog alert = alt_bld.create();
-
-			alert.setTitle(item.getTitle());
-			Drawable d = new BitmapDrawable(getResources(), item.getIcon());
-			alert.setIcon(d);
-
-			alert.show();
-
-			return true;
-		}
-	};
-
-	public static void updateDisplay(){
-
-		if (ca == null){
-
-		}
-		else{
-			ca.updateDisplay();
-
-		}
-	}
-}
+                convertView = mInflater.inflate(res, parent, false);
+            }
+            pos = position;
+            if (mAppList.size() != 0) {
+                TextView ci_nickname_text = (TextView) convertView.findViewById(R.id.tv_title);
+                ci_nickname_text.setText(mAppList.get(pos).getAppName());
+                TextView ci_content_text = (TextView) convertView.findViewById(R.id.tv_subTitle);
 
 
+                String state = "";
+                AppListItem appListItem = mAppList.get(pos);
+                int appState = appListItem.getAppState();
+                switch (appState) {
+                    case OPELApp.State_Initialized:
+                    case OPELApp.State_Initializing:
+                    case OPELApp.State_Installing:
+                        ci_content_text.setTextColor(Color.GRAY);
+                        break;
+                    case OPELApp.State_Ready:
+                        ci_content_text.setTextColor(Color.WHITE);
+                        break;
+                    case OPELApp.State_Launching:
+                        ci_content_text.setTextColor(Color.RED);
+                        break;
+                    case OPELApp.State_Running:
+                        ci_content_text.setTextColor(Color.RED);
+                        break;
+                    case OPELApp.State_Removing:
+                    case OPELApp.State_Removed:
+                        ci_content_text.setTextColor(Color.GRAY);
+                        break;
+                    default:
+                        // ignore
+                        break;
+                }
+                ci_content_text.setText(state);
 
+                ImageView iv = (ImageView) convertView.findViewById(R.id.imageView11);
+                iv.setImageBitmap(mAppList.get(pos).getAppIcon());
 
-class AppListAdapter extends BaseAdapter implements OnClickListener{
-	private Context mContext;
-	private Activity mActivity;
-	private ArrayList<ListApp> arr;
-	private int pos;
-	Comparator<ListApp> comperator;
+            }
+            return convertView;
+        }
 
-	//	private Typeface myFont;
-	public AppListAdapter(Context mContext, Activity mActivity) {
-		this.mContext = mContext;
-		this.mActivity = mActivity;
-		this.arr = updateItemList();
+        public void updateUI() {
+            this.notifyDataSetChanged();
+        }
+    }
 
-//		myFont = Typeface.createFromAsset(mContext.getAssets(), "BareunDotum.ttf");
+    // get app information from global list and transfer to AppListItem format
+    public void updateAppList() {
+        if (this.mControllerServiceStub == null) return;
+        ArrayList<OPELApp> appList = this.mControllerServiceStub.getAppList();
 
-	}
-	
-	/*public void sortingArrayByState(){
-		Log.d("OPEL", "SORTING");
-		final Comparator<ListApp> comparator = new Comparator<ListApp>(){
-			public int compare(ListApp app1, ListApp app2){
-				return (app1.getRunningState()) < app2.getRunningState() ? 1:-1;
-			}
-		};
-		if(arr.isEmpty())
-			Log.d("OPEL", "ARRAY is empty");
-		
-		Collections.sort(arr, comparator);
-		
-	}*/
+        this.mAppList.clear();
+        for (OPELApp app : appList) {
+            if (!app.isDefaultApp()) {
+                int appId = app.getAppId();
+                String appName = app.getName();
+                Bitmap iconBitmap = BitmapFactory.decodeFile(app.getIconImagePath());
+                int appState = app.getState();
+                this.mAppList.add(new AppListItem(appId, appName, iconBitmap, appState));
+            }
+        }
+    }
 
-	@Override
-	public int getCount() {
-		return arr.size();
-	}
+    class AppListItem {
+        private int mAppID;
+        private String mAppName;
+        private Bitmap mAppIcon;
+        private int mAppState;
 
-	@Override
-	public Object getItem(int position) {
-		return arr.get(position);
-	}
-	public long getItemId(int position){
-		return position;
-	}
+        AppListItem(int appID, String appName, Bitmap appIcon, int appState) {
+            this.mAppID = appID;
+            this.mAppName = appName;
+            this.mAppIcon = appIcon;
+            this.mAppState = appState;
+        }
 
-	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {
-		if(convertView == null){
-			int res = 0;
-			res = com.opel.opel_manager.R.layout.template_listview_item_icon;
-			LayoutInflater mInflater = (LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			convertView = mInflater.inflate(res, parent, false);
-		}
-		pos = position;
-		if(arr.size() != 0){
-			TextView ci_nickname_text = (TextView)convertView.findViewById(R.id.tv_title);
-			ci_nickname_text.setText(arr.get(pos).getTitle());
-			TextView ci_content_text = (TextView)convertView.findViewById(R.id.tv_subTitle);
+        int getAppID() {
+            return this.mAppID;
+        }
 
+        String getAppName() {
+            return this.mAppName;
+        }
 
-			String state = "";
-			if(arr.get(pos).getRunningState() == 0){
-				state = "Installed";
-				ci_content_text.setTextColor(Color.WHITE);
-			}
-			else if (arr.get(pos).getRunningState() ==1){
-				state = "Running";
-				ci_content_text.setTextColor(Color.RED);
-			}
-			ci_content_text.setText(state);
+        Bitmap getAppIcon() {
+            return mAppIcon;
+        }
 
-			ImageView iv = (ImageView) convertView.findViewById(R.id.imageView11);
-			iv.setImageBitmap(arr.get(pos).getIcon());
+        int getAppState() {
+            return this.mAppState;
+        }
 
-		}
-		return convertView;
-	}
+        void updateAppState(int appState) {
+            this.mAppState = appState;
+            self.updateUI();
+        }
+    }
 
-	public void onClick(View v){
-		final int tag = Integer.parseInt(v.getTag().toString());
-		//switch(v.getId()){
+    private void connectControllerService() {
+        Intent serviceIntent = new Intent(this, OPELControllerService.class);
+        this.bindService(serviceIntent, this.mControllerServiceConnection, Context
+                .BIND_AUTO_CREATE);
+    }
 
-		/*case R.id.Exit:
+    private ServiceConnection mControllerServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder inputBinder) {
+            OPELControllerService.ControllerBinder serviceBinder = (OPELControllerService
+                    .ControllerBinder) inputBinder;
+            mControllerServiceStub = serviceBinder.getService();
 
-			break;*/
-	}
+            // Update app list
+            updateAppList();
+        }
 
-	public void updateDisplay(){
-		this.arr = updateItemList();
-		this.notifyDataSetChanged();
-	}
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            Log.d(TAG, "onServiceDisconnected()");
+            mControllerServiceStub = null;
+        }
+    };
 
-
-
-	//get app infomation from global list and transfer to ListApp format
-	public ArrayList<ListApp> updateItemList(){
-		ArrayList<ListApp> arr = new ArrayList<ListApp>();
-
-		ArrayList<OPELApp> appArray = OPELContext.getAppList().getList();
-
-		for (int i = 0; i < appArray.size(); i++) {
-			OPELApp tmpApp = appArray.get(i);
-			if (tmpApp.getLegacyType() == -1) {
-				continue;
-			}
-			else{
-				arr.add(new ListApp( "" + tmpApp.getAppId(), tmpApp.getName(),
-						tmpApp.getIconImage(),tmpApp.getLegacyType())  );
-			}
-		}
-
-		return arr;
-	}
-}
-
-class ListApp {
-
-	public String appID;
-	public String mainTitle;
-	public int runningState;
-	public String memoryUsage;
-	public Bitmap icon;
-
-	public ListApp(String appID, String main, Bitmap icon,  int state){
-		this.appID = appID;
-		this.mainTitle = main;
-		this.runningState = state;
-		this.icon = icon;
-	}
-
-	public void setAppID(String id){
-		this.appID = id;
-	}
-
-	public void setAppName(String c){
-		this.mainTitle = c;
-	}
-
-	public void setRunningState(int state){
-		this.runningState = state;
-	}
-	public void setIcon(Bitmap icon){
-		this.icon = icon;
-	}
-
-	public String getAppID(){
-		return this.appID;
-	}
-	public String getTitle(){
-		return this.mainTitle;
-	}
-	public int getRunningState(){
-		return this.runningState;
-	}
-
-	public Bitmap getIcon(){
-		return icon;
-	}
-
+    class PrivateControllerBroadcastReceiver extends OPELControllerBroadcastReceiver {
+        PrivateControllerBroadcastReceiver() {
+            this.setOnAppStateChangedListener(new OnAppStateChangedListener() {
+                @Override
+                public void onAppStateChanged(int appId, int appState) {
+                    for (AppListItem appListItem : mAppList) {
+                        if (appListItem.getAppID() == appId) {
+                            if (appState == OPELApp.State_Removed) {
+                                // App is removed
+                                mAppList.remove(appListItem);
+                            } else {
+                                // App state is updated
+                                appListItem.updateAppState(appState);
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
 }

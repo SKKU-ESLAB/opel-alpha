@@ -43,7 +43,6 @@ import android.widget.Toast;
 
 import com.opel.cmfw.service.CommChannelService;
 import com.opel.opel_manager.R;
-import com.opel.opel_manager.controller.OPELContext;
 import com.opel.opel_manager.controller.OPELControllerBroadcastReceiver;
 import com.opel.opel_manager.controller.OPELControllerService;
 import com.opel.opel_manager.model.OPELApp;
@@ -167,7 +166,7 @@ public class MainActivity extends Activity {
 
     public void initializeControllerService() {
         // Launch OPELControllerService for setting connection with target OPEL device.
-        Intent serviceIntent = new Intent(this, MainActivity.class);
+        Intent serviceIntent = new Intent(this, OPELControllerService.class);
         this.bindService(serviceIntent, this.mControllerServiceConnection, Context
                 .BIND_AUTO_CREATE);
     }

@@ -208,7 +208,7 @@ public class EventLogViewerActivity extends Activity {
     }
 
     private void connectControllerService() {
-        Intent serviceIntent = new Intent(this, EventLogViewerActivity.class);
+        Intent serviceIntent = new Intent(this, OPELControllerService.class);
         this.bindService(serviceIntent, this.mControllerServiceConnection, Context
                 .BIND_AUTO_CREATE);
     }

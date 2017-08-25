@@ -42,7 +42,7 @@ public class BaseMessage implements Parcelable {
     static final String OPEL_MESSAGE_KEY_URI = "uri";
     static final String OPEL_MESSAGE_KEY_TYPE = "type";
     static final String OPEL_MESSAGE_KEY_IS_FILE_ATTACHED = "isFileAttached";
-    static final String OPEL_MESSAGE_KEY_FILE_NAME = "fileName";
+    static final String OPEL_MESSAGE_KEY_FILE_NAME = "mFileName";
     static final String OPEL_MESSAGE_KEY_PAYLOAD = "payload";
 
     // Encoding to JSON

@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.opel.opel_manager.model.message.params.ParamAppListEntry;
+import com.opel.opel_manager.model.message.params.ParamFileListEntry;
 import com.opel.opel_manager.model.message.params.ParamsGetAppList;
 import com.opel.opel_manager.model.message.params.ParamsGetFileList;
 import com.opel.opel_manager.model.message.params.ParamsGetRootPath;
@@ -94,14 +95,29 @@ public class AppCoreAckMessage extends BaseMessagePayload {
 
     public ParamsGetFileList getParamsGetFileList() {
         ObjectNode paramsObj = (ObjectNode) this.mAppCoreAckPayloadObj;
-        ArrayList<String> fileList = new ArrayList<>();
+        ArrayList<ParamFileListEntry> fileList = new ArrayList<>();
 
         String path = paramsObj.get("path").asText();
 
         ArrayNode fileListObj = (ArrayNode) paramsObj.get("appList");
 
         for (JsonNode fileListEntryObj : fileListObj) {
-            String fileListEntry = fileListEntryObj.asText();
+            // fileName
+            String fileName = fileListEntryObj.get("fileName").asText();
+
+            // fileType
+            String fileTypeStr = fileListEntryObj.get("fileType").asText();
+            int fileType = Integer.parseInt(fileTypeStr);
+
+            // fileSizeBytes
+            String fileSizeBytesStr = fileListEntryObj.get("fileSizeBytes").asText();
+            int fileSizeBytes = Integer.parseInt(fileSizeBytesStr);
+
+            // fileTime
+            String fileTime = fileListEntryObj.get("fileTime").asText();
+
+            ParamFileListEntry fileListEntry = new ParamFileListEntry(fileName, fileType,
+                    fileSizeBytes, fileTime);
             fileList.add(fileListEntry);
         }
 

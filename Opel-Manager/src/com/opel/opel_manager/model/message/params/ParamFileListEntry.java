@@ -17,14 +17,16 @@ package com.opel.opel_manager.model.message.params;
  * limitations under the License.
  */
 
-import java.util.ArrayList;
-
-public class ParamsGetFileList {
-    public ParamsGetFileList(String path, ArrayList<ParamFileListEntry> fileList) {
-        this.path = path;
-        this.fileList = fileList;
+public class ParamFileListEntry {
+    public ParamFileListEntry(String fileName, int fileType, int fileSizeBytes, String fileTime) {
+        this.fileName = fileName;
+        this.fileType = fileType;
+        this.fileSizeBytes = fileSizeBytes;
+        this.fileTime = fileTime;
     }
 
-    public String path;
-    public ArrayList<ParamFileListEntry> fileList;
+    public String fileName;
+    public int fileType;
+    public int fileSizeBytes;
+    public String fileTime;
 }

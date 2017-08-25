@@ -5,17 +5,19 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.graphics.drawable.BitmapDrawable;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
@@ -27,32 +29,35 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import com.opel.opel_manager.controller.OPELContext;
-import com.opel.opel_manager.model.OPELApp;
-import com.opel.opel_manager.controller.LegacyJSONParser;
 import com.opel.opel_manager.R;
+import com.opel.opel_manager.controller.LegacyJSONParser;
+import com.opel.opel_manager.controller.OPELControllerService;
+import com.opel.opel_manager.model.OPELApp;
+import com.opel.opel_manager.view.EventLogViewerActivity;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 
+import static android.content.ContentValues.TAG;
+
 public class RemoteConfigUIActivity extends Activity {
+    // OPELControllerService
+    private OPELControllerService mControllerServiceStub = null;
 
     ListView listView;
-    static ConfigListAdapter ca;
+    static ConfigListAdapter mConfigListAdapter;
 
-    ArrayList<ConfigListItem> arr;
+    ArrayList<ConfigListItem> mConfigList;
     String inputJson;
     LegacyJSONParser jp;
 
-    String appID;
-    String rqID;
-    String pid;
+    String mAppID;
+    String mRqID;
+    String mPid;
 
-    final String defaultStatus = ">";
+    final String kDefaultStatus = ">";
 
     protected void onCreate(Bundle savedInstanceState) {
-
-
         super.onCreate(savedInstanceState);
         setContentView(com.opel.opel_manager.R.layout.template_listview);
 
@@ -61,38 +66,23 @@ public class RemoteConfigUIActivity extends Activity {
         inputJson = getIntent().getStringExtra("jsonData");
 
         jp = new LegacyJSONParser(inputJson);
-        appID = jp.getValueByKey("appID");
-        rqID = jp.getValueByKey("rqID");
-        pid = jp.getValueByKey("pid");
+        mAppID = jp.getValueByKey("mAppID");
+        mRqID = jp.getValueByKey("mRqID");
+        mPid = jp.getValueByKey("mPid");
 
         int iconId = getIntent().getIntExtra("iconID", com.opel.opel_manager.R.drawable.app);
 
         listView = (ListView) findViewById(com.opel.opel_manager.R.id.listView1);
 
-        arr = getSettingMenuList(inputJson);
+        mConfigList = getSettingMenuList(inputJson);
 
-        ca = new ConfigListAdapter(getApplicationContext(), RemoteConfigUIActivity.this, arr);
-        listView.setAdapter(ca);
+        mConfigListAdapter = new ConfigListAdapter(getApplicationContext(),
+                RemoteConfigUIActivity.this, mConfigList);
+        listView.setAdapter(mConfigListAdapter);
         listView.setOnItemClickListener(mItemClickListener);
 
-        OPELApp targetApp = OPELContext.getAppList().getApp(appID);
-
-        try {
-            ActionBar actionBar = getActionBar();
-            actionBar.setTitle(targetApp.getName());
-            actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setDisplayShowCustomEnabled(true);
-            Drawable dr = new BitmapDrawable(getResources(), OPELContext.getAppList().getApp
-                    (appID).getIconImage());
-            actionBar.setIcon(dr);
-            actionBar.setDisplayUseLogoEnabled(true);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-
+        // Connect controller service
+        this.connectControllerService();
     }
 
     @Override
@@ -106,7 +96,6 @@ public class RemoteConfigUIActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-
                 this.finish();
                 break;
 
@@ -114,70 +103,52 @@ public class RemoteConfigUIActivity extends Activity {
                 if (completeConfigSetting()) {
                     LegacyJSONParser jp = new LegacyJSONParser();
                     jp.makeNewJson();
-
-                    jp.addJsonKeyValue("appID", appID);
-                    jp.addJsonKeyValue("rqID", rqID);
-                    jp.addJsonKeyValue("pid", pid);
-                    for (int i = 0; i < arr.size(); i++) {
-
-                        jp.addJsonKeyValue(arr.get(i).getTitle(), arr.get(i).getStatus());
-
+                    jp.addJsonKeyValue("appID", mAppID);
+                    jp.addJsonKeyValue("reID", mRqID);
+                    jp.addJsonKeyValue("pid", mPid);
+                    for (int i = 0; i < mConfigList.size(); i++) {
+                        jp.addJsonKeyValue(mConfigList.get(i).getTitle(), mConfigList.get(i)
+                                .getStatus());
                     }
-
-                    OPELContext.getAppCore().requestConfigSetting(jp);
-                    this.finish();
+                    if (mControllerServiceStub != null) {
+                        mControllerServiceStub.updateAppConfig(jp.getJsonData());
+                        this.finish();
+                    } else {
+                        Toast.makeText(this, "Controller service is not connected!", Toast
+                                .LENGTH_LONG);
+                    }
                 }
-
-
                 break;
             default:
                 return super.onOptionsItemSelected(item);
-
         }
         return true;
     }
 
-
-    public static void updateDisplay() {
-
-        if (ca == null) {
-
-        } else {
-            ca.updateDisplay();
-        }
-    }
-
-
     public boolean completeConfigSetting() {
-
-        for (int i = 0; i < arr.size(); i++) {
-
-            if (arr.get(i).getStatus().equals(defaultStatus)) {
-                Toast.makeText(getApplicationContext(), "Select all of the " + "option!", Toast
+        for (int i = 0; i < mConfigList.size(); i++) {
+            if (mConfigList.get(i).getStatus().equals(kDefaultStatus)) {
+                Toast.makeText(getApplicationContext(), "Select all of the option!", Toast
                         .LENGTH_LONG).show();
                 return false;
             }
         }
-
         Toast.makeText(getApplicationContext(), "Set this configuration", Toast.LENGTH_LONG).show();
         return true;
-
     }
 
-    private String selected;
+    private String mSelected;
     private AdapterView.OnItemClickListener mItemClickListener = new AdapterView
             .OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long l_position) {
             final ConfigListItem item = (ConfigListItem) parent.getAdapter().getItem(position);
 
-            selected = item.getStatus();
+            mSelected = item.getStatus();
 
             int selectedFlag = item.flag;
 
-
             if (selectedFlag == 1) {
-
                 // Str textBox - constrain >> length
                 if (item.getAlterList().size() == 1) {
                     final String length = item.getAlterList().get(0);
@@ -197,8 +168,8 @@ public class RemoteConfigUIActivity extends Activity {
                             if (inputStr.length() < Integer.parseInt(length)) {
                                 item.setStatus(inputStr);
                             } else {
-                                Toast.makeText(getApplicationContext(), "Input str length is too " +
-                                        "long", Toast.LENGTH_LONG).show();
+                                Toast.makeText(getApplicationContext(), "Input str length is too"
+                                        + " long", Toast.LENGTH_LONG).show();
                             }
 
                         }
@@ -210,9 +181,7 @@ public class RemoteConfigUIActivity extends Activity {
                     });
                     AlertDialog alertDialog = alert.create();
                     alertDialog.show();
-
                 }
-
 
                 // Number textBox - constrain >> range
                 else if (item.getAlterList().size() == 2) {
@@ -230,10 +199,8 @@ public class RemoteConfigUIActivity extends Activity {
 
                     alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int whichButton) {
-
                             String inputStr = input.getEditableText().toString();
                             Double inputNumber = 0.0;
-
                             try {
                                 inputNumber = Double.parseDouble(inputStr);
 
@@ -242,14 +209,12 @@ public class RemoteConfigUIActivity extends Activity {
                                         .get(1))) {
                                     item.setStatus(inputStr);
                                 } else {
-                                    Toast.makeText(getApplicationContext(), "Input Number is out " +
-                                            "of range", Toast.LENGTH_LONG).show();
+                                    Toast.makeText(getApplicationContext(), "Input Number is out"
+                                            + " of range", Toast.LENGTH_LONG).show();
                                 }
-
                             } catch (NumberFormatException e) {
-                                Toast.makeText(getApplicationContext(), "Input mMainIconList is " +
-                                        "not number format", Toast.LENGTH_LONG).show();
-
+                                Toast.makeText(getApplicationContext(), "Input mMainIconList is "
+                                        + "not number format", Toast.LENGTH_LONG).show();
                             }
                         }
                     });
@@ -258,36 +223,29 @@ public class RemoteConfigUIActivity extends Activity {
                             dialog.cancel();
                         }
                     });
-
-
                     AlertDialog alertDialog = alert.create();
                     alertDialog.show();
                 }
-
-            }
-
-
-            // single choice dialog
-            else if (selectedFlag == 2) {
-
+            } else if (selectedFlag == 2) {
+                // single choice dialog
                 AlertDialog.Builder ab = new AlertDialog.Builder(RemoteConfigUIActivity.this);
                 ab.setTitle(item.getTitle());
 
-                ab.setSingleChoiceItems(item.getListArray(), item.getListPosition(selected), new
+                ab.setSingleChoiceItems(item.getListArray(), item.getListPosition(mSelected), new
                         DialogInterface.OnClickListener() {
 
                     public void onClick(DialogInterface dialog, int whichButton) {
-                        selected = item.getListArray()[whichButton];
+                        mSelected = item.getListArray()[whichButton];
                     }
                 }).setPositiveButton(com.opel.opel_manager.R.string.alert_dialog_ok, new
                         DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
-                        if (item.getStatus().equals(defaultStatus)) {
+                        if (item.getStatus().equals(kDefaultStatus)) {
                             item.setStatus(item.getListArray()[0]);
                         } else {
-                            item.setStatus(selected);
+                            item.setStatus(mSelected);
                         }
-                        ca.updateDisplay();
+                        mConfigListAdapter.updateDisplay();
 
                     }
                 }).setNegativeButton(com.opel.opel_manager.R.string.alert_dialog_cancel, new
@@ -296,34 +254,26 @@ public class RemoteConfigUIActivity extends Activity {
                         dialog.cancel();
                     }
                 });
-
                 AlertDialog alertDialog = ab.create();
                 alertDialog.show();
-            }
-
-
-            //*9****************Not implemented***********************
-            else if (selectedFlag == 3) {
-
+            } else if (selectedFlag == 3) {
+                //*9****************Not implemented***********************
                 AlertDialog.Builder builder = new AlertDialog.Builder(RemoteConfigUIActivity.this);
                 builder.setTitle(item.getTitle()).setMultiChoiceItems(item.getListArray(), null,
                         new DialogInterface.OnMultiChoiceClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which, boolean isChecked) {
                         if (isChecked) {
-
                         }
                     }
-                })
-
-                        .setPositiveButton(com.opel.opel_manager.R.string.alert_dialog_ok, new
-                                DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int id) {
-                                //Create onlcick method
-                            }
-                        }).setNegativeButton(com.opel.opel_manager.R.string.alert_dialog_cancel,
-                        new DialogInterface.OnClickListener() {
+                }).setPositiveButton(com.opel.opel_manager.R.string.alert_dialog_ok, new
+                        DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        //Create onlcick method
+                    }
+                }).setNegativeButton(com.opel.opel_manager.R.string.alert_dialog_cancel, new
+                        DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
                         //Create onlcick method
@@ -355,7 +305,7 @@ public class RemoteConfigUIActivity extends Activity {
                         if (_day.length() == 1) _day = "0" + _day;
 
                         item.setStatus(_year + "-" + _month + "-" + _day);
-                        ca.updateDisplay();
+                        mConfigListAdapter.updateDisplay();
                     }
                 }, mYear, mMonth, mDay);
                 dpd.show();
@@ -380,7 +330,7 @@ public class RemoteConfigUIActivity extends Activity {
                         if (min.length() == 1) min = "0" + min;
 
                         item.setStatus(hour + ":" + min);
-                        ca.updateDisplay();
+                        mConfigListAdapter.updateDisplay();
                     }
                 }, mHour, mMinute, false);
                 tpd.show();
@@ -388,7 +338,6 @@ public class RemoteConfigUIActivity extends Activity {
             }
         }
     };
-
 
     //Make the list to show on display by parsing input Json string
     public ArrayList<ConfigListItem> getSettingMenuList(String jsonData) {
@@ -415,30 +364,28 @@ public class RemoteConfigUIActivity extends Activity {
 
             if (ret[0].equals("strTB")) {
 
-                arr.add(new ConfigListItem(key, description, defaultStatus, 1, strTemp));
+                arr.add(new ConfigListItem(key, description, kDefaultStatus, 1, strTemp));
             } else if (ret[0].equals("numTB")) {
 
-                arr.add(new ConfigListItem(key, description, defaultStatus, 1, strTemp));
+                arr.add(new ConfigListItem(key, description, kDefaultStatus, 1, strTemp));
             } else if (ret[0].equals("sDialog")) {
-                arr.add(new ConfigListItem(key, description, defaultStatus, 2, strTemp));
+                arr.add(new ConfigListItem(key, description, kDefaultStatus, 2, strTemp));
 
             } else if (ret[0].equals("mDialog")) {
-                arr.add(new ConfigListItem(key, description, defaultStatus, 3, strTemp));
+                arr.add(new ConfigListItem(key, description, kDefaultStatus, 3, strTemp));
 
             } else if (ret[0].equals("dateDialog")) {
-                arr.add(new ConfigListItem(key, description, defaultStatus, 4, strTemp));
+                arr.add(new ConfigListItem(key, description, kDefaultStatus, 4, strTemp));
             } else if (ret[0].equals("timeDialog")) {
-                arr.add(new ConfigListItem(key, description, defaultStatus, 5, strTemp));
+                arr.add(new ConfigListItem(key, description, kDefaultStatus, 5, strTemp));
             } else {
                 Log.d("OPEL", "Config other item : " + ret[0]);
             }
         }
-
         return arr;
     }
 
     private ArrayList<String> parseConfigItem(String str) {
-
         ArrayList<String> arr = new ArrayList<String>();
         String tmp = "";
         for (int i = 0; i < str.length(); i++) {
@@ -457,195 +404,217 @@ public class RemoteConfigUIActivity extends Activity {
             } else {
                 tmp += str.charAt(i);
             }
-
         }
         return arr;
     }
-}
 
-class ConfigListAdapter extends BaseAdapter implements OnClickListener {
-    private Context mContext;
-    private Activity mActivity;
-    private ArrayList<ConfigListItem> arr;
+    class ConfigListAdapter extends BaseAdapter {
+        private Context mContext;
+        private Activity mActivity;
+        private ArrayList<ConfigListItem> arr;
 
-    private int pos;
+        private int pos;
 
-    private LinearLayout layout;
+        private LinearLayout layout;
 
-    //	private Typeface myFont;
-    public ConfigListAdapter(Context mContext, Activity mActivity, ArrayList<ConfigListItem>
-            arr_item) {
-        this.mContext = mContext;
-        this.mActivity = mActivity;
-        this.arr = arr_item;
-    }
-
-    @Override
-    public int getCount() {
-        return arr.size();
-    }
-
-    @Override
-    public Object getItem(int position) {
-        return arr.get(position);
-    }
-
-    public long getItemId(int position) {
-        return position;
-    }
-
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-
-        if (convertView == null) {
-            int res = 0;
-            res = com.opel.opel_manager.R.layout.template_listview_item_no_icon;
-            LayoutInflater mInflater = (LayoutInflater) mContext.getSystemService(Context
-                    .LAYOUT_INFLATER_SERVICE);
-            convertView = mInflater.inflate(res, parent, false);
+        //	private Typeface myFont;
+        public ConfigListAdapter(Context mContext, Activity mActivity, ArrayList<ConfigListItem>
+                arr_item) {
+            this.mContext = mContext;
+            this.mActivity = mActivity;
+            this.arr = arr_item;
         }
 
-        pos = position;
-        if (arr.size() != 0) {
-            TextView title = (TextView) convertView.findViewById(R.id.tv_title);
-            title.setText(arr.get(pos).getTitle());
-            TextView subtitle = (TextView) convertView.findViewById(R.id.tv_subTitle);
-            subtitle.setText(arr.get(pos).getSubtitle());
-            if (arr.get(pos).getSubtitle().equals(null)) {
+        @Override
+        public int getCount() {
+            return arr.size();
+        }
 
+        @Override
+        public Object getItem(int position) {
+            return arr.get(position);
+        }
+
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+
+            if (convertView == null) {
+                int res = 0;
+                res = com.opel.opel_manager.R.layout.template_listview_item_no_icon;
+                LayoutInflater mInflater = (LayoutInflater) mContext.getSystemService(Context
+                        .LAYOUT_INFLATER_SERVICE);
+                convertView = mInflater.inflate(res, parent, false);
             }
-            TextView status = (TextView) convertView.findViewById(R.id.tv_status);
-            status.setText(arr.get(pos).getStatus());
 
+            pos = position;
+            if (arr.size() != 0) {
+                TextView title = (TextView) convertView.findViewById(R.id.tv_title);
+                title.setText(arr.get(pos).getTitle());
+                TextView subtitle = (TextView) convertView.findViewById(R.id.tv_subTitle);
+                subtitle.setText(arr.get(pos).getSubtitle());
+                if (arr.get(pos).getSubtitle().equals(null)) {
+                }
+                TextView status = (TextView) convertView.findViewById(R.id.tv_status);
+                status.setText(arr.get(pos).getStatus());
+            }
+            return convertView;
         }
-        return convertView;
-    }
 
-    public void onClick(View v) {
-        final int tag = Integer.parseInt(v.getTag().toString());
-        switch (v.getId()) {
-
+        public void updateDisplay() {
+            this.notifyDataSetChanged();
         }
     }
 
-    public void updateDisplay() {
+    class ConfigListItem {
 
-        this.notifyDataSetChanged();
+        public String mainTitle;
+        public String subTitle;
+        public String status;
+        public int flag;
+        // 1:textbox, 2:single 3:multiple 4:Date 5:Time
+
+        public ArrayList<String> alternativeTitle;
+
+        public ConfigListItem() {
+            this.mainTitle = null;
+            this.subTitle = null;
+            this.status = null;
+            alternativeTitle = new ArrayList<String>();
+        }
+
+        public ConfigListItem(String main, String sub, String status) {
+            this.mainTitle = main;
+            this.subTitle = sub;
+            this.status = status;
+            //alternativeTitle = null;
+
+            alternativeTitle = new ArrayList<String>();
+        }
+
+        public ConfigListItem(String main, String sub, String status, int flag) {
+            this.mainTitle = main;
+            this.subTitle = sub;
+            this.status = status;
+            this.flag = flag;
+            //alternativeTitle = null;
+
+            alternativeTitle = new ArrayList<String>();
+        }
+
+
+        public ConfigListItem(String main, String sub, String status, int flag, ArrayList<String>
+                arr) {
+            this.mainTitle = main;
+            this.subTitle = sub;
+            this.status = status;
+            this.flag = flag;
+
+            alternativeTitle = new ArrayList<String>();
+            listDeepCopy(arr);
+        }
+
+
+        public ConfigListItem(String main, String sub, String status, ArrayList<String> arr) {
+            this.mainTitle = main;
+            this.subTitle = sub;
+            this.status = status;
+            alternativeTitle = new ArrayList<String>();
+            listDeepCopy(arr);
+        }
+
+        public void listDeepCopy(ArrayList<String> arr) {
+            for (int i = 0; i < arr.size(); i++)
+                alternativeTitle.add(arr.get(i));
+        }
+
+        public void setAppName(String c) {
+            this.mainTitle = c;
+        }
+
+        public void setSubtitle(String c) {
+            this.subTitle = c;
+        }
+
+        public void setStatus(String c) {
+            this.status = c;
+        }
+
+
+        public String getTitle() {
+            return this.mainTitle;
+        }
+
+        public String getSubtitle() {
+            return this.subTitle;
+        }
+
+        public String getStatus() {
+            return this.status;
+        }
+
+        public ArrayList<String> getAlterList() {
+            return this.alternativeTitle;
+        }
+
+        //convert ArrayList to string array
+        public String[] getListArray() {
+            String[] str = new String[alternativeTitle.size()];
+
+            str = alternativeTitle.toArray(str);
+            return str;
+        }
+
+        //return position number of target string from arraylist
+        public int getListPosition(String targetString) {
+            for (int i = 0; i < alternativeTitle.size(); i++) {
+                if (this.status.equals(alternativeTitle.get(i))) return i;
+            }
+            return 0;
+        }
     }
+
+    private void initializeActionBar() {
+        OPELApp targetApp = this.mControllerServiceStub.getApp(Integer.parseInt(this.mAppID));
+
+        try {
+            ActionBar actionBar = getActionBar();
+            actionBar.setTitle(targetApp.getName());
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setDisplayShowCustomEnabled(true);
+            Drawable dr = Drawable.createFromPath(targetApp.getIconImagePath());
+            actionBar.setIcon(dr);
+            actionBar.setDisplayUseLogoEnabled(true);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void connectControllerService() {
+        Intent serviceIntent = new Intent(this, EventLogViewerActivity.class);
+        this.bindService(serviceIntent, this.mControllerServiceConnection, Context
+                .BIND_AUTO_CREATE);
+    }
+
+    private ServiceConnection mControllerServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder inputBinder) {
+            OPELControllerService.ControllerBinder serviceBinder = (OPELControllerService
+                    .ControllerBinder) inputBinder;
+            mControllerServiceStub = serviceBinder.getService();
+
+            // Update UI
+            initializeActionBar();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            Log.d(TAG, "onServiceDisconnected()");
+            mControllerServiceStub = null;
+        }
+    };
 }
-
-class ConfigListItem {
-
-    public String mainTitle;
-    public String subTitle;
-    public String status;
-    public int flag;
-    // 1:textbox, 2:single 3:multiple 4:Date 5:Time
-
-    public ArrayList<String> alternativeTitle;
-
-    public ConfigListItem() {
-        this.mainTitle = null;
-        this.subTitle = null;
-        this.status = null;
-        alternativeTitle = new ArrayList<String>();
-    }
-
-    public ConfigListItem(String main, String sub, String status) {
-        this.mainTitle = main;
-        this.subTitle = sub;
-        this.status = status;
-        //alternativeTitle = null;
-
-        alternativeTitle = new ArrayList<String>();
-    }
-
-    public ConfigListItem(String main, String sub, String status, int flag) {
-        this.mainTitle = main;
-        this.subTitle = sub;
-        this.status = status;
-        this.flag = flag;
-        //alternativeTitle = null;
-
-        alternativeTitle = new ArrayList<String>();
-    }
-
-
-    public ConfigListItem(String main, String sub, String status, int flag, ArrayList<String> arr) {
-        this.mainTitle = main;
-        this.subTitle = sub;
-        this.status = status;
-        this.flag = flag;
-
-        alternativeTitle = new ArrayList<String>();
-        listDeepCopy(arr);
-    }
-
-
-    public ConfigListItem(String main, String sub, String status, ArrayList<String> arr) {
-        this.mainTitle = main;
-        this.subTitle = sub;
-        this.status = status;
-        alternativeTitle = new ArrayList<String>();
-        listDeepCopy(arr);
-    }
-
-    public void listDeepCopy(ArrayList<String> arr) {
-        for (int i = 0; i < arr.size(); i++)
-            alternativeTitle.add(arr.get(i));
-    }
-
-    public void setAppName(String c) {
-        this.mainTitle = c;
-    }
-
-    public void setSubtitle(String c) {
-        this.subTitle = c;
-    }
-
-    public void setStatus(String c) {
-        this.status = c;
-    }
-
-
-    public String getTitle() {
-        return this.mainTitle;
-    }
-
-    public String getSubtitle() {
-        return this.subTitle;
-    }
-
-    public String getStatus() {
-        return this.status;
-    }
-
-    public ArrayList<String> getAlterList() {
-        return this.alternativeTitle;
-    }
-
-    //convert ArrayList to string array
-    public String[] getListArray() {
-        String[] str = new String[alternativeTitle.size()];
-
-        str = alternativeTitle.toArray(str);
-        return str;
-    }
-
-    //return position number of target string from arraylist
-    public int getListPosition(String targetString) {
-        for (int i = 0; i < alternativeTitle.size(); i++) {
-            if (this.status.equals(alternativeTitle.get(i))) return i;
-        }
-        return 0;
-    }
-}
-
-
-
-
-	
-	
-	
-	
-
