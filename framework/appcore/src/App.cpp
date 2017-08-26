@@ -72,52 +72,142 @@ bool App::changeState(AppState::Value newState) {
   return isChangeApproved;
 }
 
-// Commands
-void App::initialize(int appId) {
-  this->mAppId = appId;
+bool App::setFromManifest(std::string manifestFilePath) {
+  // TODO: 
+	xmlDocPtr doc;
+	xmlNodePtr cur;
 
+	char manifestPath[512];
+	sprintf(manifestPath, "%s/manifest.xml", appPackageDirPath);
+
+	doc = xmlParseFile( manifestPath );
+	if (doc == NULL ) {
+		fprintf(stderr,"Document not parsed successfully. \n");
+		return NULL;
+	}
+
+	cur = xmlDocGetRootElement(doc);
+	
+	if (cur == NULL) {
+		fprintf(stderr,"empty document\n");
+		xmlFreeDoc(doc);
+		return NULL;
+	}
+
+	
+	if (xmlStrcmp(cur->name, (const xmlChar *) "application")) {
+		fprintf(stderr,"document of the wrong type, root node != story");
+		xmlFreeDoc(doc);
+		return NULL;
+	}
+
+	cur = cur->xmlChildrenNode;
+
+	char appIconFileName[PATH_BUFFER_SIZE]={'/0',};
+	char appLabel[PATH_BUFFER_SIZE]={'/0',};
+	char appMainFile[PATH_BUFFER_SIZE]={'/0',};
+	
+	while (cur != NULL) {
+		if ((!xmlStrcmp(cur->name, (const xmlChar *)"icon"))){
+			//parseStory (doc, cur);
+			xmlChar *key = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
+			sprintf(appIconFileName, "%s", key);
+			printf("[AppPackageManager] Parse XML >> keyword: %s %s\n", cur->name, appIconFileName);
+			xmlFree(key);
+		
+		
+		}
+		else if ((!xmlStrcmp(cur->name, (const xmlChar *)"label"))){
+			//parseStory (doc, cur);
+			xmlChar *key = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
+			sprintf(appLabel, "%s", key);
+			printf("[AppPackageManager] Parse XML >> keyword: %s %s\n", cur->name, appLabel);
+			xmlFree(key);
+		
+		}
+		else if ((!xmlStrcmp(cur->name, (const xmlChar *)"mainFile"))){
+			//parseStory (doc, cur);
+			xmlChar *key = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
+			sprintf(appMainFile, "%s", key);
+			printf("[AppPackageManager] Parse XML >> keyword: %s %s\n", cur->name, appMainFile);			
+			xmlFree(key);
+		}
+		
+	cur = cur->next;
+	}
+	xmlFreeDoc(doc);
+
+
+	// insert app info to repository
+	char exeFilePath[128];
+	sprintf(exeFilePath, "%s/%s", appPackageDirPath,appMainFile);
+
+	int appID = appPkgRepo.insertAppPackage( appLabel, appPackageDirPath, exeFilePath);
+
+	char appIDStr[128];
+	sprintf(appIDStr, "%d", appID);
+
+
+	//send IconFile with appId, appName, 
+
+
+	JsonString jp;
+	jp.addType(INSTALLPKG);
+	jp.addItem("appID",appIDStr);
+	jp.addItem("appName",appLabel);
+	jp.addItem("appPath", appPackageDirPath);
+	jp.addItem("appIconName", appIconFileName);
+
+}
+
+void App::finishInitializing(int appId) { // Initializing -> Initialized
+  this->mAppId = appId;
   this->changeState(AppState::Initialized);
 }
 
-void App::install(std::string packageFilePath, bool isDefaultApp) {
-  boolean isSuccess = false;
+void App::startInstalling(std::string packageFilePath) { // Initialized -> Installing
   this->mPackageFilePath = packageFilePath;
   this->changeState(AppState::Installing);
-
-  // On Success
-  if(isSuccess) {
-    this->mIsDefaultApp = isDefaultApp;
-    // TODO: determine mName
-    this->changeState(AppState::Ready);
-  } else {
-    // On Fail
-    this->changeState(AppState::Removed);
-  }
 }
 
-void App::launch() {
-  // TODO: determine mPid
-  this->changeState(AppState::Launching);
+void App::successInstalling(bool isDefaultApp,
+    std::string name, std::string mainJSFileName) { // Installing -> Ready
+  this->mIsDefaultApp = isDefaultApp;
+  this->mName = name;
+  this->mMainJSFileName = mainJSFileName;
 
-  // TODO: implement it (AppStatusManager::runNewApplication)
-
-  // On Success (Async)
-  // TODO: implement it
-  // this->changeState(AppState::Running);
-
-  // On Fail (Async)
-  // TODO: implement it
-  // this->changeState(AppState::Ready);
-}
-
-void App::terminate() {
-  // TODO: implement it (AppStatusManager::exitApplication)
   this->changeState(AppState::Ready);
 }
 
-void App::remove() {
-  this->changeState(AppState::Removing);
-  // TODO: implement it (AppPackageManager::deletePackage)
+void App::failInstalling() { // Installing -> Removed
+  this->changeState(AppState::Removed);
+}
 
+void App::startLaunching(int pid) { // Ready -> Launching
+  this->mPid = pid;
+  this->changeState(AppState::Initialized);
+}
+
+void App::successLaunching() { // Launching -> Running
+  this->changeState(AppState::Running);
+}
+
+void App::failLaunching() { // Launching -> Ready
+  this->changeState(AppState::Ready);
+}
+
+void App::startTerminating() { // Running -> Terminating
+  this->changeState(AppState::Terminating);
+}
+
+void App::finishTerminating() { // Terminating -> Ready
+  this->changeState(AppState::Ready);
+}
+
+void App::startRemoving() { // Ready -> Removing
+  this->changeState(AppState::Removing);
+}
+
+void App::finishRemoving() { // Removing -> Removed
   this->changeState(AppState::Removed);
 }

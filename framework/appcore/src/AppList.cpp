@@ -77,13 +77,13 @@ bool AppList::fetchAppList() {
   while(sqlite3_step(stmt) == SQLITE_ROW) {
     // Get fields
     int appId = sqlite3_column_int(stmt, 0);
-    std::string packageFilePath(reinterpret_cast<const char*>(
-          sqlite3_column_text(stmt, 1)));
-    bool isDefaultApp = (sqlite3_column_int(stmt, 2) != 0);
+    bool isDefaultApp = (sqlite3_column_int(stmt, 1) != 0);
     std::string name(reinterpret_cast<const char*>(
           sqlite3_column_text(stmt, 2)));
-    std::string mainJSFilePath(reinterpret_cast<const char*>(
+    std::string mainJSFileName(reinterpret_cast<const char*>(
           sqlite3_column_text(stmt, 3)));
+    std::string iconFileName(reinterpret_cast<const char*>(
+          sqlite3_column_text(stmt, 4)));
 
     // Check this field has already loaded
     App* app = this->get(appId);
@@ -91,7 +91,7 @@ bool AppList::fetchAppList() {
       continue;
     
     // Allocate a new entry and add to on-memory list
-    app = new App(appId, packageFilePath, isDefaultApp, name, mainJSFilePath);
+    app = new App(appId, isDefaultApp, name, mainJSFileName, iconFileName);
     this->mApps.push_back(app);
   }
   sqlite3_finalize(stmt);
@@ -103,10 +103,10 @@ bool AppList::createDBTable() {
   // Create table
   char query[QUERY_BUFFER_LENGTH] = "CREATE TABLE IF NOT EXISTS APPLIST(" \
                       "ID INTEGER PRIMARY KEY," \
-                      "PACKAGEFILEPATH TEXT NOT NULL," \
                       "ISDEFAULTAPP INTEGER NOT NULL," \
                       "NAME TEXT NOT NULL," \
-                      "MAINJSFILEPATH TEXT NOT NULL);";
+                      "MAINJSFILENAME TEXT NOT NULL," \
+                      "ICONFILENAME TEXT NOT NULL);";
 
   char* createErr;
   int createRes = sqlite3_exec(this->mDBPath, query, NULL, NULL, &createErr);
@@ -132,6 +132,7 @@ App* AppList::get(int appId) {
   }
   return NULL;
 }
+
 bool AppList::add(App* app) {
   // Add to on-memory list
   this->mApps.push_back(app);
@@ -141,18 +142,18 @@ bool AppList::add(App* app) {
 bool AppList::flush(App* app) {
   // Get fields to be stored to DB
   int appId = app->getId();
-  std::string packageFilePath(app->getPackageFilePath());
   bool isDefaultApp = app->isDefaultApp();
   std::string name(app->getName());
-  std::string mainJSFilePath(app->getMainJSFilePath());
+  std::string mainJSFileName(app->getMainJSFileName());
+  std::string iconFileName(app->getIconFileName());
 
   // Store to DB
   char query[QUERY_BUFFER_LENGTH];
   snprintf(query, QUERY_BUFFER_LENGTH,
       "INSERT INTO APPLIST" \
-      "(ID, PACKAGEFILEPATH, ISDEFAULTAPP, NAME, MAINJSFILEPATH)" \
+      "(ID, ISDEFAULTAPP, NAME, MAINJSFILENAME, ICONFILENAME)" \
       "VALUES ('%d', '%s', '%d', '%s', '%s');",
-      appId, packageFilePath, (isDefaultApp) ? 1 : 0, name, mainJSFilePath);
+      appId, (isDefaultApp) ? 1 : 0, name, mainJSFileName, iconFileName);
 
   char* insertErr;
   int insertRes = sqlite3_exec(this->mDBPath, query, NULL, NULL, &insertErr);

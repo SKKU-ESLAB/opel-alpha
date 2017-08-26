@@ -46,37 +46,41 @@ class App {
     App()
       : mState(AppState::Initializing), mAppStateListener(NULL),
       mId(-1),
-      mPackageFilePath(NULL), 
+      mPackageFileName(NULL), 
       mIsDefaultApp(false),
       mName(NULL),
-      mMainJSFilePath(NULL), mPid(-1) {
+      mMainJSFileName(NULL), mIconFileName(NULL), mPid(-1) {
     }
-    App(int id, std::string pacakgeFilePath,
+
+    App(int id
         bool isDefaultApp, std::string name,
-        std::string mainJSFilePath)
+        std::string mainJSFileName, std::string iconFileName)
       : mState(AppState::Initializing), mAppStateListener(NULL),
       mId(id),
-      mPackageFilePath(packageFilePath), 
+      mPackageFileName(NULL), 
       mIsDefaultApp(isDefaultApp),
       mName(name),
-      mMainJSFilePath(mainJSFilePath), mPid(-1) {
+      mMainJSFileName(mainJSFileName), mIconFileName(iconFileName), mPid(-1) {
     }
 
     // Getters
     AppState::Value getState() { return this->mState; }
     int getId() { return this->mId; }
-    std::string getPackageFilePath() { return this->mPackageFilePath; }
+    std::string getPackageFileName() { return this->mPackageFileName; }
     bool isDefaultApp() { return this->mIsDefaultApp; }
     std::string getName() { return this->mName; }
-    std::string getMainJSFilePath() { return this->mMainJSFilePath; }
+    std::string getMainJSFileName() { return this->mMainJSFileName; }
     int getPid() { return this->mPid; }
+
+    // Setters
+    bool setFromManifest(std::string manifestFilePath);
     
     // Commands
-    // TODO: apply to App.cpp
     void finishInitializing(int appId); // Initializing -> Initialized
 
-    void startInstalling(std::string packageFilePath); // Initialized -> Installing
-    void successInstalling(bool isDefaultApp, std::string name, std::string mainJSFilePath); // Installing -> Ready
+    void startInstalling(std::string packageFileName); // Initialized -> Installing
+    void successInstalling(bool isDefaultApp,
+        std::string name, std::string mainJSFileName); // Installing -> Ready
     void failInstalling(); // Installing -> Removed
 
     void startLaunching(int pid); // Ready -> Launching
@@ -104,10 +108,11 @@ class App {
     // App information
     AppState::Value mState;
     int mId; // determined at Initialized, reset at Removed (stored to DB)
-    std::string mPackageFilePath; // determined at Installing, reset at Removed (stored to DB)
+    std::string mPackageFilePath; // determined at Installing, reset at Ready
     bool mIsDefaultApp; // determined at Ready, reset at Removed (stored to DB)
     std::string mName; // determined at Ready, reset at Removed (stored to DB)
-    std::string mMainJSFilePath; // determined at Ready, reset at Removed (stored to DB)
+    std::string mMainJSFileName; // determined at Ready, reset at Removed (stored to DB)
+    std::string mIconFileName; // determined at Ready, reset at Removed (stored to DB)
     int mPid; // determined at Launching, reset at Ready
 };
 

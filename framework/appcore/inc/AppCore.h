@@ -28,6 +28,8 @@
 
 #include <iostream>
 
+#define PATH_BUFFER_SIZE 1024
+
 class LocalChannel;
 
 class AppCore
@@ -97,10 +99,11 @@ class AppCore
     // Current appId
     int mNextAppId;
 
-    char mUserAppsDir[1024]; // User Apps Dir: ${OPEL_APPS_DIR}/user
-    char mSystemAppsDir[1024]; // System Apps Dir: ${OPEL_APPS_DIR}/system
-    char mDataDir[1024]; // Data Dir: ${OPEL_DATA_DIR}
-    char mTempDir[1024]; // Temp Dir: ${OPEL_TEMP_DIR}
+    char mUserAppsDir[PATH_BUFFER_SIZE]; // User Apps Dir: ${OPEL_APPS_DIR}/user
+    char mSystemAppsDir[PATH_BUFFER_SIZE]; // System Apps Dir: ${OPEL_APPS_DIR}/system
+    char mAppListDBPath[PATH_BUFFER_SIZE]; // App List Path: ${OPEL_APPS_DIR}/AppListDB.sqlite
+    char mDataDir[PATH_BUFFER_SIZE]; // Data Dir: ${OPEL_DATA_DIR}
+    char mTempDir[PATH_BUFFER_SIZE]; // Temp Dir: ${OPEL_TEMP_DIR}
 };
 
 #endif // !defined(__APP_CORE_H__)

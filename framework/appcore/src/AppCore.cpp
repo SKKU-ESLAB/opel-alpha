@@ -47,16 +47,19 @@ bool AppCore::initializeDirs() {
   dirString = getenv("OPEL_APPS_DIR");
   if(dirString != NULL) {
     // User Apps Dir
-    sprintf(this->mUserAppsDir, "%s%s", dirString, "/user/");
+    snprintf(this->mUserAppsDir, PATH_BUFFER_SIZE, "%s%s", dirString, "/user/");
     if(stat(this->mUserAppsDir, &st) == -1) {
       mkdir(this->mUserAppsDir, 0755);
     }
 
     // System Apps Dir
-    sprintf(this->mSystemAppsDir, "%s%s", dirString, "/system/");
+    snprintf(this->mSystemAppsDir, PATH_BUFFER_SIZE, "%s%s", dirString, "/system/");
     if(stat(this->mSystemAppsDir, &st) == -1) {
       mkdir(this->mSystemAppsDir, 0755);
     }
+
+    // App List DB Dir
+    snprintf(this->mAppListDBDir, PATH_BUFFER_SIZE, "%s%s", dirString, "/AppListDB.sqlite");
   } else {
     OPEL_DBG_ERR("Cannot read OPEL_APPS_DIR");
     return false;
@@ -65,7 +68,7 @@ bool AppCore::initializeDirs() {
   // Data Dir
   dirString = getenv("OPEL_DATA_DIR");
   if(dirString != NULL) {
-    sprintf(this->mDataDir, "%s", dirString);
+    snprintf(this->mDataDir, PATH_BUFFER_SIZE, "%s", dirString);
     if(stat(this->mDataDir, &st) == -1) {
       mkdir(this->mDataDir, 0755);
     }
@@ -77,7 +80,7 @@ bool AppCore::initializeDirs() {
   // Temp Dir
   dirString = getenv("OPEL_TEMP_DIR");
   if(dirString != NULL) {
-    sprintf(this->mTempDir, "%s", dirString);
+    snprintf(this->mTempDir, PATH_BUFFER_SIZE, "%s", dirString);
     if(stat(this->mTempDir, &st) == -1) {
       mkdir(this->mTempDir, 0755);
     }
@@ -86,7 +89,7 @@ bool AppCore::initializeDirs() {
     // In the future, we should make ${OPEL_TEMP_DIR} a compulsory value.
     dirString = getenv("OPEL_DATA_DIR");
     if(dirString != NULL) {
-      sprintf(this->mTempDir, "%s/temp", dirString);
+      snprintf(this->mTempDir, PATH_BUFFER_SIZE, "%s/temp", dirString);
       OPEL_DBG_WARN("Cannot read OPEL_TEMP_DIR, so OPEL_TEMP_DIR is set as %s",
           this->mTempDir);
       if(stat(this->mTempDir, &st) == -1) {
@@ -110,7 +113,7 @@ void AppCore::run() {
   }
 
   // Initialize AppList
-  this->initializeFromDB("AppListDB.sqlite");
+  this->initializeFromDB(this->mAppListDBPath);
 
   // Initialize MessageRouter and Channels
   this->mMessageRouter = new MessageRouter();
@@ -321,169 +324,44 @@ void AppCore::initializeApp(BaseMessage* message) {
   delete paramAppList;
 }
 
+// TODO: implement it (AppPackageManager::installPackage)
 void AppCore::installApp(BaseMessage* message) {
   // Get arguments
+  std::string packageFilePath(message->getStoredFilePath());
+
   int appId;
   std::string packageFileName;
-  if(message->getParamsInstallApp(appId, packageFileName) == false) {
-    OPEL_DBG_ERR("Invalid AppCoreMessage! (commandType: %d)",
-        message->getCommandType());
-    return;
-  }
+  message->getParamsInstallApp(appId, packageFileName);
 
-  // TODO: implement it (AppPackageManager::installPackage)
-	//save pkg file and decompress
-	//update DB
-	//update appList
+  // Make app package directory
+	char appPackageDirName[PATH_BUFFER_SIZE];
+	strncpy(appPackageDirName, packageFileName, strlen(packageFileName)-4); // truncate opk extension
 
-	char unzipCommand[256]={'\0',};
-	
-	char pkgDirName[256]={'\0',};
-	char pkgFullDirPath[256]={'\0',};							  // ./application/2015_xx_xx_xx_xx/
-	char pkgFilePath[256]={'\0',};								  // ./application/2015_xx_xx_xx_xx.opk
-	strncpy(pkgDirName, pkgFileName, strlen(pkgFileName)-4);
-	sprintf(pkgFullDirPath, "%s%s", mUserAppsPath, pkgDirName);
-
+	char appPackageDirPath[PATH_BUFFER_SIZE];
+	snprintf(appPackageDirPath, PATH_BUFFER_SIZE, "%s%s", mUserAppsPath, appPackageDirName); // ${OPEL_APPS_DIR}/user/${APP_NAME}/
 
 	struct stat st = {0};
-	if (stat(pkgFullDirPath, &st) == -1) {
-    	mkdir(pkgFullDirPath, 0755);
+	if(stat(appPackageDirPath, &st) == -1) {
+    	mkdir(appPackageDirPath, 0755);
 	}
-	/*else{
-		printf("pkg dir is already exist : %s\n", pkgFullDirPath);
-		return ;
-	}*/
 
-	sprintf(pkgFilePath, "%s%s", mUserAppsPath, pkgFileName);
-//	sprintf(unzipCommand,"unzip -o %s -d %s/", pkgFilePath, pkgFullDirPath);
-//	sprintf(unzipCommand,"tar xvf %s -C %s/", pkgFilePath, pkgFullDirPath);
-//	{"","test", "-d", "./test/"};
-	char* cmdUnzip[4] ={0,};
-	cmdUnzip[0] = "";
-	cmdUnzip[1] = pkgFilePath;
-	cmdUnzip[2] = "-d";
-	cmdUnzip[3] = pkgFullDirPath;
+  // Archive app package
+	sprintf(packageFilePath, "%s%s", mUserAppsPath, packageFileName);
+	char* commandUnzip[4] ={0,};
+	commandUnzip[0] = "";
+	commandUnzip[1] = packageFilePath;
+	commandUnzip[2] = "-d";
+	commandUnzip[3] = appPackageDirPath;
 
-	do_unzip(4, cmdUnzip);
-	chdir("../../");
+	do_unzip(4, commandUnzip);
 	sync();
 
-/*    cmdUnzip[0] = malloc(sizeof(char) * 1);
-	cmdUnzip[1] = malloc(sizeof(char) * strlen(pkgFilePath));
-	cmdUnzip[2] = malloc(sizeof(char) * 3);
-	cmdUnzip[3] = malloc(sizeof(char) * strlen(pkgFileName));
-
-	strcat(cmdUnzip[0], "");
-	strcat(cmdUnzip[2], "-d");
-
-	strcat(cmdUnzip[1], pkgFilePath);
- 	strcat(cmdUnzip[3], pkgFileName);
-
-	do_unzip(4, cmdUnzip);
-
-	free(cmdUnzip[1]);
-	free(cmdUnzip[3]);
-*/
-//	printf("[AppPackageManager] Unzip >> command %s\n", unzipCommand);
-//	system(unzipCommand);
-
-	if ( remove(pkgFilePath) == -1 ){
-		printf("[AppPackageManager] Cannot remove pkg file : %s\n", pkgFilePath);
+  // Remove app package file
+	if (remove(packageFilePath) == -1){
+		OPEL_DBG_WARN("Cannot remove app package file: %s\n", packageFilePath);
 	}
 	
-	xmlDocPtr doc;
-	xmlNodePtr cur;
-
-///////////
-
-/*	char dirname[1024];
-	getcwd(dirname, 1024);
-	printf("dirname : %s\n", dirname);
-*/
-
-	char manifestPath[512];
-	sprintf(manifestPath, "%s/manifest.xml", pkgFullDirPath);
-
-	doc = xmlParseFile( manifestPath );
-
-	if (doc == NULL ) {
-		fprintf(stderr,"Document not parsed successfully. \n");
-
-		return NULL;
-	}
-
-	cur = xmlDocGetRootElement(doc);
-	
-	if (cur == NULL) {
-		fprintf(stderr,"empty document\n");
-		xmlFreeDoc(doc);
-		return NULL;
-	}
-
-	
-	if (xmlStrcmp(cur->name, (const xmlChar *) "application")) {
-		fprintf(stderr,"document of the wrong type, root node != story");
-		xmlFreeDoc(doc);
-		return NULL;
-	}
-
-	cur = cur->xmlChildrenNode;
-
-	char appIconFileName[256]={'/0',};
-	char appLabel[256]={'/0',};
-	char appMainFile[256]={'/0',};
-	
-	while (cur != NULL) {
-		if ((!xmlStrcmp(cur->name, (const xmlChar *)"icon"))){
-			//parseStory (doc, cur);
-			xmlChar *key = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
-			sprintf(appIconFileName, "%s", key);
-			printf("[AppPackageManager] Parse XML >> keyword: %s %s\n", cur->name, appIconFileName);
-			xmlFree(key);
-		
-		
-		}
-		else if ((!xmlStrcmp(cur->name, (const xmlChar *)"label"))){
-			//parseStory (doc, cur);
-			xmlChar *key = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
-			sprintf(appLabel, "%s", key);
-			printf("[AppPackageManager] Parse XML >> keyword: %s %s\n", cur->name, appLabel);
-			xmlFree(key);
-		
-		}
-		else if ((!xmlStrcmp(cur->name, (const xmlChar *)"mainFile"))){
-			//parseStory (doc, cur);
-			xmlChar *key = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
-			sprintf(appMainFile, "%s", key);
-			printf("[AppPackageManager] Parse XML >> keyword: %s %s\n", cur->name, appMainFile);			
-			xmlFree(key);
-		}
-		
-	cur = cur->next;
-	}
-	xmlFreeDoc(doc);
-
-
-	// insert app info to repository
-	char exeFilePath[128];
-	sprintf(exeFilePath, "%s/%s", pkgFullDirPath,appMainFile);
-
-	int appID = appPkgRepo.insertAppPackage( appLabel, pkgFullDirPath, exeFilePath);
-
-	char appIDStr[128];
-	sprintf(appIDStr, "%d", appID);
-
-
-	//send IconFile with appId, appName, 
-
-
-	JsonString jp;
-	jp.addType(INSTALLPKG);
-	jp.addItem("appID",appIDStr);
-	jp.addItem("appName",appLabel);
-	jp.addItem("appPath", pkgFullDirPath);
-	jp.addItem("appIconName", appIconFileName);
-
+  // Parse app manifest file
 	return jp;
 }
 
@@ -496,7 +374,7 @@ void AppCore::removeApp(BaseMessage* message) {
     return;
   }
   // TODO: not yet implemented
-	char rmCommand[256] = {'\0',};
+	char rmCommand[PATH_BUFFER_SIZE] = {'\0',};
 
 	AppPackage* appPkg = appPkgRepo.selectAppPackage(appID); 
 
