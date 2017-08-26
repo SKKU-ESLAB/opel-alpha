@@ -65,67 +65,61 @@ bool App::changeState(AppState::Value newState) {
   // Apply new state
   if(isChangeApproved) {
     this->mState = newState;
+    if(this->mStateListener != NULL) {
+      this->mStateListener->onChangedState(this->mState);
+    }
   }
-
   return isChangeApproved;
 }
 
-void App::onChangedState() {
-  switch(this->mState) {
-    case AppState::Initializing:
-      this->onInitializing();
-      break;
-    case AppState::Initialized:
-      this->onInitialized();
-      break;
-    case AppState::Installing:
-      this->onInstalling();
-      break;
-    case AppState::Ready:
-      this->onReady();
-      break;
-    case AppState::Launching:
-      this->onLaunching();
-      break;
-    case AppState::Running:
-      this->onRunning();
-      break;
-    case AppState::Terminating:
-      this->onTerminating();
-      break;
-    case AppState::Removing:
-      this->onRemoving();
-      break;
-    case AppState::Removed:
-      this->onRemoved();
-      break;
+// Commands
+void App::initialize(int appId) {
+  this->mAppId = appId;
+
+  this->changeState(AppState::Initialized);
+}
+
+void App::install(std::string packageFilePath, bool isDefaultApp) {
+  boolean isSuccess = false;
+  this->mPackageFilePath = packageFilePath;
+  this->changeState(AppState::Installing);
+
+  // TODO: implement it (AppPackageManager::installPackage)
+
+  // On Success
+  if(isSuccess) {
+    this->mIsDefaultApp = isDefaultApp;
+    // TODO: determine mName
+    this->changeState(AppState::Ready);
+  } else {
+    // On Fail
+    this->changeState(AppState::Removed);
   }
 }
 
-void App::onInitializing() {
-  // TODO: not yet implemented
+void App::launch() {
+  // TODO: determine mPid
+  this->changeState(AppState::Launching);
+
+  // TODO: implement it (AppStatusManager::runNewApplication)
+
+  // On Success (Async)
+  // TODO: implement it
+  // this->changeState(AppState::Running);
+
+  // On Fail (Async)
+  // TODO: implement it
+  // this->changeState(AppState::Ready);
 }
-void App::onInitialized() {
-  // TODO: not yet implemented
+
+void App::terminate() {
+  // TODO: implement it (AppStatusManager::exitApplication)
+  this->changeState(AppState::Ready);
 }
-void App::onInstalling() {
-  // TODO: not yet implemented
-}
-void App::onReady() {
-  // TODO: not yet implemented
-}
-void App::onLaunching() {
-  // TODO: not yet implemented
-}
-void App::onRunning() {
-  // TODO: not yet implemented
-}
-void App::onTerminating() {
-  // TODO: not yet implemented
-}
-void App::onRemoving() {
-  // TODO: not yet implemented
-}
-void App::onRemoved() {
-  // TODO: not yet implemented
+
+void App::remove() {
+  this->changeState(AppState::Removing);
+  // TODO: implement it (AppPackageManager::deletePackage)
+
+  this->changeState(AppState::Removed);
 }

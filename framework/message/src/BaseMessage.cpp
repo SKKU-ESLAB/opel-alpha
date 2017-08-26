@@ -284,11 +284,29 @@ void AppCoreAckMessage::setParamsInitializeApp(int appId) {
 cJSON* ParamFileList::toJSON() {
   cJSON* listObj = cJSON_CreateArray();
 
-  std::vector<std::string>::iterator iter;
+  std::vector<ParamFileListEntry>::iterator iter;
   for(iter = this->mFileList.begin();
       iter != this->mFileList.end();
       ++iter) {
-    cJSON* entryObj = cJSON_CreateString(iter->c_str());
+    cJSON* entryObj = cJSON_CreateObject();
+    char tempStr[20];
+
+    // fileName
+    std::string fileName(iter->getFileName());
+    cJSON_AddStringToObject(entryObj, "fileName", fileName.c_str());
+
+    // fileType
+    sprintf(tempStr, "%d", iter->getFileType);
+    cJSON_AddStringToObject(entryObj, "fileType", tempStr);
+
+    // fileSizeBytes
+    sprintf(tempStr, "%d", iter->getFileSizeBytes);
+    cJSON_AddStringToObject(entryObj, "fileSizeBytes", tempStr);
+
+    // fileTime
+    std::string fileTime(iter->getFileTime());
+    cJSON_AddStringToObject(entryObj, "fileTime", fileTime.c_str());
+
     cJSON_AddItemToArray(listObj, entryObj);
   }
 

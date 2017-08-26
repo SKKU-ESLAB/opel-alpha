@@ -34,6 +34,7 @@
 #include "AppCore.h"
 #include "OPELdbugLog.h"
 #include "BaseMessage.h"
+#include "AppList.h"
 
 using namespace std;
 
@@ -155,45 +156,45 @@ void AppCore::onReceivedMessage(BaseMessage* message) {
     OPEL_DBG_ERR("Not AppCore Message");
     return;
   }
-  AppCoreMessage* appcoreMessage = (AppCoreMessage*)message->getPayload();
-  if(appcoreMessage == NULL) {
+  AppCoreMessage* payload = (AppCoreMessage*)message->getPayload();
+  if(payload == NULL) {
     OPEL_DBG_ERR("AppCoreMessage payload does not exist");
     return;
   }
 
-  switch(appcoreMessage->getCommandType()) {
+  switch(payload->getCommandType()) {
     case AppCoreMessageCommandType::GetAppList:
-      this->getAppList(appcoreMessage);
+      this->getAppList(baseMessage);
       break;
     case AppCoreMessageCommandType::ListenAppState:
-      this->listenAppState(appcoreMessage);
+      this->listenAppState(baseMessage);
       break;
     case AppCoreMessageCommandType::InitializeApp:
-      this->initializeApp(appcoreMessage);
+      this->initializeApp(baseMessage);
       break;
     case AppCoreMessageCommandType::InstallApp:
-      this->installApp(appcoreMessage);
+      this->installApp(baseMessage);
       break;
     case AppCoreMessageCommandType::LaunchApp:
-      this->launchApp(appcoreMessage);
+      this->launchApp(baseMessage);
       break;
     case AppCoreMessageCommandType::CompleteLaunchingApp:
-      this->completeLaunchingApp(appcoreMessage);
+      this->completeLaunchingApp(baseMessage);
       break;
     case AppCoreMessageCommandType::TerminateApp:
-      this->terminateApp(appcoreMessage);
+      this->terminateApp(baseMessage);
       break;
     case AppCoreMessageCommandType::RemoveApp:
-      this->removeApp(appcoreMessage);
+      this->removeApp(baseMessage);
       break;
     case AppCoreMessageCommandType::GetFileList:
-      this->getFileList(appcoreMessage);
+      this->getFileList(baseMessage);
       break;
     case AppCoreMessageCommandType::GetFile:
-      this->getFile(appcoreMessage);
+      this->getFile(baseMessage);
       break;
     case AppCoreMessageCommandType::GetRootPath:
-      this->getRootPath(appcoreMessage);
+      this->getRootPath(baseMessage);
       break;
   }
 }
@@ -220,31 +221,89 @@ void AppCore::onCommChannelStateChanged(CommChannelState::Value state) {
   }
 }
 
-void AppCore::getAppList(AppCoreMessage* message) {
-  // No arguments
+void AppCore::onChangedState(int appId, AppState::Value newState) {
+  // Check if the app is one of which state is changed
+  std::vector<BaseMessage*>::iterator iter;
+  for(iter = this->mListenAppStateMessageList.begin();
+      iter != this->mListenAppStateMessageList.end();
+      iter++) {
+    BaseMessage* originalMessage = (*iter);
+    AppCoreMessage* originalPayload = (AppCoreMessage*)originalMessage->getPayload();
+    int thisAppId = -1;
+    requestPayload->getParamsListenAppState(thisAppId);
+    if(thisAppId == appId) {
+      // Make ACK message
+      BaseMessage* ackMessage
+        = MessageFactory::makeAppCoreAckMessage(COMPANION_DEVICE_URI, originalMessage); 
+      AppCoreAckMessage* ackPayload = ackMessage->getPayload();
+      ackPayload->setParamsListenAppState(appId, newState);
 
-  // TODO: update arguments
-  // TODO: not yet implemented
-}
-
-void AppCore::listenAppState(AppCoreMessage* message) {
-  // Get arguments
-  int appId;
-  if(message->getParamsListenAppState(appId) == false) {
-    OPEL_DBG_ERR("Invalid AppCoreMessage! (commandType: %d)",
-        message->getCommandType());
-    return;
+      // Send ACK message
+      this->mLocalChannel->sendMessage(message);
+    }
   }
-  // TODO: not yet implemented
 }
 
-void AppCore::initializeApp(AppCoreMessage* message) {
+void AppCore::getAppList(BaseMessage* message) {
   // No arguments
+  int messageId = message->getMessageId();
+
+  // Make AppList parameter
+  ParamAppList* paramAppList = ParamAppList::make();
+  std::vector<App*>& appList
+  std::vector<App*>::iterator iter;
+  for(iter = appList.begin();
+      iter != appList.end();
+      iter++) {
+    int appId = (*iter)->getAppId();
+    std::string appName = (*iter)->getAppName();
+    bool isDefaultApp = (*iter)->isDefaultApp();
+    paramAppList->addEntry(appId, appName, isDefaultApp);
+  }
+
+  // Make ACK message
+  BaseMessage* ackMessage
+    = MessageFactory::makeAppCoreAckMessage(COMPANION_DEVICE_URI, message); 
+  AppCoreAckMessage* ackPayload = ackMessage->getPayload();
+  ackPayload->setParamsGetAppList(paramAppList);
+
+  // Send ACK message
+  this->mLocalChannel->sendMessage(message);
+  delete paramAppList;
+}
+
+void AppCore::listenAppState(BaseMessage* message) {
+  // Get arguments
+  BaseMessage* originalMessage = (*iter);
+  AppCoreMessage* originalPayload = (AppCoreMessage*)originalMessage->getPayload();
+  int appId = -1;
+  requestPayload->getParamsListenAppState(appId);
+
+  // Check if there has already been listener of the app
+  std::vector<BaseMessage*>::iterator iter;
+  for(iter = this->mListenAppStateMessageList.begin();
+      iter != this->mListenAppStateMessageList.end();
+      iter++) {
+    BaseMessage* originalMessage = (*iter);
+    AppCoreMessage* originalPayload = (AppCoreMessage*)originalMessage->getPayload();
+    int thisAppId = -1;
+    requestPayload->getParamsListenAppState(thisAppId);
+    if(thisAppId == appId) {
+      return;
+    }
+  }
   
+  // If there is no listener, add it to the list
+  this->mListenAppStateMessageList.push_back(message);
+}
+
+void AppCore::initializeApp(BaseMessage* message) {
+  // No arguments
+  //
   // TODO: not yet implemented
 }
 
-void AppCore::installApp(AppCoreMessage* message) {
+void AppCore::installApp(BaseMessage* message) {
   // Get arguments
   int appId;
   std::string packageFileName;
@@ -256,7 +315,7 @@ void AppCore::installApp(AppCoreMessage* message) {
   // TODO: not yet implemented
 }
 
-void AppCore::launchApp(AppCoreMessage* message) {
+void AppCore::launchApp(BaseMessage* message) {
   // Get arguments
   int appId;
   if(message->getParamsLaunchApp(appId) == false) {
@@ -267,7 +326,7 @@ void AppCore::launchApp(AppCoreMessage* message) {
   // TODO: not yet implemented
 }
 
-void AppCore::completeLaunchingApp(AppCoreMessage* message) {
+void AppCore::completeLaunchingApp(BaseMessage* message) {
   // Get arguments
   int appId;
   int pid;
@@ -279,7 +338,7 @@ void AppCore::completeLaunchingApp(AppCoreMessage* message) {
   // TODO: not yet implemented
 }
 
-void AppCore::terminateApp(AppCoreMessage* message) {
+void AppCore::terminateApp(BaseMessage* message) {
   // Get arguments
   int appId;
   if(message->getParamsTerminateApp(appId) == false) {
@@ -290,7 +349,7 @@ void AppCore::terminateApp(AppCoreMessage* message) {
   // TODO: not yet implemented
 }
 
-void AppCore::removeApp(AppCoreMessage* message) {
+void AppCore::removeApp(BaseMessage* message) {
   // Get arguments
   int appId;
   if(message->getParamsTerminateApp(appId) == false) {
@@ -301,7 +360,7 @@ void AppCore::removeApp(AppCoreMessage* message) {
   // TODO: not yet implemented
 }
 
-void AppCore::getFileList(AppCoreMessage* message) {
+void AppCore::getFileList(BaseMessage* message) {
   // Get arguments
   std::string path;
   if(message->getParamsGetFileList(path) == false) {
@@ -312,7 +371,7 @@ void AppCore::getFileList(AppCoreMessage* message) {
   // TODO: not yet implemented
 }
 
-void AppCore::getFile(AppCoreMessage* message) {
+void AppCore::getFile(BaseMessage* message) {
   // Get arguments
   std::string path;
   if(message->getParamsGetFile(path) == false) {
@@ -323,7 +382,7 @@ void AppCore::getFile(AppCoreMessage* message) {
   // TODO: not yet implemented
 }
 
-void AppCore::getRootPath(AppCoreMessage* message) {
+void AppCore::getRootPath(BaseMessage* message) {
   // No arguments
   // TODO: update arguments
   // TODO: not yet implemented

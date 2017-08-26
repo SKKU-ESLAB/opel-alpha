@@ -24,46 +24,79 @@
 namespace AppState {
   enum Value {
     Initializing = 1,
-    Initialized = 2,
-    Installing = 3,
-    Ready = 4,
-    Launching = 5,
+    Initialized = 2, // set id
+    Installing = 3, // set packageFilePath
+    Ready = 4, // set isDefaultApp, name, mainJSFilePath
+               // store to DB
+               // reset pid
+    Launching = 5, // set pid
     Running = 6,
     Terminating = 7,
     Removing = 8,
-    Removed = 9
+    Removed = 9 // reset id, packageFilePath, isDefaultApp, name, mainJSFilePath
   };
 }
+
+class AppStateListener {
+  virtual void onChangedState(int appId, AppState::Value newState) = 0;
+};
 
 class App {
   public:
     App()
-      : mState(AppState::Initializing), mName(NULL),
-      mPackageFilePath(NULL), mMainJSFilePath(NULL), mPid(-1) {
+      : mState(AppState::Initializing), mAppStateListener(NULL),
+      mId(-1),
+      mPackageFilePath(NULL), 
+      mIsDefaultApp(false),
+      mName(NULL),
+      mMainJSFilePath(NULL), mPid(-1) {
     }
+    App(int id, std::string pacakgeFilePath,
+        bool isDefaultApp, std::string name,
+        std::string mainJSFilePath)
+      : mState(AppState::Initializing), mAppStateListener(NULL),
+      mId(id),
+      mPackageFilePath(packageFilePath), 
+      mIsDefaultApp(isDefaultApp),
+      mName(name),
+      mMainJSFilePath(mainJSFilePath), mPid(-1) {
+    }
+
+    // Getters
+    AppState::Value getState() { return this->mState; }
+    int getId() { return this->mId; }
+    std::string getPackageFilePath() { return this->mPackageFilePath; }
+    bool isDefaultApp() { return this->mIsDefaultApp; }
+    std::string getName() { return this->mName; }
+    std::string getMainJSFilePath() { return this->mMainJSFilePath; }
+    int getPid() { return this->mPid; }
+    
+    // Commands
+    void initialize(int appId);
+    void install(std::string packageFilePath, bool isDefaultApp);
+    void launch();
+    void terminate();
+    void remove();
 
     // Change app state
     bool changeState(AppState::Value newState);
 
-  protected:
-    // State change callbacks
-    void onChangedState();
+    // State listener
+    void setStateListener(AppStateListener* stateListener) {
+      this->mStateListener = stateListener;
+    }
 
-    void onInitializing();
-    void onInitialized();
-    void onInstalling();
-    void onReady();
-    void onLaunching();
-    void onRunning();
-    void onTerminating();
-    void onRemoving();
-    void onRemoved();
+  protected:
+    // State listener
+    AppStateListener* mStateListener;
 
     // App information
     AppState::Value mState;
-    char* mPackageFilePath; // determined at Installing, reset at Ready
-    char* mName; // determined at Ready, reset at Removing
-    char* mMainJSFilePath; // determined at Ready, reset at Removing
+    int mId; // determined at Initialized, reset at Removed (stored to DB)
+    std::string mPackageFilePath; // determined at Installing, reset at Removed (stored to DB)
+    bool mIsDefaultApp; // determined at Ready, reset at Removed (stored to DB)
+    std::string mName; // determined at Ready, reset at Removed (stored to DB)
+    std::string mMainJSFilePath; // determined at Ready, reset at Removed (stored to DB)
     int mPid; // determined at Launching, reset at Ready
 };
 

@@ -24,12 +24,17 @@
 #include "DbusChannel.h"
 #include "CommChannel.h"
 #include "BaseMessage.h"
+#include "AppList.h"
 
 #include <iostream>
 
 class LocalChannel;
 
-class AppCore: public CommChannelStateListener, public LocalChannelListener {
+class AppCore
+: public CommChannelStateListener,
+  public LocalChannelListener,
+  public AppStateListener {
+
   public:
     AppCore() {
     }
@@ -59,23 +64,30 @@ class AppCore: public CommChannelStateListener, public LocalChannelListener {
     // CommStateListener
     virtual void onCommChannelStateChanged(CommChannelState::Value state);
 
+    // AppStateListener
+    virtual void onChangedState(int appId, AppState::Value newState);
+
   protected:
-    std::vector<App> mApps;
+    // App List
+    AppList* mAppList;
+
+    // App State Listen request message list
+    std::vector<BaseMessage*> mListenAppStateMessageList;
 
     bool initializeDirs();
 
     // Appcore Commands
-    void getAppList(AppCoreMessage* message);
-    void listenAppState(AppCoreMessage* message);
-    void initializeApp(AppCoreMessage* message);
-    void installApp(AppCoreMessage* message);
-    void launchApp(AppCoreMessage* message);
-    void completeLaunchingApp(AppCoreMessage* message);
-    void terminateApp(AppCoreMessage* message);
-    void removeApp(AppCoreMessage* message);
-    void getFileList(AppCoreMessage* message);
-    void getFile(AppCoreMessage* message);
-    void getRootPath(AppCoreMessage* message);
+    void getAppList(BaseMessage* message);
+    void listenAppState(BaseMessage* message);
+    void initializeApp(BaseMessage* message);
+    void installApp(BaseMessage* message);
+    void launchApp(BaseMessage* message);
+    void completeLaunchingApp(BaseMessage* message);
+    void terminateApp(BaseMessage* message);
+    void removeApp(BaseMessage* message);
+    void getFileList(BaseMessage* message);
+    void getFile(BaseMessage* message);
+    void getRootPath(BaseMessage* message);
 
     MessageRouter* mMessageRouter;
     DbusChannel* mDbusChannel;

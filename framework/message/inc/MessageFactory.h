@@ -28,8 +28,11 @@ class MessageFactory {
   static BaseMessage* makeMessageFromJSONString(const char* rawString);
 
   // Make AppCoreAckMessage from bottom
-  static BaseMessage* makeAppCoreAckMessage(std::string uri,
-      int commandMessageId, AppCoreMessageCommandType::Value commandType) {
+  static BaseMessage* makeAppCoreAckMessage(std::string uri, BaseMessage* originalMessage) {
+    int commandMessageId = originalMessage->getMessageId();
+    AppCoreMessage* originalPayload = (AppCoreMessage*) originalMessage->getPayload();
+    AppCoreMessageCommandType::Value commandType = originalPayload->getCommandType();
+
     AppCoreAckMessage* payload = new AppCoreAckMessage(commandMessageId,
         commandType);
     BaseMessage* message = new BaseMessage(currentMessageId++, uri,

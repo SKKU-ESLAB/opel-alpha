@@ -239,6 +239,33 @@ class ParamAppList {
     std::vector<ParamAppListEntry> mAppList;
 };
 
+namespace ParamFileListEntryType {
+  enum Value {
+    Directory = 1,
+    File = 2,
+    Others = 3
+  };
+}
+
+class ParamFileListEntry {
+  public:
+    ParamFileListEntry(std::string fileName, ParamFileListEntryType fileType, int fileSizeBytes,
+        std::string fileTime)
+      : mFileName(fileName), mFileType(fileType), mFileSizeBytes(fileSizeBytes),
+      mFileTime(fileTime) { }
+
+    std::string getFileName() { return this->mFileName; }
+    ParamFileListEntryType::Value getFileType() { return this->mFileType; }
+    int getFileSizeBytes() { return this->mFileSizeBytes; }
+    std::string getFileTime() { return this->mFileTime; }
+
+  private:
+    std::string mFileName;
+    ParamFileListEntryType::Value mFileType;
+    int mFileSizeBytes;
+    std::string mFileTime;
+};
+
 class ParamFileList {
   public:
     // Make
@@ -246,18 +273,20 @@ class ParamFileList {
       return new ParamFileList();
     }
 
-    void addEntry(std::string fileName) {
-      this->mFileList.push_back(fileName);
+    void addEntry(std::string fileName, int fileType, int fileSizeBytes,
+        std::string fileTime) {
+      this->mFileList.push_back(new ParamFileListEntry(fileName, fileType,
+            fileSizeBytes, fileTime));
     }
     
     // encoding to JSON
     cJSON* toJSON();
 
-    std::vector<std::string>& getList() { return this->mFileList; }
+    std::vector<ParamFileListEntry>& getList() { return this->mFileList; }
 
   private:
     ParamFileList() { }
-    std::vector<std::string> mFileList;
+    std::vector<ParamFileListEntry> mFileList;
 };
 
 #define APPCORE_ACK_MESSAGE_KEY_COMMAND_MESSAGE_NUM "commandMessageId"
