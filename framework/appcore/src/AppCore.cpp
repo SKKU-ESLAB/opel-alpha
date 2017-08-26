@@ -109,6 +109,9 @@ void AppCore::run() {
     return;
   }
 
+  // Initialize AppList
+  this->initializeFromDB("AppListDB.sqlite");
+
   // Initialize MessageRouter and Channels
   this->mMessageRouter = new MessageRouter();
   this->mDbusChannel = new DbusChannel(this->mMessageRouter);
@@ -239,7 +242,8 @@ void AppCore::onChangedState(int appId, AppState::Value newState) {
       ackPayload->setParamsListenAppState(appId, newState);
 
       // Send ACK message
-      this->mLocalChannel->sendMessage(message);
+      this->mLocalChannel->sendMessage(ackMessage);
+      return;
     }
   }
 }
@@ -268,7 +272,7 @@ void AppCore::getAppList(BaseMessage* message) {
   ackPayload->setParamsGetAppList(paramAppList);
 
   // Send ACK message
-  this->mLocalChannel->sendMessage(message);
+  this->mLocalChannel->sendMessage(ackMessage);
   delete paramAppList;
 }
 
@@ -299,8 +303,22 @@ void AppCore::listenAppState(BaseMessage* message) {
 
 void AppCore::initializeApp(BaseMessage* message) {
   // No arguments
-  //
-  // TODO: not yet implemented
+  
+  App* app = new App();
+  app->finishInitializing(this->mNextAppId++);
+
+  // Add to on-memory list
+  this->mAppList->add(app);
+
+  // Make ACK message
+  BaseMessage* ackMessage
+    = MessageFactory::makeAppCoreAckMessage(COMPANION_DEVICE_URI, message); 
+  AppCoreAckMessage* ackPayload = ackMessage->getPayload();
+  ackPayload->setParamsInitializeApp(app->getId());
+
+  // Send ACK message
+  this->mLocalChannel->sendMessage(ackMessage);
+  delete paramAppList;
 }
 
 void AppCore::installApp(BaseMessage* message) {
@@ -312,7 +330,186 @@ void AppCore::installApp(BaseMessage* message) {
         message->getCommandType());
     return;
   }
+
+  // TODO: implement it (AppPackageManager::installPackage)
+	//save pkg file and decompress
+	//update DB
+	//update appList
+
+	char unzipCommand[256]={'\0',};
+	
+	char pkgDirName[256]={'\0',};
+	char pkgFullDirPath[256]={'\0',};							  // ./application/2015_xx_xx_xx_xx/
+	char pkgFilePath[256]={'\0',};								  // ./application/2015_xx_xx_xx_xx.opk
+	strncpy(pkgDirName, pkgFileName, strlen(pkgFileName)-4);
+	sprintf(pkgFullDirPath, "%s%s", mUserAppsPath, pkgDirName);
+
+
+	struct stat st = {0};
+	if (stat(pkgFullDirPath, &st) == -1) {
+    	mkdir(pkgFullDirPath, 0755);
+	}
+	/*else{
+		printf("pkg dir is already exist : %s\n", pkgFullDirPath);
+		return ;
+	}*/
+
+	sprintf(pkgFilePath, "%s%s", mUserAppsPath, pkgFileName);
+//	sprintf(unzipCommand,"unzip -o %s -d %s/", pkgFilePath, pkgFullDirPath);
+//	sprintf(unzipCommand,"tar xvf %s -C %s/", pkgFilePath, pkgFullDirPath);
+//	{"","test", "-d", "./test/"};
+	char* cmdUnzip[4] ={0,};
+	cmdUnzip[0] = "";
+	cmdUnzip[1] = pkgFilePath;
+	cmdUnzip[2] = "-d";
+	cmdUnzip[3] = pkgFullDirPath;
+
+	do_unzip(4, cmdUnzip);
+	chdir("../../");
+	sync();
+
+/*    cmdUnzip[0] = malloc(sizeof(char) * 1);
+	cmdUnzip[1] = malloc(sizeof(char) * strlen(pkgFilePath));
+	cmdUnzip[2] = malloc(sizeof(char) * 3);
+	cmdUnzip[3] = malloc(sizeof(char) * strlen(pkgFileName));
+
+	strcat(cmdUnzip[0], "");
+	strcat(cmdUnzip[2], "-d");
+
+	strcat(cmdUnzip[1], pkgFilePath);
+ 	strcat(cmdUnzip[3], pkgFileName);
+
+	do_unzip(4, cmdUnzip);
+
+	free(cmdUnzip[1]);
+	free(cmdUnzip[3]);
+*/
+//	printf("[AppPackageManager] Unzip >> command %s\n", unzipCommand);
+//	system(unzipCommand);
+
+	if ( remove(pkgFilePath) == -1 ){
+		printf("[AppPackageManager] Cannot remove pkg file : %s\n", pkgFilePath);
+	}
+	
+	xmlDocPtr doc;
+	xmlNodePtr cur;
+
+///////////
+
+/*	char dirname[1024];
+	getcwd(dirname, 1024);
+	printf("dirname : %s\n", dirname);
+*/
+
+	char manifestPath[512];
+	sprintf(manifestPath, "%s/manifest.xml", pkgFullDirPath);
+
+	doc = xmlParseFile( manifestPath );
+
+	if (doc == NULL ) {
+		fprintf(stderr,"Document not parsed successfully. \n");
+
+		return NULL;
+	}
+
+	cur = xmlDocGetRootElement(doc);
+	
+	if (cur == NULL) {
+		fprintf(stderr,"empty document\n");
+		xmlFreeDoc(doc);
+		return NULL;
+	}
+
+	
+	if (xmlStrcmp(cur->name, (const xmlChar *) "application")) {
+		fprintf(stderr,"document of the wrong type, root node != story");
+		xmlFreeDoc(doc);
+		return NULL;
+	}
+
+	cur = cur->xmlChildrenNode;
+
+	char appIconFileName[256]={'/0',};
+	char appLabel[256]={'/0',};
+	char appMainFile[256]={'/0',};
+	
+	while (cur != NULL) {
+		if ((!xmlStrcmp(cur->name, (const xmlChar *)"icon"))){
+			//parseStory (doc, cur);
+			xmlChar *key = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
+			sprintf(appIconFileName, "%s", key);
+			printf("[AppPackageManager] Parse XML >> keyword: %s %s\n", cur->name, appIconFileName);
+			xmlFree(key);
+		
+		
+		}
+		else if ((!xmlStrcmp(cur->name, (const xmlChar *)"label"))){
+			//parseStory (doc, cur);
+			xmlChar *key = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
+			sprintf(appLabel, "%s", key);
+			printf("[AppPackageManager] Parse XML >> keyword: %s %s\n", cur->name, appLabel);
+			xmlFree(key);
+		
+		}
+		else if ((!xmlStrcmp(cur->name, (const xmlChar *)"mainFile"))){
+			//parseStory (doc, cur);
+			xmlChar *key = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
+			sprintf(appMainFile, "%s", key);
+			printf("[AppPackageManager] Parse XML >> keyword: %s %s\n", cur->name, appMainFile);			
+			xmlFree(key);
+		}
+		
+	cur = cur->next;
+	}
+	xmlFreeDoc(doc);
+
+
+	// insert app info to repository
+	char exeFilePath[128];
+	sprintf(exeFilePath, "%s/%s", pkgFullDirPath,appMainFile);
+
+	int appID = appPkgRepo.insertAppPackage( appLabel, pkgFullDirPath, exeFilePath);
+
+	char appIDStr[128];
+	sprintf(appIDStr, "%d", appID);
+
+
+	//send IconFile with appId, appName, 
+
+
+	JsonString jp;
+	jp.addType(INSTALLPKG);
+	jp.addItem("appID",appIDStr);
+	jp.addItem("appName",appLabel);
+	jp.addItem("appPath", pkgFullDirPath);
+	jp.addItem("appIconName", appIconFileName);
+
+	return jp;
+}
+
+void AppCore::removeApp(BaseMessage* message) {
+  // Get arguments
+  int appId;
+  if(message->getParamsTerminateApp(appId) == false) {
+    OPEL_DBG_ERR("Invalid AppCoreMessage! (commandType: %d)",
+        message->getCommandType());
+    return;
+  }
   // TODO: not yet implemented
+	char rmCommand[256] = {'\0',};
+
+	AppPackage* appPkg = appPkgRepo.selectAppPackage(appID); 
+
+	sprintf(rmCommand, "rm -rf %s", appPkg->getApFilePath());
+
+	//Update DB
+	appPkgRepo.deleteAppPackage(appID);
+
+	//Remove file_dir	
+	//system(rmCommand);
+
+	delete appPkg;
+	return true;
 }
 
 void AppCore::launchApp(BaseMessage* message) {
@@ -324,6 +521,44 @@ void AppCore::launchApp(BaseMessage* message) {
     return;
   }
   // TODO: not yet implemented
+  
+    pid_t pid;
+	pid = fork();
+	
+	if(pid < 0){
+		printf("[AppStatusManager] Fail to fork\n");
+
+		return false;
+	}
+	
+	else if(pid == 0){	// Child for executing the application
+//		char* filePath = strcat("./opelApp/", _filePath);
+		
+		char* fullPath[] = {"node", _filePath, NULL};	
+		printf("[AppStatusManager] runNewApp full run Path : %s\n", _filePath);
+		execvp("node", fullPath);
+	}
+	
+	else if (pid > 0){ 	// parent for managing child's PID & mainstream
+
+		char appID[128] = {'\0',};
+		char appName[128] = {'\0',};
+		char appPath[128] = {'\0',};
+		char dirLastPath[128] = {'\0',};
+
+
+		strncpy(appID, js.findValue("appID").c_str(), 128);
+		strncpy(appName, js.findValue("appName").c_str(), 128);
+
+		strncpy(appPath, js.findValue("dirPath").c_str(), 128);
+
+		printf("[AppStatusManager] Fork & Run App id %s name %s pid %d path %s\n",
+        appID, appName, pid, appPath);		
+		AppProcessInfo newProcess(appID, appName, pid, appPath);
+		appProcList->insertProcess(newProcess);
+		
+		return true;
+	}
 }
 
 void AppCore::completeLaunchingApp(BaseMessage* message) {
@@ -347,18 +582,10 @@ void AppCore::terminateApp(BaseMessage* message) {
     return;
   }
   // TODO: not yet implemented
+	printf("[AppStatusManager] exitApplication >> appID : %d \n", _appid);
+	appProcList->deleteProcess(_appid);
 }
 
-void AppCore::removeApp(BaseMessage* message) {
-  // Get arguments
-  int appId;
-  if(message->getParamsTerminateApp(appId) == false) {
-    OPEL_DBG_ERR("Invalid AppCoreMessage! (commandType: %d)",
-        message->getCommandType());
-    return;
-  }
-  // TODO: not yet implemented
-}
 
 void AppCore::getFileList(BaseMessage* message) {
   // Get arguments

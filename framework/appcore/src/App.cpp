@@ -84,8 +84,6 @@ void App::install(std::string packageFilePath, bool isDefaultApp) {
   this->mPackageFilePath = packageFilePath;
   this->changeState(AppState::Installing);
 
-  // TODO: implement it (AppPackageManager::installPackage)
-
   // On Success
   if(isSuccess) {
     this->mIsDefaultApp = isDefaultApp;

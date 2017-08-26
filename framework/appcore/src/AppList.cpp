@@ -133,6 +133,12 @@ App* AppList::get(int appId) {
   return NULL;
 }
 bool AppList::add(App* app) {
+  // Add to on-memory list
+  this->mApps.push_back(app);
+  return true;
+}
+
+bool AppList::flush(App* app) {
   // Get fields to be stored to DB
   int appId = app->getId();
   std::string packageFilePath(app->getPackageFilePath());
@@ -155,9 +161,6 @@ bool AppList::add(App* app) {
     sqlite3_free(insertErr);
     return false;
   }
-
-  // Add to on-memory list
-  this->mApps.push_back(app);
   return true;
 }
 

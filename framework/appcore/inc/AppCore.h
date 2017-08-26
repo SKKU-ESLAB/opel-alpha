@@ -36,7 +36,7 @@ class AppCore
   public AppStateListener {
 
   public:
-    AppCore() {
+    AppCore() : mAppList(NULL), mNextAppId(0) {
     }
 
     ~AppCore() {
@@ -93,6 +93,9 @@ class AppCore
     DbusChannel* mDbusChannel;
     CommChannel* mCommChannel;
     LocalChannel* mLocalChannel;
+
+    // Current appId
+    int mNextAppId;
 
     char mUserAppsDir[1024]; // User Apps Dir: ${OPEL_APPS_DIR}/user
     char mSystemAppsDir[1024]; // System Apps Dir: ${OPEL_APPS_DIR}/system

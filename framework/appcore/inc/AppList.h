@@ -25,6 +25,7 @@ class AppList {
     std::vector<App*>& getApps() { return this->mApps; }
     App* get(int appId);
     bool add(App* app);
+    bool flush(App* app);
     bool remove(App* app);
     
   protected:

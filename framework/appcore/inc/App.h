@@ -72,14 +72,22 @@ class App {
     int getPid() { return this->mPid; }
     
     // Commands
-    void initialize(int appId);
-    void install(std::string packageFilePath, bool isDefaultApp);
-    void launch();
-    void terminate();
-    void remove();
+    // TODO: apply to App.cpp
+    void finishInitializing(int appId); // Initializing -> Initialized
 
-    // Change app state
-    bool changeState(AppState::Value newState);
+    void startInstalling(std::string packageFilePath); // Initialized -> Installing
+    void successInstalling(bool isDefaultApp, std::string name, std::string mainJSFilePath); // Installing -> Ready
+    void failInstalling(); // Installing -> Removed
+
+    void startLaunching(int pid); // Ready -> Launching
+    void successLaunching(); // Launching -> Running
+    void failLaunching(); // Launching -> Ready
+
+    void startTerminating(); // Running -> Terminating
+    void finishTerminating(); // Terminating -> Ready
+
+    void startRemoving(); // Ready -> Removing
+    void finishRemoving(); // Removing -> Removed
 
     // State listener
     void setStateListener(AppStateListener* stateListener) {
@@ -87,6 +95,9 @@ class App {
     }
 
   protected:
+    // Change app state
+    bool changeState(AppState::Value newState);
+
     // State listener
     AppStateListener* mStateListener;
 
