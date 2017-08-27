@@ -345,6 +345,7 @@ namespace AppMessageCommandType {
 #define APP_MESSAGE_KEY_COMMAND_TYPE "commandType"
 #define APP_MESSAGE_KEY_PAYLOAD "payload"
 
+// TODO: need AppAckMessage
 // AppMessage: message sent to App
 // - Decoding(makeFromJSON): C++
 // - Encoding(make, toJSON): C++

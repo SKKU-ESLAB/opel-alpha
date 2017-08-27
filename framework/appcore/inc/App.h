@@ -49,7 +49,8 @@ class App {
       mPackageFileName(NULL), 
       mIsDefaultApp(false),
       mName(NULL),
-      mMainJSFileName(NULL), mIconFileName(NULL), mPid(-1) {
+      mMainJSFileName(NULL), mIconFileName(NULL),
+      mPid(-1) {
     }
 
     App(int id
@@ -60,7 +61,8 @@ class App {
       mPackageFileName(NULL), 
       mIsDefaultApp(isDefaultApp),
       mName(name),
-      mMainJSFileName(mainJSFileName), mIconFileName(iconFileName), mPid(-1) {
+      mMainJSFileName(mainJSFileName), mIconFileName(iconFileName),
+      mPid(-1) {
     }
 
     // Getters
@@ -69,6 +71,7 @@ class App {
     std::string getPackageFileName() { return this->mPackageFileName; }
     bool isDefaultApp() { return this->mIsDefaultApp; }
     std::string getName() { return this->mName; }
+    std::string getPackagePath() { return this->mPackagePath; }
     std::string getMainJSFileName() { return this->mMainJSFileName; }
     int getPid() { return this->mPid; }
 
@@ -79,12 +82,12 @@ class App {
     void finishInitializing(int appId); // Initializing -> Initialized
 
     void startInstalling(std::string packageFileName); // Initialized -> Installing
-    void successInstalling(bool isDefaultApp,
-        std::string name, std::string mainJSFileName); // Installing -> Ready
+    void successInstalling(); // Installing -> Ready
     void failInstalling(); // Installing -> Removed
 
     void startLaunching(int pid); // Ready -> Launching
     void successLaunching(); // Launching -> Running
+    // TODO: how to know if launching is failed?
     void failLaunching(); // Launching -> Ready
 
     void startTerminating(); // Running -> Terminating
@@ -111,6 +114,7 @@ class App {
     std::string mPackageFilePath; // determined at Installing, reset at Ready
     bool mIsDefaultApp; // determined at Ready, reset at Removed (stored to DB)
     std::string mName; // determined at Ready, reset at Removed (stored to DB)
+    std::string mPackagePath; // TODO: determined at Ready, reset at Removed (stored to DB)
     std::string mMainJSFileName; // determined at Ready, reset at Removed (stored to DB)
     std::string mIconFileName; // determined at Ready, reset at Removed (stored to DB)
     int mPid; // determined at Launching, reset at Ready

@@ -73,91 +73,67 @@ bool App::changeState(AppState::Value newState) {
 }
 
 bool App::setFromManifest(std::string manifestFilePath) {
-  // TODO: 
-	xmlDocPtr doc;
-	xmlNodePtr cur;
+	xmlDocPtr xmlDoc;
+	xmlNodePtr xmlNode;
 
-	char manifestPath[512];
-	sprintf(manifestPath, "%s/manifest.xml", appPackageDirPath);
-
-	doc = xmlParseFile( manifestPath );
-	if (doc == NULL ) {
-		fprintf(stderr,"Document not parsed successfully. \n");
-		return NULL;
+	xmlDoc = xmlParseFile(manifestFilePath);
+	if (xmlDoc == NULL) {
+		OPEL_DBG_ERR("Document not parsed successfully. \n");
+		return false;
 	}
 
-	cur = xmlDocGetRootElement(doc);
-	
-	if (cur == NULL) {
-		fprintf(stderr,"empty document\n");
-		xmlFreeDoc(doc);
-		return NULL;
+	xmlNode = xmlDocGetRootElement(xmlDoc);
+	if (xmlNode == NULL) {
+		OPEL_DBG_ERR("empty document\n");
+		xmlFreeDoc(xmlDoc);
+		return false;
 	}
 
-	
-	if (xmlStrcmp(cur->name, (const xmlChar *) "application")) {
-		fprintf(stderr,"document of the wrong type, root node != story");
-		xmlFreeDoc(doc);
-		return NULL;
+	if (xmlStrcmp(xmlNode->name, (const xmlChar *) "application")) {
+		OPEL_DBG_ERR("document of the wrong type, root node != story");
+		xmlFreeDoc(xmlDoc);
+		return false;
 	}
 
-	cur = cur->xmlChildrenNode;
+	xmlNode = xmlNode->xmlChildrenNode;
 
-	char appIconFileName[PATH_BUFFER_SIZE]={'/0',};
-	char appLabel[PATH_BUFFER_SIZE]={'/0',};
-	char appMainFile[PATH_BUFFER_SIZE]={'/0',};
+	char iconFileName[PATH_BUFFER_SIZE] = {0, };
+	char appName[PATH_BUFFER_SIZE] = {0, };
+	char mainJSFileName[PATH_BUFFER_SIZE] = {0, };
 	
-	while (cur != NULL) {
-		if ((!xmlStrcmp(cur->name, (const xmlChar *)"icon"))){
-			//parseStory (doc, cur);
-			xmlChar *key = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
-			sprintf(appIconFileName, "%s", key);
-			printf("[AppPackageManager] Parse XML >> keyword: %s %s\n", cur->name, appIconFileName);
+	while (xmlNode != NULL) {
+		if (!xmlStrcmp(xmlNode->name, (const xmlChar *)"icon")){
+			xmlChar *key = xmlNodeListGetString(xmlDoc, xmlNode->xmlChildrenNode, 1);
+			sprintf(iconFileName, "%s", key);
+			printf("[AppPackageManager] Parse XML >> keyword: %s %s\n", xmlNode->name, iconFileName);
 			xmlFree(key);
-		
-		
-		}
-		else if ((!xmlStrcmp(cur->name, (const xmlChar *)"label"))){
-			//parseStory (doc, cur);
-			xmlChar *key = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
-			sprintf(appLabel, "%s", key);
-			printf("[AppPackageManager] Parse XML >> keyword: %s %s\n", cur->name, appLabel);
+		} else if (!xmlStrcmp(xmlNode->name, (const xmlChar *)"label")){
+			xmlChar *key = xmlNodeListGetString(xmlDoc, xmlNode->xmlChildrenNode, 1);
+			sprintf(appName, "%s", key);
+			printf("[AppPackageManager] Parse XML >> keyword: %s %s\n", xmlNode->name, appName);
 			xmlFree(key);
-		
-		}
-		else if ((!xmlStrcmp(cur->name, (const xmlChar *)"mainFile"))){
-			//parseStory (doc, cur);
-			xmlChar *key = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
-			sprintf(appMainFile, "%s", key);
-			printf("[AppPackageManager] Parse XML >> keyword: %s %s\n", cur->name, appMainFile);			
+    } else if (!xmlStrcmp(xmlNode->name, (const xmlChar *)"mainFile")){
+			xmlChar *key = xmlNodeListGetString(xmlDoc, xmlNode->xmlChildrenNode, 1);
+			sprintf(mainJSFileName, "%s", key);
+			printf("[AppPackageManager] Parse XML >> keyword: %s %s\n", xmlNode->name, mainJSFileName);			
 			xmlFree(key);
 		}
-		
-	cur = cur->next;
+    xmlNode = xmlNode->next;
 	}
-	xmlFreeDoc(doc);
+	xmlFreeDoc(xmlDoc);
 
+  if(*iconFileName == 0 || *appName == 0 || mainJSFileName == 0) {
+    OPEL_DBG_ERR("at least a field is missing in app manifest!");
+    return false;
+  }
 
-	// insert app info to repository
-	char exeFilePath[128];
-	sprintf(exeFilePath, "%s/%s", appPackageDirPath,appMainFile);
+  // Set fields
+  this->mName.assign(appName);
+  this->mIsDefaultApp = false;
+  this->mMainJSFileName.assign(mainJSFileName);
+  this->mIconFileName.assign(iconFileName);
 
-	int appID = appPkgRepo.insertAppPackage( appLabel, appPackageDirPath, exeFilePath);
-
-	char appIDStr[128];
-	sprintf(appIDStr, "%d", appID);
-
-
-	//send IconFile with appId, appName, 
-
-
-	JsonString jp;
-	jp.addType(INSTALLPKG);
-	jp.addItem("appID",appIDStr);
-	jp.addItem("appName",appLabel);
-	jp.addItem("appPath", appPackageDirPath);
-	jp.addItem("appIconName", appIconFileName);
-
+  return true;
 }
 
 void App::finishInitializing(int appId) { // Initializing -> Initialized
@@ -170,12 +146,7 @@ void App::startInstalling(std::string packageFilePath) { // Initialized -> Insta
   this->changeState(AppState::Installing);
 }
 
-void App::successInstalling(bool isDefaultApp,
-    std::string name, std::string mainJSFileName) { // Installing -> Ready
-  this->mIsDefaultApp = isDefaultApp;
-  this->mName = name;
-  this->mMainJSFileName = mainJSFileName;
-
+void App::successInstalling() { // Installing -> Ready
   this->changeState(AppState::Ready);
 }
 
