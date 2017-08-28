@@ -23,7 +23,8 @@ class AppList {
     static AppList* initializeFromDB(std::string dbPath);
 
     std::vector<App*>& getApps() { return this->mApps; }
-    App* get(int appId);
+    App* getByAppId(int appId);
+    App* getByPid(int pid);
     bool add(App* app);
     bool flush(App* app);
     bool remove(App* app);

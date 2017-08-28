@@ -141,8 +141,7 @@ void App::finishInitializing(int appId) { // Initializing -> Initialized
   this->changeState(AppState::Initialized);
 }
 
-void App::startInstalling(std::string packageFilePath) { // Initialized -> Installing
-  this->mPackageFilePath = packageFilePath;
+void App::startInstalling() { // Initialized -> Installing
   this->changeState(AppState::Installing);
 }
 
@@ -159,7 +158,8 @@ void App::startLaunching(int pid) { // Ready -> Launching
   this->changeState(AppState::Initialized);
 }
 
-void App::successLaunching() { // Launching -> Running
+void App::successLaunching(std::string packagePath) { // Launching -> Running
+  this->mPackagePath = packagePath;
   this->changeState(AppState::Running);
 }
 

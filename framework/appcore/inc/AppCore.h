@@ -86,6 +86,7 @@ class AppCore
     void launchApp(BaseMessage* message);
     void completeLaunchingApp(BaseMessage* message);
     void terminateApp(BaseMessage* message);
+    void completeTerminatingApp(int pid);
     void removeApp(BaseMessage* message);
     void getFileList(BaseMessage* message);
     void getFile(BaseMessage* message);

@@ -50,19 +50,22 @@ bool AppCore::initializeDirs() {
   dirString = getenv("OPEL_APPS_DIR");
   if(dirString != NULL) {
     // User Apps Dir
-    snprintf(this->mUserAppsDir, PATH_BUFFER_SIZE, "%s/%s", dirString, "user");
+    snprintf(this->mUserAppsDir, PATH_BUFFER_SIZE, "%s/%s",
+        dirString, "user");
     if(stat(this->mUserAppsDir, &st) == -1) {
       mkdir(this->mUserAppsDir, 0755);
     }
 
     // System Apps Dir
-    snprintf(this->mSystemAppsDir, PATH_BUFFER_SIZE, "%s/%s", dirString, "system");
+    snprintf(this->mSystemAppsDir, PATH_BUFFER_SIZE, "%s/%s",
+        dirString, "system");
     if(stat(this->mSystemAppsDir, &st) == -1) {
       mkdir(this->mSystemAppsDir, 0755);
     }
 
     // App List DB Dir
-    snprintf(this->mAppListDBDir, PATH_BUFFER_SIZE, "%s/%s", dirString, "AppListDB.sqlite");
+    snprintf(this->mAppListDBDir, PATH_BUFFER_SIZE, "%s/%s",
+        dirString, "AppListDB.sqlite");
   } else {
     OPEL_DBG_ERR("Cannot read OPEL_APPS_DIR");
     return false;
@@ -152,10 +155,9 @@ void AppCore::onSignalSIGCHLD() {
   int pid;
 
   pid = wait(&status);
-
   if (pid > 0) {
     // Handle 3rd-party App Termination Event on the main thread
-    OPEL_DBG_VERB("Child was killed [User app pid : %d]", pid);
+    this->completeTerminatingApp(pid);
   }
 }
 
@@ -221,7 +223,8 @@ void AppCore::onCommChannelStateChanged(CommChannelState::Value state) {
       break;
     case CommChannelState::LISTENING_DEFAULT:
       // ignore
-      this->mMessageRouter->addRoutingEntry(COMPANION_DEVICE_URI, this->mCommChannel);
+      this->mMessageRouter->addRoutingEntry(COMPANION_DEVICE_URI,
+          this->mCommChannel);
       break;
     case CommChannelState::CONNECTED_DEFAULT:
       // Add routing entry for CommChannel
@@ -240,13 +243,15 @@ void AppCore::onChangedState(int appId, AppState::Value newState) {
       iter != this->mListenAppStateMessageList.end();
       iter++) {
     BaseMessage* originalMessage = (*iter);
-    AppCoreMessage* originalPayload = (AppCoreMessage*)originalMessage->getPayload();
+    AppCoreMessage* originalPayload
+      = (AppCoreMessage*)originalMessage->getPayload();
     int thisAppId = -1;
     requestPayload->getParamsListenAppState(thisAppId);
     if(thisAppId == appId) {
       // Make ACK message
       BaseMessage* ackMessage
-        = MessageFactory::makeAppCoreAckMessage(COMPANION_DEVICE_URI, originalMessage); 
+        = MessageFactory::makeAppCoreAckMessage(COMPANION_DEVICE_URI,
+            originalMessage); 
       AppCoreAckMessage* ackPayload = ackMessage->getPayload();
       ackPayload->setParamsListenAppState(appId, newState);
 
@@ -288,7 +293,8 @@ void AppCore::getAppList(BaseMessage* message) {
 void AppCore::listenAppState(BaseMessage* message) {
   // Get arguments
   BaseMessage* originalMessage = (*iter);
-  AppCoreMessage* originalPayload = (AppCoreMessage*)originalMessage->getPayload();
+  AppCoreMessage* originalPayload
+    = (AppCoreMessage*)originalMessage->getPayload();
   int appId = -1;
   requestPayload->getParamsListenAppState(appId);
 
@@ -298,7 +304,8 @@ void AppCore::listenAppState(BaseMessage* message) {
       iter != this->mListenAppStateMessageList.end();
       iter++) {
     BaseMessage* originalMessage = (*iter);
-    AppCoreMessage* originalPayload = (AppCoreMessage*)originalMessage->getPayload();
+    AppCoreMessage* originalPayload =
+      (AppCoreMessage*)originalMessage->getPayload();
     int thisAppId = -1;
     requestPayload->getParamsListenAppState(thisAppId);
     if(thisAppId == appId) {
@@ -340,29 +347,36 @@ void AppCore::installApp(BaseMessage* message) {
   message->getParamsInstallApp(appId, packageFileName);
 
   // Find app for the appId
-  App* app = this->mAppList->get(appId);
+  App* app = this->mAppList->getByAppId(appId);
   if(app == NULL) {
     OPEL_DBG_ERR("App does not exist in the app list!");
     return;
   }
 
-  // Make app package directory
-	char appPackageDirName[PATH_BUFFER_SIZE];
-	strncpy(appPackageDirName, packageFileName, strlen(packageFileName)-4); // truncate opk extension
+  // Update state
+  app->startInstalling();
 
+  // Make app package directory
+  // truncate opk extension
+	char appPackageDirName[PATH_BUFFER_SIZE];
+	strncpy(appPackageDirName, packageFileName, strlen(packageFileName)-4); 
+
+  // ${OPEL_APPS_DIR}/user/${APP_NAME}
 	char appPackageDirPath[PATH_BUFFER_SIZE];
-	snprintf(appPackageDirPath, PATH_BUFFER_SIZE, "%s/%s", mUserAppsPath, appPackageDirName); // ${OPEL_APPS_DIR}/user/${APP_NAME}
+	snprintf(appPackageDirPath, PATH_BUFFER_SIZE, "%s/%s",
+      this->mUserAppsDir, appPackageDirName); 
 
 	struct stat st = {0};
 	if(stat(appPackageDirPath, &st) == -1) {
-    	mkdir(appPackageDirPath, 0755);
+    mkdir(appPackageDirPath, 0755);
 	} else {
     OPEL_DBG_ERR("There has already been app package directory!");
     app->failInstalling();
   }
 
   // Archive app package
-	sprintf(packageFilePath, "%s/%s", mUserAppsPath, packageFileName);
+	snprintf(packageFilePath, PATH_BUFFER_SIZE, "%s/%s",
+      this->mUserAppsDir, packageFileName.c_str());
 	char* commandUnzip[4] ={0,};
 	commandUnzip[0] = "";
 	commandUnzip[1] = packageFilePath;
@@ -382,13 +396,16 @@ void AppCore::installApp(BaseMessage* message) {
   char manifestFilePath[PATH_BUFFER_SIZE];
   snprintf(manifestFilePath, "%s/%s", appPackageDirPath, "manifest.xml");
   bool settingSuccess = app->setFromManifest(manifestFilePath);
+  if(!settingSuccess) {
+    app->failInstalling();
+    return;
+  }
+
+  // Flush the app information to database
+  this->mAppList->flush(app);
 
   // Update state
-  if(settingSuccess) {
-    app->successInstalling();
-  } else {
-    app->failInstalling();
-  }
+  app->successInstalling(appPackageDirPath);
   return; 
 }
 
@@ -402,7 +419,7 @@ void AppCore::removeApp(BaseMessage* message) {
   }
 
   // Find app for the appId
-  App* app = this->mAppList->get(appId);
+  App* app = this->mAppList->getAppId(appId);
   if(app == NULL) {
     OPEL_DBG_ERR("App does not exist in the app list!");
     return;
@@ -433,7 +450,7 @@ void AppCore::launchApp(BaseMessage* message) {
   }
 
   // Find app for the appId
-  App* app = this->mAppList->get(appId);
+  App* app = this->mAppList->getAppId(appId);
   if(app == NULL) {
     OPEL_DBG_ERR("App does not exist in the app list!");
     return;
@@ -442,12 +459,11 @@ void AppCore::launchApp(BaseMessage* message) {
   pid_t pid;
   pid = fork();
 
-  if(pid < 0){
-    OPEL_DBG_ERR("Fail to fork app process\n");
-    return false;
-  }
-
-  else if(pid == 0) {
+  if (pid > 0) {
+    // parent for managing child's PID & mainstream
+    // Update state
+    app->startLaunching(pid);
+  } else if(pid == 0) {
     // Child for executing the application
     char mainJSFilePath[PATH_BUFFER_SIZE];
     snprintf(mainJSFilePath, PATH_BUFFER_SIZE, "%s/%s",
@@ -455,11 +471,8 @@ void AppCore::launchApp(BaseMessage* message) {
     char* fullPath[] = {"node", mainJSFilePath, NULL};	
     OPEL_DBG_VERB("Launch app: %s", mainJSFilePath);
     execvp("node", fullPath);
-  } else if (pid > 0) {
-    // parent for managing child's PID & mainstream
-    // Update state
-    app->startLaunching(pid);
-    return true;
+  } else {
+    OPEL_DBG_ERR("Fail to fork app process\n");
   }
 }
 
@@ -474,7 +487,7 @@ void AppCore::completeLaunchingApp(BaseMessage* message) {
   }
 
   // Find app for the appId
-  App* app = this->mAppList->get(appId);
+  App* app = this->mAppList->getByAppId(appId);
   if(app == NULL) {
     OPEL_DBG_ERR("App does not exist in the app list!");
     return;
@@ -504,8 +517,20 @@ void AppCore::terminateApp(BaseMessage* message) {
 
   // Send the terminate message
   this->mLocalChannel->sendMessage(appMessage);
+}
 
-  // TODO: whre is stopTerminating()? need AppAckMessage
+void AppCore::completeTerminatingApp(int pid) {
+  // Find app for the pid
+  App* app = this->mAppList->getByPid(pid);
+  if(app == NULL) {
+    OPEL_DBG_ERR("App does not exist in the app list!");
+    return;
+  }
+
+  OPEL_DBG_VERB("Child was killed [User app pid : %d]", pid);
+
+  // Update state
+  app->finishTerminating();
 }
 
 void AppCore::getFileList(BaseMessage* message) {
@@ -534,7 +559,8 @@ void AppCore::getFileList(BaseMessage* message) {
 		lstat(dirEntry->d_name, &st);
 
     std::string fileName(dirEntry->d_name);
-    int fileType = ((S_ISDIR(st.st_mode)) ? 1 : ((S_ISREG(st.st_mode)) ? 2 : 0));
+    int fileType = ((S_ISDIR(st.st_mode)) ? 1 :
+        ((S_ISREG(st.st_mode)) ? 2 : 0));
     int fileSizeBytes = st.st_size;
 
     char fileTimeBuffer[30];

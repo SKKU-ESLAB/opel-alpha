@@ -249,8 +249,8 @@ namespace ParamFileListEntryType {
 
 class ParamFileListEntry {
   public:
-    ParamFileListEntry(std::string fileName, ParamFileListEntryType fileType, int fileSizeBytes,
-        std::string fileTime)
+    ParamFileListEntry(std::string fileName, ParamFileListEntryType fileType,
+        int fileSizeBytes, std::string fileTime)
       : mFileName(fileName), mFileType(fileType), mFileSizeBytes(fileSizeBytes),
       mFileTime(fileTime) { }
 

@@ -80,18 +80,21 @@ bool AppList::fetchAppList() {
     bool isDefaultApp = (sqlite3_column_int(stmt, 1) != 0);
     std::string name(reinterpret_cast<const char*>(
           sqlite3_column_text(stmt, 2)));
-    std::string mainJSFileName(reinterpret_cast<const char*>(
+    std::string packagePath(reinterpret_cast<const char*>(
           sqlite3_column_text(stmt, 3)));
-    std::string iconFileName(reinterpret_cast<const char*>(
+    std::string mainJSFileName(reinterpret_cast<const char*>(
           sqlite3_column_text(stmt, 4)));
+    std::string iconFileName(reinterpret_cast<const char*>(
+          sqlite3_column_text(stmt, 5)));
 
     // Check this field has already loaded
-    App* app = this->get(appId);
+    App* app = this->getByAppId(appId);
     if(app == NULL)
       continue;
     
     // Allocate a new entry and add to on-memory list
-    app = new App(appId, isDefaultApp, name, mainJSFileName, iconFileName);
+    app = new App(appId, isDefaultApp, name,
+        packagePath, mainJSFileName, iconFileName);
     this->mApps.push_back(app);
   }
   sqlite3_finalize(stmt);
@@ -105,6 +108,7 @@ bool AppList::createDBTable() {
                       "ID INTEGER PRIMARY KEY," \
                       "ISDEFAULTAPP INTEGER NOT NULL," \
                       "NAME TEXT NOT NULL," \
+                      "PACKAGEPATH TEXT NOT NULL," \
                       "MAINJSFILENAME TEXT NOT NULL," \
                       "ICONFILENAME TEXT NOT NULL);";
 
@@ -120,13 +124,26 @@ bool AppList::createDBTable() {
   return true;
 }
 
-App* AppList::get(int appId) {
+App* AppList::getByAppId(int appId) {
   std::vector<App*>::iterator alIter;
   for(alIter = this->mApps.begin();
       alIter != this->mApps.end();
       ++alIter) {
     int thisAppId = (*alIter)->getId();
     if(thisAppId == appId) {
+      return (*alIter);
+    }
+  }
+  return NULL;
+}
+
+App* AppList::getByPid(int pid) {
+  std::vector<App*>::iterator alIter;
+  for(alIter = this->mApps.begin();
+      alIter != this->mApps.end();
+      ++alIter) {
+    int thisPid = (*alIter)->getPid();
+    if(thisPid == pid) {
       return (*alIter);
     }
   }
@@ -144,6 +161,7 @@ bool AppList::flush(App* app) {
   int appId = app->getId();
   bool isDefaultApp = app->isDefaultApp();
   std::string name(app->getName());
+  std::string packagePath(app->getPackagePath());
   std::string mainJSFileName(app->getMainJSFileName());
   std::string iconFileName(app->getIconFileName());
 
@@ -151,9 +169,10 @@ bool AppList::flush(App* app) {
   char query[QUERY_BUFFER_LENGTH];
   snprintf(query, QUERY_BUFFER_LENGTH,
       "INSERT INTO APPLIST" \
-      "(ID, ISDEFAULTAPP, NAME, MAINJSFILENAME, ICONFILENAME)" \
+      "(ID, ISDEFAULTAPP, NAME, PACKAGEPATH, MAINJSFILENAME, ICONFILENAME)" \
       "VALUES ('%d', '%s', '%d', '%s', '%s');",
-      appId, (isDefaultApp) ? 1 : 0, name, mainJSFileName, iconFileName);
+      appId, (isDefaultApp) ? 1 : 0, name,
+      packagePath, mainJSFileName, iconFileName);
 
   char* insertErr;
   int insertRes = sqlite3_exec(this->mDBPath, query, NULL, NULL, &insertErr);

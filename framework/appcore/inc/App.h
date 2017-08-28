@@ -49,18 +49,21 @@ class App {
       mPackageFileName(NULL), 
       mIsDefaultApp(false),
       mName(NULL),
+      mPackagePath(NULL),
       mMainJSFileName(NULL), mIconFileName(NULL),
       mPid(-1) {
     }
 
     App(int id
         bool isDefaultApp, std::string name,
+        std::string packagePath,
         std::string mainJSFileName, std::string iconFileName)
       : mState(AppState::Initializing), mAppStateListener(NULL),
       mId(id),
       mPackageFileName(NULL), 
       mIsDefaultApp(isDefaultApp),
       mName(name),
+      mPackagePath(packagePath),
       mMainJSFileName(mainJSFileName), mIconFileName(iconFileName),
       mPid(-1) {
     }
@@ -71,7 +74,7 @@ class App {
     std::string getPackageFileName() { return this->mPackageFileName; }
     bool isDefaultApp() { return this->mIsDefaultApp; }
     std::string getName() { return this->mName; }
-    std::string getPackagePath() { return this->mPackagePath; }
+    std::string getPackagePath() { return this->mPackagePath; } // TODO: add it
     std::string getMainJSFileName() { return this->mMainJSFileName; }
     int getPid() { return this->mPid; }
 
@@ -81,13 +84,13 @@ class App {
     // Commands
     void finishInitializing(int appId); // Initializing -> Initialized
 
-    void startInstalling(std::string packageFileName); // Initialized -> Installing
+    void startInstalling(); // Initialized -> Installing
     void successInstalling(); // Installing -> Ready
     void failInstalling(); // Installing -> Removed
 
     void startLaunching(int pid); // Ready -> Launching
-    void successLaunching(); // Launching -> Running
-    // TODO: how to know if launching is failed?
+    void successLaunching(std::string packagePath); // Launching -> Running
+    // TODO: how to know if launching is failed? --> timer? (no response watcher)
     void failLaunching(); // Launching -> Ready
 
     void startTerminating(); // Running -> Terminating
@@ -111,7 +114,6 @@ class App {
     // App information
     AppState::Value mState;
     int mId; // determined at Initialized, reset at Removed (stored to DB)
-    std::string mPackageFilePath; // determined at Installing, reset at Ready
     bool mIsDefaultApp; // determined at Ready, reset at Removed (stored to DB)
     std::string mName; // determined at Ready, reset at Removed (stored to DB)
     std::string mPackagePath; // TODO: determined at Ready, reset at Removed (stored to DB)
