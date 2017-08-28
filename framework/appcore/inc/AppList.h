@@ -38,6 +38,7 @@ class AppList {
       }
       sqlite3_close(this->mDB);
     }
+    void addAndFlushDefaultApps();
 
     std::vector<App*>& getApps() { return this->mApps; }
     App* getByAppId(int appId);

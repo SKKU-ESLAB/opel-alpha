@@ -115,6 +115,43 @@ bool AppCore::initializeDirs() {
   return true;
 }
 
+void AppCore::initializeDefaultApps() {
+  // Camera Viewer
+  {
+    char packagePath[PATH_BUFFER_SIZE];
+    char mainJSFileName[PATH_BUFFER_SIZE];
+    char iconFileName[PATH_BUFFER_SIZE];
+    snprintf(packagePath, PATH_BUFFER_SIZE, "%s/%s",
+        this->mSystemAppsDir, "CameraViewer");
+    snprintf(mainJSFileName, PATH_BUFFER_SIZE, "%s",
+        this->mSystemAppsDir, "index.js");
+    snprintf(iconFileName, PATH_BUFFER_SIZE, "%s",
+        this->mSystemAppsDir, "");
+    App* app = new App(this->mNextAppId++, true, "CameraViewer",
+        packagePath, mainJSFileName, iconFileName,
+        AppState::Ready);
+    this->add(app);
+    this->flush(app);
+  }
+  // Sensor Viewer
+  {
+    char packagePath[PATH_BUFFER_SIZE];
+    char mainJSFileName[PATH_BUFFER_SIZE];
+    char iconFileName[PATH_BUFFER_SIZE];
+    snprintf(packagePath, PATH_BUFFER_SIZE, "%s/%s",
+        this->mSystemAppsDir, "SensorViewer");
+    snprintf(mainJSFileName, PATH_BUFFER_SIZE, "%s",
+        this->mSystemAppsDir, "index.js");
+    snprintf(iconFileName, PATH_BUFFER_SIZE, "%s",
+        this->mSystemAppsDir, "");
+    App* app = new App(this->mNextAppId++, true, "SensorViewer",
+        packagePath, mainJSFileName, iconFileName,
+        AppState::Ready);
+    this->add(app);
+    this->flush(app);
+  }
+}
+
 #define COMPANION_DEVICE_URI "/comp0"
 #define APPS_URI "/thing/apps"
 #define APPCORE_URI "/thing/appcore"
@@ -129,6 +166,9 @@ void AppCore::run() {
 
   // Initialize AppList
   this->mAppList = AppList::initializeFromDB(this->mAppListDBPath);
+  if(this->mAppList->getApps().size() <= 0) {
+    this->initializeDefaultApps();
+  }
 
   // Initialize MessageRouter and Channels
   this->mMessageRouter = new MessageRouter();
@@ -283,6 +323,8 @@ void AppCore::getAppList(BaseMessage* message) {
     bool isDefaultApp = (*iter)->isDefaultApp();
     paramAppList->addEntry(appId, appName, isDefaultApp);
   }
+
+  // TODO: Make icon archive file
 
   // Make ACK message
   BaseMessage* ackMessage

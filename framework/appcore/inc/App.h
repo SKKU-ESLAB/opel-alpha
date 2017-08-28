@@ -58,8 +58,9 @@ class App {
 
     App(int id, bool isDefaultApp, std::string name,
         std::string packagePath,
-        std::string mainJSFileName, std::string iconFileName)
-      : mState(AppState::Initializing), mStateListener(NULL),
+        std::string mainJSFileName, std::string iconFileName,
+        AppState::Value state)
+      : mState(state), mStateListener(NULL),
       mId(id),
       mIsDefaultApp(isDefaultApp),
       mName(name),
@@ -73,7 +74,7 @@ class App {
     int getId() { return this->mId; }
     bool isDefaultApp() { return this->mIsDefaultApp; }
     std::string getName() { return this->mName; }
-    std::string getPackagePath() { return this->mPackagePath; } // TODO: add it
+    std::string getPackagePath() { return this->mPackagePath; }
     std::string getMainJSFileName() { return this->mMainJSFileName; }
     std::string getIconFileName() { return this->mIconFileName; }
     int getPid() { return this->mPid; }
@@ -116,7 +117,7 @@ class App {
     int mId; // determined at Initialized, reset at Removed (stored to DB)
     bool mIsDefaultApp; // determined at Ready, reset at Removed (stored to DB)
     std::string mName; // determined at Ready, reset at Removed (stored to DB)
-    std::string mPackagePath; // TODO: determined at Ready, reset at Removed (stored to DB)
+    std::string mPackagePath; // determined at Ready, reset at Removed (stored to DB)
     std::string mMainJSFileName; // determined at Ready, reset at Removed (stored to DB)
     std::string mIconFileName; // determined at Ready, reset at Removed (stored to DB)
     int mPid; // determined at Launching, reset at Ready

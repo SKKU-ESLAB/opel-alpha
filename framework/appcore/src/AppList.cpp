@@ -20,6 +20,7 @@
 #include "AppList.h"
 #include "OPELdbugLog.h"
 
+#define PATH_BUFFER_SIZE 1024
 #define QUERY_BUFFER_LENGTH 2048
 
 AppList* AppList::initializeFromDB(std::string dbPath) {
@@ -46,6 +47,8 @@ AppList* AppList::initializeFromDB(std::string dbPath) {
     delete appList;
     return NULL;
   }
+
+  // Add default apps and flush their information
 
   return appList;
 }
@@ -88,7 +91,8 @@ bool AppList::fetchAppList() {
     
     // Allocate a new entry and add to on-memory list
     app = new App(appId, isDefaultApp, name,
-        packagePath, mainJSFileName, iconFileName);
+        packagePath, mainJSFileName, iconFileName,
+        AppState::Ready);
     this->mApps.push_back(app);
   }
   sqlite3_finalize(stmt);

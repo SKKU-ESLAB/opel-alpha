@@ -135,7 +135,8 @@ namespace AppCoreMessageCommandType {
   enum Value {
     NotDetermined = 0,
     GetAppList = 1, // params: void (ACK params: ParamAppList)
-    ListenAppState = 2, // params: int appId (ACK params: int appId, int appState)
+    ListenAppState = 2, // params: int appId
+                        // (ACK params: int appId, int appState)
     InitializeApp = 3, // params: void (ACK params: int appId)
     InstallApp = 4, // params: int appId, std::string packageFileName
     LaunchApp = 5, // params: int appId
@@ -145,7 +146,8 @@ namespace AppCoreMessageCommandType {
     GetFileList = 9, // params: std::string path (ACK params: AckParamFileList)
     GetFile = 10, // params: std::string path (ACK params: void)
     GetRootPath = 11, // params: void (ACK params: std::string rootPath)
-    UpdateAppConfig = 12 // params: string legacyData (ACK params: bool isSucceed)
+    UpdateAppConfig = 12 // params: string legacyData
+                         // (ACK params: bool isSucceed)
   };
 }
 
@@ -249,7 +251,8 @@ namespace ParamFileListEntryType {
 
 class ParamFileListEntry {
   public:
-    ParamFileListEntry(std::string fileName, ParamFileListEntryType::Value fileType,
+    ParamFileListEntry(std::string fileName,
+        ParamFileListEntryType::Value fileType,
         int fileSizeBytes, std::string fileTime)
       : mFileName(fileName), mFileType(fileType), mFileSizeBytes(fileSizeBytes),
       mFileTime(fileTime) { }
