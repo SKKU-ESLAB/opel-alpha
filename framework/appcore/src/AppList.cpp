@@ -18,7 +18,7 @@
 #include <sqlite3.h>
 
 #include "AppList.h"
-#include "OPELdbusLog.h"
+#include "OPELdbugLog.h"
 
 #define QUERY_BUFFER_LENGTH 2048
 
@@ -52,8 +52,7 @@ AppList* AppList::initializeFromDB(std::string dbPath) {
 
 bool AppList::openDB(std::string dbPath) {
   // Open DB
-  std::string mDBPath = dbPath;
-  int openRes = sqlite3_open(this->mDBPath, &db);
+  int openRes = sqlite3_open(dbPath.c_str(), &this->mDB);
   if(openRes != SQLITE_OK) {
     OPEL_DBG_ERR("Fail to open DB! (%s)", dbPath);
     return false;
@@ -66,13 +65,8 @@ bool AppList::fetchAppList() {
   char query[QUERY_BUFFER_LENGTH] = "SELECT * from APPLIST;";
   sqlite3_stmt* stmt;
 
-  char* prepareErr;
-  int prepareRes = sqlite3_prepare_v2(this->mDBPath, query, &stmt, prepareErr);
-  if(prepareRes != SQLITE_OK) {
-    OPEL_DBG_ERR("Failed to fetch app list from DB (%s)", prepareErr);
-    sqlite3_free(prepareErr);
-    return false;
-  }
+  int prepareRes = sqlite3_prepare_v2(
+      this->mDB, query, -1, &stmt, NULL);
 
   while(sqlite3_step(stmt) == SQLITE_ROW) {
     // Get fields
@@ -113,7 +107,7 @@ bool AppList::createDBTable() {
                       "ICONFILENAME TEXT NOT NULL);";
 
   char* createErr;
-  int createRes = sqlite3_exec(this->mDBPath, query, NULL, NULL, &createErr);
+  int createRes = sqlite3_exec(this->mDB, query, NULL, NULL, &createErr);
   if(createRes != SQLITE_OK) {
     OPEL_DBG_ERR("Fail to create DB table! (%s)", createErr);
     sqlite3_free(createErr);
@@ -170,12 +164,12 @@ bool AppList::flush(App* app) {
   snprintf(query, QUERY_BUFFER_LENGTH,
       "INSERT INTO APPLIST" \
       "(ID, ISDEFAULTAPP, NAME, PACKAGEPATH, MAINJSFILENAME, ICONFILENAME)" \
-      "VALUES ('%d', '%s', '%d', '%s', '%s');",
-      appId, (isDefaultApp) ? 1 : 0, name,
-      packagePath, mainJSFileName, iconFileName);
+      "VALUES ('%d', '%d', '%s', '%s', '%s', '%s');",
+      appId, ((isDefaultApp) ? 1 : 0), name.c_str(),
+      packagePath.c_str(), mainJSFileName.c_str(), iconFileName.c_str());
 
   char* insertErr;
-  int insertRes = sqlite3_exec(this->mDBPath, query, NULL, NULL, &insertErr);
+  int insertRes = sqlite3_exec(this->mDB, query, NULL, NULL, &insertErr);
   if(insertRes != SQLITE_OK) {
     OPEL_DBG_ERR("Fail to store a new app information to DB (%s)", insertErr);
     sqlite3_free(insertErr);
@@ -185,7 +179,7 @@ bool AppList::flush(App* app) {
 }
 
 bool AppList::remove(App* app) {
-  boolean isSuccess = false;
+  bool isSuccess = false;
   int appId = app->getId();
 
   // Remove from on-memory list
@@ -206,9 +200,9 @@ bool AppList::remove(App* app) {
 
   // Remove from DB
   char query[QUERY_BUFFER_LENGTH];
-  snprintf(query, QUERY_BUFFER_LENGTH, "DELETE FROM APPLIST WHERE ID=%d;" appId);
+  snprintf(query, QUERY_BUFFER_LENGTH, "DELETE FROM APPLIST WHERE ID=%d;", appId);
   char* insertErr;
-  int insertRes = sqlite3_exec(this->mDBPath, query, NULL, NULL, &insertErr);
+  int insertRes = sqlite3_exec(this->mDB, query, NULL, NULL, &insertErr);
   if(insertRes != SQLITE_OK) {
     OPEL_DBG_ERR("Fail to remove app from DB (%d, %s)", appId, insertErr);
     sqlite3_free(insertErr);

@@ -249,7 +249,7 @@ namespace ParamFileListEntryType {
 
 class ParamFileListEntry {
   public:
-    ParamFileListEntry(std::string fileName, ParamFileListEntryType fileType,
+    ParamFileListEntry(std::string fileName, ParamFileListEntryType::Value fileType,
         int fileSizeBytes, std::string fileTime)
       : mFileName(fileName), mFileType(fileType), mFileSizeBytes(fileSizeBytes),
       mFileTime(fileTime) { }
@@ -273,10 +273,10 @@ class ParamFileList {
       return new ParamFileList();
     }
 
-    void addEntry(std::string fileName, int fileType, int fileSizeBytes,
-        std::string fileTime) {
-      this->mFileList.push_back(new ParamFileListEntry(fileName, fileType,
-            fileSizeBytes, fileTime));
+    void addEntry(std::string fileName, ParamFileListEntryType::Value fileType,
+        int fileSizeBytes, std::string fileTime) {
+      ParamFileListEntry newEntry(fileName, fileType, fileSizeBytes, fileTime);
+      this->mFileList.push_back(newEntry);
     }
     
     // encoding to JSON
@@ -315,10 +315,10 @@ class AppCoreAckMessage : public BaseMessagePayload {
     }
 
     // Set command-specific parameters
-    void setParamsGetAppList(ParamAppList& appList);
+    void setParamsGetAppList(ParamAppList* appList);
     void setParamsListenAppState(int appId, int appState);
     void setParamsInitializeApp(int appId);
-    void setParamsGetFileList(std::string path, ParamFileList& fileList);
+    void setParamsGetFileList(std::string path, ParamFileList* fileList);
     void setParamsGetRootPath(std::string rootPath);
     void setParamsUpdateAppConfig(bool isSucceed);
 

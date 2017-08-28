@@ -20,6 +20,8 @@
 
 #include <iostream>
 
+#define PATH_BUFFER_SIZE 1024
+
 // Use namespace + enum for readability
 namespace AppState {
   enum Value {
@@ -38,15 +40,15 @@ namespace AppState {
 }
 
 class AppStateListener {
-  virtual void onChangedState(int appId, AppState::Value newState) = 0;
+  public:
+    virtual void onChangedState(int appId, AppState::Value newState) = 0;
 };
 
 class App {
   public:
     App()
-      : mState(AppState::Initializing), mAppStateListener(NULL),
+      : mState(AppState::Initializing), mStateListener(NULL),
       mId(-1),
-      mPackageFileName(NULL), 
       mIsDefaultApp(false),
       mName(NULL),
       mPackagePath(NULL),
@@ -54,13 +56,11 @@ class App {
       mPid(-1) {
     }
 
-    App(int id
-        bool isDefaultApp, std::string name,
+    App(int id, bool isDefaultApp, std::string name,
         std::string packagePath,
         std::string mainJSFileName, std::string iconFileName)
-      : mState(AppState::Initializing), mAppStateListener(NULL),
+      : mState(AppState::Initializing), mStateListener(NULL),
       mId(id),
-      mPackageFileName(NULL), 
       mIsDefaultApp(isDefaultApp),
       mName(name),
       mPackagePath(packagePath),
@@ -71,11 +71,11 @@ class App {
     // Getters
     AppState::Value getState() { return this->mState; }
     int getId() { return this->mId; }
-    std::string getPackageFileName() { return this->mPackageFileName; }
     bool isDefaultApp() { return this->mIsDefaultApp; }
     std::string getName() { return this->mName; }
     std::string getPackagePath() { return this->mPackagePath; } // TODO: add it
     std::string getMainJSFileName() { return this->mMainJSFileName; }
+    std::string getIconFileName() { return this->mIconFileName; }
     int getPid() { return this->mPid; }
 
     // Setters
@@ -85,11 +85,11 @@ class App {
     void finishInitializing(int appId); // Initializing -> Initialized
 
     void startInstalling(); // Initialized -> Installing
-    void successInstalling(); // Installing -> Ready
+    void successInstalling(std::string packagePath); // Installing -> Ready
     void failInstalling(); // Installing -> Removed
 
     void startLaunching(int pid); // Ready -> Launching
-    void successLaunching(std::string packagePath); // Launching -> Running
+    void successLaunching(); // Launching -> Running
     // TODO: how to know if launching is failed? --> timer? (no response watcher)
     void failLaunching(); // Launching -> Ready
 

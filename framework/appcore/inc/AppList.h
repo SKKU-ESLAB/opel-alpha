@@ -18,9 +18,26 @@
 #ifndef __APP_LIST_H__
 #define __APP_LIST_H__
 
+#include <iostream>
+#include <string>
+#include <vector>
+#include <sqlite3.h>
+
+#include "App.h"
+
 class AppList {
   public:
     static AppList* initializeFromDB(std::string dbPath);
+    ~AppList() {
+      std::vector<App*>::iterator alIter;
+      for(alIter = this->mApps.begin();
+          alIter != this->mApps.end();
+          ++alIter) {
+        delete (*alIter);
+        this->mApps.erase(alIter);
+      }
+      sqlite3_close(this->mDB);
+    }
 
     std::vector<App*>& getApps() { return this->mApps; }
     App* getByAppId(int appId);
@@ -31,18 +48,9 @@ class AppList {
     
   protected:
     std::vector<App*> mApps;
-    std::string mDBPath;
+    sqlite3* mDB;
 
-    AppList() : mDBPath(NULL) { }
-    ~AppList() {
-      std::vector<App*>::iterator alIter;
-      for(alIter = this->mApps.begin();
-          alIter != this->mApps.end();
-          ++alIter) {
-        delete (*alIter);
-        this->mApps.erase(alIter);
-      }
-    }
+    AppList() { }
 
     bool openDB(std::string dbPath);
     bool fetchAppList();

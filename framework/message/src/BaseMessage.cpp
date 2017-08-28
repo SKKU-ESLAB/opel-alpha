@@ -253,9 +253,9 @@ cJSON* ParamAppList::toJSON() {
 }
 
 // Set command-specific parameters (AppCoreAckMessage)
-void AppCoreAckMessage::setParamsGetAppList(ParamAppList& appList) {
+void AppCoreAckMessage::setParamsGetAppList(ParamAppList* appList) {
   cJSON* payloadObj = cJSON_CreateObject();
-  cJSON_AddItemToObject(payloadObj, "appList", appList.toJSON());
+  cJSON_AddItemToObject(payloadObj, "appList", appList->toJSON());
   this->mAppCoreAckPayloadObj = payloadObj; 
 }
 
@@ -296,11 +296,11 @@ cJSON* ParamFileList::toJSON() {
     cJSON_AddStringToObject(entryObj, "fileName", fileName.c_str());
 
     // fileType
-    sprintf(tempStr, "%d", iter->getFileType);
+    sprintf(tempStr, "%d", iter->getFileType());
     cJSON_AddStringToObject(entryObj, "fileType", tempStr);
 
     // fileSizeBytes
-    sprintf(tempStr, "%d", iter->getFileSizeBytes);
+    sprintf(tempStr, "%d", iter->getFileSizeBytes());
     cJSON_AddStringToObject(entryObj, "fileSizeBytes", tempStr);
 
     // fileTime
@@ -314,10 +314,10 @@ cJSON* ParamFileList::toJSON() {
 }
 
 void AppCoreAckMessage::setParamsGetFileList(std::string path,
-    ParamFileList& fileList) {
+    ParamFileList* fileList) {
   cJSON* payloadObj = cJSON_CreateObject();
   cJSON_AddStringToObject(payloadObj, "path", path.c_str());
-  cJSON_AddItemToObject(payloadObj, "fileList", fileList.toJSON());
+  cJSON_AddItemToObject(payloadObj, "fileList", fileList->toJSON());
   this->mAppCoreAckPayloadObj = payloadObj; 
 }
 

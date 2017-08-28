@@ -27,6 +27,7 @@
 #include "AppList.h"
 
 #include <iostream>
+#include <vector>
 
 #define PATH_BUFFER_SIZE 1024
 
@@ -42,10 +43,19 @@ class AppCore
     }
 
     ~AppCore() {
+      delete this->mAppList;
       delete this->mMessageRouter;
       delete this->mDbusChannel;
       delete this->mCommChannel;
       delete this->mLocalChannel;
+
+      std::vector<BaseMessage*>::iterator iter;
+      for(iter = this->mListenAppStateMessageList.begin();
+          iter != this->mListenAppStateMessageList.end();
+          iter++) {
+        this->mListenAppStateMessageList.erase(iter);
+        delete (*iter);
+      }
     }
 
     // Main loop

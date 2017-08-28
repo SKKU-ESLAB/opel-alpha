@@ -14,8 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <libxml/parser.h>
+#include <libxml/tree.h>
 
 #include "App.h"
+#include "OPELdbugLog.h"
 
 bool App::changeState(AppState::Value newState) {
   // Check new state
@@ -66,7 +69,7 @@ bool App::changeState(AppState::Value newState) {
   if(isChangeApproved) {
     this->mState = newState;
     if(this->mStateListener != NULL) {
-      this->mStateListener->onChangedState(this->mState);
+      this->mStateListener->onChangedState(this->getId(), this->mState);
     }
   }
   return isChangeApproved;
@@ -76,7 +79,7 @@ bool App::setFromManifest(std::string manifestFilePath) {
 	xmlDocPtr xmlDoc;
 	xmlNodePtr xmlNode;
 
-	xmlDoc = xmlParseFile(manifestFilePath);
+	xmlDoc = xmlParseFile(manifestFilePath.c_str());
 	if (xmlDoc == NULL) {
 		OPEL_DBG_ERR("Document not parsed successfully. \n");
 		return false;
@@ -137,7 +140,7 @@ bool App::setFromManifest(std::string manifestFilePath) {
 }
 
 void App::finishInitializing(int appId) { // Initializing -> Initialized
-  this->mAppId = appId;
+  this->mId = appId;
   this->changeState(AppState::Initialized);
 }
 
@@ -145,7 +148,8 @@ void App::startInstalling() { // Initialized -> Installing
   this->changeState(AppState::Installing);
 }
 
-void App::successInstalling() { // Installing -> Ready
+void App::successInstalling(std::string packagePath) { // Installing -> Ready
+  this->mPackagePath = packagePath;
   this->changeState(AppState::Ready);
 }
 
@@ -158,8 +162,7 @@ void App::startLaunching(int pid) { // Ready -> Launching
   this->changeState(AppState::Initialized);
 }
 
-void App::successLaunching(std::string packagePath) { // Launching -> Running
-  this->mPackagePath = packagePath;
+void App::successLaunching() { // Launching -> Running
   this->changeState(AppState::Running);
 }
 

@@ -34,9 +34,14 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
+extern "C" {
+#include "miniunz.h"
+}
+
 #include "AppCore.h"
 #include "OPELdbugLog.h"
 #include "BaseMessage.h"
+#include "MessageFactory.h"
 #include "AppList.h"
 
 using namespace std;
@@ -64,7 +69,7 @@ bool AppCore::initializeDirs() {
     }
 
     // App List DB Dir
-    snprintf(this->mAppListDBDir, PATH_BUFFER_SIZE, "%s/%s",
+    snprintf(this->mAppListDBPath, PATH_BUFFER_SIZE, "%s/%s",
         dirString, "AppListDB.sqlite");
   } else {
     OPEL_DBG_ERR("Cannot read OPEL_APPS_DIR");
@@ -123,7 +128,7 @@ void AppCore::run() {
   }
 
   // Initialize AppList
-  this->initializeFromDB(this->mAppListDBPath);
+  this->mAppList = AppList::initializeFromDB(this->mAppListDBPath);
 
   // Initialize MessageRouter and Channels
   this->mMessageRouter = new MessageRouter();
@@ -179,37 +184,37 @@ void AppCore::onReceivedMessage(BaseMessage* message) {
 
   switch(payload->getCommandType()) {
     case AppCoreMessageCommandType::GetAppList:
-      this->getAppList(baseMessage);
+      this->getAppList(message);
       break;
     case AppCoreMessageCommandType::ListenAppState:
-      this->listenAppState(baseMessage);
+      this->listenAppState(message);
       break;
     case AppCoreMessageCommandType::InitializeApp:
-      this->initializeApp(baseMessage);
+      this->initializeApp(message);
       break;
     case AppCoreMessageCommandType::InstallApp:
-      this->installApp(baseMessage);
+      this->installApp(message);
       break;
     case AppCoreMessageCommandType::LaunchApp:
-      this->launchApp(baseMessage);
+      this->launchApp(message);
       break;
     case AppCoreMessageCommandType::CompleteLaunchingApp:
-      this->completeLaunchingApp(baseMessage);
+      this->completeLaunchingApp(message);
       break;
     case AppCoreMessageCommandType::TerminateApp:
-      this->terminateApp(baseMessage);
+      this->terminateApp(message);
       break;
     case AppCoreMessageCommandType::RemoveApp:
-      this->removeApp(baseMessage);
+      this->removeApp(message);
       break;
     case AppCoreMessageCommandType::GetFileList:
-      this->getFileList(baseMessage);
+      this->getFileList(message);
       break;
     case AppCoreMessageCommandType::GetFile:
-      this->getFile(baseMessage);
+      this->getFile(message);
       break;
     case AppCoreMessageCommandType::GetRootPath:
-      this->getRootPath(baseMessage);
+      this->getRootPath(message);
       break;
   }
 }
@@ -246,13 +251,13 @@ void AppCore::onChangedState(int appId, AppState::Value newState) {
     AppCoreMessage* originalPayload
       = (AppCoreMessage*)originalMessage->getPayload();
     int thisAppId = -1;
-    requestPayload->getParamsListenAppState(thisAppId);
+    originalPayload->getParamsListenAppState(thisAppId);
     if(thisAppId == appId) {
       // Make ACK message
       BaseMessage* ackMessage
         = MessageFactory::makeAppCoreAckMessage(COMPANION_DEVICE_URI,
             originalMessage); 
-      AppCoreAckMessage* ackPayload = ackMessage->getPayload();
+      AppCoreAckMessage* ackPayload = (AppCoreAckMessage*)ackMessage->getPayload();
       ackPayload->setParamsListenAppState(appId, newState);
 
       // Send ACK message
@@ -268,13 +273,13 @@ void AppCore::getAppList(BaseMessage* message) {
 
   // Make AppList parameter
   ParamAppList* paramAppList = ParamAppList::make();
-  std::vector<App*>& appList
+  std::vector<App*>& apps = this->mAppList->getApps();
   std::vector<App*>::iterator iter;
-  for(iter = appList.begin();
-      iter != appList.end();
+  for(iter = apps.begin();
+      iter != apps.end();
       iter++) {
-    int appId = (*iter)->getAppId();
-    std::string appName = (*iter)->getAppName();
+    int appId = (*iter)->getId();
+    std::string appName((*iter)->getName());
     bool isDefaultApp = (*iter)->isDefaultApp();
     paramAppList->addEntry(appId, appName, isDefaultApp);
   }
@@ -282,7 +287,7 @@ void AppCore::getAppList(BaseMessage* message) {
   // Make ACK message
   BaseMessage* ackMessage
     = MessageFactory::makeAppCoreAckMessage(COMPANION_DEVICE_URI, message); 
-  AppCoreAckMessage* ackPayload = ackMessage->getPayload();
+  AppCoreAckMessage* ackPayload = (AppCoreAckMessage*)ackMessage->getPayload();
   ackPayload->setParamsGetAppList(paramAppList);
 
   // Send ACK message
@@ -292,11 +297,10 @@ void AppCore::getAppList(BaseMessage* message) {
 
 void AppCore::listenAppState(BaseMessage* message) {
   // Get arguments
-  BaseMessage* originalMessage = (*iter);
   AppCoreMessage* originalPayload
-    = (AppCoreMessage*)originalMessage->getPayload();
+    = (AppCoreMessage*)message->getPayload();
   int appId = -1;
-  requestPayload->getParamsListenAppState(appId);
+  originalPayload->getParamsListenAppState(appId);
 
   // Check if there has already been listener of the app
   std::vector<BaseMessage*>::iterator iter;
@@ -307,7 +311,7 @@ void AppCore::listenAppState(BaseMessage* message) {
     AppCoreMessage* originalPayload =
       (AppCoreMessage*)originalMessage->getPayload();
     int thisAppId = -1;
-    requestPayload->getParamsListenAppState(thisAppId);
+    originalPayload->getParamsListenAppState(thisAppId);
     if(thisAppId == appId) {
       return;
     }
@@ -330,21 +334,23 @@ void AppCore::initializeApp(BaseMessage* message) {
   // Make ACK message
   BaseMessage* ackMessage
     = MessageFactory::makeAppCoreAckMessage(COMPANION_DEVICE_URI, message); 
-  AppCoreAckMessage* ackPayload = ackMessage->getPayload();
+  AppCoreAckMessage* ackPayload = (AppCoreAckMessage*)ackMessage->getPayload();
   ackPayload->setParamsInitializeApp(app->getId());
 
   // Send ACK message
   this->mLocalChannel->sendMessage(ackMessage);
-  delete paramAppList;
 }
 
 void AppCore::installApp(BaseMessage* message) {
   // Get arguments
-  std::string packageFilePath(message->getStoredFilePath());
-
+  std::string packageFilePathObj(message->getStoredFilePath());
+  char packageFilePath[PATH_BUFFER_SIZE];
+  strncpy(packageFilePath, packageFilePathObj.c_str(),
+      packageFilePathObj.length());
+  AppCoreMessage* payload = (AppCoreMessage*)message->getPayload();
   int appId;
   std::string packageFileName;
-  message->getParamsInstallApp(appId, packageFileName);
+  payload->getParamsInstallApp(appId, packageFileName);
 
   // Find app for the appId
   App* app = this->mAppList->getByAppId(appId);
@@ -356,10 +362,10 @@ void AppCore::installApp(BaseMessage* message) {
   // Update state
   app->startInstalling();
 
-  // Make app package directory
+  // Make app package directory and determine appPackageDirPath
   // truncate opk extension
 	char appPackageDirName[PATH_BUFFER_SIZE];
-	strncpy(appPackageDirName, packageFileName, strlen(packageFileName)-4); 
+	strncpy(appPackageDirName, packageFileName.c_str(), packageFileName.length() - 4); 
 
   // ${OPEL_APPS_DIR}/user/${APP_NAME}
 	char appPackageDirPath[PATH_BUFFER_SIZE];
@@ -375,14 +381,11 @@ void AppCore::installApp(BaseMessage* message) {
   }
 
   // Archive app package
-	snprintf(packageFilePath, PATH_BUFFER_SIZE, "%s/%s",
-      this->mUserAppsDir, packageFileName.c_str());
-	char* commandUnzip[4] ={0,};
-	commandUnzip[0] = "";
-	commandUnzip[1] = packageFilePath;
-	commandUnzip[2] = "-d";
-	commandUnzip[3] = appPackageDirPath;
-
+  char _commandUnzip0[] = "";
+  char _commandUnzip2[] = "-d";
+	char* commandUnzip[4] = {
+    _commandUnzip0, packageFilePath, _commandUnzip2, appPackageDirPath
+  };
 	do_unzip(4, commandUnzip);
 	sync();
 
@@ -394,7 +397,8 @@ void AppCore::installApp(BaseMessage* message) {
 	
   // Parse app manifest file
   char manifestFilePath[PATH_BUFFER_SIZE];
-  snprintf(manifestFilePath, "%s/%s", appPackageDirPath, "manifest.xml");
+  snprintf(manifestFilePath, PATH_BUFFER_SIZE, "%s/%s",
+      appPackageDirPath, "manifest.xml");
   bool settingSuccess = app->setFromManifest(manifestFilePath);
   if(!settingSuccess) {
     app->failInstalling();
@@ -412,14 +416,15 @@ void AppCore::installApp(BaseMessage* message) {
 void AppCore::removeApp(BaseMessage* message) {
   // Get arguments
   int appId;
-  if(message->getParamsTerminateApp(appId) == false) {
+  AppCoreMessage* payload = (AppCoreMessage*)message->getPayload();
+  if(payload->getParamsTerminateApp(appId) == false) {
     OPEL_DBG_ERR("Invalid AppCoreMessage! (commandType: %d)",
-        message->getCommandType());
+        payload->getCommandType());
     return;
   }
 
   // Find app for the appId
-  App* app = this->mAppList->getAppId(appId);
+  App* app = this->mAppList->getByAppId(appId);
   if(app == NULL) {
     OPEL_DBG_ERR("App does not exist in the app list!");
     return;
@@ -430,7 +435,7 @@ void AppCore::removeApp(BaseMessage* message) {
 
 	char commandRm[PATH_BUFFER_SIZE];
 	snprintf(commandRm, PATH_BUFFER_SIZE,
-      "rm -rf %s", app->getPackagePath());
+      "rm -rf %s", app->getPackagePath().c_str());
 
   // Update state
   app->finishRemoving();
@@ -443,14 +448,15 @@ void AppCore::removeApp(BaseMessage* message) {
 void AppCore::launchApp(BaseMessage* message) {
   // Get arguments
   int appId;
-  if(message->getParamsLaunchApp(appId) == false) {
+  AppCoreMessage* payload = (AppCoreMessage*)message->getPayload();
+  if(payload->getParamsLaunchApp(appId) == false) {
     OPEL_DBG_ERR("Invalid AppCoreMessage! (commandType: %d)",
-        message->getCommandType());
+        payload->getCommandType());
     return;
   }
 
   // Find app for the appId
-  App* app = this->mAppList->getAppId(appId);
+  App* app = this->mAppList->getByAppId(appId);
   if(app == NULL) {
     OPEL_DBG_ERR("App does not exist in the app list!");
     return;
@@ -467,8 +473,9 @@ void AppCore::launchApp(BaseMessage* message) {
     // Child for executing the application
     char mainJSFilePath[PATH_BUFFER_SIZE];
     snprintf(mainJSFilePath, PATH_BUFFER_SIZE, "%s/%s",
-        app->getPackagePath(), app->getMainJSFileName());
-    char* fullPath[] = {"node", mainJSFilePath, NULL};	
+        app->getPackagePath().c_str(), app->getMainJSFileName().c_str());
+    char nodeCommand[] = "node";
+    char* fullPath[] = {nodeCommand, mainJSFilePath, NULL};	
     OPEL_DBG_VERB("Launch app: %s", mainJSFilePath);
     execvp("node", fullPath);
   } else {
@@ -480,9 +487,10 @@ void AppCore::completeLaunchingApp(BaseMessage* message) {
   // Get arguments
   int appId;
   int pid;
-  if(message->getParamsCompleteLaunchingApp(appId, pid) == false) {
+  AppCoreMessage* payload = (AppCoreMessage*)message->getPayload();
+  if(payload->getParamsCompleteLaunchingApp(appId, pid) == false) {
     OPEL_DBG_ERR("Invalid AppCoreMessage! (commandType: %d)",
-        message->getCommandType());
+        payload->getCommandType());
     return;
   }
 
@@ -500,9 +508,17 @@ void AppCore::completeLaunchingApp(BaseMessage* message) {
 void AppCore::terminateApp(BaseMessage* message) {
   // Get arguments
   int appId;
-  if(message->getParamsTerminateApp(appId) == false) {
+  AppCoreMessage* payload = (AppCoreMessage*)message->getPayload();
+  if(payload->getParamsTerminateApp(appId) == false) {
     OPEL_DBG_ERR("Invalid AppCoreMessage! (commandType: %d)",
-        message->getCommandType());
+        payload->getCommandType());
+    return;
+  }
+
+  // Find app for the appId
+  App* app = this->mAppList->getByAppId(appId);
+  if(app == NULL) {
+    OPEL_DBG_ERR("App does not exist in the app list!");
     return;
   }
 
@@ -511,9 +527,9 @@ void AppCore::terminateApp(BaseMessage* message) {
 
   // Make terminate message
   char uri[PATH_BUFFER_SIZE];
-  snprintf(uri, PATH_BUFFER_SIZE, "%s/%s", APPS_URI, app->getAppId());
+  snprintf(uri, PATH_BUFFER_SIZE, "%s/%d", APPS_URI, app->getId());
   BaseMessage* appMessage
-    = MessageFactory::makeAppMessage(APPS_URI, AppMessageType::Terminate);
+    = MessageFactory::makeAppMessage(APPS_URI, AppMessageCommandType::Terminate);
 
   // Send the terminate message
   this->mLocalChannel->sendMessage(appMessage);
@@ -536,17 +552,18 @@ void AppCore::completeTerminatingApp(int pid) {
 void AppCore::getFileList(BaseMessage* message) {
   // Get arguments
   std::string path;
-  if(message->getParamsGetFileList(path) == false) {
+  AppCoreMessage* payload = (AppCoreMessage*)message->getPayload();
+  if(payload->getParamsGetFileList(path) == false) {
     OPEL_DBG_ERR("Invalid AppCoreMessage! (commandType: %d)",
-        message->getCommandType());
+        payload->getCommandType());
     return;
   }
 
   // Check if the directory is available
 	DIR *dir;
-	if((dir = opendir(path)) == NULL) {
-		OPEL_LOG_ERR("cannot open the directory: %s\n", path.c_str());
-		return 0;
+	if((dir = opendir(path.c_str())) == NULL) {
+		OPEL_DBG_ERR("cannot open the directory: %s\n", path.c_str());
+		return;
 	}
 
   // Add file entries to the file list to be returned
@@ -559,16 +576,28 @@ void AppCore::getFileList(BaseMessage* message) {
 		lstat(dirEntry->d_name, &st);
 
     std::string fileName(dirEntry->d_name);
-    int fileType = ((S_ISDIR(st.st_mode)) ? 1 :
-        ((S_ISREG(st.st_mode)) ? 2 : 0));
+    ParamFileListEntryType::Value fileType;
+    if(S_ISDIR(st.st_mode))
+      fileType = ParamFileListEntryType::Directory;
+    else if(S_ISREG(st.st_mode))
+      fileType = ParamFileListEntryType::File;
+    else
+      fileType = ParamFileListEntryType::Others;
     int fileSizeBytes = st.st_size;
 
+    struct tm* fileTM = localtime(&st.st_atime);
     char fileTimeBuffer[30];
-    strftime(fileTimeBuffer, "%Y-%m-%d %H:%M:%S", st.st_atime);
+    strftime(fileTimeBuffer, 30, "%Y-%m-%d %H:%M:%S", fileTM);
     std::string fileTime(fileTimeBuffer);
 
     paramFileList->addEntry(fileName, fileType, fileSizeBytes, fileTime);
 	}
+
+  // Make ACK message
+  BaseMessage* ackMessage
+    = MessageFactory::makeAppCoreAckMessage(COMPANION_DEVICE_URI, message); 
+  AppCoreAckMessage* ackPayload = (AppCoreAckMessage*)ackMessage->getPayload();
+  ackPayload->setParamsGetFileList(path, paramFileList);
 
   // Send ACK message
   this->mLocalChannel->sendMessage(ackMessage);
@@ -578,9 +607,10 @@ void AppCore::getFileList(BaseMessage* message) {
 void AppCore::getFile(BaseMessage* message) {
   // Get arguments
   std::string path;
-  if(message->getParamsGetFile(path) == false) {
+  AppCoreMessage* payload = (AppCoreMessage*)message->getPayload();
+  if(payload->getParamsGetFile(path) == false) {
     OPEL_DBG_ERR("Invalid AppCoreMessage! (commandType: %d)",
-        message->getCommandType());
+        payload->getCommandType());
     return;
   }
 
@@ -599,7 +629,7 @@ void AppCore::getRootPath(BaseMessage* message) {
   // Make ACK message
   BaseMessage* ackMessage
     = MessageFactory::makeAppCoreAckMessage(COMPANION_DEVICE_URI, message); 
-  AppCoreAckMessage* ackPayload = ackMessage->getPayload();
+  AppCoreAckMessage* ackPayload = (AppCoreAckMessage*)ackMessage->getPayload();
   ackPayload->setParamsGetRootPath(this->mDataDir);
 
   // Send ACK message
