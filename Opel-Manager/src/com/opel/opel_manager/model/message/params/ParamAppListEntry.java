@@ -17,7 +17,10 @@ package com.opel.opel_manager.model.message.params;
  * limitations under the License.
  */
 
-public class ParamAppListEntry {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class ParamAppListEntry implements Parcelable {
     public ParamAppListEntry(int appId, String appName, boolean isDefaultApp) {
         this.appId = appId;
         this.appName = appName;
@@ -27,4 +30,40 @@ public class ParamAppListEntry {
     public int appId;
     public String appName;
     public boolean isDefaultApp;
+
+    // Android Parcelable
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel out, int flags) {
+        // ParamAppListEntry -> Parcel
+        // appId
+        out.writeInt(this.appId);
+
+        // appName
+        out.writeString(this.appName);
+
+        // isDefaultApp
+        out.writeInt((this.isDefaultApp) ? 1 : 0);
+    }
+
+    public static final Parcelable.Creator<ParamAppListEntry> CREATOR = new Parcelable
+            .Creator<ParamAppListEntry>() {
+        public ParamAppListEntry createFromParcel(Parcel in) {
+            // Parcel -> ParamAppListEntry
+            int appId = in.readInt();
+            String appName = in.readString();
+            boolean isDefaultApp = (in.readInt() != 0);
+
+            ParamAppListEntry entry = new ParamAppListEntry(appId, appName, isDefaultApp);
+            return entry;
+        }
+
+        public ParamAppListEntry[] newArray(int size) {
+            return new ParamAppListEntry[size];
+        }
+    };
 }

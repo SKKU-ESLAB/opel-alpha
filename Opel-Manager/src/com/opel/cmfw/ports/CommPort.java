@@ -65,7 +65,6 @@ abstract public class CommPort {
         this.mListener.onSuddenlyClosed(this);
     }
 
-    // TODO: Fail handling
     public void listenRawMessage() {
         InputStream inputStream = this.getInputStream();
         if (inputStream == null) return;
@@ -111,7 +110,6 @@ abstract public class CommPort {
 
                     case kMessageData:
                         // Message data is expected
-                        // TODO: not expected -> need some solution except "return"...
                         if (!header.getFlagIsData()) {
                             suddenlyClose("listenRawMessage: unexpected payload type: " + header
                                     .getHeaderFlag());

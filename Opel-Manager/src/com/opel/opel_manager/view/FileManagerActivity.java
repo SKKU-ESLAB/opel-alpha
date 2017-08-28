@@ -1,5 +1,6 @@
 package com.opel.opel_manager.view;
 
+import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.ComponentName;
@@ -12,7 +13,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -22,12 +22,13 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.opel.opel_manager.R;
-import com.opel.opel_manager.controller.LegacyJSONParser;
 import com.opel.opel_manager.controller.OPELControllerBroadcastReceiver;
 import com.opel.opel_manager.controller.OPELControllerService;
+import com.opel.opel_manager.model.message.params.ParamFileListEntry;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import cn.dxjia.ffmpeg.library.FFmpegNativeHelper;
 
@@ -39,13 +40,10 @@ public class FileManagerActivity extends Activity {
     private PrivateControllerBroadcastReceiver mControllerBroadcastReceiver;
     private FileManagerActivity self = this;
 
-    private ListView mFileListView;
-    private static FileListAdapter mFileListAdapter;
-    private ArrayList<FileListItem> mFileList;
+    private FileListAdapter mFileListAdapter;
+    private ArrayList<FileListItem> mFileList = new ArrayList<>();
 
     private String mCurrentPath = "";
-
-    // TODO: remake it
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,13 +60,12 @@ public class FileManagerActivity extends Activity {
     }
 
     private void initializeUI() {
-        mFileListView = (ListView) findViewById(com.opel.opel_manager.R.id.listView1);
-        LegacyJSONParser jp = new LegacyJSONParser("{\"type\":\"1014\"}");
+        ListView fileListView = (ListView) findViewById(R.id.listView1);
 
-        mFileListAdapter = new FileListAdapter(jp);
-        mFileListView.setAdapter(mFileListAdapter);
-        mFileListView.setOnItemClickListener(mItemClickListener);
-        mFileListView.setOnItemLongClickListener(mItemLongClickListener);
+        mFileListAdapter = new FileListAdapter();
+        fileListView.setAdapter(mFileListAdapter);
+        fileListView.setOnItemClickListener(mItemClickListener);
+        fileListView.setOnItemLongClickListener(mItemLongClickListener);
 
         ActionBar actionBar = getActionBar();
         assert actionBar != null;
@@ -82,25 +79,11 @@ public class FileManagerActivity extends Activity {
             .OnItemLongClickListener() {
         @Override
         public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-            if (mControllerServiceStub == null) return true;
-
-            FileListItem item = (FileListItem) parent.getAdapter().getItem(position);
-            if (!item.getFileType().equals("DIR")) {
-                File remoteStorageDir = mControllerServiceStub.getSettings().getRemoteStorageDir();
-                String requestFilePath = mCurrentPath + "/" + item.getFileName();
-                File cachedFile = new File(remoteStorageDir, transformOfFilename(requestFilePath));
-                if (cachedFile.exists()) {
-                    LegacyJSONParser jp = new LegacyJSONParser();
-                    jp.makeNewJson();
-                    jp.addJsonKeyValue("type", "DuplicatedFile");
-                    String fileName = transformOfFilename(requestFilePath);
-                    String originPath = remoteStorageDir.getAbsolutePath() + "/" +
-                            transformOfFilename(requestFilePath);
-                    runSharingFile(fileName, originPath);
-                } else {
-                    mControllerServiceStub.getFileAsync(requestFilePath);
-                }
+            if (mControllerServiceStub == null) {
+                return true;
             }
+            FileListItem fileItem = (FileListItem) parent.getAdapter().getItem(position);
+            mShareFileProcedure.start(fileItem);
             return true;
         }
     };
@@ -109,56 +92,30 @@ public class FileManagerActivity extends Activity {
             .OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long l_position) {
-
-            FileListItem item = (FileListItem) parent.getAdapter().getItem(position);
-            if (item.getFileType().equals("DIR")) {
+            if (mControllerServiceStub == null) {
+                return;
+            }
+            FileListItem fileItem = (FileListItem) parent.getAdapter().getItem(position);
+            if (fileItem.getFileType() == FileListItem.FILE_TYPE_DIRECTORY) {
                 // Redirect to Directory
-                String newPath = mCurrentPath + "/" + item.getFileName();
+                String newPath = mCurrentPath + "/" + fileItem.getFileName();
                 mRedirectToPathProcedure.start(newPath);
-            } else {
-                String requestFilePath = mCurrentPath + "/" + item.getFileName();
-
-                File remoteStorageDir = mControllerServiceStub.getSettings().getRemoteStorageDir();
-                File files = new File(remoteStorageDir, transformOfFilename(requestFilePath));
-
-                if (files.exists() == true) {
-                    LegacyJSONParser jp = new LegacyJSONParser();
-                    jp.makeNewJson();
-                    jp.addJsonKeyValue("type", "DuplicatedFile");
-                    jp.addJsonKeyValue("mFileName", transformOfFilename(requestFilePath));
-                    jp.addJsonKeyValue("originpath", OPELContext.getSettings()
-                            .getRemoteStorageDir() + "/" + transformOfFilename(requestFilePath));
-
-                    runRequestedFile(getApplicationContext(), jp);
-                } else {
-                    OPELContext.getAppCore().requestFilebyFileManager(requestFilePath, 0);
-                }
+            } else if (fileItem.getFileType() == FileListItem.FILE_TYPE_REGULAR_FILE) {
+                // Open file
+                mOpenFileProcedure.start(fileItem);
             }
         }
     };
 
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                this.finish();
-
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+    public void updateUI() {
+        if (mFileListAdapter != null) {
+            mFileListAdapter.updateUI();
         }
     }
 
-    public static void updateDisplay(LegacyJSONParser jp) {
-
-        if (mFileListAdapter == null) {
-
-        } else {
-            mFileListAdapter.updateUI(jp);
-        }
-    }
-
-    private static String transformOfFilename(String fileName) {
-        String[] originPathArr = fileName.split("/");
+    private String getFileCachedName(String fileRPath) {
+        // transform file's remote path to cached name
+        String[] originPathArr = fileRPath.split("/");
         String ret = "";
         for (int i = 0; i < originPathArr.length; i++) {
             if (i == 0) continue;
@@ -171,119 +128,24 @@ public class FileManagerActivity extends Activity {
         return ret;
     }
 
-    public void runRequestedFile(LegacyJSONParser jp) {
-        if (mFileListAdapter != null) {
-            File to;
-            String originFileName = "";
-
-            if (jp.getValueByKey("type").equals("DuplicatedFile")) {
-                originFileName = jp.getValueByKey("mFileName");
-                to = new File(OPELContext.getSettings().getRemoteStorageDir(), originFileName);
-            } else {
-                String fileName = jp.getValueByKey("mFileName");
-                String originPath = jp.getValueByKey("originpath");
-
-                originFileName = transformOfFilename(originPath);
-
-                File from = new File(OPELContext.getSettings().getRemoteStorageDir(), fileName);
-                to = new File(OPELContext.getSettings().getRemoteStorageDir(), originFileName);
-
-                from.renameTo(to);
-            }
-
-
-            Intent fileLinkIntent = new Intent(Intent.ACTION_VIEW);
-            Uri uri = Uri.fromFile(to);
-
-            String fileExtend = originFileName.substring(originFileName.lastIndexOf(".") + 1,
-                    originFileName.length());
-
-            if (fileExtend.compareTo("mp3") == 0) {
-                fileLinkIntent.setDataAndType(Uri.fromFile(to), "audio/*");
-            } else if (fileExtend.compareTo("mp4") == 0 || fileExtend.compareTo("wmv") == 0 ||
-                    fileExtend.compareTo("avi") == 0) {
-                fileLinkIntent.setDataAndType(Uri.fromFile(to), "video/*");
-            } else if (fileExtend.compareTo("jpg") == 0 || fileExtend.compareTo("jpeg") == 0 ||
-                    fileExtend.compareTo("gif") == 0 || fileExtend.compareTo("png") == 0 ||
-                    fileExtend.compareTo("bmp") == 0) {
-                fileLinkIntent.setDataAndType(Uri.fromFile(to), "image/*");
-            } else if (fileExtend.equals("txt")) {
-                fileLinkIntent.setDataAndType(Uri.fromFile(to), "text/*");
-            } else if (fileExtend.equals("doc") || fileExtend.equals("docx")) {
-                fileLinkIntent.setDataAndType(Uri.fromFile(to), "OPELApp/msword");
-            } else if (fileExtend.equals("xls") || fileExtend.equals("xlsx")) {
-                fileLinkIntent.setDataAndType(Uri.fromFile(to), "OPELApp/vnd.ms-excel");
-            } else if (fileExtend.equals("ppt") || fileExtend.equals("pptx")) {
-                fileLinkIntent.setDataAndType(Uri.fromFile(to), "OPELApp/vnd.ms-powerpoint");
-            } else if (fileExtend.equals("pdf")) {
-                fileLinkIntent.setDataAndType(Uri.fromFile(to), "OPELApp/pdf");
-            } else if (fileExtend.equals("hwp")) {
-                fileLinkIntent.setDataAndType(Uri.fromFile(to), "OPELApp/haansofthwp");
-            } else if (fileExtend.equals("mjpg") || fileExtend.equals("mjpeg")) {
-
-                String destFile = to.getAbsolutePath().substring(0, to.getAbsolutePath().length()
-                        - 4) + ".avi";
-                File aviFile;
-                if (!jp.getValueByKey("type").equals("DuplicatedFile")) {
-                    FFmpegNativeHelper.runCommand("ffmpeg -i " + to.getAbsolutePath() + " " +
-                            "-vcodec" + " mjpeg " + destFile);
-                }
-
-                aviFile = new File(destFile);
-                fileLinkIntent.setDataAndType(Uri.fromFile(aviFile), "video/*");
-            } else {
-                fileLinkIntent.setDataAndType(Uri.fromFile(to), "OPELApp/*");
-            }
-            fileLinkIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            this.startActivity(fileLinkIntent);
-        }
+    private File getCachedFile(String fileRemotePath) {
+        // get cached file from remote path
+        File remoteStorageDir = mControllerServiceStub.getSettings().getRemoteStorageDir();
+        return new File(remoteStorageDir, getFileCachedName(fileRemotePath));
     }
 
-    public void runSharingFile(String filePath) {
-        if (mFileListAdapter != null) {
-            Intent sendIntent = new Intent();
-            sendIntent.setAction(Intent.ACTION_SEND);
-            sendIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + filePath));
-            sendIntent.putExtra(Intent.EXTRA_TEXT, "This is my text to send.");
-            sendIntent.setType("*/*");
-
-            sendIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            this.startActivity(sendIntent);
+    public void updateFileList(ParamFileListEntry[] fileList) {
+        this.mFileList.clear();
+        for (ParamFileListEntry file : fileList) {
+            String fileName = file.fileName;
+            int fileType = file.fileType;
+            int fileSizeBytes = file.fileSizeBytes;
+            String fileTime = file.fileTime;
+            this.mFileList.add(new FileListItem(fileName, fileType, fileSizeBytes, fileTime));
         }
     }
-
 
     private class FileListAdapter extends BaseAdapter {
-        private int pos;
-        private LegacyJSONParser jp;
-
-        FileListAdapter(LegacyJSONParser jp) {
-            this.jp = jp;
-            mFileList = getSettingMenuList();
-        }
-
-        ArrayList<FileListItem> getSettingMenuList() {
-            ArrayList<FileListItem> arr = new ArrayList<FileListItem>();
-
-            while (jp.hasMoreValue()) {
-                String ret[] = new String[2];
-                ret = jp.getNextKeyValue();
-                String tmp = "";
-
-
-                if (ret[0].equals("type")) continue;
-
-                String[] typeSizeTime = ret[1].split("/");
-                arr.add(new FileListItem(ret[0], typeSizeTime[0], typeSizeTime[1],
-                        typeSizeTime[2]));
-                Log.d("OPEL", ret[0] + "  " + ret[1]);
-                Log.d("OPEL", typeSizeTime[0] + "  " + typeSizeTime[1] + "  " + typeSizeTime[2] +
-                        "  ");
-            }
-
-            return arr;
-        }
-
         @Override
         public int getCount() {
             return mFileList.size();
@@ -298,6 +160,7 @@ public class FileManagerActivity extends Activity {
             return position;
         }
 
+        @SuppressLint("SetTextI18n")
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             if (convertView == null) {
@@ -307,46 +170,62 @@ public class FileManagerActivity extends Activity {
                         .LAYOUT_INFLATER_SERVICE);
                 convertView = mInflater.inflate(res, parent, false);
             }
-            pos = position;
+
             if (mFileList.size() != 0) {
-                TextView ci_nickname_text = (TextView) convertView.findViewById(R.id.tv_title);
-                ci_nickname_text.setText(mFileList.get(pos).getFileName());
-                TextView ci_content_text = (TextView) convertView.findViewById(R.id.tv_subTitle);
-                ci_content_text.setText(mFileList.get(pos).getFileTime());
-                TextView ci_status_text = (TextView) convertView.findViewById(R.id.tv_status);
-                ci_status_text.setText(mFileList.get(pos).getFileSize() + "Byte");
+                FileListItem fileItem = mFileList.get(position);
+                String fileName = fileItem.getFileName();
+                String fileTime = fileItem.getFileTime();
+                int fileSizeBytes = fileItem.getFileSizeBytes();
+                int fileType = fileItem.getFileType();
 
-                ImageView iv = (ImageView) convertView.findViewById(R.id.imageView11);
+                TextView titleTextView = (TextView) convertView.findViewById(R.id.tv_title);
+                titleTextView.setText(fileName);
 
-                if (mFileList.get(pos).getFileType().equals("DIR")) {
-                    iv.setImageResource(R.drawable.fm_folder);
-                } else if (mFileList.get(pos).getFileType().equals("REG") && (mFileList.get(pos)
-                        .getFileName().endsWith("jpg") || mFileList.get(pos).getFileName()
-                        .endsWith("png") || mFileList.get(pos).getFileName().endsWith("jpeg"))) {
-                    iv.setImageResource(R.drawable.fm_img);
-                } else if (mFileList.get(pos).getFileType().equals("REG") && (mFileList.get(pos)
-                        .getFileName().endsWith("avi") || mFileList.get(pos).getFileName()
-                        .endsWith("wmv") || mFileList.get(pos).getFileName().endsWith("mjpg") ||
-                        mFileList.get(pos).getFileName().endsWith("mjpeg"))) {
-                    iv.setImageResource(R.drawable.fm_video);
-                } else if (mFileList.get(pos).getFileType().equals("REG")) {
-                    iv.setImageResource(R.drawable.fm_normal);
-                } else if (mFileList.get(pos).getFileType().equals("ETC")) {
-                    iv.setImageResource(R.drawable.filemanager);
+                TextView subtitleTextView = (TextView) convertView.findViewById(R.id.tv_subTitle);
+                subtitleTextView.setText(fileTime);
+
+                TextView statusTextView = (TextView) convertView.findViewById(R.id.tv_status);
+                statusTextView.setText(fileSizeBytes + "B");
+
+                String extension = fileName.substring(fileName.lastIndexOf(".") + 1, fileName
+                        .length());
+                ImageView iconImageView = (ImageView) convertView.findViewById(R.id.imageView11);
+                switch (fileType) {
+                    case FileListItem.FILE_TYPE_DIRECTORY:
+                        iconImageView.setImageResource(R.drawable.fm_folder);
+                        break;
+                    case FileListItem.FILE_TYPE_REGULAR_FILE:
+                        if (extension.compareTo("jpg") == 0 || extension.compareTo("png") == 0 ||
+                                extension.compareTo("jpeg") == 0) {
+                            iconImageView.setImageResource(R.drawable.fm_img);
+                        } else if (extension.compareTo("avi") == 0 || extension.compareTo("wmv")
+                                == 0 || extension.compareTo("mjpg") == 0 || extension.compareTo
+                                ("mjpeg") == 0) {
+                            iconImageView.setImageResource(R.drawable.fm_video);
+                        } else {
+                            iconImageView.setImageResource(R.drawable.fm_normal);
+                        }
+                        break;
+                    case FileListItem.FILE_TYPE_OTHERS:
+                    default:
+                        iconImageView.setImageResource(R.drawable.filemanager);
+                        break;
                 }
             }
             return convertView;
         }
 
-        public void updateUI(LegacyJSONParser jp) {
-            this.jp = jp;
-            this.mFileList = getSettingMenuList(); //[MORE]
+        void updateUI() {
             this.notifyDataSetChanged();
         }
     }
 
 
     private class FileListItem {
+        public static final int FILE_TYPE_DIRECTORY = 1;
+        public static final int FILE_TYPE_REGULAR_FILE = 2;
+        public static final int FILE_TYPE_OTHERS = 0;
+
         private String mFileName;
         private int mFileType;
         private int mFileSizeBytes;
@@ -382,11 +261,17 @@ public class FileManagerActivity extends Activity {
                 .BIND_AUTO_CREATE);
     }
 
+    private boolean isFileCached(String fileRemotePath) {
+        File remoteStorageDir = mControllerServiceStub.getSettings().getRemoteStorageDir();
+        File cachedFile = new File(remoteStorageDir, getFileCachedName(fileRemotePath));
+        return cachedFile.exists();
+    }
+
     private RedirectToPathProcedure mRedirectToPathProcedure = new RedirectToPathProcedure();
     private OpenFileProcedure mOpenFileProcedure = new OpenFileProcedure();
     private ShareFileProcedure mShareFileProcedure = new ShareFileProcedure();
 
-    class RedirectToPathProcedure {
+    private class RedirectToPathProcedure {
         private ArrayList<Integer> mTransactions = new ArrayList<>();
 
         public void start(String path) {
@@ -394,22 +279,158 @@ public class FileManagerActivity extends Activity {
             this.mTransactions.add(messageId);
         }
 
-        public void onGetFileList(int commandMessageId, String path, String[] fileList) {
-            self.mCurrentPath = path;
+        void onGetFileList(int commandMessageId, String path, ParamFileListEntry[] fileList) {
+            for (Integer messageId : this.mTransactions) {
+                if (messageId == commandMessageId) {
+                    self.mCurrentPath = path;
 
-            // TODO: clear and addAll FileList
+                    updateFileList(fileList);
+                    updateUI();
+                    return;
+                }
+            }
         }
     }
 
-    class OpenFileProcedure {
-        public void start(String filePath) {
+    private class OpenFileProcedure {
+        // item: <int messageId, String fileRemotePath>
+        private HashMap<Integer, String> mGetFileRequests = new HashMap();
 
+        public void start(FileListItem fileItem) {
+            if (fileItem.getFileType() != FileListItem.FILE_TYPE_REGULAR_FILE) {
+                String fileName = fileItem.getFileName();
+                Log.d(TAG, "Since " + fileName + " is not regular file, it cannot be opened.");
+                return;
+            } else {
+                String fileRemotePath = mCurrentPath + "/" + fileItem.getFileName();
+                if (isFileCached(fileRemotePath)) {
+                    // If file has already cached, share it.
+                    File cachedFile = getCachedFile(fileRemotePath);
+                    open(cachedFile.getAbsolutePath());
+                } else {
+                    // If file is not cached, get it from remote device.
+                    requestFile(fileRemotePath);
+                }
+            }
+        }
+
+        private void requestFile(String fileRemotePath) {
+            int messageId = mControllerServiceStub.getFileAsync(fileRemotePath);
+            this.mGetFileRequests.put(messageId, fileRemotePath);
+        }
+
+        void onResultGetFileListener(int commandMessageId, String storedFilePath) {
+            String requestFileRemotePath = this.mGetFileRequests.get(commandMessageId);
+            if (requestFileRemotePath != null) {
+                this.mGetFileRequests.remove(commandMessageId);
+
+                File storedFile = new File(storedFilePath);
+                File cachedFile = getCachedFile(requestFileRemotePath);
+
+                // Rename the stored file with cached file naming convention
+                storedFile.renameTo(cachedFile);
+
+                // Share it
+                this.open(cachedFile.getAbsolutePath());
+            }
+        }
+
+        private void open(String fileCachedPath) {
+            File fileCached = new File(fileCachedPath);
+            String extension = fileCachedPath.substring(fileCachedPath.lastIndexOf(".") + 1,
+                    fileCachedPath.length());
+
+            Intent intent = new Intent();
+            intent.setAction(Intent.ACTION_SEND);
+            if (extension.compareTo("mp3") == 0) {
+                intent.setDataAndType(Uri.fromFile(fileCached), "audio/*");
+            } else if (extension.compareTo("mp4") == 0 || extension.compareTo("wmv") == 0 ||
+                    extension.compareTo("avi") == 0) {
+                intent.setDataAndType(Uri.fromFile(fileCached), "video/*");
+            } else if (extension.compareTo("jpg") == 0 || extension.compareTo("jpeg") == 0 ||
+                    extension.compareTo("gif") == 0 || extension.compareTo("png") == 0 ||
+                    extension.compareTo("bmp") == 0) {
+                intent.setDataAndType(Uri.fromFile(fileCached), "image/*");
+            } else if (extension.equals("txt")) {
+                intent.setDataAndType(Uri.fromFile(fileCached), "text/*");
+            } else if (extension.equals("doc") || extension.equals("docx")) {
+                intent.setDataAndType(Uri.fromFile(fileCached), "OPELApp/msword");
+            } else if (extension.equals("xls") || extension.equals("xlsx")) {
+                intent.setDataAndType(Uri.fromFile(fileCached), "OPELApp/vnd.ms-excel");
+            } else if (extension.equals("ppt") || extension.equals("pptx")) {
+                intent.setDataAndType(Uri.fromFile(fileCached), "OPELApp/vnd.ms-powerpoint");
+            } else if (extension.equals("pdf")) {
+                intent.setDataAndType(Uri.fromFile(fileCached), "OPELApp/pdf");
+            } else if (extension.equals("hwp")) {
+                intent.setDataAndType(Uri.fromFile(fileCached), "OPELApp/haansofthwp");
+            } else if (extension.equals("mjpg") || extension.equals("mjpeg")) {
+                String destFile = fileCachedPath.substring(0, fileCachedPath.length() - 4) + ".avi";
+                File aviFile;
+                FFmpegNativeHelper.runCommand("ffmpeg -i " + fileCached.getAbsolutePath() + " " +
+                        "" + "-vcodec" + " mjpeg " + destFile);
+                aviFile = new File(destFile);
+                intent.setDataAndType(Uri.fromFile(aviFile), "video/*");
+            } else {
+                intent.setDataAndType(Uri.fromFile(fileCached), "OPELApp/*");
+            }
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
         }
     }
 
-    class ShareFileProcedure {
-        public void start(String filePath) {
+    private class ShareFileProcedure {
+        // item: <int messageId, String fileRemotePath>
+        @SuppressLint("UseSparseArrays")
+        private HashMap<Integer, String> mGetFileRequests = new HashMap<>();
 
+        public void start(FileListItem fileItem) {
+            if (fileItem.getFileType() != FileListItem.FILE_TYPE_REGULAR_FILE) {
+                String fileName = fileItem.getFileName();
+                Log.d(TAG, "Since " + fileName + " is not regular file, it cannot be shared.");
+            } else {
+                String fileRemotePath = mCurrentPath + "/" + fileItem.getFileName();
+                if (isFileCached(fileRemotePath)) {
+                    // If file has already cached, share it.
+                    File cachedFile = getCachedFile(fileRemotePath);
+                    share(cachedFile.getAbsolutePath());
+                } else {
+                    // If file is not cached, get it from remote device.
+                    requestFile(fileRemotePath);
+                }
+            }
+        }
+
+        private void requestFile(String fileRemotePath) {
+            int messageId = mControllerServiceStub.getFileAsync(fileRemotePath);
+            this.mGetFileRequests.put(messageId, fileRemotePath);
+        }
+
+        void onResultGetFileListener(int commandMessageId, String storedFilePath) {
+            String requestFileRemotePath = this.mGetFileRequests.get(commandMessageId);
+            if (requestFileRemotePath != null) {
+                this.mGetFileRequests.remove(commandMessageId);
+
+                File storedFile = new File(storedFilePath);
+                File cachedFile = getCachedFile(requestFileRemotePath);
+
+                // Rename the stored file with cached file naming convention
+                storedFile.renameTo(cachedFile);
+
+                // Share it
+                this.share(cachedFile.getAbsolutePath());
+            }
+        }
+
+        private void share(String fileCachedPath) {
+            Uri fileCachedURI = Uri.parse("file://" + fileCachedPath);
+            Intent intent = new Intent();
+            intent.setAction(Intent.ACTION_SEND);
+            intent.putExtra(Intent.EXTRA_STREAM, fileCachedURI);
+            intent.putExtra(Intent.EXTRA_TEXT, fileCachedURI.toString());
+            intent.setType("*/*");
+
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
         }
     }
 
@@ -446,11 +467,21 @@ public class FileManagerActivity extends Activity {
                     mRedirectToPathProcedure.start(path);
                 }
             });
+
             this.setOnResultGetFileListListener(new OnResultGetFileListListener() {
                 @Override
-                public void onResultGetFileList(int commandMessageId, String path, String[]
-                        fileList) {
+                public void onResultGetFileList(int commandMessageId, String path,
+                                                ParamFileListEntry[] fileList) {
                     mRedirectToPathProcedure.onGetFileList(commandMessageId, path, fileList);
+                }
+            });
+
+            this.setOnResultGetFileListener(new OnResultGetFileListener() {
+                @Override
+                public void onResultGetFile(int commandMessageId, String storedFilePath) {
+                    // Broadcast the ack message
+                    mShareFileProcedure.onResultGetFileListener(commandMessageId, storedFilePath);
+                    mOpenFileProcedure.onResultGetFileListener(commandMessageId, storedFilePath);
                 }
             });
         }

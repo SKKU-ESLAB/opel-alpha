@@ -104,7 +104,6 @@ public class MainActivity extends Activity {
 
     protected void onDestroy() {
         super.onDestroy();
-        OPELContext.finish();
     }
 
     private void checkStoragePermission() {
@@ -358,43 +357,6 @@ public class MainActivity extends Activity {
         }
         this.mControllerServiceStub.terminateOneWay(appId);
     }
-
-//    private android.os.Handler mHandler = new android.os.Handler(Looper.getMainLooper()) {
-//        @Override
-//        public void handleMessage(Message inputMessage) {
-//            if (inputMessage.what == LegacyAppCoreStub.HANDLER_UPDATE_UI) {
-////                updateUI();
-////                AppManagerActivity.updateUI();
-////                EventLogViewerActivity.updateUI();
-//            } else if (inputMessage.what == LegacyAppCoreStub.HANDLER_UPDATE_TOAST) {
-//
-////                String toastMsg = (String) inputMessage.obj;
-////                Toast.makeText(getApplicationContext(), toastMsg, Toast.LENGTH_SHORT).show();
-//                //update All of the UI page
-//            } else if (inputMessage.what == LegacyAppCoreStub.HANDLER_MAKE_NOTI) {
-////                String notiJson = (String) inputMessage.obj;
-////                updateUI();
-////                AppManagerActivity.updateUI();
-////                showRemoteNotiUI(notiJson);
-//
-//                //update All of the UI page
-//            } else if (inputMessage.what == LegacyAppCoreStub.HANDLER_UPDATE_FILEMANAGER) {
-//                // TODO: move to FileManagerActivity
-//                LegacyJSONParser jp = (LegacyJSONParser) inputMessage.obj;
-//                FileManagerActivity.updateUI(jp);
-//
-//            } else if (inputMessage.what == LegacyAppCoreStub.HANDLER_EXE_FILE) {
-//                // TODO: move to FileManagerActivity
-//                LegacyJSONParser jp = (LegacyJSONParser) inputMessage.obj;
-//                FileManagerActivity.runRequestedFile(getApplicationContext(), jp);
-//
-//            } else if (inputMessage.what == LegacyAppCoreStub.HANDLER_SHARE_FILE) {
-//                // TODO: move to FileManagerActivity
-//                LegacyJSONParser jp = (LegacyJSONParser) inputMessage.obj;
-//                FileManagerActivity.runSharingFile(getApplicationContext(), jp);
-//            }
-//        }
-//    };
 
     class PrivateControllerBroadcastReceiver extends OPELControllerBroadcastReceiver {
         PrivateControllerBroadcastReceiver() {

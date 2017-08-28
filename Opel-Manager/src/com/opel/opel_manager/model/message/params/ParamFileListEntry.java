@@ -17,7 +17,10 @@ package com.opel.opel_manager.model.message.params;
  * limitations under the License.
  */
 
-public class ParamFileListEntry {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class ParamFileListEntry implements Parcelable {
     public ParamFileListEntry(String fileName, int fileType, int fileSizeBytes, String fileTime) {
         this.fileName = fileName;
         this.fileType = fileType;
@@ -29,4 +32,45 @@ public class ParamFileListEntry {
     public int fileType;
     public int fileSizeBytes;
     public String fileTime;
+
+    // Android Parcelable
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel out, int flags) {
+        // ParamFileListEntry -> Parcel
+        // fileName
+        out.writeString(this.fileName);
+
+        // fileType
+        out.writeInt(this.fileType);
+
+        // fileSizeBytes
+        out.writeInt(this.fileSizeBytes);
+
+        // fileTime
+        out.writeString(this.fileTime);
+    }
+
+    public static final Parcelable.Creator<ParamFileListEntry> CREATOR = new Parcelable
+            .Creator<ParamFileListEntry>() {
+        public ParamFileListEntry createFromParcel(Parcel in) {
+            // Parcel -> ParamFileListEntry
+            String fileName = in.readString();
+            int fileType = in.readInt();
+            int fileSizeBytes = in.readInt();
+            String fileTime = in.readString();
+
+            ParamFileListEntry entry = new ParamFileListEntry(fileName, fileType, fileSizeBytes,
+                    fileTime);
+            return entry;
+        }
+
+        public ParamFileListEntry[] newArray(int size) {
+            return new ParamFileListEntry[size];
+        }
+    };
 }

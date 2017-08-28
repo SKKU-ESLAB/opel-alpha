@@ -111,7 +111,7 @@ public class RemoteConfigUIActivity extends Activity {
                                 .getStatus());
                     }
                     if (mControllerServiceStub != null) {
-                        mControllerServiceStub.updateAppConfig(jp.getJsonData());
+                        mControllerServiceStub.updateAppConfigOneWay(jp.getJsonData());
                         this.finish();
                     } else {
                         Toast.makeText(this, "Controller service is not connected!", Toast

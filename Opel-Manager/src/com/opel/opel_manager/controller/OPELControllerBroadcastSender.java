@@ -21,6 +21,7 @@ import android.app.Service;
 import android.content.Intent;
 
 import com.opel.opel_manager.model.OPELApp;
+import com.opel.opel_manager.model.message.params.ParamFileListEntry;
 
 public class OPELControllerBroadcastSender {
 
@@ -92,7 +93,7 @@ public class OPELControllerBroadcastSender {
     }
 
     static public void onResultGetFileList(Service service, int commandMessageId, String path,
-                                           String[] fileList) {
+                                           ParamFileListEntry[] fileList) {
         Intent broadcastIntent = new Intent();
         broadcastIntent.setAction(OPELControllerBroadcastReceiver.ACTION);
         broadcastIntent.putExtra(OPELControllerBroadcastReceiver.KEY_EVENT_TYPE,

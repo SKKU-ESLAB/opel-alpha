@@ -23,6 +23,7 @@ import android.content.Intent;
 
 import com.opel.cmfw.service.CommChannelService;
 import com.opel.opel_manager.model.OPELApp;
+import com.opel.opel_manager.model.message.params.ParamFileListEntry;
 
 abstract public class OPELControllerBroadcastReceiver extends BroadcastReceiver {
     private static final String TAG = "OPELControllerBroadcastReceiver";
@@ -110,8 +111,8 @@ abstract public class OPELControllerBroadcastReceiver extends BroadcastReceiver 
                 int commandMessageId = intent.getIntExtra
                         (KEY_ON_RESULT_GET_FILE_LIST_COMMAND_MESSAGE_ID, -1);
                 String path = intent.getStringExtra(KEY_ON_RESULT_GET_FILE_LIST_PATH);
-                String[] fileList = intent.getStringArrayExtra
-                        (KEY_ON_RESULT_GET_FILE_LIST_FILE_LIST);
+                ParamFileListEntry[] fileList = (ParamFileListEntry[]) intent
+                        .getParcelableArrayExtra(KEY_ON_RESULT_GET_FILE_LIST_FILE_LIST);
                 if (this.mOnResultGetFileListListener != null) {
                     this.mOnResultGetFileListListener.onResultGetFileList(commandMessageId, path,
                             fileList);
@@ -207,7 +208,8 @@ abstract public class OPELControllerBroadcastReceiver extends BroadcastReceiver 
     }
 
     public interface OnResultGetFileListListener {
-        public void onResultGetFileList(int commandMessageId, String path, String[] fileList);
+        public void onResultGetFileList(int commandMessageId, String path, ParamFileListEntry[]
+                fileList);
     }
 
     public interface OnResultGetFileListener {

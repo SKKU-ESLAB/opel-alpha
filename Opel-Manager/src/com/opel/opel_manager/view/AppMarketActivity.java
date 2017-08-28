@@ -1,5 +1,6 @@
 package com.opel.opel_manager.view;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.DownloadManager;
 import android.app.ProgressDialog;
@@ -11,11 +12,9 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.IBinder;
-import android.os.ParcelFileDescriptor;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Window;
@@ -23,10 +22,10 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
+import com.opel.opel_manager.controller.OPELControllerBroadcastReceiver;
 import com.opel.opel_manager.controller.OPELControllerService;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -37,19 +36,20 @@ import static android.content.ContentValues.TAG;
 public class AppMarketActivity extends Activity {
     // OPELControllerService
     private OPELControllerService mControllerServiceStub = null;
+    private PrivateControllerBroadcastReceiver mControllerBroadcastReceiver;
     private AppMarketActivity self = this;
 
     private WebView mWebView;
 
     DownloadManager manager;
-    File destinationDir;
 
-    long downloadID = 0;
+    private long mDownloadID = 0;
 
     ArrayList<String> requestQueue;
 
     public static ProgressDialog marketProgDialog;
 
+    @SuppressLint("SetJavaScriptEnabled")
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -57,21 +57,23 @@ public class AppMarketActivity extends Activity {
 
         manager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
 
-        mWebView = (WebView) findViewById(com.opel.opel_manager.R.id.webView1);
-        mWebView.getSettings().setJavaScriptEnabled(true);
-        mWebView.loadUrl("http://nyx.skku.ac.kr/temp_market/main.html");
-        mWebView.setVerticalScrollBarEnabled(true);
-        mWebView.setWebViewClient(new PrivateWebViewClient());
+        this.mWebView = (WebView) findViewById(com.opel.opel_manager.R.id.webView1);
+        this.mWebView.getSettings().setJavaScriptEnabled(true);
 
-        requestQueue = new ArrayList<String>();
+        String kMarketURI = "http://nyx.skku.ac.kr/temp_market/main.html";
+        this.mWebView.loadUrl(kMarketURI);
+        this.mWebView.setVerticalScrollBarEnabled(true);
+        this.mWebView.setWebViewClient(new PrivateWebViewClient());
+
+        requestQueue = new ArrayList<>();
 
         // Connect controller service
         this.connectControllerService();
     }
 
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if ((keyCode == KeyEvent.KEYCODE_BACK) && mWebView.canGoBack()) {
-            mWebView.goBack();
+        if ((keyCode == KeyEvent.KEYCODE_BACK) && this.mWebView.canGoBack()) {
+            this.mWebView.goBack();
             return true;
         }
         return super.onKeyDown(keyCode, event);
@@ -90,32 +92,28 @@ public class AppMarketActivity extends Activity {
 
                 // downloadFile(url); other way to download opk (sync)
                 //Filename : current date and time
-                SimpleDateFormat mSimpleDateFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss",
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss",
                         Locale.KOREA);
-                Date currentTime = new Date();
-                String fileName = mSimpleDateFormat.format(currentTime);
+                String fileName = simpleDateFormat.format(new Date());
 
                 while (new File(Environment.DIRECTORY_DOWNLOADS, fileName).exists()) {
                     fileName += "_";
                 }
-
                 fileName += ".opk";
 
                 Uri source = Uri.parse(url);
                 DownloadManager.Request request = new DownloadManager.Request(source);
-                request.setDescription("Description for the DownloadManager " + "Bar");
+                request.setDescription("Description for the DownloadManager Bar");
                 request.setTitle(fileName);
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                    request.allowScanningByMediaScanner();
-                    request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_HIDDEN);
-                }
+                request.allowScanningByMediaScanner();
+                request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_HIDDEN);
 
                 request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS,
                         fileName);
 
                 // get download service and enqueue file
-                downloadID = manager.enqueue(request);
+                mDownloadID = manager.enqueue(request);
                 if (requestQueue.isEmpty()) {
                     IntentFilter intentFilter = new IntentFilter(DownloadManager
                             .ACTION_DOWNLOAD_COMPLETE);
@@ -134,7 +132,7 @@ public class AppMarketActivity extends Activity {
         public void onReceive(Context arg0, Intent arg1) {
             DownloadManager.Query query = new DownloadManager.Query();
 
-            query.setFilterById(downloadID);
+            query.setFilterById(mDownloadID);
             Cursor cursor = manager.query(query);
 
             if (cursor.moveToFirst()) {
@@ -144,10 +142,6 @@ public class AppMarketActivity extends Activity {
                 //send packageFile to OPEL
                 if (status == DownloadManager.STATUS_SUCCESSFUL) {
                     try {
-                        ParcelFileDescriptor file = manager.openDownloadedFile(downloadID);
-                        FileInputStream InputStream = new ParcelFileDescriptor
-                                .AutoCloseInputStream(file);
-
                         // handling file
                         String fileName = cursor.getString(cursor.getColumnIndex(DownloadManager
                                 .COLUMN_TITLE));
@@ -175,19 +169,13 @@ public class AppMarketActivity extends Activity {
         public void run() {
             mControllerServiceStub.installAppOneWay(mFileName);
             self.finish();
-        }
-    }
 
-    //For Companion type//
-    public void apkInstall(File apkFile) {
-        // TODO: it is not used now, but to be used in future
-        Uri apkUri = Uri.fromFile(apkFile);
-        try {
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setDataAndType(apkUri, "OPELApp/vnd.android.package-archive");
-            startActivity(intent);
-        } catch (Exception e) {
-            Log.d("OPEL", e.getMessage());
+            // TODO: make installApp command async function
+            // TODO: remove the package file
+        }
+
+        public void onAppStateChanged(int appId, int appState) {
+
         }
     }
 
@@ -203,6 +191,12 @@ public class AppMarketActivity extends Activity {
             OPELControllerService.ControllerBinder serviceBinder = (OPELControllerService
                     .ControllerBinder) inputBinder;
             mControllerServiceStub = serviceBinder.getService();
+
+            // Set BroadcastReceiver
+            IntentFilter broadcastIntentFilter = new IntentFilter();
+            broadcastIntentFilter.addAction(OPELControllerBroadcastReceiver.ACTION);
+            mControllerBroadcastReceiver = new PrivateControllerBroadcastReceiver();
+            registerReceiver(mControllerBroadcastReceiver, broadcastIntentFilter);
         }
 
         @Override
@@ -211,4 +205,10 @@ public class AppMarketActivity extends Activity {
             mControllerServiceStub = null;
         }
     };
+
+    class PrivateControllerBroadcastReceiver extends OPELControllerBroadcastReceiver {
+        PrivateControllerBroadcastReceiver() {
+            // TODO: this.setOnResultInstallApp()
+        }
+    }
 }

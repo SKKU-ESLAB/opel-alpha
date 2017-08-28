@@ -13,9 +13,9 @@ public class Settings {
     private File mOPELRemoteUIDir;
     private File mOPELRemoteStorageDir;
     private File mOPELCloudDir;
+    private File mOPELTempDir;
 
     public void initializeDirectories() {
-
         File opelDir = new File(Environment.getExternalStorageDirectory().getPath() + "/OPEL");
         File opelRUIDir = new File(Environment.getExternalStorageDirectory().getPath() +
                 "/OPEL/RemoteUI");
@@ -25,6 +25,7 @@ public class Settings {
                 "/OPEL/Icon");
         File opelCloudDir = new File(Environment.getExternalStorageDirectory().getPath() +
                 "/OPEL/CloudService");
+        File tempDir = new File(Environment.getExternalStorageDirectory().getPath() + "/OPEL/Temp");
 
         if (!opelDir.exists()) {
             if (!opelDir.mkdir()) {
@@ -52,11 +53,18 @@ public class Settings {
             }
         }
 
-        this.setOpelDir(opelDir);
-        this.setRUIStorageDir(opelRUIDir);
-        this.setRemoteStorageDir(opelRemoteStorageDir);
-        this.setIconDir(opelIconDir);
-        this.setCloudDir(opelCloudDir);
+        if (tempDir.exists()) {
+            if (!tempDir.mkdir()) {
+                Log.e(TAG, "Failed to make OPEL temp directory");
+            }
+        }
+
+        this.mOPELDir = opelDir;
+        this.mOPELRemoteUIDir = opelRUIDir;
+        this.mOPELRemoteStorageDir = opelRemoteStorageDir;
+        this.mOPELIconDir = opelIconDir;
+        this.mOPELCloudDir = opelCloudDir;
+        this.mOPELTempDir = tempDir;
     }
 
     // Getters/Setters
@@ -64,20 +72,8 @@ public class Settings {
         return mOPELDir;
     }
 
-    public void setOpelDir(File f) {
-        this.mOPELDir = f;
-    }
-
-    public void setIconDir(File f) {
-        this.mOPELIconDir = f;
-    }
-
     public File getIconDir() {
         return mOPELIconDir;
-    }
-
-    public void setRUIStorageDir(File f) {
-        this.mOPELRemoteUIDir = f;
     }
 
     public File getRemoteUIDir() {
@@ -88,15 +84,11 @@ public class Settings {
         return mOPELRemoteStorageDir;
     }
 
-    public void setRemoteStorageDir(File f) {
-        this.mOPELRemoteStorageDir = f;
-    }
-
-    public void setCloudDir(File f) {
-        this.mOPELCloudDir = f;
-    }
-
     public File getCloudDir() {
         return mOPELCloudDir;
+    }
+
+    public File getTempDir() {
+        return mOPELTempDir;
     }
 }

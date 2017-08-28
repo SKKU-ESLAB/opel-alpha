@@ -54,11 +54,32 @@ public class UserAppMainIcon extends MainIcon {
         return this.mAppState;
     }
 
+    public String getAppStateString() {
+        switch(this.mAppState) {
+            case OPELApp.State_Initialized:
+            case OPELApp.State_Initializing:
+            case OPELApp.State_Installing:
+                return "Installing";
+            case OPELApp.State_Ready:
+                return "Ready";
+            case OPELApp.State_Launching:
+                return "Launching";
+            case OPELApp.State_Running:
+                return "Running";
+            case OPELApp.State_Removing:
+                return "Removing";
+            case OPELApp.State_Removed:
+                return "Removed";
+            default:
+                return "Unknown";
+        }
+    }
+
     public void updateAppState(int appState) {
         this.mAppState = appState;
 
         // UI update corresponding to the app's state
-        switch(appState) {
+        switch(this.mAppState) {
             case OPELApp.State_Initialized:
             case OPELApp.State_Initializing:
             case OPELApp.State_Installing:

@@ -39,9 +39,8 @@ public class AppManagerActivity extends Activity {
     private OPELControllerService mControllerServiceStub = null;
     private AppManagerActivity self = this;
 
-    private ListView mAppListView;
     private AppListAdapter mAppListAdapter;
-    private ArrayList<AppListItem> mAppList = new ArrayList<AppListItem>();
+    private ArrayList<AppListItem> mAppList = new ArrayList<>();
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,15 +55,16 @@ public class AppManagerActivity extends Activity {
 
     private void initializeUI() {
         ActionBar actionBar = getActionBar();
+        assert actionBar != null;
         actionBar.setTitle("App Manager");
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setLogo(com.opel.opel_manager.R.drawable.icon_app_manager);
         actionBar.setDisplayUseLogoEnabled(true);
 
-        this.mAppListView = (ListView) findViewById(com.opel.opel_manager.R.id.listView1);
+        ListView appListView = (ListView) findViewById(R.id.listView1);
         this.mAppListAdapter = new AppListAdapter();
-        this.mAppListView.setAdapter(mAppListAdapter);
-        this.mAppListView.setOnItemClickListener(mItemClickListener);
+        appListView.setAdapter(mAppListAdapter);
+        appListView.setOnItemClickListener(mItemClickListener);
     }
 
     protected void onResume() {
@@ -109,7 +109,7 @@ public class AppManagerActivity extends Activity {
         }
     }
 
-    class AppListAdapter extends BaseAdapter {
+    private class AppListAdapter extends BaseAdapter {
         private int pos;
 
         @Override
@@ -129,12 +129,10 @@ public class AppManagerActivity extends Activity {
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             if (convertView == null) {
-                int res = 0;
-                res = com.opel.opel_manager.R.layout.template_listview_item_icon;
                 LayoutInflater mInflater = (LayoutInflater) self.getSystemService(Context
                         .LAYOUT_INFLATER_SERVICE);
-
-                convertView = mInflater.inflate(res, parent, false);
+                convertView = mInflater.inflate(com.opel.opel_manager.R.layout
+                        .template_listview_item_icon, parent, false);
             }
             pos = position;
             if (mAppList.size() != 0) {
@@ -178,12 +176,11 @@ public class AppManagerActivity extends Activity {
             return convertView;
         }
 
-        public void updateUI() {
+        void updateUI() {
             this.notifyDataSetChanged();
         }
     }
 
-    // get app information from global list and transfer to AppListItem format
     public void updateAppList() {
         if (this.mControllerServiceStub == null) return;
         ArrayList<OPELApp> appList = this.mControllerServiceStub.getAppList();
@@ -200,7 +197,7 @@ public class AppManagerActivity extends Activity {
         }
     }
 
-    class AppListItem {
+    private class AppListItem {
         private int mAppID;
         private String mAppName;
         private Bitmap mAppIcon;
