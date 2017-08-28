@@ -1,3 +1,5 @@
 OPEL_PYTHON3_PATH=`which python3`
 
+export LD_LIBRARY_PATH="${OPEL_BIN_DIR}/lib:${LD_LIBRARY_PATH}"
+
 ${OPEL_PYTHON3_PATH} ${OPEL_BIN_DIR}/opel.py

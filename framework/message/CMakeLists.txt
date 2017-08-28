@@ -7,7 +7,7 @@ set(MESSAGE_sources
   ${MESSAGE_SOURCE_DIR}/BaseMessage.cpp
   ${MESSAGE_SOURCE_DIR}/MessageFactory.cpp)
 
-add_library(opel-message STATIC ${MESSAGE_sources})
+add_library(opel-message SHARED ${MESSAGE_sources})
 
 set_target_properties(opel-message
 		PROPERTIES
