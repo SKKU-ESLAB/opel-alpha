@@ -169,9 +169,6 @@ public class AppMarketActivity extends Activity {
         public void run() {
             mControllerServiceStub.installAppOneWay(mFileName);
             self.finish();
-
-            // TODO: make installApp command async function
-            // TODO: remove the package file
         }
 
         public void onAppStateChanged(int appId, int appState) {

@@ -161,7 +161,6 @@ public class OPELControllerService extends Service {
 
     // Control functions (OneWay)
     public void installAppOneWay(String packageFilePath) {
-        // TODO: make it to async function
         this.mInstallProcedure.start(packageFilePath);
     }
 
@@ -234,10 +233,12 @@ public class OPELControllerService extends Service {
     private InstallProcedure mInstallProcedure = new InstallProcedure();
 
     private class InstallProcedure {
-        // TODO: make it to async function
-        // One way procedure: no results are produced
+        // One way procedure: no return
         // InitializeTransaction: <key: Integer initializeMessageId, value: String packageFilePath>
-        private SparseArray<String> mInitializeTransactions = new SparseArray<String>();
+        private SparseArray<String> mInitializeTransactions = new SparseArray<>();
+
+        // InstallTransaction: <key: Integer appId, value: String packageFilePath>
+        private SparseArray<String> mInstallTransactions = new SparseArray<>();
 
         public void start(String packageFilePath) {
             // Command 1: initialize app
@@ -268,6 +269,9 @@ public class OPELControllerService extends Service {
                 Log.e(TAG, "Package file path does not indicate a file!");
                 return;
             }
+
+            // Add install transaction
+            mInstallTransactions.put(appId, packageFilePath);
 
             // Command 3: install app
             mAppCoreStub.installApp(appId, packageFile);
@@ -338,6 +342,18 @@ public class OPELControllerService extends Service {
                 return null;
             }
         }
+
+        public void onAppStateChanged(int appId, int appState) {
+            String packageFilePath = this.mInstallTransactions.get(appId);
+            if (packageFilePath != null) {
+                if (appState == OPELApp.State_Ready) {
+                    // Remove the package file if the install has done
+                    this.mInstallTransactions.remove(appId);
+                    File packageFile = new File(packageFilePath);
+                    packageFile.delete();
+                }
+            }
+        }
     }
 
     private class PrivateAppCoreStubListener implements OPELAppCoreStubListener {
@@ -406,6 +422,7 @@ public class OPELControllerService extends Service {
 
             // Listeners
             mAppList.get(appId).setState(appState);
+            mInstallProcedure.onAppStateChanged(appId, appState);
             OPELControllerBroadcastSender.onAppStateChanged(self, appId, appState);
         }
 
