@@ -51,13 +51,10 @@ import org.xmlpull.v1.XmlPullParserFactory;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 public class OPELControllerService extends Service {
     private static String TAG = "OPELControllerService";
@@ -144,7 +141,7 @@ public class OPELControllerService extends Service {
 
     // Control functions (Async)
     public int updateAppListAsync() {
-        return this.mAppCoreStub.getAppList();
+        return this.mUpdateAppListProcedure.start();
     }
 
     public int getFileListAsync(String path) {
@@ -193,44 +190,82 @@ public class OPELControllerService extends Service {
         }
     }
 
-    private static void unzip(String zipFile, String location) throws IOException {
-        try {
-            File f = new File(location);
-            if (!f.isDirectory()) {
-                f.mkdirs();
-            }
-            ZipInputStream zin = new ZipInputStream(new FileInputStream(zipFile));
-            try {
-                ZipEntry ze = null;
-                while ((ze = zin.getNextEntry()) != null) {
-                    String path = location + ze.getName();
+    private UpdateAppListProcedure mUpdateAppListProcedure = new UpdateAppListProcedure();
+    private InstallProcedure mInstallProcedure = new InstallProcedure();
 
-                    if (ze.isDirectory()) {
-                        File unzipFile = new File(path);
-                        if (!unzipFile.isDirectory()) {
-                            unzipFile.mkdirs();
-                        }
-                    } else {
-                        FileOutputStream fout = new FileOutputStream(path, false);
-                        try {
-                            for (int c = zin.read(); c != -1; c = zin.read()) {
-                                fout.write(c);
-                            }
-                            zin.closeEntry();
-                        } finally {
-                            fout.close();
-                        }
-                    }
-                }
-            } finally {
-                zin.close();
+    private class UpdateAppListProcedure {
+        // TODO: caching app icons
+        // WaitingAppTable: <key: Integer commandMessageId, value: OPELApp waitingApp>
+        private HashMap<Integer, OPELApp> mWaitingAppList = new HashMap<>();
+        private ArrayList<OPELApp> mReadyAppList = new ArrayList<>();
+
+        public int start() {
+            if (!this.mWaitingAppList.isEmpty() || !this.mReadyAppList.isEmpty()) {
+                Log.e(TAG, "Cannot update app list since previous request did not finish.");
+                return -1;
             }
-        } catch (Exception e) {
-            Log.e(TAG, "Unzip exception", e);
+            int messageId = mAppCoreStub.getAppList();
+            return messageId;
+        }
+
+        public void onAckGetAppList(ArrayList<ParamAppListEntry> originalAppList) {
+            // Update AppList of OPELControllerService
+            this.mWaitingAppList.clear();
+            for (ParamAppListEntry entry : originalAppList) {
+                int appId = entry.appId;
+                String appName = entry.appName;
+                boolean isDefaultApp = entry.isDefaultApp;
+
+                // iconFile is not determined!
+                OPELApp app = new OPELApp(appId, appName, "", isDefaultApp);
+
+                // Request app icon
+                int requestMessageId = mAppCoreStub.getAppIcon(app.getAppId());
+                this.mWaitingAppList.put(requestMessageId, app);
+            }
+        }
+
+        public void onAckGetAppIcon(int commandMessageId, String appIconPath) {
+            // Check waiting app list
+            OPELApp thisApp = this.mWaitingAppList.get(commandMessageId);
+            if (thisApp == null) {
+                Log.w(TAG, "There is no app " + commandMessageId + " in waiting list.");
+                return;
+            }
+
+            // Move to icon directory regardless of icon file caching
+            File originalIconFile = new File(appIconPath);
+            String iconDirPath = mSettings.getIconDir().getAbsolutePath();
+            File targetIconFile = new File(iconDirPath, originalIconFile.getName());
+            originalIconFile.renameTo(targetIconFile);
+
+            // Set app icon path
+            thisApp.setIconImagePath(targetIconFile.getAbsolutePath());
+
+            // Move the app to ready app list
+            this.mWaitingAppList.remove(thisApp);
+            this.mReadyAppList.add(thisApp);
+            if (mWaitingAppList.isEmpty()) {
+                this.finish();
+            }
+        }
+
+        public void finish() {
+            // Update app list
+            mAppList.clear();
+            for (OPELApp app : this.mReadyAppList) {
+                mAppList.put(app.getAppId(), app);
+            }
+
+            // Notify Listener
+            OPELApp[] appListArray = (OPELApp[]) this.mReadyAppList.toArray();
+            OPELControllerBroadcastSender.onResultUpdateAppList(self, appListArray);
+
+            // Finalize
+            this.mWaitingAppList.clear();
+            this.mReadyAppList.clear();
         }
     }
-
-    private InstallProcedure mInstallProcedure = new InstallProcedure();
 
     private class InstallProcedure {
         // One way procedure: no return
@@ -281,7 +316,7 @@ public class OPELControllerService extends Service {
             try {
                 // Unarchive app package file
                 String unarchiveDirPath = mSettings.getTempDir().getAbsolutePath();
-                unzip(packageFilePath, unarchiveDirPath);
+                Unzip.unzip(packageFilePath, unarchiveDirPath);
                 final String kManifestFileName = "manifest.xml";
                 File manifestFile = new File(unarchiveDirPath, kManifestFileName);
 
@@ -366,38 +401,14 @@ public class OPELControllerService extends Service {
         @Override
         public void onAckGetAppList(BaseMessage message) {
             // Get parameters
-            String iconArchiveFilePath = message.getStoredFileName();
+            String iconArchiveFilePath = message.getStoredFilePath();
             AppCoreAckMessage payload = (AppCoreAckMessage) message.getPayload();
             int commandMessageId = payload.getCommandMessageId();
             ParamsGetAppList params = payload.getParamsGetAppList();
             ArrayList<ParamAppListEntry> originalAppList = params.appList;
 
-            // Update AppList of OPELControllerService
-            ArrayList<OPELApp> appArrayList = new ArrayList<>();
-
-            // unarchive icon archive file
-            String iconDirPath = mSettings.getIconDir().getAbsolutePath();
-            try {
-                unzip(iconArchiveFilePath, iconDirPath);
-            } catch (IOException e) {
-                e.printStackTrace();
-                return;
-            }
-
-            for (ParamAppListEntry entry : originalAppList) {
-                int appId = entry.appId;
-                String appName = entry.appName;
-                boolean isDefaultApp = entry.isDefaultApp;
-                File iconFile = new File(iconDirPath, entry.appId + ".png");
-
-                OPELApp app = new OPELApp(appId, appName, iconFile.getAbsolutePath(), isDefaultApp);
-
-                mAppList.put(appId, app);
-                appArrayList.add(app);
-            }
-            OPELApp[] appList = (OPELApp[]) appArrayList.toArray();
-
-            OPELControllerBroadcastSender.onResultUpdateAppList(self, commandMessageId, appList);
+            // Listeners
+            mUpdateAppListProcedure.onAckGetAppList(originalAppList);
         }
 
         @Override
@@ -445,7 +456,7 @@ public class OPELControllerService extends Service {
             // Get parameters
             AppCoreAckMessage payload = (AppCoreAckMessage) message.getPayload();
             int commandMessageId = payload.getCommandMessageId();
-            String storedFileName = message.getStoredFileName();
+            String storedFileName = message.getStoredFilePath();
 
             // Listeners
             OPELControllerBroadcastSender.onResultGetFile(self, commandMessageId, storedFileName);
@@ -495,6 +506,17 @@ public class OPELControllerService extends Service {
 
             // Listeners
             OPELControllerBroadcastSender.onReceivedSensorData(self, legacyData);
+        }
+
+        @Override
+        public void getAppIcon(BaseMessage message) {
+            // Get parameters
+            AppCoreAckMessage payload = (AppCoreAckMessage) message.getPayload();
+            int commandMessageId = payload.getCommandMessageId();
+            String iconFilePath = message.getStoredFilePath();
+
+            // Listeners
+            mUpdateAppListProcedure.onAckGetAppIcon(commandMessageId, iconFilePath);
         }
     }
 

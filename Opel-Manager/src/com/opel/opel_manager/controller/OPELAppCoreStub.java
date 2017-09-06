@@ -138,6 +138,14 @@ public class OPELAppCoreStub {
         return this.sendAppCoreMessage(newMessage);
     }
 
+    public int getAppIcon(int appId) {
+        BaseMessage newMessage = MessageFactory.makeAppCoreMessage(kAppCoreURI, AppCoreMessage
+                .Type_GetAppIcon);
+        AppCoreMessage appCorePayload = (AppCoreMessage) newMessage.getPayload();
+        appCorePayload.setParamsGetAppIcon(appId);
+        return this.sendAppCoreMessage(newMessage);
+    }
+
     // AppCore Daemon (OPEL Device) -> OPEL Manager (Android)
     private void onReceivedAppCoreAckMessage(BaseMessage message) {
         AppCoreAckMessage payload = (AppCoreAckMessage) message.getPayload();
@@ -165,6 +173,9 @@ public class OPELAppCoreStub {
             case AppCoreMessage.Type_GetRootPath: {
                 this.mListener.onAckGetRootPath(message);
                 break;
+            }
+            case AppCoreMessage.Type_GetAppIcon: {
+                this.mListener.getAppIcon(message);
             }
             case AppCoreMessage.Type_NotDetermined:
             default: {

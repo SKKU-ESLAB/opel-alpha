@@ -102,11 +102,11 @@ public class BaseMessage implements Parcelable {
 
     // Set local file path when attached file has come
     public void setStoredFilePath(String storedFilePath) {
-        this.mStoredFileName = storedFilePath;
+        this.mStoredFilePath = storedFilePath;
     }
 
-    public String getStoredFileName() {
-        return this.mStoredFileName;
+    public String getStoredFilePath() {
+        return this.mStoredFilePath;
     }
 
     public BaseMessage(int messageId, String uri, int type, boolean isFileAttached, String
@@ -116,7 +116,7 @@ public class BaseMessage implements Parcelable {
         this.mType = type;
         this.mIsFileAttached = isFileAttached;
         this.mFileName = fileName;
-        this.mStoredFileName = "";
+        this.mStoredFilePath = "";
         this.mPayload = null;
     }
 
@@ -133,7 +133,7 @@ public class BaseMessage implements Parcelable {
         out.writeString(this.toJSONString());
 
         // Private parameter
-        out.writeString(this.mStoredFileName);
+        out.writeString(this.mStoredFilePath);
     }
 
     public static final Parcelable.Creator<BaseMessage> CREATOR = new Parcelable
@@ -166,7 +166,7 @@ public class BaseMessage implements Parcelable {
     private BaseMessagePayload mPayload;
 
     // Private
-    protected String mStoredFileName;
+    protected String mStoredFilePath;
 }
 
 abstract class BaseMessagePayload {

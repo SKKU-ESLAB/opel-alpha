@@ -50,8 +50,6 @@ abstract public class OPELControllerBroadcastReceiver extends BroadcastReceiver 
     public static final String KEY_ON_RECEIVED_APP_CONFIG_LEGACY_DATA = "legacyData";
 
     public static final String EVENT_TYPE_ON_RESULT_UPDATE_APP_LIST = "onResultUpdateAppList";
-    public static final String KEY_ON_RESULT_UPDATE_APP_LIST_COMMAND_MESSAGE_ID =
-            "commandMessageId";
     public static final String KEY_ON_RESULT_UPDATE_APP_LIST_APP_LIST = "appList";
 
     public static final String EVENT_TYPE_ON_RESULT_GET_FILE_LIST = "onGetFileList";
@@ -100,13 +98,10 @@ abstract public class OPELControllerBroadcastReceiver extends BroadcastReceiver 
                 if (this.mOnReceivedAppConfigListener != null)
                     this.mOnReceivedAppConfigListener.onReceivedAppConfig(legacyData);
             } else if (eventType.compareTo(EVENT_TYPE_ON_RESULT_UPDATE_APP_LIST) == 0) {
-                int commandMessageId = intent.getIntExtra
-                        (KEY_ON_RESULT_UPDATE_APP_LIST_COMMAND_MESSAGE_ID, -1);
                 OPELApp[] appList = (OPELApp[]) intent.getParcelableArrayExtra
                         (KEY_ON_RESULT_UPDATE_APP_LIST_APP_LIST);
                 if (this.mOnResultUpdateAppListListener != null)
-                    this.mOnResultUpdateAppListListener.onResultUpdateAppList(commandMessageId,
-                            appList);
+                    this.mOnResultUpdateAppListListener.onResultUpdateAppList(appList);
             } else if (eventType.compareTo(EVENT_TYPE_ON_RESULT_GET_FILE_LIST) == 0) {
                 int commandMessageId = intent.getIntExtra
                         (KEY_ON_RESULT_GET_FILE_LIST_COMMAND_MESSAGE_ID, -1);
@@ -204,7 +199,7 @@ abstract public class OPELControllerBroadcastReceiver extends BroadcastReceiver 
     }
 
     public interface OnResultUpdateAppListListener {
-        public void onResultUpdateAppList(int commandMessageId, OPELApp[] appList);
+        public void onResultUpdateAppList(OPELApp[] appList);
     }
 
     public interface OnResultGetFileListListener {

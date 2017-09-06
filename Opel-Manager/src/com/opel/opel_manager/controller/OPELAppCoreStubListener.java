@@ -36,6 +36,8 @@ public interface OPELAppCoreStubListener {
 
     public void onAckGetRootPath(BaseMessage message);
 
+    public void getAppIcon(BaseMessage message);
+
     // CompanionMessage
     public void onSendEventPage(BaseMessage message);
 

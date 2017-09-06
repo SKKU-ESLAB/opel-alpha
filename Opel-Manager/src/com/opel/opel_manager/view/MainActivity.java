@@ -462,7 +462,7 @@ public class MainActivity extends Activity {
 
             this.setOnResultUpdateAppListListener(new OnResultUpdateAppListListener() {
                 @Override
-                public void onResultUpdateAppList(int commandMessageId, OPELApp[] appList) {
+                public void onResultUpdateAppList(OPELApp[] appList) {
                     // Add MainIcon for the apps
                     updateMainIconList(appList);
                 }

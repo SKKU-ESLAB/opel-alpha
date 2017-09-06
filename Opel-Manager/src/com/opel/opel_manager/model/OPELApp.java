@@ -62,6 +62,10 @@ public class OPELApp implements Parcelable {
         return mName;
     }
 
+    public void setIconImagePath(String iconImagePath) {
+        this.mIconImagePath = iconImagePath;
+    }
+
     public String getIconImagePath() {
         return this.mIconImagePath;
     }

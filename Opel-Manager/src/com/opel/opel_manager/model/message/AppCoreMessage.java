@@ -40,6 +40,7 @@ public class AppCoreMessage extends BaseMessagePayload {
     public static final int Type_GetRootPath = 11; // params: void (ACK params: String rootPath)
     public static final int Type_UpdateAppConfig = 12; // params: String legacyData
     //                                                            (ACK params: boolean isSucceed)
+    public static final int Type_GetAppIcon = 13; // params: int appId (ACK params: void)
 
     // JSON field name
     static final String APPCORE_MESSAGE_KEY_COMMAND_TYPE = "commandType";
@@ -110,6 +111,13 @@ public class AppCoreMessage extends BaseMessagePayload {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode payloadObj = mapper.createObjectNode();
         payloadObj.put("legacyData", "" + legacyData);
+        this.mAppCorePayload = payloadObj;
+    }
+
+    public void setParamsGetAppIcon(int appId) {
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode payloadObj = mapper.createObjectNode();
+        payloadObj.put("appId", "" + appId);
         this.mAppCorePayload = payloadObj;
     }
 

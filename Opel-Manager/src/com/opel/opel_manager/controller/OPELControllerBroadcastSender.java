@@ -79,14 +79,11 @@ public class OPELControllerBroadcastSender {
         service.sendBroadcast(broadcastIntent);
     }
 
-    static public void onResultUpdateAppList(Service service, int commandMessageId, OPELApp[]
-            appList) {
+    static public void onResultUpdateAppList(Service service, OPELApp[] appList) {
         Intent broadcastIntent = new Intent();
         broadcastIntent.setAction(OPELControllerBroadcastReceiver.ACTION);
         broadcastIntent.putExtra(OPELControllerBroadcastReceiver.KEY_EVENT_TYPE,
                 OPELControllerBroadcastReceiver.EVENT_TYPE_ON_RESULT_UPDATE_APP_LIST);
-        broadcastIntent.putExtra(OPELControllerBroadcastReceiver
-                .KEY_ON_RESULT_UPDATE_APP_LIST_COMMAND_MESSAGE_ID, commandMessageId);
         broadcastIntent.putExtra(OPELControllerBroadcastReceiver
                 .KEY_ON_RESULT_UPDATE_APP_LIST_APP_LIST, appList);
         service.sendBroadcast(broadcastIntent);
