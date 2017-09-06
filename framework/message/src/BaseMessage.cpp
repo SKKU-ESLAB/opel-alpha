@@ -224,6 +224,14 @@ bool AppCoreMessage::getParamsUpdateAppConfig(std::string& legacyData) {
   return true;
 }
 
+bool AppCoreMessage::getParamsGetAppIcon(int& appId) {
+  cJSON* appIdObj = cJSON_GetObjectItem(this->mAppCorePayloadObj, "appId");
+  RETURN_IF_INVALID_CJSON_OBJ(appIdObj, false);
+  appId = atoi(appIdObj->valuestring);
+
+  return true;
+}
+
 cJSON* ParamAppList::toJSON() {
   cJSON* listObj = cJSON_CreateArray();
 

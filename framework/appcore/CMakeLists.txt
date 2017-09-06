@@ -1,7 +1,7 @@
 include_directories(./inc)
 include_directories(../communication/inc)
 include_directories(../message/inc)
-include_directories(./libz)
+include_directories(./libminiunz)
 include_directories(/usr/local/xml/include/libxml2)
 link_directories(/usr/local/xml/lib)
 link_directories(../../out/libs)
@@ -10,13 +10,13 @@ add_definitions("`pkg-config --libs --cflags dbus-1 glib-2.0 dbus-glib-1`")
 
 set(CMAKE_CXX_STANDARD 11)
 set(ACM_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
-set(LIBZ_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libz)
+set(LIBMINIUNZ_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libminiunz)
 
-find_library(OPEL_LIBZ z ${LIBZ_DIR}/libz)
+find_library(OPEL_LIBMINIUNZ z ${LIBMINIUNZ_DIR}/libminiunz)
 add_library(miniunz OBJECT
-  ${LIBZ_DIR}/miniunz.c
-  ${LIBZ_DIR}/ioapi.c
-  ${LIBZ_DIR}/unzip.c)
+  ${LIBMINIUNZ_DIR}/miniunz.c
+  ${LIBMINIUNZ_DIR}/ioapi.c
+  ${LIBMINIUNZ_DIR}/unzip.c)
 
 set(ACM_sources
   ${ACM_SOURCE_DIR}/main.cpp
@@ -35,7 +35,7 @@ add_executable(opel-appcore ${ACM_sources} $<TARGET_OBJECTS:miniunz>)
 target_link_libraries(opel-appcore
   opel-cmfw opel-message
   dbus-glib-1 dbus-1 glib-2.0 pthread
-  bluetooth sqlite3 xml2 ${OPEL_LIBZ})
+  bluetooth sqlite3 xml2 ${OPEL_LIBMINIUNZ})
 
 set_target_properties(opel-appcore
 		PROPERTIES

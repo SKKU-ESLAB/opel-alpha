@@ -39,7 +39,7 @@ class AppCore
   public AppStateListener {
 
   public:
-    AppCore() : mAppList(NULL), mNextAppId(0) {
+    AppCore() : mAppList(NULL) {
     }
 
     ~AppCore() {
@@ -101,14 +101,12 @@ class AppCore
     void getFileList(BaseMessage* message);
     void getFile(BaseMessage* message);
     void getRootPath(BaseMessage* message);
+    void getAppIcon(BaseMessage* message);
 
     MessageRouter* mMessageRouter;
     DbusChannel* mDbusChannel;
     CommChannel* mCommChannel;
     LocalChannel* mLocalChannel;
-
-    // Current appId
-    int mNextAppId;
 
     char mUserAppsDir[PATH_BUFFER_SIZE]; // User Apps Dir: ${OPEL_APPS_DIR}/user
     char mSystemAppsDir[PATH_BUFFER_SIZE]; // System Apps Dir: ${OPEL_APPS_DIR}/system

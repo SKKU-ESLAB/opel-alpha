@@ -23,7 +23,8 @@
 #define PATH_BUFFER_SIZE 1024
 #define QUERY_BUFFER_LENGTH 2048
 
-AppList* AppList::initializeFromDB(std::string dbPath) {
+AppList* AppList::initializeFromDB(std::string dbPath,
+    std::string systemAppsDir) {
   AppList* appList = new AppList();
 
   // Open DB
@@ -49,8 +50,45 @@ AppList* AppList::initializeFromDB(std::string dbPath) {
   }
 
   // Add default apps and flush their information
+  appList->initializeDefaultApps(systemAppsDir);
 
   return appList;
+}
+
+void AppList::initializeDefaultApps(std::string systemAppsDir) {
+  // Camera Viewer
+  {
+    char packagePath[PATH_BUFFER_SIZE];
+    char mainJSFileName[PATH_BUFFER_SIZE];
+    char iconFileName[PATH_BUFFER_SIZE];
+    snprintf(packagePath, PATH_BUFFER_SIZE, "%s/%s",
+        systemAppsDir, "CameraViewer");
+    snprintf(mainJSFileName, PATH_BUFFER_SIZE, "%s",
+        systemAppsDir, "index.js");
+    snprintf(iconFileName, PATH_BUFFER_SIZE, "");
+    App* app = new App(this->mNextAppId++, true, "CameraViewer",
+        packagePath, mainJSFileName, iconFileName,
+        AppState::Ready);
+    this->add(app);
+    this->flush(app);
+  }
+
+  // Sensor Viewer
+  {
+    char packagePath[PATH_BUFFER_SIZE];
+    char mainJSFileName[PATH_BUFFER_SIZE];
+    char iconFileName[PATH_BUFFER_SIZE];
+    snprintf(packagePath, PATH_BUFFER_SIZE, "%s/%s",
+        systemAppsDir, "SensorViewer");
+    snprintf(mainJSFileName, PATH_BUFFER_SIZE, "%s",
+        systemAppsDir, "index.js");
+    snprintf(iconFileName, PATH_BUFFER_SIZE, "");
+    App* app = new App(this->mNextAppId++, true, "SensorViewer",
+        packagePath, mainJSFileName, iconFileName,
+        AppState::Ready);
+    this->add(app);
+    this->flush(app);
+  }
 }
 
 bool AppList::openDB(std::string dbPath) {
@@ -70,7 +108,12 @@ bool AppList::fetchAppList() {
 
   int prepareRes = sqlite3_prepare_v2(
       this->mDB, query, -1, &stmt, NULL);
+  if(prepareRes != SQLITE_OK) {
+    return false;
+  }
 
+  int maxAppId = 0;
+  int numApps = 0;
   while(sqlite3_step(stmt) == SQLITE_ROW) {
     // Get fields
     int appId = sqlite3_column_int(stmt, 0);
@@ -86,7 +129,7 @@ bool AppList::fetchAppList() {
 
     // Check this field has already loaded
     App* app = this->getByAppId(appId);
-    if(app == NULL)
+    if(app != NULL)
       continue;
     
     // Allocate a new entry and add to on-memory list
@@ -94,10 +137,21 @@ bool AppList::fetchAppList() {
         packagePath, mainJSFileName, iconFileName,
         AppState::Ready);
     this->mApps.push_back(app);
+
+    numApps++;
+    if(appId > maxAppId) {
+      maxAppId = appId;
+    }
   }
   sqlite3_finalize(stmt);
 
-  return true;
+  // Update next app id
+  this->mNextAppId = maxAppId;
+
+  if(numApps > 0)
+    return true;
+  else
+    return false;
 }
 
 bool AppList::createDBTable() {

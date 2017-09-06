@@ -115,43 +115,6 @@ bool AppCore::initializeDirs() {
   return true;
 }
 
-void AppCore::initializeDefaultApps() {
-  // Camera Viewer
-  {
-    char packagePath[PATH_BUFFER_SIZE];
-    char mainJSFileName[PATH_BUFFER_SIZE];
-    char iconFileName[PATH_BUFFER_SIZE];
-    snprintf(packagePath, PATH_BUFFER_SIZE, "%s/%s",
-        this->mSystemAppsDir, "CameraViewer");
-    snprintf(mainJSFileName, PATH_BUFFER_SIZE, "%s",
-        this->mSystemAppsDir, "index.js");
-    snprintf(iconFileName, PATH_BUFFER_SIZE, "%s",
-        this->mSystemAppsDir, "");
-    App* app = new App(this->mNextAppId++, true, "CameraViewer",
-        packagePath, mainJSFileName, iconFileName,
-        AppState::Ready);
-    this->add(app);
-    this->flush(app);
-  }
-  // Sensor Viewer
-  {
-    char packagePath[PATH_BUFFER_SIZE];
-    char mainJSFileName[PATH_BUFFER_SIZE];
-    char iconFileName[PATH_BUFFER_SIZE];
-    snprintf(packagePath, PATH_BUFFER_SIZE, "%s/%s",
-        this->mSystemAppsDir, "SensorViewer");
-    snprintf(mainJSFileName, PATH_BUFFER_SIZE, "%s",
-        this->mSystemAppsDir, "index.js");
-    snprintf(iconFileName, PATH_BUFFER_SIZE, "%s",
-        this->mSystemAppsDir, "");
-    App* app = new App(this->mNextAppId++, true, "SensorViewer",
-        packagePath, mainJSFileName, iconFileName,
-        AppState::Ready);
-    this->add(app);
-    this->flush(app);
-  }
-}
-
 #define COMPANION_DEVICE_URI "/comp0"
 #define APPS_URI "/thing/apps"
 #define APPCORE_URI "/thing/appcore"
@@ -165,10 +128,8 @@ void AppCore::run() {
   }
 
   // Initialize AppList
-  this->mAppList = AppList::initializeFromDB(this->mAppListDBPath);
-  if(this->mAppList->getApps().size() <= 0) {
-    this->initializeDefaultApps();
-  }
+  this->mAppList = AppList::initializeFromDB(
+      this->mAppListDBPath, this->mSystemAppsDir);
 
   // Initialize MessageRouter and Channels
   this->mMessageRouter = new MessageRouter();
@@ -256,6 +217,9 @@ void AppCore::onReceivedMessage(BaseMessage* message) {
     case AppCoreMessageCommandType::GetRootPath:
       this->getRootPath(message);
       break;
+    case AppCoreMessageCommandType::GetAppIcon:
+      this->getAppIcon(message);
+      break;
   }
 }
 
@@ -324,8 +288,6 @@ void AppCore::getAppList(BaseMessage* message) {
     paramAppList->addEntry(appId, appName, isDefaultApp);
   }
 
-  // TODO: Make icon archive file
-
   // Make ACK message
   BaseMessage* ackMessage
     = MessageFactory::makeAppCoreAckMessage(COMPANION_DEVICE_URI, message); 
@@ -371,7 +333,8 @@ void AppCore::initializeApp(BaseMessage* message) {
   this->mAppList->add(app);
 
   // Update state
-  app->finishInitializing(this->mNextAppId++);
+  int appId = this->mAppList->getAndIncreaseNextAppId();
+  app->finishInitializing(appId);
 
   // Make ACK message
   BaseMessage* ackMessage
@@ -673,6 +636,35 @@ void AppCore::getRootPath(BaseMessage* message) {
     = MessageFactory::makeAppCoreAckMessage(COMPANION_DEVICE_URI, message); 
   AppCoreAckMessage* ackPayload = (AppCoreAckMessage*)ackMessage->getPayload();
   ackPayload->setParamsGetRootPath(this->mDataDir);
+
+  // Send ACK message
+  this->mLocalChannel->sendMessage(ackMessage);
+}
+
+void AppCore::getAppIcon(BaseMessage* message) {
+  // Get arguments
+  int appId;
+  AppCoreMessage* payload = (AppCoreMessage*)message->getPayload();
+  if(payload->getParamsGetAppIcon(appId) == false) {
+    OPEL_DBG_ERR("Invalid AppCoreMessage! (commandType: %d)",
+        payload->getCommandType());
+    return;
+  }
+
+  // Find app for the appId
+  App* app = this->mAppList->getByAppId(appId);
+  if(app == NULL) {
+    OPEL_DBG_ERR("App does not exist in the app list!");
+    return;
+  }
+
+  // Get app's icon file path
+  std::string iconFilePath = app->getIconFileName();
+
+  // Make ACK message
+  BaseMessage* ackMessage
+    = MessageFactory::makeAppCoreAckMessage(COMPANION_DEVICE_URI, message); 
+  ackMessage->attachFile(iconFilePath);
 
   // Send ACK message
   this->mLocalChannel->sendMessage(ackMessage);

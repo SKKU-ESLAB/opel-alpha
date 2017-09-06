@@ -233,7 +233,7 @@ int tmpc_subscribe(char *res_name, void (*callback)(void *))
 	int res = 0;
 	__TMP_ENTER__;
 
-	// TODO:
+	// TODO: subscribe API
 
 	__TMP_EXIT__;
 	return res;

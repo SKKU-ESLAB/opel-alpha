@@ -27,7 +27,6 @@
 
 class AppList {
   public:
-    static AppList* initializeFromDB(std::string dbPath);
     ~AppList() {
       std::vector<App*>::iterator alIter;
       for(alIter = this->mApps.begin();
@@ -38,7 +37,11 @@ class AppList {
       }
       sqlite3_close(this->mDB);
     }
-    void addAndFlushDefaultApps();
+
+    static AppList* initializeFromDB(std::string dbPath, std::string systemAppsDir);
+    void initializeDefaultApps(std::string systemAppsDir);
+
+    int getAndIncreaseNextAppId() { return this->mNextAppId++; }
 
     std::vector<App*>& getApps() { return this->mApps; }
     App* getByAppId(int appId);
@@ -51,7 +54,10 @@ class AppList {
     std::vector<App*> mApps;
     sqlite3* mDB;
 
-    AppList() { }
+    // Current appId
+    int mNextAppId;
+
+    AppList() : mNextAppId(0) { }
 
     bool openDB(std::string dbPath);
     bool fetchAppList();

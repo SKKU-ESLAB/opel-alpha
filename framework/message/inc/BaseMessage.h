@@ -146,8 +146,9 @@ namespace AppCoreMessageCommandType {
     GetFileList = 9, // params: std::string path (ACK params: AckParamFileList)
     GetFile = 10, // params: std::string path (ACK params: void)
     GetRootPath = 11, // params: void (ACK params: std::string rootPath)
-    UpdateAppConfig = 12 // params: string legacyData
-                         // (ACK params: bool isSucceed)
+    UpdateAppConfig = 12, // params: string legacyData
+                          // (ACK params: bool isSucceed)
+    GetAppIcon = 13 // params: int appId (ACK params: void)
   };
 }
 
@@ -193,6 +194,7 @@ class AppCoreMessage: public BaseMessagePayload {
     bool getParamsGetFileList(std::string& path);
     bool getParamsGetFile(std::string& path);
     bool getParamsUpdateAppConfig(std::string& legacyData);
+    bool getParamsGetAppIcon(int& appId);
 
   protected:
     // Initializer
@@ -348,7 +350,6 @@ namespace AppMessageCommandType {
 #define APP_MESSAGE_KEY_COMMAND_TYPE "commandType"
 #define APP_MESSAGE_KEY_PAYLOAD "payload"
 
-// TODO: need AppAckMessage
 // AppMessage: message sent to App
 // - Decoding(makeFromJSON): C++
 // - Encoding(make, toJSON): C++
