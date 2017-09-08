@@ -12,14 +12,9 @@
 #include "nil.h"
 #include "nil_internal.h"
 
+#include "MessageFWGlue.h"
 
-#define SENSOR_REQUEST	1
-#define CAMERA_REQUEST	2
 #define APP_REQUEST	3
-
-
-#define SM_INTERFACE "/org/opel/sensorManager"
-#define SM_PATH	"org.opel.sensorManager"
 
 #define SAM_INTERFACE "/org/opel/sysAppManager"
 #define SAM_PATH	"org.opel.sysAppManager"
@@ -28,15 +23,16 @@
 #define MSGBUFSIZE 1024
 
 // Utility Functions
-#define getV8String(isolate, cstr) (String::NewFromOneByte(isolate, (const uint8_t*)cstr))
+#define getV8String(isolate, cstr) (String::NewFromOneByte(isolate, \
+      (const uint8_t*)cstr))
 
 pid_t pid;
 static DBusConnection *opelCon = NULL; //Only 1 connection 
 requestList *rList;
+MessageFWGlue* gMessageFW;
 
 void nativeInterfaceLayerInit(){
   pid = getpid();
-//  rList = (requestList*)malloc(sizeof(requestList));
 	rList = new requestList();
   initRequestList(rList);
 }

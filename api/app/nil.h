@@ -9,16 +9,7 @@
 #include <sys/ipc.h>
 #include <unistd.h>
 
-
-//#include <sys/types.h>
-//#include <sys/ipc.h>
-//#include <sys/msg.h>
-//#include <unistd.h>
-//#include <signal.h>
-//#include <iostream>
-
 using namespace v8;
-//using namespace node;
 
 #ifndef __NATIVE_INTERFACE_LAYER_H__
 #define __NATIVE_INTERFACE_LAYER_H__
@@ -59,15 +50,7 @@ static const char* SUPPORT_LIST[] = {
 	"MOTION",
 	"TEMP"
 };
-//
-//------------------------------------------------------------------------------------//
-
-
 #endif  
-
-
-
-
 
 gboolean NIL_DbusConnection(DBusConnection *bus_cnxn);
 void pid_to_char(char* output);
