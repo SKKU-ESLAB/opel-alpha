@@ -41,6 +41,7 @@ void nativeInterfaceLayerInit(){
   initRequestList(rList);
 }
 
+// TODO: receive AppMessage.UpdateAppConfig / send AppAckMessage.UpdateAppConfig
 DBusHandlerResult configEventDriven(DBusConnection *connection, DBusMessage *message, void *iface_user_data){
   Isolate* isolate = Isolate::GetCurrent();
   int rq_num;
@@ -87,7 +88,7 @@ DBusHandlerResult configEventDriven(DBusConnection *connection, DBusMessage *mes
   return DBUS_HANDLER_RESULT_HANDLED;
 }
 
-
+// TODO: receive AppMessage.Terminate / no ack
 DBusHandlerResult terminationEventDriven(DBusConnection *connection, DBusMessage *message, void *iface_user_data){
   Isolate* isolate = Isolate::GetCurrent();
   int rq_num;
@@ -278,6 +279,7 @@ void addEventImg(const FunctionCallbackInfo<Value>& args) {
 
 }
 
+// TODO: send CompanionMessage.SendEventPage
 void sendEventPage(const FunctionCallbackInfo<Value>& args) {
   Isolate* isolate = Isolate::GetCurrent();
   HandleScope scope(isolate);
@@ -343,7 +345,7 @@ void sendEventPage(const FunctionCallbackInfo<Value>& args) {
   return;
 }
 
-
+// TODO: send CompanionMessage.SendEventPage
 void sendEventPageWithNoti(const FunctionCallbackInfo<Value>& args) {
   Isolate* isolate = Isolate::GetCurrent();
   HandleScope scope(isolate);
@@ -1033,6 +1035,7 @@ void addTimeDialog(const FunctionCallbackInfo<Value>& args) {
   }
 
 */
+// TODO: send CompanionMessage.SendConfigPage
 void sendConfigPage(const FunctionCallbackInfo<Value>& args) {
   Isolate* isolate = Isolate::GetCurrent();
   HandleScope scope(isolate);
@@ -1235,6 +1238,7 @@ void getData(const FunctionCallbackInfo<Value>& args) {
 
 
 //onTermination(function)
+// TODO: do not use d-bus, maintain callback function pointer
 void onTermination(const FunctionCallbackInfo<Value>& args) {
   Isolate* isolate = Isolate::GetCurrent();
   HandleScope scope(isolate);
@@ -1296,7 +1300,7 @@ void onTermination(const FunctionCallbackInfo<Value>& args) {
 }
 
 
-
+// TODO: remove it
 void faceRecognitionWithNoti(const FunctionCallbackInfo<Value>& args) {
   Isolate* isolate = Isolate::GetCurrent();
   HandleScope scope(isolate);
@@ -1357,6 +1361,7 @@ void faceRecognitionWithNoti(const FunctionCallbackInfo<Value>& args) {
   return;
 }
 
+// TODO: send CompanionMessage.UpdateSensorData
 void sendMsgToSensorViewer(const FunctionCallbackInfo<Value>& args) {
   Isolate* isolate = Isolate::GetCurrent();
   HandleScope scope(isolate);
