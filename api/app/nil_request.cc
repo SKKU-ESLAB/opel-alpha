@@ -6,12 +6,12 @@
 
 
 
-void initRequestList(RequestList *rList){
+void initRequestList(requestList *rList){
 	rList->rq_num = -1;
 	rList->next = NULL;
 }
 
-void printRequset(RequestList *rList){
+void printRequset(requestList *rList){
 	printf("============ Requset List ============ \n");
 	
 	while(1){
@@ -26,7 +26,7 @@ void printRequset(RequestList *rList){
 	printf("=======================================\n");
 
 }
-int countRequest(RequestList *rList){
+int countRequest(requestList *rList){
 	int count = 0;
 
 	for(;;){
@@ -40,8 +40,8 @@ int countRequest(RequestList *rList){
 	}
 }
 
-RequestList * newRequest(RequestList *rList){
-	RequestList *rl = rList;
+requestList * newRequest(requestList *rList){
+	requestList *rl = rList;
 
 	if (rList->rq_num == -1){
 		rList->rq_num = 0;
@@ -54,8 +54,8 @@ RequestList * newRequest(RequestList *rList){
 		rList = rList->next;
 	}
 
-//	rList->next = (RequestList*)malloc(sizeof(RequestList));
-	rList->next = new RequestList();
+//	rList->next = (requestList*)malloc(sizeof(requestList));
+	rList->next = new requestList();
 	rList->next->next = NULL;
 	rList->next->rq_num = rList->rq_num + 1;
 
@@ -63,8 +63,8 @@ RequestList * newRequest(RequestList *rList){
 }
 
 
-RequestList * getRequest(RequestList *rList, int rq_num){
-	RequestList *rl;
+requestList * getRequest(requestList *rList, int rq_num){
+	requestList *rl;
 
 	rl = rList;
 	for (;;){
@@ -84,10 +84,10 @@ RequestList * getRequest(RequestList *rList, int rq_num){
 #define DELETE_REQUEST 0
 #define DELETE_FAIL_NOT_EXIST 1
 
-int deleteRequest(RequestList *rList, int rq_num){
-	RequestList *rl;
-	RequestList *del_rl = NULL;
-	RequestList *prev_rl = NULL;
+int deleteRequest(requestList *rList, int rq_num){
+	requestList *rl;
+	requestList *del_rl = NULL;
+	requestList *prev_rl = NULL;
 
 	rl = rList;
 
@@ -95,7 +95,7 @@ int deleteRequest(RequestList *rList, int rq_num){
 	if (rList->rq_num == rq_num){
 		//root is target.
 		del_rl = rList->next;
-		memcpy(rList, rList->next, sizeof(RequestList));
+		memcpy(rList, rList->next, sizeof(requestList));
 		free(del_rl);
 
 		return DELETE_REQUEST;
