@@ -27,7 +27,6 @@ import com.opel.opel_manager.model.message.params.ParamsGetFileList;
 import com.opel.opel_manager.model.message.params.ParamsGetRootPath;
 import com.opel.opel_manager.model.message.params.ParamsInitializeApp;
 import com.opel.opel_manager.model.message.params.ParamsListenAppState;
-import com.opel.opel_manager.model.message.params.ParamsUpdateAppConfig;
 
 import java.util.ArrayList;
 
@@ -130,15 +129,6 @@ public class AppCoreAckMessage extends BaseMessagePayload {
         String rootPath = paramsObj.get("rootPath").asText();
 
         return new ParamsGetRootPath(rootPath);
-    }
-
-    public ParamsUpdateAppConfig getParamsUpdateAppConfig() {
-        ObjectNode paramsObj = (ObjectNode) this.mAppCoreAckPayloadObj;
-
-        String isSucceedStr = paramsObj.get("isSucceed").asText();
-        boolean isSucceed = (isSucceedStr.compareTo("1") == 0);
-
-        return new ParamsUpdateAppConfig(isSucceed);
     }
 
     public int getCommandMessageId() {

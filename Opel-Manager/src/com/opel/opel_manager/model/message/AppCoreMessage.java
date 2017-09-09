@@ -38,13 +38,11 @@ public class AppCoreMessage extends BaseMessagePayload {
     public static final int Type_GetFileList = 9; // params: String path (ACK params: FileList)
     public static final int Type_GetFile = 10; // params: String path (ACK params: void)
     public static final int Type_GetRootPath = 11; // params: void (ACK params: String rootPath)
-    public static final int Type_UpdateAppConfig = 12; // params: String legacyData
-    //                                                            (ACK params: boolean isSucceed)
-    public static final int Type_GetAppIcon = 13; // params: int appId (ACK params: void)
+    public static final int Type_GetAppIcon = 12; // params: int appId (ACK params: void)
 
     // JSON field name
-    static final String APPCORE_MESSAGE_KEY_COMMAND_TYPE = "commandType";
-    static final String APPCORE_MESSAGE_KEY_PAYLOAD = "payload";
+    private static final String APPCORE_MESSAGE_KEY_COMMAND_TYPE = "commandType";
+    private static final String APPCORE_MESSAGE_KEY_PAYLOAD = "payload";
 
     // Encoding to JSON
     @Override
@@ -104,13 +102,6 @@ public class AppCoreMessage extends BaseMessagePayload {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode payloadObj = mapper.createObjectNode();
         payloadObj.put("path", "" + path);
-        this.mAppCorePayload = payloadObj;
-    }
-
-    public void setParamsUpdateAppConfig(String legacyData) {
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectNode payloadObj = mapper.createObjectNode();
-        payloadObj.put("legacyData", "" + legacyData);
         this.mAppCorePayload = payloadObj;
     }
 

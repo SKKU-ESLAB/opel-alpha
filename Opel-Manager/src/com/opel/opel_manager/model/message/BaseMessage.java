@@ -35,6 +35,7 @@ public class BaseMessage implements Parcelable {
     public static final int Type_AppCore = 10;
     public static final int Type_AppCoreAck = 11;
     public static final int Type_App = 20;
+    public static final int Type_AppAck = 21;
     public static final int Type_Companion = 30;
 
     // JSON field name

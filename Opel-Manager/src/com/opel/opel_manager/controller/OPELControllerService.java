@@ -30,6 +30,7 @@ import com.opel.opel_manager.model.OPELApp;
 import com.opel.opel_manager.model.OPELEvent;
 import com.opel.opel_manager.model.OPELEventList;
 import com.opel.opel_manager.model.Settings;
+import com.opel.opel_manager.model.message.AppAckMessage;
 import com.opel.opel_manager.model.message.AppCoreAckMessage;
 import com.opel.opel_manager.model.message.BaseMessage;
 import com.opel.opel_manager.model.message.CompanionMessage;
@@ -42,6 +43,7 @@ import com.opel.opel_manager.model.message.params.ParamsInitializeApp;
 import com.opel.opel_manager.model.message.params.ParamsListenAppState;
 import com.opel.opel_manager.model.message.params.ParamsSendConfigPage;
 import com.opel.opel_manager.model.message.params.ParamsSendEventPage;
+import com.opel.opel_manager.model.message.params.ParamsUpdateAppConfig;
 import com.opel.opel_manager.model.message.params.ParamsUpdateSensorData;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -60,10 +62,10 @@ public class OPELControllerService extends Service {
     private static String TAG = "OPELControllerService";
     private int mBindersCount = 0;
 
-    // OPELAppCoreStub
+    // TargetDeviceStub
     private final OPELControllerService self = this;
-    private OPELAppCoreStub mAppCoreStub = null;
-    private PrivateAppCoreStubListener mAppCoreStubListener = null;
+    private TargetDeviceStub mTargetDeviceStub = null;
+    private PrivateAppCoreStubListener mTargetDeviceStubListener = null;
 
     // Models
     @SuppressLint("UseSparseArrays")
@@ -78,43 +80,43 @@ public class OPELControllerService extends Service {
 
     // Connection with target device
     public void initializeConnectionAsync() {
-        if (this.mAppCoreStub == null) {
+        if (this.mTargetDeviceStub == null) {
             Log.e(TAG, "AppCoreStub is not initialized");
             return;
         }
-        this.mAppCoreStub.initializeConnection();
+        this.mTargetDeviceStub.initializeConnection();
     }
 
     public void destroyConnectionAsync() {
-        if (this.mAppCoreStub == null) {
+        if (this.mTargetDeviceStub == null) {
             Log.e(TAG, "AppCoreStub is not initialized");
             return;
         }
-        this.mAppCoreStub.destroyConnection();
+        this.mTargetDeviceStub.destroyConnection();
     }
 
     public int getCommChannelState() {
-        if (this.mAppCoreStub == null) {
+        if (this.mTargetDeviceStub == null) {
             Log.e(TAG, "AppCoreStub is not initialized");
             return CommChannelService.STATE_DISCONNECTED;
         }
-        return this.mAppCoreStub.getCommChannelState();
+        return this.mTargetDeviceStub.getCommChannelState();
     }
 
     public void enableLargeDataMode() {
-        this.mAppCoreStub.enableLargeDataMode();
+        this.mTargetDeviceStub.enableLargeDataMode();
     }
 
     public void lockLargeDataMode() {
-        this.mAppCoreStub.lockLargeDataMode();
+        this.mTargetDeviceStub.lockLargeDataMode();
     }
 
     public void unlockLargeDataMode() {
-        this.mAppCoreStub.unlockLargeDataMode();
+        this.mTargetDeviceStub.unlockLargeDataMode();
     }
 
     public String getLargeDataIPAddress() {
-        return this.mAppCoreStub.getLargeDataIPAddress();
+        return this.mTargetDeviceStub.getLargeDataIPAddress();
     }
 
     // Control functions (Sync)
@@ -145,15 +147,19 @@ public class OPELControllerService extends Service {
     }
 
     public int getFileListAsync(String path) {
-        return this.mAppCoreStub.getFileList(path);
+        return this.mTargetDeviceStub.getFileList(path);
     }
 
     public int getFileAsync(String path) {
-        return this.mAppCoreStub.getFile(path);
+        return this.mTargetDeviceStub.getFile(path);
     }
 
     public int getTargetRootPathAsync() {
-        return this.mAppCoreStub.getRootPath();
+        return this.mTargetDeviceStub.getRootPath();
+    }
+
+    public void updateAppConfigAsync(int appId, String legacyData) {
+        this.mTargetDeviceStub.updateAppConfig(appId, legacyData);
     }
 
     // Control functions (OneWay)
@@ -162,19 +168,15 @@ public class OPELControllerService extends Service {
     }
 
     public void removeAppOneWay(int appId) {
-        this.mAppCoreStub.removeApp(appId);
+        this.mTargetDeviceStub.removeApp(appId);
     }
 
     public void launchAppOneWay(int appId) {
-        this.mAppCoreStub.launchApp(appId);
+        this.mTargetDeviceStub.launchApp(appId);
     }
 
     public void terminateOneWay(int appId) {
-        this.mAppCoreStub.terminateApp(appId);
-    }
-
-    public void updateAppConfigOneWay(String legacyData) {
-        this.mAppCoreStub.updateAppConfig(legacyData);
+        this.mTargetDeviceStub.terminateApp(appId);
     }
 
     public void installApkOneWay(File apkFile) {
@@ -204,7 +206,7 @@ public class OPELControllerService extends Service {
                 Log.e(TAG, "Cannot update app list since previous request did not finish.");
                 return -1;
             }
-            int messageId = mAppCoreStub.getAppList();
+            int messageId = mTargetDeviceStub.getAppList();
             return messageId;
         }
 
@@ -220,7 +222,7 @@ public class OPELControllerService extends Service {
                 OPELApp app = new OPELApp(appId, appName, "", isDefaultApp);
 
                 // Request app icon
-                int requestMessageId = mAppCoreStub.getAppIcon(app.getAppId());
+                int requestMessageId = mTargetDeviceStub.getAppIcon(app.getAppId());
                 this.mWaitingAppList.put(requestMessageId, app);
             }
         }
@@ -277,7 +279,7 @@ public class OPELControllerService extends Service {
 
         public void start(String packageFilePath) {
             // Command 1: initialize app
-            int messageId = mAppCoreStub.initializeApp();
+            int messageId = mTargetDeviceStub.initializeApp();
             this.mInitializeTransactions.put(messageId, packageFilePath);
         }
 
@@ -292,7 +294,7 @@ public class OPELControllerService extends Service {
             if (!checkRes) return;
 
             // Command 2: listen app state
-            mAppCoreStub.listenAppState(appId);
+            mTargetDeviceStub.listenAppState(appId);
 
             // Check package file
             File packageFile = new File(packageFilePath);
@@ -309,7 +311,7 @@ public class OPELControllerService extends Service {
             mInstallTransactions.put(appId, packageFilePath);
 
             // Command 3: install app
-            mAppCoreStub.installApp(appId, packageFile);
+            mTargetDeviceStub.installApp(appId, packageFile);
         }
 
         private boolean registerPackageToAppList(int appId, String packageFilePath) {
@@ -391,8 +393,8 @@ public class OPELControllerService extends Service {
         }
     }
 
-    private class PrivateAppCoreStubListener implements OPELAppCoreStubListener {
-        // OPELAppCoreStubListener
+    private class PrivateAppCoreStubListener implements TargetDeviceStubListener {
+        // TargetDeviceStubListener
         @Override
         public void onCommChannelStateChanged(int prevState, int newState) {
             OPELControllerBroadcastSender.onCommChannelStateChanged(self, prevState, newState);
@@ -518,16 +520,30 @@ public class OPELControllerService extends Service {
             // Listeners
             mUpdateAppListProcedure.onAckGetAppIcon(commandMessageId, iconFilePath);
         }
+
+        @Override
+        public void onUpdateAppConfig(BaseMessage message) {
+            // Get parameters
+            AppAckMessage payload = (AppAckMessage) message.getPayload();
+            int commandMessageId = payload.getCommandMessageId();
+            ParamsUpdateAppConfig params = payload.getParamsUpdateAppConfig();
+            boolean isSucceed = params.isSucceed;
+
+            // TODO: success!
+            // Listeners
+            OPELControllerBroadcastSender.onResultUpdateAppConfig(self, commandMessageId,
+                    isSucceed);
+        }
     }
 
     // Android Service
     @Override
     public IBinder onBind(Intent intent) {
         this.mBindersCount++;
-        if (this.mAppCoreStubListener == null)
-            this.mAppCoreStubListener = new PrivateAppCoreStubListener();
-        if (this.mAppCoreStub == null) {
-            this.mAppCoreStub = new OPELAppCoreStub(this, this.mAppCoreStubListener);
+        if (this.mTargetDeviceStubListener == null)
+            this.mTargetDeviceStubListener = new PrivateAppCoreStubListener();
+        if (this.mTargetDeviceStub == null) {
+            this.mTargetDeviceStub = new TargetDeviceStub(this, this.mTargetDeviceStubListener);
         }
         return null;
     }

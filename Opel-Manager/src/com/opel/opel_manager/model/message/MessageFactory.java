@@ -49,7 +49,15 @@ public class MessageFactory {
         return message;
     }
 
-    // JSON -> BaseMessage / AppCoreAckMessage / CompanionMessage
+    // Make AppMessage from bottom
+    public static BaseMessage makeAppMessage(String uri, int commandType) {
+        AppMessage payload = new AppMessage(commandType);
+        BaseMessage message = new BaseMessage(currentMessageId++, uri, BaseMessage.Type_App);
+        message.setPayload(payload);
+        return message;
+    }
+
+    // JSON -> BaseMessage / AppCoreAckMessage / AppAckMessage / CompanionMessage
     private static BaseMessage makeBaseMessageFromJSON(JsonNode messageObj) {
         ObjectNode thisObj = (ObjectNode) messageObj;
 
@@ -80,6 +88,11 @@ public class MessageFactory {
         switch (type) {
             case BaseMessage.Type_AppCoreAck: {
                 AppCoreAckMessage messagePayload = makeAppCoreAckMessageFromJSON(payloadObj);
+                newMessage.setPayload(messagePayload);
+                break;
+            }
+            case BaseMessage.Type_AppAck: {
+                AppAckMessage messagePayload = makeAppAckMessageFromJSON(payloadObj);
                 newMessage.setPayload(messagePayload);
                 break;
             }
@@ -123,6 +136,30 @@ public class MessageFactory {
         return newMessage;
     }
 
+    private static AppAckMessage makeAppAckMessageFromJSON(JsonNode messagePayloadObj) {
+        ObjectNode thisObj = (ObjectNode) messagePayloadObj;
+
+        // commandMessageId
+        String commandMessageIdStr = thisObj.get(AppAckMessage
+                .APP_ACK_MESSAGE_KEY_COMMAND_MESSAGE_NUM).asText();
+        int commandMessageId = Integer.parseInt(commandMessageIdStr);
+
+        // commandType
+        String commandTypeStr = thisObj.get(AppAckMessage
+                .APP_ACK_MESSAGE_KEY_COMMAND_TYPE).asText();
+        int commandType = Integer.parseInt(commandTypeStr);
+
+        // payload (AppAckMessage's)
+        ObjectNode payloadObj = (ObjectNode) thisObj.get(AppAckMessage
+                .APP_ACK_MESSAGE_KEY_PAYLOAD);
+
+        // Allocate and initialize a new AppAckMessage
+        AppAckMessage newMessage = new AppAckMessage(commandMessageId, commandType);
+        newMessage.setPayload(payloadObj);
+
+        return newMessage;
+    }
+
     private static CompanionMessage makeCompanionMessageFromJSON(JsonNode messagePayloadObj) {
         ObjectNode thisObj = (ObjectNode) messagePayloadObj;
 
@@ -135,7 +172,7 @@ public class MessageFactory {
         ObjectNode payloadObj = (ObjectNode) thisObj.get(CompanionMessage
                 .COMPANION_MESSAGE_KEY_PAYLOAD);
 
-        // Allocate and initialize a new AppCoreAckMessage
+        // Allocate and initialize a new CompanionMessage
         CompanionMessage newMessage = new CompanionMessage(commandType);
         newMessage.setPayload(payloadObj);
 

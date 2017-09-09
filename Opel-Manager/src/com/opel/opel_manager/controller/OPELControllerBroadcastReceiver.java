@@ -66,6 +66,11 @@ abstract public class OPELControllerBroadcastReceiver extends BroadcastReceiver 
             "commandMessageId";
     public static final String KEY_ON_RESULT_GET_TARGET_ROOT_PATH_PATH = "path";
 
+    public static final String EVENT_TYPE_ON_RESULT_UPDATE_APP_CONFIG = "onResultUpdateAppConfig";
+    public static final String KEY_ON_RESULT_UPDATE_APP_CONFIG_COMMAND_MESSAGE_ID =
+            "commandMessageId";
+    public static final String KEY_ON_RESULT_UPDATE_APP_CONFIG_IS_SUCCEED = "isSucceed";
+
     @Override
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
@@ -128,6 +133,15 @@ abstract public class OPELControllerBroadcastReceiver extends BroadcastReceiver 
                     this.mOnResultGetTargetRootPathListener.onResultGetTargetRootPath
                             (commandMessageId, path);
                 }
+            } else if (eventType.compareTo(EVENT_TYPE_ON_RESULT_UPDATE_APP_CONFIG) == 0) {
+                int commandMessageId = intent.getIntExtra
+                        (KEY_ON_RESULT_UPDATE_APP_CONFIG_COMMAND_MESSAGE_ID, -1);
+                boolean isSucceed = intent.getBooleanExtra
+                        (KEY_ON_RESULT_UPDATE_APP_CONFIG_IS_SUCCEED, false);
+                if (this.mOnResultUpdateAppConfigListener != null) {
+                    this.mOnResultUpdateAppConfigListener.onResultUpdateAppConfig
+                            (commandMessageId, isSucceed);
+                }
             }
         }
     }
@@ -141,6 +155,7 @@ abstract public class OPELControllerBroadcastReceiver extends BroadcastReceiver 
     private OnResultGetFileListListener mOnResultGetFileListListener;
     private OnResultGetFileListener mOnResultGetFileListener;
     private OnResultGetTargetRootPathListener mOnResultGetTargetRootPathListener;
+    private OnResultUpdateAppConfigListener mOnResultUpdateAppConfigListener;
 
     public void setOnCommChannelStateChangedListener(OnCommChannelStateChangedListener listener) {
         this.mOnCommChannelStateChangedListener = listener;
@@ -178,6 +193,10 @@ abstract public class OPELControllerBroadcastReceiver extends BroadcastReceiver 
         this.mOnResultGetTargetRootPathListener = listener;
     }
 
+    public void setOnResultUpdateAppConfigListener(OnResultUpdateAppConfigListener listener) {
+        this.mOnResultUpdateAppConfigListener = listener;
+    }
+
     public interface OnCommChannelStateChangedListener {
         public void onCommChannelStateChanged(int prevState, int newState);
     }
@@ -213,5 +232,9 @@ abstract public class OPELControllerBroadcastReceiver extends BroadcastReceiver 
 
     public interface OnResultGetTargetRootPathListener {
         public void onResultGetTargetRootPath(int commandMessageId, String path);
+    }
+
+    public interface OnResultUpdateAppConfigListener {
+        public void onResultUpdateAppConfig(int commandMessageId, boolean isSucceed);
     }
 }

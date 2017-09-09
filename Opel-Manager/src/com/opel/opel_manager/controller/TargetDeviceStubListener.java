@@ -19,7 +19,7 @@ package com.opel.opel_manager.controller;
 
 import com.opel.opel_manager.model.message.BaseMessage;
 
-public interface OPELAppCoreStubListener {
+public interface TargetDeviceStubListener {
     // CommChannel
     public void onCommChannelStateChanged(int prevState, int newState);
 
@@ -37,6 +37,9 @@ public interface OPELAppCoreStubListener {
     public void onAckGetRootPath(BaseMessage message);
 
     public void getAppIcon(BaseMessage message);
+
+    // AppAckMessage
+    public void onUpdateAppConfig(BaseMessage message);
 
     // CompanionMessage
     public void onSendEventPage(BaseMessage message);

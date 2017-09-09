@@ -129,4 +129,17 @@ public class OPELControllerBroadcastSender {
                 .KEY_ON_RESULT_GET_TARGET_ROOT_PATH_PATH, path);
         service.sendBroadcast(broadcastIntent);
     }
+
+    static public void onResultUpdateAppConfig(Service service, int commandMessageId, boolean
+            isSucceed) {
+        Intent broadcastIntent = new Intent();
+        broadcastIntent.setAction(OPELControllerBroadcastReceiver.ACTION);
+        broadcastIntent.putExtra(OPELControllerBroadcastReceiver.KEY_EVENT_TYPE,
+                OPELControllerBroadcastReceiver.EVENT_TYPE_ON_RESULT_UPDATE_APP_CONFIG);
+        broadcastIntent.putExtra(OPELControllerBroadcastReceiver
+                .KEY_ON_RESULT_UPDATE_APP_CONFIG_COMMAND_MESSAGE_ID, commandMessageId);
+        broadcastIntent.putExtra(OPELControllerBroadcastReceiver
+                .KEY_ON_RESULT_UPDATE_APP_CONFIG_IS_SUCCEED, isSucceed);
+        service.sendBroadcast(broadcastIntent);
+    }
 }

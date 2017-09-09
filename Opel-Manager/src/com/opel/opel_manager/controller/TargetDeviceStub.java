@@ -28,8 +28,10 @@ import android.util.Log;
 
 import com.opel.cmfw.glue.CommBroadcastReceiver;
 import com.opel.cmfw.service.CommChannelService;
+import com.opel.opel_manager.model.message.AppAckMessage;
 import com.opel.opel_manager.model.message.AppCoreAckMessage;
 import com.opel.opel_manager.model.message.AppCoreMessage;
+import com.opel.opel_manager.model.message.AppMessage;
 import com.opel.opel_manager.model.message.BaseMessage;
 import com.opel.opel_manager.model.message.CompanionMessage;
 import com.opel.opel_manager.model.message.MessageFactory;
@@ -38,15 +40,16 @@ import java.io.File;
 
 import static android.content.ContentValues.TAG;
 
-public class OPELAppCoreStub {
+public class TargetDeviceStub {
     // RPC on CommChannelService
     private CommChannelService mCommChannelServiceStub = null;
     private PrivateCommBroadcastReceiver mCommBroadcastReceiver;
 
+    private final String kAppBaseURI = "/thing/apps";
     private final String kAppCoreURI = "/thing/appcore";
 
-    // OPEL Manager (Android) -> AppCore Daemon (OPEL Device)
-    private int sendAppCoreMessage(BaseMessage message) {
+    // OPEL Manager (Android) -> AppCore Daemon or app (OPEL Device)
+    private int sendMessage(BaseMessage message) {
         if (this.mCommChannelServiceStub == null) {
             Log.e(TAG, "CommChannel is not initialized");
             return -1;
@@ -58,7 +61,7 @@ public class OPELAppCoreStub {
     public int getAppList() {
         BaseMessage newMessage = MessageFactory.makeAppCoreMessage(kAppCoreURI, AppCoreMessage
                 .Type_GetAppList);
-        return this.sendAppCoreMessage(newMessage);
+        return this.sendMessage(newMessage);
     }
 
     public int listenAppState(int appId) {
@@ -66,13 +69,13 @@ public class OPELAppCoreStub {
                 .Type_ListenAppState);
         AppCoreMessage appCorePayload = (AppCoreMessage) newMessage.getPayload();
         appCorePayload.setParamsListenAppState(appId);
-        return this.sendAppCoreMessage(newMessage);
+        return this.sendMessage(newMessage);
     }
 
     public int initializeApp() {
         BaseMessage newMessage = MessageFactory.makeAppCoreMessage(kAppCoreURI, AppCoreMessage
                 .Type_InitializeApp);
-        return this.sendAppCoreMessage(newMessage);
+        return this.sendMessage(newMessage);
     }
 
     public int installApp(int appId, File packageFile) {
@@ -81,7 +84,7 @@ public class OPELAppCoreStub {
         AppCoreMessage appCorePayload = (AppCoreMessage) newMessage.getPayload();
         appCorePayload.setParamsInstallApp(appId, packageFile.getName());
         newMessage.attachFile(packageFile.getPath());
-        return this.sendAppCoreMessage(newMessage);
+        return this.sendMessage(newMessage);
     }
 
     public int launchApp(int appId) {
@@ -89,7 +92,7 @@ public class OPELAppCoreStub {
                 .Type_LaunchApp);
         AppCoreMessage appCorePayload = (AppCoreMessage) newMessage.getPayload();
         appCorePayload.setParamsLaunchApp(appId);
-        return this.sendAppCoreMessage(newMessage);
+        return this.sendMessage(newMessage);
     }
 
     public int terminateApp(int appId) {
@@ -97,7 +100,7 @@ public class OPELAppCoreStub {
                 .Type_TerminateApp);
         AppCoreMessage appCorePayload = (AppCoreMessage) newMessage.getPayload();
         appCorePayload.setParamsTerminateApp(appId);
-        return this.sendAppCoreMessage(newMessage);
+        return this.sendMessage(newMessage);
     }
 
     public int removeApp(int appId) {
@@ -105,7 +108,7 @@ public class OPELAppCoreStub {
                 .Type_RemoveApp);
         AppCoreMessage appCorePayload = (AppCoreMessage) newMessage.getPayload();
         appCorePayload.setParamsRemoveApp(appId);
-        return this.sendAppCoreMessage(newMessage);
+        return this.sendMessage(newMessage);
     }
 
     public int getFileList(String path) {
@@ -113,7 +116,7 @@ public class OPELAppCoreStub {
                 .Type_GetFileList);
         AppCoreMessage appCorePayload = (AppCoreMessage) newMessage.getPayload();
         appCorePayload.setParamsGetFileList(path);
-        return this.sendAppCoreMessage(newMessage);
+        return this.sendMessage(newMessage);
     }
 
     public int getFile(String path) {
@@ -121,21 +124,22 @@ public class OPELAppCoreStub {
                 .Type_GetFile);
         AppCoreMessage appCorePayload = (AppCoreMessage) newMessage.getPayload();
         appCorePayload.setParamsGetFile(path);
-        return this.sendAppCoreMessage(newMessage);
+        return this.sendMessage(newMessage);
     }
 
     public int getRootPath() {
         BaseMessage newMessage = MessageFactory.makeAppCoreMessage(kAppCoreURI, AppCoreMessage
                 .Type_GetRootPath);
-        return this.sendAppCoreMessage(newMessage);
+        return this.sendMessage(newMessage);
     }
 
-    public int updateAppConfig(String legacyData) {
-        BaseMessage newMessage = MessageFactory.makeAppCoreMessage(kAppCoreURI, AppCoreMessage
+    public int updateAppConfig(int appId, String legacyData) {
+        String appURI = kAppBaseURI + "/" + appId;
+        BaseMessage newMessage = MessageFactory.makeAppMessage(appURI, AppMessage
                 .Type_UpdateAppConfig);
-        AppCoreMessage appCorePayload = (AppCoreMessage) newMessage.getPayload();
-        appCorePayload.setParamsGetFile(legacyData);
-        return this.sendAppCoreMessage(newMessage);
+        AppMessage appPayload = (AppMessage) newMessage.getPayload();
+        appPayload.setParamsUpdateAppConfig(legacyData);
+        return this.sendMessage(newMessage);
     }
 
     public int getAppIcon(int appId) {
@@ -143,7 +147,7 @@ public class OPELAppCoreStub {
                 .Type_GetAppIcon);
         AppCoreMessage appCorePayload = (AppCoreMessage) newMessage.getPayload();
         appCorePayload.setParamsGetAppIcon(appId);
-        return this.sendAppCoreMessage(newMessage);
+        return this.sendMessage(newMessage);
     }
 
     // AppCore Daemon (OPEL Device) -> OPEL Manager (Android)
@@ -180,6 +184,17 @@ public class OPELAppCoreStub {
             case AppCoreMessage.Type_NotDetermined:
             default: {
                 Log.e(TAG, "Cannot receive that command!: " + message.toJSONString());
+                break;
+            }
+        }
+    }
+
+    // App (OPEL Device) -> OPEL Manager (Android)
+    private void onReceivedAppAckMessage(BaseMessage message) {
+        AppAckMessage payload = (AppAckMessage) message.getPayload();
+        switch (payload.getCommandType()) {
+            case AppMessage.Type_UpdateAppConfig: {
+                this.mListener.onUpdateAppConfig(message);
                 break;
             }
         }
@@ -287,6 +302,9 @@ public class OPELAppCoreStub {
                 case BaseMessage.Type_AppCoreAck:
                     onReceivedAppCoreAckMessage(message);
                     break;
+                case BaseMessage.Type_AppAck:
+                    onReceivedAppAckMessage(message);
+                    break;
                 case BaseMessage.Type_Companion:
                     onReceivedCompanionMessage(message);
                     break;
@@ -300,11 +318,11 @@ public class OPELAppCoreStub {
         }
     }
 
-    public OPELAppCoreStub(Service ownerService, OPELAppCoreStubListener listener) {
+    public TargetDeviceStub(Service ownerService, TargetDeviceStubListener listener) {
         this.mOwnerService = ownerService;
         this.mListener = listener;
     }
 
     private Service mOwnerService;
-    private OPELAppCoreStubListener mListener;
+    private TargetDeviceStubListener mListener;
 }
