@@ -490,17 +490,16 @@ void AppCore::launchApp(BaseMessage* message) {
 
 void AppCore::completeLaunchingApp(BaseMessage* message) {
   // Get arguments
-  int appId;
   int pid;
   AppCoreMessage* payload = (AppCoreMessage*)message->getPayload();
-  if(payload->getParamsCompleteLaunchingApp(appId, pid) == false) {
+  if(payload->getParamsCompleteLaunchingApp(pid) == false) {
     OPEL_DBG_ERR("Invalid AppCoreMessage! (commandType: %d)",
         payload->getCommandType());
     return;
   }
 
   // Find app for the appId
-  App* app = this->mAppList->getByAppId(appId);
+  App* app = this->mAppList->getByPid(pid);
   if(app == NULL) {
     OPEL_DBG_ERR("App does not exist in the app list!");
     return;
@@ -508,6 +507,17 @@ void AppCore::completeLaunchingApp(BaseMessage* message) {
 
   // Update state
   app->successLaunching();
+
+  // Make ACK message
+  char appURI[PATH_BUFFER_SIZE];
+  snprintf(appURI, PATH_BUFFER_SIZE, "%s/%d", APPS_URI, app->getId());
+  BaseMessage* ackMessage
+    = MessageFactory::makeAppCoreAckMessage(appURI, message); 
+  AppCoreAckMessage* ackPayload = (AppCoreAckMessage*)ackMessage->getPayload();
+  ackPayload->setParamsCompleteLaunchingApp(app->getId());
+
+  // Send ACK message
+  this->mLocalChannel->sendMessage(ackMessage);
 }
 
 void AppCore::terminateApp(BaseMessage* message) {

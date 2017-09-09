@@ -130,6 +130,30 @@ cJSON* CompanionMessage::toJSON() {
   return thisObj;
 }
 
+// encoding to JSON (AppAckMessage)
+cJSON* AppAckMessage::toJSON() {
+  cJSON* thisObj = cJSON_CreateObject();
+
+  // commandMessageId
+  char commandMessageIdStr[20];
+  sprintf(commandMessageIdStr, "%d", this->mCommandMessageId);
+  cJSON_AddStringToObject(thisObj,
+      APP_ACK_MESSAGE_KEY_COMMAND_MESSAGE_NUM,
+      commandMessageIdStr);
+
+  // commandType
+  char commandTypeStr[20];
+  sprintf(commandTypeStr, "%d", this->mCommandType);
+  cJSON_AddStringToObject(thisObj, APP_ACK_MESSAGE_KEY_COMMAND_TYPE,
+      commandTypeStr);
+
+  // payload (AppAckMessage's)
+  cJSON_AddItemToObject(thisObj, APP_ACK_MESSAGE_KEY_PAYLOAD,
+      this->mAppAckPayloadObj);
+
+  return thisObj;
+}
+
 // Attach file on message to be sent
 BaseMessage* BaseMessage::attachFile(std::string filePath) {
   char filePathBuffer[EXT4_FILE_PATH_LENGTH];
@@ -172,11 +196,7 @@ bool AppCoreMessage::getParamsLaunchApp(int& appId) {
   return true;
 }
 
-bool AppCoreMessage::getParamsCompleteLaunchingApp(int& appId, int& pid) { 
-  cJSON* appIdObj = cJSON_GetObjectItem(this->mAppCorePayloadObj, "appId");
-  RETURN_IF_INVALID_CJSON_OBJ(appIdObj, false);
-  appId = atoi(appIdObj->valuestring);
-
+bool AppCoreMessage::getParamsCompleteLaunchingApp(int& pid) { 
   cJSON* pidObj = cJSON_GetObjectItem(this->mAppCorePayloadObj, "pid");
   RETURN_IF_INVALID_CJSON_OBJ(pidObj, false);
   pid = atoi(pidObj->valuestring);
@@ -212,14 +232,6 @@ bool AppCoreMessage::getParamsGetFile(std::string& path) {
   cJSON* pathObj = cJSON_GetObjectItem(this->mAppCorePayloadObj, "path");
   RETURN_IF_INVALID_CJSON_OBJ(pathObj, false);
   path.assign(pathObj->valuestring);
-
-  return true;
-}
-
-bool AppCoreMessage::getParamsUpdateAppConfig(std::string& legacyData) {
-  cJSON* legacyDataObj = cJSON_GetObjectItem(this->mAppCorePayloadObj, "legacyData");
-  RETURN_IF_INVALID_CJSON_OBJ(legacyDataObj, false);
-  legacyData.assign(legacyDataObj->valuestring);
 
   return true;
 }
@@ -289,6 +301,15 @@ void AppCoreAckMessage::setParamsInitializeApp(int appId) {
   this->mAppCoreAckPayloadObj = payloadObj;
 }
 
+void AppCoreAckMessage::setParamsCompleteLaunchingApp(int appId) {
+  cJSON* payloadObj = cJSON_CreateObject();
+  char appIdStr[20];
+  sprintf(appIdStr, "%d", appId);
+  cJSON_AddStringToObject(payloadObj, "appId", appIdStr);
+
+  this->mAppCoreAckPayloadObj = payloadObj;
+}
+
 cJSON* ParamFileList::toJSON() {
   cJSON* listObj = cJSON_CreateArray();
 
@@ -335,10 +356,20 @@ void AppCoreAckMessage::setParamsGetRootPath(std::string rootPath) {
   this->mAppCoreAckPayloadObj = payloadObj; 
 }
 
-void AppCoreAckMessage::setParamsUpdateAppConfig(bool isSucceed) {
+// Get command-specific parameters (AppMessage)
+bool AppMessage::getParamsUpdateAppConfig(std::string& legacyData) {
+  cJSON* legacyDataObj = cJSON_GetObjectItem(this->mAppPayloadObj, "legacyData");
+  RETURN_IF_INVALID_CJSON_OBJ(legacyDataObj, false);
+  legacyData.assign(legacyDataObj->valuestring);
+
+  return true;
+}
+
+// Set command-specific parameters (AppAckMessage)
+void AppAckMessage::setParamsUpdateAppConfig(bool isSucceed) {
   cJSON* payloadObj = cJSON_CreateObject();
   cJSON_AddStringToObject(payloadObj, "isSucceed", (isSucceed) ? "1" : "0");
-  this->mAppCoreAckPayloadObj = payloadObj; 
+  this->mAppAckPayloadObj = payloadObj; 
 }
 
 // Set command-specific parameters (CompanionMessage)

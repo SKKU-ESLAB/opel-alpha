@@ -18,31 +18,33 @@ using namespace v8;
 //								 Sensor Manager Structure                            //
 #define MAX_REQUEST 20
 
-typedef struct request {
-	char sensor_name[20];
-	int sensor_type;
-	int id;
-	int handle_type;
-	int sensing_interval;
-	int sensing_level;
-	Persistent<Function> callback;
+class RequestData {
+  public:
+    char sensor_name[20];
+    int sensor_type;
+    int id;
+    int handle_type;
+    int sensing_interval;
+    int sensing_level;
+    Persistent<Function> callback;
 
-	int data; //Data
-} RequestData;
+    int data; //Data
+};
 
 
-typedef struct _requestList{
-	int rq_num;						//Request number
-	int type;						//Request Type, SENSOR_MANAGER//CAMERA_MANAGER
-	Persistent<Function> callback;	//callback function
-	void *data;						//User data
-	struct _requestList* next;				//Linked list
-}requestList;
+class RequestList {
+  public:
+    int rq_num;						//Request number
+    int type;						//Request Type, SENSOR_MANAGER//CAMERA_MANAGER
+    Persistent<Function> callback;	//callback function
+    void *data;						//User data
+    RequestList* next;				//Linked list
+};
 
 static char nilPath[100];
 static char nilInterface[100];
 static int num_of_list = 3;
-//static RequestList requestList;
+//static RequestList RequestList;
 static Persistent<Function> callback;
 
 static const char* SUPPORT_LIST[] = {
@@ -57,12 +59,12 @@ void pid_to_char(char* output);
 int check_sensor_name(const char* name);
 DBusConnection *DbusInit(void);
 
-void initRequestList(requestList *rList);
-void printRequset(requestList *rList);
-int countRequest(requestList *rList);
-int deleteRequset(requestList *rList, int rq_num);
-requestList * newRequest(requestList *rList);
-requestList * getRequest(requestList *rList, int rq_num);
+void initRequestList(RequestList *rList);
+void printRequset(RequestList *rList);
+int countRequest(RequestList *rList);
+int deleteRequset(RequestList *rList, int rq_num);
+RequestList * newRequest(RequestList *rList);
+RequestList * getRequest(RequestList *rList, int rq_num);
 
 DBusHandlerResult configEventDriven(DBusConnection *connection, DBusMessage *message, void *iface_user_data);
 DBusHandlerResult terminationEventDriven(DBusConnection *connection, DBusMessage *message, void *iface_user_data);

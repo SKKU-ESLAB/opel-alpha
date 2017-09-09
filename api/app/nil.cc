@@ -27,12 +27,12 @@
       (const uint8_t*)cstr))
 
 // TODO: static DBusConnection *opelCon = NULL; //Only 1 connection 
-requestList *rList;
+RequestList *gRequestList;
 AppBase* gAppBase;
 
-void nativeInterfaceLayerInit(){
-	rList = new requestList();
-  initRequestList(rList);
+void initAppBase(){
+	gRequestList = new RequestList();
+  initRequestList(gRequestList);
 }
 
 // TODO: receive AppMessage.UpdateAppConfig / send AppAckMessage.UpdateAppConfig
@@ -42,7 +42,7 @@ DBusHandlerResult configEventDriven(DBusConnection *connection, DBusMessage *mes
   char* rcvData;
   const uint8_t* jsonData;
 
-  requestList* rl;
+  RequestList* rl;
   TryCatch try_catch;
   DBusError err;
   dbus_error_init(&err);
@@ -63,7 +63,7 @@ DBusHandlerResult configEventDriven(DBusConnection *connection, DBusMessage *mes
 
   printf("[NIL] Receive Config rq_num : %d / value :%s\n\n\n\n\n", rq_num, jsonData);
 
-  rl = getRequest(rList, rq_num);
+  rl = getRequest(gRequestList, rq_num);
 
   Handle<Value> argv[] = {
     String::NewFromOneByte(isolate, jsonData)
@@ -88,7 +88,7 @@ DBusHandlerResult terminationEventDriven(DBusConnection *connection, DBusMessage
   int rq_num;
 
 
-  requestList* rl;
+  RequestList* rl;
   TryCatch try_catch;
   DBusError err;
   dbus_error_init(&err);
@@ -103,7 +103,7 @@ DBusHandlerResult terminationEventDriven(DBusConnection *connection, DBusMessage
     dbus_error_free(&err);
   }
 
-  rl = getRequest(rList, rq_num);
+  rl = getRequest(gRequestList, rq_num);
 
   Handle<Value> argv[] = {
   };
@@ -1034,7 +1034,7 @@ void sendConfigPage(const FunctionCallbackInfo<Value>& args) {
   Isolate* isolate = Isolate::GetCurrent();
   HandleScope scope(isolate);
 
-  requestList* rl;
+  RequestList* rl;
   DBusMessage* msg;
   DBusError err;
 
@@ -1068,7 +1068,7 @@ void sendConfigPage(const FunctionCallbackInfo<Value>& args) {
   //----------------------------------------------------------------//
   //			2. Request Creation (For function callback)
 
-  rl = newRequest(rList);
+  rl = newRequest(gRequestList);
   Local<Function> localCallback = Local<Function>::Cast(args[1]);
   rl->callback.Reset(isolate, localCallback);
 //  rl->callback = Persistent<Function>(isolate, Local<Function>::Cast(args[1]));
@@ -1237,7 +1237,7 @@ void onTermination(const FunctionCallbackInfo<Value>& args) {
   Isolate* isolate = Isolate::GetCurrent();
   HandleScope scope(isolate);
 
-  requestList* rl;
+  RequestList* rl;
   DBusMessage* msg;
   DBusError err;
 
@@ -1258,7 +1258,7 @@ void onTermination(const FunctionCallbackInfo<Value>& args) {
   //----------------------------------------------------------------//
   //			2. Request Creation (For function callback)
 
-  rl = newRequest(rList);
+  rl = newRequest(gRequestList);
   Local<Function> localCallback = Local<Function>::Cast(args[0]);
   rl->callback.Reset(isolate, localCallback);
   rl->type = APP_REQUEST;
@@ -1415,7 +1415,7 @@ void sendMsgToSensorViewer(const FunctionCallbackInfo<Value>& args) {
 
 void init(Handle<Object> exports) {
   Isolate* isolate = Isolate::GetCurrent();
-  nativeInterfaceLayerInit();
+  initAppBase();
   // TODO: opelCon = DbusInit(); //Init Dbus message receiver (by PID)
 
 

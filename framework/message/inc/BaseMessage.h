@@ -49,6 +49,7 @@ namespace BaseMessageType {
     AppCore = 10,
     AppCoreAck = 11,
     App = 20,
+    AppAck = 21,
     Companion = 30
   };
 }
@@ -140,15 +141,14 @@ namespace AppCoreMessageCommandType {
     InitializeApp = 3, // params: void (ACK params: int appId)
     InstallApp = 4, // params: int appId, std::string packageFileName
     LaunchApp = 5, // params: int appId
-    CompleteLaunchingApp = 6, // params: int appId, int pid
+    CompleteLaunchingApp = 6, // params: int pid
+                              // (ACK params: int appId)
     TerminateApp = 7, // params: int appId
     RemoveApp = 8, // params: int appId
     GetFileList = 9, // params: std::string path (ACK params: AckParamFileList)
     GetFile = 10, // params: std::string path (ACK params: void)
     GetRootPath = 11, // params: void (ACK params: std::string rootPath)
-    UpdateAppConfig = 12, // params: string legacyData
-                          // (ACK params: bool isSucceed)
-    GetAppIcon = 13 // params: int appId (ACK params: void)
+    GetAppIcon = 12 // params: int appId (ACK params: void)
   };
 }
 
@@ -188,12 +188,11 @@ class AppCoreMessage: public BaseMessagePayload {
     bool getParamsListenAppState(int& appId);
     bool getParamsInstallApp(int& appId, std::string& packgeFileName);
     bool getParamsLaunchApp(int& appId);
-    bool getParamsCompleteLaunchingApp(int& appId, int& pid);
+    bool getParamsCompleteLaunchingApp(int& pid);
     bool getParamsTerminateApp(int& appId);
     bool getParamsRemoveApp(int& appId);
     bool getParamsGetFileList(std::string& path);
     bool getParamsGetFile(std::string& path);
-    bool getParamsUpdateAppConfig(std::string& legacyData);
     bool getParamsGetAppIcon(int& appId);
 
   protected:
@@ -323,9 +322,9 @@ class AppCoreAckMessage : public BaseMessagePayload {
     void setParamsGetAppList(ParamAppList* appList);
     void setParamsListenAppState(int appId, int appState);
     void setParamsInitializeApp(int appId);
-    void setParamsGetFileList(std::string path, ParamFileList* fileList);
+    void setParamsCompleteLaunchingApp(int appId);
     void setParamsGetRootPath(std::string rootPath);
-    void setParamsUpdateAppConfig(bool isSucceed);
+    void setParamsGetFileList(std::string path, ParamFileList* fileList);
 
   protected:
     AppCoreAckMessage(int commandMessageId,
@@ -343,7 +342,9 @@ class AppCoreAckMessage : public BaseMessagePayload {
 namespace AppMessageCommandType {
   enum Value {
     NotDetermined = 0,
-    Terminate = 1
+    Terminate = 1, // params: void
+    UpdateAppConfig = 2, // params: string legacyData
+                         // (ACK params: bool isSucceed)
   };
 }
 
@@ -352,7 +353,7 @@ namespace AppMessageCommandType {
 
 // AppMessage: message sent to App
 // - Decoding(makeFromJSON): C++
-// - Encoding(make, toJSON): C++
+// - Encoding(make, toJSON): C++, Java
 class AppMessage: public BaseMessagePayload {
   public:
     friend class MessageFactory;
@@ -370,6 +371,9 @@ class AppMessage: public BaseMessagePayload {
     AppMessageCommandType::Value getCommandType() { return this->mCommandType; }
     cJSON* getAppPayloadObj() { return this->mAppPayloadObj; }
 
+    // Get command-specific parameters
+    bool getParamsUpdateAppConfig(std::string& legacyData);
+
     // Set command-specific parameters
     void setAppPayloadObj(cJSON* appPayloadObj) {
       this->mAppPayloadObj = appPayloadObj;
@@ -384,6 +388,46 @@ class AppMessage: public BaseMessagePayload {
     // JSON-exported values
     AppMessageCommandType::Value mCommandType;
     cJSON* mAppPayloadObj;
+};
+
+#define APP_ACK_MESSAGE_KEY_COMMAND_MESSAGE_NUM "commandMessageId"
+#define APP_ACK_MESSAGE_KEY_COMMAND_TYPE "commandType"
+#define APP_ACK_MESSAGE_KEY_PAYLOAD "payload"
+
+// AppAckMessage: ack message sent from App
+// - Decoding(makeFromJSON): Java
+// - Encoding(make, toJSON): C++
+class AppAckMessage : public BaseMessagePayload {
+  public:
+    friend class MessageFactory;
+
+    ~AppAckMessage() {
+      if(this->mAppAckPayloadObj != NULL) {
+        cJSON_Delete(this->mAppAckPayloadObj);
+      }
+    }
+
+    // encoding to JSON
+    virtual cJSON* toJSON();
+
+    // Get parameters
+    AppMessageCommandType::Value getCommandType() {
+      return this->mCommandType;
+    }
+
+    // Set command-specific parameters
+    void setParamsUpdateAppConfig(bool isSucceed);
+
+  protected:
+    AppAckMessage(int commandMessageId,
+        AppMessageCommandType::Value commandType)
+      : mCommandMessageId(commandMessageId),
+      mCommandType(commandType), mAppAckPayloadObj(NULL) { }
+
+    // JSON-exported values
+    int mCommandMessageId;
+    AppMessageCommandType::Value mCommandType;
+    cJSON* mAppAckPayloadObj;
 };
 
 namespace CompanionMessageCommandType {

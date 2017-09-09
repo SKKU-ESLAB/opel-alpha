@@ -61,6 +61,20 @@ class MessageFactory {
     return message;
   }
 
+  // Make AppAckMessage from bottom
+  static BaseMessage* makeAppAckMessage(std::string uri, BaseMessage* originalMessage) {
+    int commandMessageId = originalMessage->getMessageId();
+    AppMessage* originalPayload = (AppMessage*) originalMessage->getPayload();
+    AppMessageCommandType::Value commandType = originalPayload->getCommandType();
+
+    AppAckMessage* payload = new AppAckMessage(commandMessageId,
+        commandType);
+    BaseMessage* message = new BaseMessage(currentMessageId++, uri,
+        BaseMessageType::AppAck);
+    message->setPayload(payload);
+    return message;
+  }
+
   protected:
   // JSON -> BaseMessage / AppCoreMessage / AppMessage
   static BaseMessage* makeBaseMessageFromJSON(cJSON* messageObj);
