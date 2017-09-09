@@ -161,8 +161,7 @@ class CommChannel : public Channel, CommPortStateListener {
     bool enableLargeDataMode();
     void disableLargeDataMode();
 
-    // Channel function (RoutedThread) - Check compatibility & Send message
-    virtual bool checkMessageCompatible(BaseMessage* message);
+    // Channel function (RoutedThread) - Send message
     virtual void onRoutedMessage(BaseMessage* message);
 
     // Get IP Address

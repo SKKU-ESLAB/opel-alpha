@@ -173,7 +173,7 @@ void AppCore::onReceivedMessage(BaseMessage* message) {
     OPEL_DBG_ERR("Invalid AppCore Message");
     return;
   }
-  if(message->getType() == BaseMessageType::AppCore) {
+  if(message->getType() != BaseMessageType::AppCore) {
     OPEL_DBG_ERR("Not AppCore Message");
     return;
   }

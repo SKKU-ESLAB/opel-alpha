@@ -12,7 +12,7 @@
 #include "nil.h"
 #include "nil_internal.h"
 
-#include "MessageFWGlue.h"
+#include "AppBase.h"
 
 #define APP_REQUEST	3
 
@@ -26,13 +26,11 @@
 #define getV8String(isolate, cstr) (String::NewFromOneByte(isolate, \
       (const uint8_t*)cstr))
 
-pid_t pid;
-static DBusConnection *opelCon = NULL; //Only 1 connection 
+// TODO: static DBusConnection *opelCon = NULL; //Only 1 connection 
 requestList *rList;
-MessageFWGlue* gMessageFW;
+AppBase* gAppBase;
 
 void nativeInterfaceLayerInit(){
-  pid = getpid();
 	rList = new requestList();
   initRequestList(rList);
 }
@@ -331,7 +329,7 @@ void sendEventPage(const FunctionCallbackInfo<Value>& args) {
       DBUS_TYPE_INVALID);
 
   /* Send the signal */
-  dbus_connection_send(opelCon, msg, NULL);
+  // TODO: dbus_connection_send(opelCon, msg, NULL);
   dbus_message_unref(msg);
 
   printf("[NIL] SendEventPage to Manager>>  %s\n", jsonData);
@@ -398,7 +396,7 @@ void sendEventPageWithNoti(const FunctionCallbackInfo<Value>& args) {
       DBUS_TYPE_INVALID);
 
   /* Send the signal */
-  dbus_connection_send(opelCon, msg, NULL);
+  // TODO: dbus_connection_send(opelCon, msg, NULL);
 
   dbus_message_unref(msg);
 
@@ -1097,7 +1095,7 @@ void sendConfigPage(const FunctionCallbackInfo<Value>& args) {
       DBUS_TYPE_INVALID);
 
   /* Send the signal */
-  dbus_connection_send(opelCon, msg, NULL);
+  // TODO: dbus_connection_send(opelCon, msg, NULL);
   dbus_message_unref(msg);
 
   printf("[NIL] SendConfigPage >>  %s \n", jsonData);
@@ -1285,7 +1283,7 @@ void onTermination(const FunctionCallbackInfo<Value>& args) {
       DBUS_TYPE_INVALID);
 
 
-  dbus_connection_send(opelCon, msg, NULL);
+  // TODO: dbus_connection_send(opelCon, msg, NULL);
   dbus_message_unref(msg);
 
   printf("[NIL] send message to %s, pid : %d, rq_num : %d\n", SAM_PATH, pid, rq_num);
@@ -1347,7 +1345,7 @@ void faceRecognitionWithNoti(const FunctionCallbackInfo<Value>& args) {
       DBUS_TYPE_INVALID);
 
   /* Send the signal */
-  dbus_connection_send(opelCon, msg, NULL);
+  // TODO: dbus_connection_send(opelCon, msg, NULL);
   dbus_message_unref(msg);
 
 
@@ -1405,7 +1403,7 @@ void sendMsgToSensorViewer(const FunctionCallbackInfo<Value>& args) {
       DBUS_TYPE_INVALID);
 
   /* Send the signal */
-  dbus_connection_send(opelCon, msg, NULL);
+  // TODO: dbus_connection_send(opelCon, msg, NULL);
   dbus_message_unref(msg);
 
   printf("[NIL] sendMsgToSensorViewer to Manager>>  %s\n", jsonData);
@@ -1418,7 +1416,7 @@ void sendMsgToSensorViewer(const FunctionCallbackInfo<Value>& args) {
 void init(Handle<Object> exports) {
   Isolate* isolate = Isolate::GetCurrent();
   nativeInterfaceLayerInit();
-  opelCon = DbusInit(); //Init Dbus message receiver (by PID)
+  // TODO: opelCon = DbusInit(); //Init Dbus message receiver (by PID)
 
 
   //-----------------------EventPage-------------------------------------------

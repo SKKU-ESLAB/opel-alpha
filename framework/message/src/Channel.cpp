@@ -47,13 +47,6 @@ void* Channel::routedLoop(void* data) {
     // If any message is in RoutedMessageQueue, handle one message
     BaseMessage* message = self->dequeueRoutedMessageLocked();
 
-    // Handle the message only if the message is compatible with this Channel
-    if(self->checkMessageCompatible(message)) {
-      self->onRoutedMessage(message);
-    } else{
-      OPEL_DBG_WARN("Given message is not compatible with this Channel!");
-    }
-
     pthread_mutex_unlock(&self->mWaitMutex);
   }
 }

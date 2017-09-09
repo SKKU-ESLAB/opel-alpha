@@ -23,16 +23,19 @@
 #include "LocalChannel.h"
 #include "BaseMessage.h"
 
-class MessageFWGlue
+class AppBase
 : public LocalChannelListener {
 
   public:
-    MessageFWGlue() {
+    AppBase() {
     }
-    ~MessageFWGlue() {
-      delete this->mMessageRouter;
-      delete this->mDbusChannel;
-      delete this->mLocalChannel;
+    ~AppBase() {
+      if(this->mMessageRouter != NULL)
+        delete this->mMessageRouter;
+      if(this->mDbusChannel != NULL)
+        delete this->mDbusChannel;
+      if(this->mLocalChannel != NULL)
+        delete this->mLocalChannel;
     }
 
     // Run message framework
@@ -41,11 +44,17 @@ class MessageFWGlue
     // LocalChannelListener
     virtual void onReceivedMessage(BaseMessage* message);
 
-  private:
-    MessageRouter* mMessageRouter;
-    DbusChannel* mDbusChannel;
-    // TODO: Make MessageFWGlue's own LocalChannel
-    LocalChannel* mLocalChannel;
+  protected:
+    // App Commands
+    void terminate(BaseMessage* message);
+
+    // Appcore Ack
+    void onAckCompleteLaunchingApp(BaseMessage* message);
+
+    // Message framework
+    MessageRouter* mMessageRouter = NULL;
+    DbusChannel* mDbusChannel = NULL;
+    LocalChannel* mLocalChannel = NULL;
 };
 
 #endif // !defined(__MESSAGE_ADAPTER_H__)

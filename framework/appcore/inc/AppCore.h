@@ -103,10 +103,11 @@ class AppCore
     void getRootPath(BaseMessage* message);
     void getAppIcon(BaseMessage* message);
 
-    MessageRouter* mMessageRouter;
-    DbusChannel* mDbusChannel;
-    CommChannel* mCommChannel;
-    LocalChannel* mLocalChannel;
+    // Message framework
+    MessageRouter* mMessageRouter = NULL;
+    DbusChannel* mDbusChannel = NULL;
+    CommChannel* mCommChannel = NULL;
+    LocalChannel* mLocalChannel = NULL;
 
     char mUserAppsDir[PATH_BUFFER_SIZE]; // User Apps Dir: ${OPEL_APPS_DIR}/user
     char mSystemAppsDir[PATH_BUFFER_SIZE]; // System Apps Dir: ${OPEL_APPS_DIR}/system

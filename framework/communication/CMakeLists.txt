@@ -22,6 +22,6 @@ target_link_libraries(opel-cmfw bluetooth)
 set_target_properties(opel-cmfw
 		PROPERTIES
 		ARCHIVE_OUTPUT_DIRECTORY "../../out/libs"
-		LIBRARY_OUTPUT_DIRECTORY "../../out/lib"
+		LIBRARY_OUTPUT_DIRECTORY "../../out/libs"
 		RUNTIME_OUTPUT_DIRECTORY "../../out/bin"
 		COMPILE_FLAGS "-std=c++11")

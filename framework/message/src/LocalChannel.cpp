@@ -40,13 +40,3 @@ void LocalChannel::sendMessage(BaseMessage* message) {
   // Pass the given message to MessageRouter
   this->mMessageRouter->routeMessage(message);
 }
-
-bool LocalChannel::checkMessageCompatible(BaseMessage* message) {
-  if(message->getType() == BaseMessageType::AppCore) {
-    return true;
-  } else {
-    OPEL_DBG_WARN("Received message is not for AppCore! %s",
-        message->toJSONString());
-    return false;
-  }
-}

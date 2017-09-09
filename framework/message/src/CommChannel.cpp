@@ -187,11 +187,6 @@ void CommChannel::disableLargeDataMode() {
   this->mState.set(CommChannelState::CONNECTED_DEFAULT);
 }
 
-bool CommChannel::checkMessageCompatible(BaseMessage* message) {
-  // Always comptible
-  return true;
-}
-
 void CommChannel::onRoutedMessage(BaseMessage* message) {
   // RedCarrottt: It works for only single companion.
 

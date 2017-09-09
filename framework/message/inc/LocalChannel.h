@@ -31,7 +31,7 @@ class LocalChannelListener {
 class LocalChannel: public Channel {
   public:
     LocalChannel(MessageRouter* messageRouter)
-    : Channel(messageRouter), mListener(NULL) {
+    : Channel(messageRouter), mListener(NULL){
     }
 
     // Channel function
@@ -44,11 +44,10 @@ class LocalChannel: public Channel {
     }
 
   protected:
-    LocalChannelListener* mListener;
+    LocalChannelListener* mListener = NULL;
 
     // Channel function
     virtual void onRoutedMessage(BaseMessage* message);
-    virtual bool checkMessageCompatible(BaseMessage* message);
 };
 
 #endif

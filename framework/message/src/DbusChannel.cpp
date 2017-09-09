@@ -30,10 +30,7 @@
 #include "MessageFactory.h"
 #include "BaseMessage.h"
 
-#define TERMINATION_SIGNAL "termination_event_driven"
-#define CONFIGURATION_SIGNAL "config_event_driven"
-
-const char* DbusChannel::kOPELInterface = "org.opel.sysAppManager";
+const char* DbusChannel::kOPELInterface = "org.opel.dbuschannel";
 const char* DbusChannel::kOPELSignal = "BaseMessage";
 
 void DbusChannel::run() {
@@ -76,15 +73,6 @@ void DbusChannel::onRoutedMessage(BaseMessage* message) {
   } else {
     OPEL_DBG_WARN("Message did not routed!: %s", message->toJSONString());
   }
-}
-
-bool DbusChannel::checkMessageCompatible(BaseMessage* message) {
-  if(message->isFileAttached() == true) {
-    OPEL_DBG_WARN("DbusChannel does not support file attachment! %s",
-        message->toJSONString());
-    return false;
-  }
-  return true;
 }
 
 void DbusChannel::sendRawStringToTarget(const char* rawString,

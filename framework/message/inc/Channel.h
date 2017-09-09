@@ -61,11 +61,6 @@ class Channel {
     // Child Channel class can handle a message that has routed to the Channel.
     virtual void onRoutedMessage(BaseMessage* message) = 0;
 
-    // VIRTUAL checkMessageCompatible():
-    // Child Channel classes should check if the given message is compatible
-    // with the Channel or not.
-    virtual bool checkMessageCompatible(BaseMessage* message) = 0;
-
     // Routed Loop:
     // RoutedLoop reads RoutedMessageQueue when the queue is updated.
     static void* routedLoop(void*);

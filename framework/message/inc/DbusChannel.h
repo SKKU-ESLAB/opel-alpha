@@ -45,7 +45,6 @@ class DbusChannel: public Channel {
 	protected:
     // Channel function (RoutedThread)
     virtual void onRoutedMessage(BaseMessage* message);
-    virtual bool checkMessageCompatible(BaseMessage* message);
 
     // Send raw string to target process on RoutedThread
     void sendRawStringToTarget(const char* rawString,
