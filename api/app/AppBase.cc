@@ -205,7 +205,27 @@ void AppBase::updateAppConfig(BaseMessage* message) {
     Local<Value> exception = try_catch.Exception();
     String::Utf8Value exception_str(exception);
     printf("Exception: %s\n", *exception_str);
+
+    // Make ACK message
+    BaseMessage* ackMessage
+      = MessageFactory::makeAppAckMessage(COMPANION_DEVICE_URI, message); 
+    AppAckMessage* ackPayload = (AppAckMessage*)ackMessage->getPayload();
+    ackPayload->setParamsUpdateAppConfig(false);
+
+    // Send ACK message
+    this->mLocalChannel->sendMessage(ackMessage);
+    return;
   }
+
+  // Make ACK message
+  BaseMessage* ackMessage
+    = MessageFactory::makeAppAckMessage(COMPANION_DEVICE_URI, message); 
+  AppAckMessage* ackPayload = (AppAckMessage*)ackMessage->getPayload();
+  ackPayload->setParamsUpdateAppConfig(true);
+
+  // Send ACK message
+  this->mLocalChannel->sendMessage(ackMessage);
+  return;
 }
 
 void AppBase::onAckCompleteLaunchingApp(BaseMessage* message) {
