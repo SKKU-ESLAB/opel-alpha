@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <errno.h>
 
 #include <arpa/inet.h>
 
@@ -79,15 +80,35 @@ char* CommRawPacket::toByteArray() {
 }
 
 #define READ_SOCKET_C(socketFd, data) \
-  if(read(socketFd, &data, sizeof(char)) < 0) return NULL;
+  do { \
+    if(read(socketFd, &data, sizeof(char)) < 0) { \
+      CommLog("read socket error: %s", strerror(errno)); \
+      return NULL; \
+    } \
+  } while(0);
 #define READ_SOCKET_S(socketFd, data) \
-  if(read(socketFd, &data, sizeof(short)) < 0) return NULL; \
-  data = ntohs(data);
+  do { \
+    if(read(socketFd, &data, sizeof(short)) < 0) { \
+      CommLog("read socket error: %s", strerror(errno)); \
+      return NULL; \
+    } \
+    data = ntohs(data); \
+  } while(0);
 #define READ_SOCKET_I(socketFd, data) \
-  if(read(socketFd, &data, sizeof(int)) < 0) return NULL; \
-  data = ntohl(data);
+  do { \
+    if(read(socketFd, &data, sizeof(int)) < 0) { \
+      CommLog("read socket error: %s", strerror(errno)); \
+      return NULL; \
+    } \
+    data = ntohl(data); \
+  } while(0);
 #define READ_SOCKET(socketFd, data, size) \
-  if(read(socketFd, data, size) < 0) return NULL;
+  do { \
+    if(read(socketFd, data, size) < 0) { \
+      CommLog("read socket error: %s", strerror(errno)); \
+      return NULL; \
+    } \
+  } while(0);
 
 CommRawPacketHeader* CommRawPacketHeader::readFromSocket(int socketFd) {
   int readRes;
@@ -99,7 +120,8 @@ CommRawPacketHeader* CommRawPacketHeader::readFromSocket(int socketFd) {
   READ_SOCKET_C(socketFd, headerFlag);
   READ_SOCKET_S(socketFd, payloadSize);
   READ_SOCKET_I(socketFd, currOffset);
-  //CommLog("header: %d / %d / %d / %d", (int)headerId, (int)headerFlag, (int)payloadSize, currOffset);
+  CommLog("header: %d / %d / %d / %d",
+      (int)headerId, (int)headerFlag, (int)payloadSize, currOffset);
   CommRawPacketHeader* header = new CommRawPacketHeader(
       headerId, payloadSize, currOffset, headerFlag);
   return header;

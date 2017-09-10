@@ -61,7 +61,7 @@ void CommPort::stopListeningThread() {
 }
 
 #define IF_NULL_(x) if(x == NULL) {\
-  CommLog("%s: ##x is NULL", __FUNCTION__); \
+  CommLog("%s: %s is NULL", __FUNCTION__, #x); \
   self->stopListeningThread();
 
 #define _RETURN_FALSE() __EXIT__;\
