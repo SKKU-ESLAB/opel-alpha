@@ -30,8 +30,10 @@ class LocalChannelListener {
 
 class LocalChannel: public Channel {
   public:
-    LocalChannel(MessageRouter* messageRouter)
-    : Channel(messageRouter), mListener(NULL){
+    LocalChannel(MessageRouter* messageRouter,
+        bool isCreateRoutedThread)
+    : Channel(messageRouter), mListener(NULL),
+    mIsCreateRoutedThread(isCreateRoutedThread) {
     }
 
     // Channel function
@@ -45,6 +47,7 @@ class LocalChannel: public Channel {
 
   protected:
     LocalChannelListener* mListener = NULL;
+    bool mIsCreateRoutedThread;
 
     // Channel function
     virtual void onRoutedMessage(BaseMessage* message);

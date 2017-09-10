@@ -1,6 +1,6 @@
 #include <string.h>
 
-#include "nil_internal.h"
+#include "AppAPIInternal.h"
 
 // 0 = Invalid
 // 1 = Noti page

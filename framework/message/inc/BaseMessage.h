@@ -180,7 +180,8 @@ class AppCoreMessage: public BaseMessagePayload {
     cJSON* getAppCorePayloadObj() { return this->mAppCorePayloadObj; }
 
     // Set command-specific parameters
-    cJSON* setAppCorePayloadObj(cJSON* appCorePayloadObj) {
+    void setParamsCompleteLaunchingApp(int pid);
+    void setAppCorePayloadObj(cJSON* appCorePayloadObj) {
       this->mAppCorePayloadObj = appCorePayloadObj;
     }
 
@@ -326,6 +327,9 @@ class AppCoreAckMessage : public BaseMessagePayload {
     void setParamsGetRootPath(std::string rootPath);
     void setParamsGetFileList(std::string path, ParamFileList* fileList);
 
+    // Get command-specific parameters
+    bool getParamsCompleteLaunchingApp(int& appId);
+
   protected:
     AppCoreAckMessage(int commandMessageId,
         AppCoreMessageCommandType::Value commandType)
@@ -433,8 +437,8 @@ class AppAckMessage : public BaseMessagePayload {
 namespace CompanionMessageCommandType {
   enum Value {
     NotDetermined = 0,
-    SendEventPage = 1, // params: string legacyData
-    SendConfigPage = 2, // params: string legacyData
+    SendEventPage = 1, // params: int appId, string legacyData, boolean isNoti
+    SendConfigPage = 2, // params: int appId, string legacyData
     UpdateSensorData = 3 // params: string legacyData
   };
 }
@@ -465,8 +469,8 @@ class CompanionMessage: public BaseMessagePayload {
     cJSON* getCompanionPayloadObj() { return this->mCompanionPayloadObj; }
 
     // Set command-specific parameters
-    void setParamsSendEventPage(std::string legacyData);
-    void setParamsSendConfigPage(std::string legacyData);
+    void setParamsSendEventPage(int appId, std::string legacyData, bool isNoti);
+    void setParamsSendConfigPage(int appId, std::string legacyData);
     void setParamsUpdateSensorData(std::string legacyData);
 
   protected:

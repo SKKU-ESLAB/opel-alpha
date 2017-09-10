@@ -18,16 +18,21 @@
 #ifndef __MESSAGE_ADAPTER_H__
 #define __MESSAGE_ADAPTER_H__
 
+#include <node.h>
+
 #include "MessageRouter.h"
 #include "DbusChannel.h"
 #include "LocalChannel.h"
 #include "BaseMessage.h"
+#include "OPELdbugLog.h"
+
+using namespace v8;
 
 class AppBase
 : public LocalChannelListener {
 
   public:
-    AppBase() {
+    AppBase() : mAppId(-1) {
     }
     ~AppBase() {
       if(this->mMessageRouter != NULL)
@@ -44,12 +49,38 @@ class AppBase
     // LocalChannelListener
     virtual void onReceivedMessage(BaseMessage* message);
 
+    // Set callbacks
+    void setOnTerminate(Isolate* isolate,
+        Local<Function> onTerminateCallback) {
+      this->mOnTerminateCallback.Reset(isolate, onTerminateCallback);
+    }
+    void setOnUpdateAppConfig(Isolate* isolate,
+        Local<Function> onUpdateAppConfig) {
+      this->mOnUpdateAppConfigCallback.Reset(isolate, onUpdateAppConfig);
+    }
+
+    // Send appcore comamnds
+    void completeLaunchingApp();
+
+    // Send companion commands
+    void sendEventPageToCompanion(const char* jsonData, bool isNoti);
+    void sendConfigPageToCompanion(const char* jsonData);
+    void updateSensorDataToCompanion(const char* jsonData);
+
   protected:
+    // App ID
+    int mAppId;
+
     // App Commands
     void terminate(BaseMessage* message);
+    void updateAppConfig(BaseMessage* message);
 
     // Appcore Ack
     void onAckCompleteLaunchingApp(BaseMessage* message);
+
+    // Callbacks
+    Persistent<Function> mOnTerminateCallback;
+    Persistent<Function> mOnUpdateAppConfigCallback;
 
     // Message framework
     MessageRouter* mMessageRouter = NULL;

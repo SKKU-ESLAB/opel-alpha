@@ -1,129 +1,29 @@
 #include <node.h>
 #include <stdlib.h>
-#include <glib.h>
-#include <dbus/dbus.h>
 #include <string.h>
 #include <string>
-#include <pthread.h>
-#include <sys/types.h>
-#include <sys/ipc.h>
-#include <unistd.h>
-#include <uv.h>
-#include "nil.h"
-#include "nil_internal.h"
 
+#include "AppAPIInternal.h"
 #include "AppBase.h"
+#include "OPELdbugLog.h"
 
-#define APP_REQUEST	3
+using namespace v8;
 
-#define SAM_INTERFACE "/org/opel/sysAppManager"
-#define SAM_PATH	"org.opel.sysAppManager"
-
-#define MAXNUMBEROFITEMS 20
-#define MSGBUFSIZE 1024
+#define MAX_NUMBER_OF_ITEMS 20
+#define MESSAGE_BUFFER_SIZE 1024
 
 // Utility Functions
 #define getV8String(isolate, cstr) (String::NewFromOneByte(isolate, \
       (const uint8_t*)cstr))
 
-// TODO: static DBusConnection *opelCon = NULL; //Only 1 connection 
-RequestList *gRequestList;
 AppBase* gAppBase;
 
 void initAppBase(){
-	gRequestList = new RequestList();
-  initRequestList(gRequestList);
+  gAppBase = new AppBase();
+
+  // Send AppCoreMessage.CompleteLaunchingApp
+  gAppBase->completeLaunchingApp();
 }
-
-// TODO: receive AppMessage.UpdateAppConfig / send AppAckMessage.UpdateAppConfig
-DBusHandlerResult configEventDriven(DBusConnection *connection, DBusMessage *message, void *iface_user_data){
-  Isolate* isolate = Isolate::GetCurrent();
-  int rq_num;
-  char* rcvData;
-  const uint8_t* jsonData;
-
-  RequestList* rl;
-  TryCatch try_catch;
-  DBusError err;
-  dbus_error_init(&err);
-
-  printf("[NIL] Response function\n");
-
-  dbus_message_get_args(message, &err,
-      DBUS_TYPE_INT32, &rq_num,
-      DBUS_TYPE_STRING, &rcvData,
-      DBUS_TYPE_INVALID);
-  jsonData = (uint8_t*)rcvData;
-
-  if (dbus_error_is_set(&err))
-  {
-    printf("Error get data: %s", err.message);
-    dbus_error_free(&err);
-  }
-
-  printf("[NIL] Receive Config rq_num : %d / value :%s\n\n\n\n\n", rq_num, jsonData);
-
-  rl = getRequest(gRequestList, rq_num);
-
-  Handle<Value> argv[] = {
-    String::NewFromOneByte(isolate, jsonData)
-  };
-
-  Local<Function> localCallback = Local<Function>::New(isolate, rl->callback);
-  localCallback->Call(isolate->GetCurrentContext()->Global(), 1, argv);
-
-
-  if (try_catch.HasCaught()) {
-    Local<Value> exception = try_catch.Exception();
-    String::Utf8Value exception_str(exception);
-    printf("Exception: %s\n", *exception_str);
-  }
-
-  return DBUS_HANDLER_RESULT_HANDLED;
-}
-
-// TODO: receive AppMessage.Terminate / no ack
-DBusHandlerResult terminationEventDriven(DBusConnection *connection, DBusMessage *message, void *iface_user_data){
-  Isolate* isolate = Isolate::GetCurrent();
-  int rq_num;
-
-
-  RequestList* rl;
-  TryCatch try_catch;
-  DBusError err;
-  dbus_error_init(&err);
-
-  dbus_message_get_args(message, &err,
-      DBUS_TYPE_INT32, &rq_num,
-      DBUS_TYPE_INVALID);
-
-  if (dbus_error_is_set(&err))
-  {
-    printf("Error get data: %s", err.message);
-    dbus_error_free(&err);
-  }
-
-  rl = getRequest(gRequestList, rq_num);
-
-  Handle<Value> argv[] = {
-  };
-
-  printf("[NIL] termination Event >> pid : %d, Receive rq_num : %d \n", getpid(), rq_num);
-  Local<Function> localCallback = Local<Function>::New(isolate, rl->callback);
-  localCallback->Call(isolate->GetCurrentContext()->Global(), 0, argv);
-
-  if (try_catch.HasCaught()) {
-    Local<Value> exception = try_catch.Exception();
-    String::Utf8Value exception_str(exception);
-    printf("Exception: %s\n", *exception_str);
-  }
-
-  exit(1);
-  return DBUS_HANDLER_RESULT_HANDLED;
-}
-
-
-
 
 void makeEventPage(const FunctionCallbackInfo<Value>& args) {
   Isolate* isolate = Isolate::GetCurrent();
@@ -137,16 +37,13 @@ void makeEventPage(const FunctionCallbackInfo<Value>& args) {
   if (args.Length() == 0) {
     args.GetReturnValue().Set(getV8String(isolate, "{\"noti\":\"noti\",\"description\":\"\"}"));
     return;
-    //				args.GetReturnValue().Set(getV8String(isolate, "{\"noti\":\"noti\",\"description\":\"\"}"));
   }
 
   if (args.Length() == 1) {
-
     char newJsonData[sizeof(char) * strlen(description) + 32];
     sprintf(newJsonData, "{\"noti\":\"noti\",\"description\":\"%s\"}" , description);
     args.GetReturnValue().Set(getV8String(isolate, newJsonData));
     return;
-    //			args.GetReturnValue().Set(getV8String(isolate, newJsonData));
   }
 
   isolate->ThrowException(Exception::TypeError(getV8String(isolate, "Invalid Use : arguments expected [Null or Description(string)]")));
@@ -156,7 +53,6 @@ void addEventText(const FunctionCallbackInfo<Value>& args) {
   Isolate* isolate = Isolate::GetCurrent();
   HandleScope scope(isolate);
   int newJsonLength;
-  //	char* newJsonData;
 
   const char* oldJsonData;
   const char* textView;
@@ -213,13 +109,12 @@ void addEventText(const FunctionCallbackInfo<Value>& args) {
 }
 
 // [MORE] addDescription
-
+// TODO: attach image file
 void addEventImg(const FunctionCallbackInfo<Value>& args) {
   Isolate* isolate = Isolate::GetCurrent();
   HandleScope scope(isolate);
   
   int newJsonLength;
-  //		char* newJsonData;
 
   const char* oldJsonData;
   const char* imgPath;
@@ -252,13 +147,12 @@ void addEventImg(const FunctionCallbackInfo<Value>& args) {
   std::string inputText = std::string(*param2);
   imgPath = inputText.c_str();
 
-  if ( check_page_name(oldJsonData) != 1){
+  if (check_page_name(oldJsonData) != 1){
     isolate->ThrowException(Exception::TypeError(getV8String(isolate, "addEventItem argument error : first arg is not the object of event page")));
     return;				
   }
 
   newJsonLength = strlen(oldJsonData) + strlen(imgPath)+256 ;
-  //newJsonData = (char*)malloc(sizeof(char) * newJsonLength);
   char newJsonData[sizeof(char) * newJsonLength];
   memset(newJsonData, '\0', newJsonLength);
 
@@ -269,140 +163,70 @@ void addEventImg(const FunctionCallbackInfo<Value>& args) {
   sprintf(newJsonData, "%s,\"img\":\"%s\"}" , tmpStr, imgPath);
 
   args.GetReturnValue().Set(getV8String(isolate, newJsonData));
-
-
 }
 
-// TODO: send CompanionMessage.SendEventPage
+// send CompanionMessage.SendEventPage
 void sendEventPage(const FunctionCallbackInfo<Value>& args) {
   Isolate* isolate = Isolate::GetCurrent();
   HandleScope scope(isolate);
 
+  // Arguments
   const char* jsonData;
 
-  DBusMessage* msg;
-  DBusError err;
-
-  dbus_int32_t pid;
-  dbus_int32_t noti = 0;
-  //----------------------------------------------------------------//
-  //						1. Argument Check
+  // Check arguments
   if ((args.Length() != 1) ||	!args[0]->IsString() ) {
-    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "Invalid Use : 1 arguments expected [Page obj]")));
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate,
+            "Invalid Use : 1 arguments expected [Page obj]")));
     return;
   }
 
+  // Get argument 0
   v8::String::Utf8Value param1(args[0]->ToString());
   std::string name_c = std::string(*param1);
   jsonData = name_c.c_str();
-
-  if ( check_page_name(jsonData) != 1){
-    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "sendEventItem argument error : first arg is not the object of event page")));
-    return;				
+  if (check_page_name(jsonData) != 1) {
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate,
+            "sendEventItem argument error : " \
+            "first arg is not the object of event page")));
+    return;
   }
 
-
-  //
-  //----------------------------------------------------------------//
-
-
-  //----------------------------------------------------------------//
-  //			2. Request Creation (For function callback)
-
-
-  pid = (unsigned int)getpid();
-
-  //
-  //----------------------------------------------------------------//
-
-
-  //----------------------------------------------------------------//
-  //				3. Send Message (Request struct) 
-  //				Send message with reply or not
-  dbus_error_init(&err);
-  msg = dbus_message_new_signal(SAM_INTERFACE, SAM_PATH, "sendNotiPage");
-
-  dbus_message_append_args(msg,
-      DBUS_TYPE_INT32, &pid,
-      DBUS_TYPE_STRING, &jsonData,
-      DBUS_TYPE_INT32, &noti,
-      DBUS_TYPE_INVALID);
-
-  /* Send the signal */
-  // TODO: dbus_connection_send(opelCon, msg, NULL);
-  dbus_message_unref(msg);
-
-  printf("[NIL] SendEventPage to Manager>>  %s\n", jsonData);
-  //
-  //----------------------------------------------------------------//
+  // send CompanionMessage.SendEventPage
+  gAppBase->sendEventPageToCompanion(jsonData, false);
+  printf("[NIL] SendEventPage to companion: %s\n", jsonData);
 
   return;
 }
 
-// TODO: send CompanionMessage.SendEventPage
+// send CompanionMessage.SendEventPage
 void sendEventPageWithNoti(const FunctionCallbackInfo<Value>& args) {
   Isolate* isolate = Isolate::GetCurrent();
   HandleScope scope(isolate);
 
+  // Arguments
   const char* jsonData;
 
-  DBusMessage* msg;
-  DBusError err;
-
-  dbus_int32_t pid;
-  dbus_int32_t noti = 1;
-  //----------------------------------------------------------------//
-  //						1. Argument Check
+  // Check arguments
   if ((args.Length() != 1) ||	!args[0]->IsString() ) {
-    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "Invalid Use : 1 arguments expected [Page obj]")));
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate,
+            "Invalid Use : 1 arguments expected [Page obj]")));
     return;
   }
 
+  // Get argument 0
   v8::String::Utf8Value param1(args[0]->ToString());
   std::string name_c = std::string(*param1);
   jsonData = name_c.c_str();
-
-  if ( check_page_name(jsonData) != 1){
-    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "sendEventItem argument error : first arg is not the object of event page")));
+  if (check_page_name(jsonData) != 1){
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate,
+            "sendEventItem argument error : " \
+            "first arg is not the object of event page")));
     return;				
   }
 
-  //
-  //----------------------------------------------------------------//
-
-
-  //----------------------------------------------------------------//
-  //			2. Request Creation (For function callback)
-
-
-  pid = (unsigned int)getpid();
-
-  //
-  //----------------------------------------------------------------//
-
-
-  //----------------------------------------------------------------//
-  //				3. Send Message (Request struct) 
-  //				Send message with reply or not
-  dbus_error_init(&err);
-
-  msg = dbus_message_new_signal(SAM_INTERFACE, SAM_PATH, "sendNotiPage");
-
-
-  dbus_message_append_args(msg,
-      DBUS_TYPE_INT32, &pid,
-      DBUS_TYPE_STRING, &jsonData,
-      DBUS_TYPE_INT32, &noti,
-      DBUS_TYPE_INVALID);
-
-  /* Send the signal */
-  // TODO: dbus_connection_send(opelCon, msg, NULL);
-
-  dbus_message_unref(msg);
-
-  printf("[NIL] SendEventPage to Manager>>  %s\n", jsonData);
-  //
-  //----------------------------------------------------------------//
+  // Send CompanionMessage.SendEventPage
+  gAppBase->sendEventPageToCompanion(jsonData, true);
+  printf("[NIL] SendEventPage to companion:  %s\n", jsonData);
 
   return;
 }
@@ -453,11 +277,17 @@ void addStrTextbox(const FunctionCallbackInfo<Value>& args) {
   const char* length;
 
   if (args.Length() != 4) {
-    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "Invalid Use : 1st arguments expected [Page, Name(str), Description(str), length(int)]")));
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate,
+            "Invalid Use : 1st arguments expected " \
+            "[Page, Name(str), Description(str), length(int)]")));
     return;
   }
-  if (!args[0]->IsString()||!args[1]->IsString() ||!args[2]->IsString()|| !args[3]->NumberValue() > 0  ) { //IsInteger, IsFunction, etc...
-    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "Wrong arguments")));
+  if (!args[0]->IsString()
+      || !args[1]->IsString()
+      || !args[2]->IsString()
+      || !args[3]->NumberValue()) { //IsInteger, IsFunction, etc...
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate,
+            "Wrong arguments")));
     return;
   }
   //----------------------------------------------------------------//
@@ -482,28 +312,30 @@ void addStrTextbox(const FunctionCallbackInfo<Value>& args) {
   length = length_c.c_str();
 
   if ( check_page_name(oldJsonData) != 2){
-    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "addConfigItem argument error : first arg is not the object of config page")));
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate,
+            "addConfigItem argument error :" \
+            "first arg is not the object of config page")));
     return;				
   }
 
   if (check_key_overlap(oldJsonData, name) == false){
-    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "addConfigItem argument error : the name(key) is already used in this page")));
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate,
+            "addConfigItem argument error : " \
+            "the name(key) is already used in this page")));
     return;	
   }
 
   newJsonLength = strlen(oldJsonData) + strlen(name) + strlen(length) + 32;
-  //		newJsonData = (char*)malloc(sizeof(char) * newJsonLength);
 
   char newJsonData [sizeof(char) * newJsonLength];
   memset(newJsonData, '\0', newJsonLength);
-
 
   char tmpStr[strlen(oldJsonData)];
   strncpy(tmpStr, oldJsonData, strlen(oldJsonData)-1 );
   tmpStr[strlen(oldJsonData)-1] = '\0';
 
-
-  sprintf(newJsonData, "%s,\"strTB\":\"%s[%s/%s]\"}" , tmpStr, name, description,length);
+  sprintf(newJsonData, "%s,\"strTB\":\"%s[%s/%s]\"}",
+      tmpStr, name, description,length);
 
   args.GetReturnValue().Set(getV8String(isolate, newJsonData));
 }
@@ -527,27 +359,34 @@ void addNumberTextbox(const FunctionCallbackInfo<Value>& args) {
   const char* range2;
 
   if (args.Length() != 5) {
-    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "addNumberTextbox::Invalid Use : 5 arguments expected [page,name,description,range1,range2]")));
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate,
+            "addNumberTextbox::Invalid Use : 5 arguments expected " \
+            "[page,name,description,range1,range2]")));
     return;
   }
   if (!args[0]->IsString()) { 
-    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "addNumberTextbox::1st argument is wrong [page]")));
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate,
+            "addNumberTextbox::1st argument is wrong [page]")));
     return;
   }
 
 
   if (!args[1]->IsString() ) { 
-    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "addNumberTextbox::2nd argument is wrong [string:Name]")));
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate,
+            "addNumberTextbox::2nd argument is wrong [string:Name]")));
     return;
   }
 
   if (!args[2]->IsString() ) { 
-    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "addNumberTextbox::3rd argument is wrong [string:description]")));
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate,
+            "addNumberTextbox::3rd argument is wrong [string:description]")));
     return;
   }
 
   if (!args[3]->IsNumber()|| !args[4]->IsNumber() ) { 
-    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "addNumberTextbox::4,5th argument is wrong [int:range1, int:range2]")));
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate,
+            "addNumberTextbox::4,5th argument is wrong " \
+            "[int:range1, int:range2]")));
     return;
   }
   //----------------------------------------------------------------//
@@ -660,7 +499,7 @@ void addSingleDialog(const FunctionCallbackInfo<Value>& args) {
 
   //------------------------------------- get Items -----------------------------------------------------//
   //-----------------------------------------------------------------------------------------------------
-  items = (char**) malloc(sizeof(char*) * MAXNUMBEROFITEMS);
+  items = (char**) malloc(sizeof(char*) * MAX_NUMBER_OF_ITEMS);
 
   int itemsTotalLength=0;
 
@@ -672,7 +511,7 @@ void addSingleDialog(const FunctionCallbackInfo<Value>& args) {
     itemsTotalLength += strlen(item.c_str());
 
 
-    if( i > MAXNUMBEROFITEMS+1 ){
+    if( i > MAX_NUMBER_OF_ITEMS+1 ){
 
       isolate->ThrowException(Exception::TypeError(getV8String(isolate, "addSingleDialog argument error : over the maximum number of items")));
       return;
@@ -772,7 +611,7 @@ void addMultipleDialog(const FunctionCallbackInfo<Value>& args) {
 
   //------------------------------------- get Items -----------------------------------------------------//
   //-----------------------------------------------------------------------------------------------------
-  items = (char**) malloc(sizeof(char*) * MAXNUMBEROFITEMS);
+  items = (char**) malloc(sizeof(char*) * MAX_NUMBER_OF_ITEMS);
 
   int itemsTotalLength=0;
 
@@ -784,7 +623,7 @@ void addMultipleDialog(const FunctionCallbackInfo<Value>& args) {
     itemsTotalLength += strlen(item.c_str());
 
 
-    if( i > MAXNUMBEROFITEMS+1 ){
+    if( i > MAX_NUMBER_OF_ITEMS+1 ){
 
       isolate->ThrowException(Exception::TypeError(getV8String(isolate, "addSingleDialog argument error : over the maximum number of items")));
       return;
@@ -906,8 +745,8 @@ void addDateDialog(const FunctionCallbackInfo<Value>& args) {
     return;
   }
 
-  char newJsonData [MSGBUFSIZE];
-  memset(newJsonData, '\0', MSGBUFSIZE);
+  char newJsonData [MESSAGE_BUFFER_SIZE];
+  memset(newJsonData, '\0', MESSAGE_BUFFER_SIZE);
 
   char tmpStr[strlen(oldJsonData)];
   strncpy(tmpStr, oldJsonData, strlen(oldJsonData)-1 );
@@ -999,8 +838,8 @@ void addTimeDialog(const FunctionCallbackInfo<Value>& args) {
     return;
   }
 
-  char newJsonData [MSGBUFSIZE];
-  memset(newJsonData, '\0', MSGBUFSIZE);
+  char newJsonData [MESSAGE_BUFFER_SIZE];
+  memset(newJsonData, '\0', MESSAGE_BUFFER_SIZE);
 
   char tmpStr[strlen(oldJsonData)];
   strncpy(tmpStr, oldJsonData, strlen(oldJsonData)-1 );
@@ -1029,88 +868,46 @@ void addTimeDialog(const FunctionCallbackInfo<Value>& args) {
   }
 
 */
-// TODO: send CompanionMessage.SendConfigPage
+// send CompanionMessage.SendConfigPage
 void sendConfigPage(const FunctionCallbackInfo<Value>& args) {
   Isolate* isolate = Isolate::GetCurrent();
   HandleScope scope(isolate);
 
-  RequestList* rl;
-  DBusMessage* msg;
-  DBusError err;
-
-  dbus_int32_t pid;
-  dbus_int32_t rq_num; 
-
+  // Arguments
   const char* jsonData;
+  Local<Function> onUpdateAppConfigCallback;
 
-  //----------------------------------------------------------------//
-  //						1. Argument Check
+  // Check arguments
   if ((args.Length() != 2) ||	!args[1]->IsFunction() || !args[0]->IsString() ) {
-    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "Invalid Use : 2 arguments expected [ConfigPage, Function]")));
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate,
+            "Invalid Use : 2 arguments expected [ConfigPage, Function]")));
     return;
   }
-  //
-  //----------------------------------------------------------------//
 
-
+  // Get argument 0
   v8::String::Utf8Value param1(args[0]->ToString());
   std::string json_c = std::string(*param1);
   jsonData = json_c.c_str();
-
-
-  if ( check_page_name(jsonData) != 2){
-    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "sendConfig argument error : first arg is not the object of config page")));
+  if (check_page_name(jsonData) != 2){
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate,
+            "sendConfig argument error : " \
+            "first arg is not the object of config page")));
     return;				
   }
 
+  // Get argument 1
+  onUpdateAppConfigCallback = Local<Function>::Cast(args[1]);
+  
+  // Register onUpdateAppConfig callback
+  gAppBase->setOnUpdateAppConfig(isolate, onUpdateAppConfigCallback);
 
-
-  //----------------------------------------------------------------//
-  //			2. Request Creation (For function callback)
-
-  rl = newRequest(gRequestList);
-  Local<Function> localCallback = Local<Function>::Cast(args[1]);
-  rl->callback.Reset(isolate, localCallback);
-//  rl->callback = Persistent<Function>(isolate, Local<Function>::Cast(args[1]));
-  rl->type = APP_REQUEST;
-
-  pid = (unsigned int)getpid();
-  rq_num = rl->rq_num;
-
-  //
-  //----------------------------------------------------------------//
-
-
-  //----------------------------------------------------------------//
-  //				3. Send Message (Request struct) 
-  //				Send message with reply or not
-  dbus_error_init(&err);
-
-  msg = dbus_message_new_signal(SAM_INTERFACE, SAM_PATH, "sendConfigPage");
-
-  dbus_message_append_args(msg,
-      DBUS_TYPE_INT32, &pid,
-      DBUS_TYPE_INT32, &rq_num,
-      DBUS_TYPE_STRING, &jsonData,
-      DBUS_TYPE_INVALID);
-
-  /* Send the signal */
-  // TODO: dbus_connection_send(opelCon, msg, NULL);
-  dbus_message_unref(msg);
+  // Send CompanionMessage.SendConfigPage command
+  gAppBase->sendConfigPageToCompanion(jsonData);
 
   printf("[NIL] SendConfigPage >>  %s \n", jsonData);
-  //
-  //----------------------------------------------------------------//
 
   return;
 }
-
-
-
-
-
-
-
 
 // getData(page[return page], name);
 // Return name(key)->value [string]
@@ -1231,193 +1028,60 @@ void getData(const FunctionCallbackInfo<Value>& args) {
 
 
 
-//onTermination(function)
-// TODO: do not use d-bus, maintain callback function pointer
+// onTermination(function)
 void onTermination(const FunctionCallbackInfo<Value>& args) {
   Isolate* isolate = Isolate::GetCurrent();
   HandleScope scope(isolate);
 
-  RequestList* rl;
-  DBusMessage* msg;
-  DBusError err;
+  // Arguments
+  Local<Function> onTerminateCallback;
 
-  dbus_int32_t pid;
-  dbus_int32_t rq_num; 
-
-  //----------------------------------------------------------------//
-  //						1. Argument Check
+  // Check arguments
   if ((args.Length() != 1) ||	!args[0]->IsFunction()) {
-    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "Invalid Use : 1 arguments expected [Callback Function]")));
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate,
+            "Invalid Use : 1 arguments expected [Callback Function]")));
     return;
   }
-  //
-  //----------------------------------------------------------------//
 
+  // Get argument 0
+  onTerminateCallback = Local<Function>::Cast(args[0]);
 
-
-  //----------------------------------------------------------------//
-  //			2. Request Creation (For function callback)
-
-  rl = newRequest(gRequestList);
-  Local<Function> localCallback = Local<Function>::Cast(args[0]);
-  rl->callback.Reset(isolate, localCallback);
-  rl->type = APP_REQUEST;
-
-  pid = (unsigned int)getpid();
-  rq_num = rl->rq_num;
-
-  //
-  //----------------------------------------------------------------//
-
-
-  //----------------------------------------------------------------//
-  //				3. Send Message (Request struct) 
-  //				Send message with reply or not
-  dbus_error_init(&err);
-
-  msg = dbus_message_new_signal(SAM_INTERFACE, SAM_PATH, "onTermination");
-
-  dbus_message_append_args(msg,
-      DBUS_TYPE_INT32, &pid,
-      DBUS_TYPE_INT32, &rq_num,
-      DBUS_TYPE_INVALID);
-
-
-  // TODO: dbus_connection_send(opelCon, msg, NULL);
-  dbus_message_unref(msg);
-
-  printf("[NIL] send message to %s, pid : %d, rq_num : %d\n", SAM_PATH, pid, rq_num);
-  //
-  //----------------------------------------------------------------//
+  // Register onTerminate callback
+  gAppBase->setOnTerminate(isolate, onTerminateCallback);
 
   return;
 }
 
-
-// TODO: remove it
-void faceRecognitionWithNoti(const FunctionCallbackInfo<Value>& args) {
-  Isolate* isolate = Isolate::GetCurrent();
-  HandleScope scope(isolate);
-
-  const char* imgInputPath;
-
-  DBusMessage* msg;
-  DBusError err;
-
-  dbus_int32_t pid;
-
-
-  //----------------------------------------------------------------//
-  //						1. Argument Check
-  if ((args.Length() != 1) ||	!args[0]->IsString() ) {
-    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "Invalid Use : 1 arguments expected [image]")));
-    return;
-  }
-
-  v8::String::Utf8Value param1(args[0]->ToString());
-  std::string imageInputPath = std::string(*param1);
-  imgInputPath = imageInputPath.c_str();
-
-
-  //
-  //----------------------------------------------------------------//
-
-
-  //----------------------------------------------------------------//
-  //			2. Request Creation (For function callback)
-
-
-  pid = (unsigned int)getpid();
-
-  //
-  //----------------------------------------------------------------//
-
-
-  //----------------------------------------------------------------//
-  //				3. Send Message (Request struct) 
-  //				Send message with reply or not
-  dbus_error_init(&err);
-  msg = dbus_message_new_signal(SAM_INTERFACE, SAM_PATH, "face_recognition");
-
-  dbus_message_append_args(msg,
-      DBUS_TYPE_INT32, &pid,
-      DBUS_TYPE_STRING, &imgInputPath,
-      DBUS_TYPE_INVALID);
-
-  /* Send the signal */
-  // TODO: dbus_connection_send(opelCon, msg, NULL);
-  dbus_message_unref(msg);
-
-
-  //
-  //----------------------------------------------------------------//
-
-  return;
-}
-
-// TODO: send CompanionMessage.UpdateSensorData
+// send CompanionMessage.UpdateSensorData
 void sendMsgToSensorViewer(const FunctionCallbackInfo<Value>& args) {
   Isolate* isolate = Isolate::GetCurrent();
   HandleScope scope(isolate);
 
+  // Arguments
   const char* jsonData;
 
-  DBusMessage* msg;
-  DBusError err;
-
-  dbus_int32_t pid;
-  dbus_int32_t noti = 0;
-  //----------------------------------------------------------------//
-  //						1. Argument Check
+  // Check arguments
   if ((args.Length() != 1) ||	!args[0]->IsString() ) {
-    isolate->ThrowException(Exception::TypeError(getV8String(isolate, "Invalid Use : 1 arguments expected [SensorData obj]")));
+    isolate->ThrowException(Exception::TypeError(getV8String(isolate,
+            "Invalid Use : 1 arguments expected [SensorData obj]")));
     return;
   }
 
+  // Get argument 0
   v8::String::Utf8Value param1(args[0]->ToString());
   std::string name_c = std::string(*param1);
   jsonData = name_c.c_str();
 
-  //
-  //----------------------------------------------------------------//
-
-
-  //----------------------------------------------------------------//
-  //			2. Request Creation (For function callback)
-
-
-  pid = (unsigned int)getpid();
-
-  //
-  //----------------------------------------------------------------//
-
-
-  //----------------------------------------------------------------//
-  //				3. Send Message (Request struct) 
-  //				Send message with reply or not
-  dbus_error_init(&err);
-  msg = dbus_message_new_signal(SAM_INTERFACE, SAM_PATH, "sendMsgToSensorViewer");
-
-  dbus_message_append_args(msg,
-      DBUS_TYPE_STRING, &jsonData,
-      DBUS_TYPE_INVALID);
-
-  /* Send the signal */
-  // TODO: dbus_connection_send(opelCon, msg, NULL);
-  dbus_message_unref(msg);
-
-  printf("[NIL] sendMsgToSensorViewer to Manager>>  %s\n", jsonData);
-  //
-  //----------------------------------------------------------------//
-
+  // Send CompanionMessage.UpdateSensorData
+  gAppBase->updateSensorDataToCompanion(jsonData);
+  
+  printf("[NIL] sendMsgToSensorViewer to companion: %s\n", jsonData);
   return;
 }
 
 void init(Handle<Object> exports) {
   Isolate* isolate = Isolate::GetCurrent();
   initAppBase();
-  // TODO: opelCon = DbusInit(); //Init Dbus message receiver (by PID)
-
 
   //-----------------------EventPage-------------------------------------------
   exports->Set(getV8String(isolate, "makeEventPage"),
@@ -1454,15 +1118,9 @@ void init(Handle<Object> exports) {
   exports->Set(getV8String(isolate, "getData"),
       FunctionTemplate::New(isolate, getData)->GetFunction());
 
-
   //------------------------termination-----------------------------------------
   exports->Set(getV8String(isolate, "onTermination"),
       FunctionTemplate::New(isolate, onTermination)->GetFunction());
-
-
-  //------------------------cloud service---------------------------------------
-  exports->Set(getV8String(isolate, "faceRecognitionWithNoti"),
-      FunctionTemplate::New(isolate, faceRecognitionWithNoti)->GetFunction());
 
   //------------------------sensor viewer---------------------------------------
   exports->Set(getV8String(isolate, "sendMsgToSensorViewer"),

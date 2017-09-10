@@ -3,13 +3,9 @@
     {
       'target_name': 'app-api',
       'sources': [
-        'nil.cc',
-        'nil_dbus_connection.cc',
-        'nil_dbus.cc',
-        'nil_request.cc',
-        'nil_internal.cc',
-        'nil.h',
-        'nil_internal.h'
+        'AppAPI.cc',
+        'AppAPIInternal.cc',
+        'AppBase.cc'
        ],
       'libraries': [
         '<!@(pkg-config glib-2.0 --libs)',

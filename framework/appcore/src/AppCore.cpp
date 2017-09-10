@@ -136,7 +136,7 @@ void AppCore::run() {
   this->mDbusChannel = new DbusChannel(this->mMessageRouter);
   this->mCommChannel = new CommChannel(this->mMessageRouter,
       this->getTempDir());
-  this->mLocalChannel = new LocalChannel(this->mMessageRouter);
+  this->mLocalChannel = new LocalChannel(this->mMessageRouter, false);
 
   // Run DbusChannel and add it to MessageRouter's routing table
   this->mDbusChannel->run();
@@ -220,6 +220,9 @@ void AppCore::onReceivedMessage(BaseMessage* message) {
     case AppCoreMessageCommandType::GetAppIcon:
       this->getAppIcon(message);
       break;
+    default:
+        // Do not handle it
+      break;
   }
 }
 
@@ -240,6 +243,7 @@ void AppCore::onCommChannelStateChanged(CommChannelState::Value state) {
       break;
     case CommChannelState::LISTENING_LARGEDATA:
     case CommChannelState::CONNECTED_LARGEDATA:
+    default:
       // ignore
       break;
   }

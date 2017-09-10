@@ -27,11 +27,24 @@ class MessageFactory {
   // string -> JSON -> BaseMessage
   static BaseMessage* makeMessageFromJSONString(const char* rawString);
 
+  // Make AppCoreMessage from bottom
+  static BaseMessage* makeAppCoreMessage(std::string uri,
+      AppCoreMessageCommandType::Value commandType) {
+    AppCoreMessage* payload = new AppCoreMessage(commandType);
+    BaseMessage* message = new BaseMessage(currentMessageId++, uri,
+        BaseMessageType::AppCore);
+    message->setPayload(payload);
+    return message;
+  }
+
   // Make AppCoreAckMessage from bottom
-  static BaseMessage* makeAppCoreAckMessage(std::string uri, BaseMessage* originalMessage) {
+  static BaseMessage* makeAppCoreAckMessage(std::string uri,
+      BaseMessage* originalMessage) {
     int commandMessageId = originalMessage->getMessageId();
-    AppCoreMessage* originalPayload = (AppCoreMessage*) originalMessage->getPayload();
-    AppCoreMessageCommandType::Value commandType = originalPayload->getCommandType();
+    AppCoreMessage* originalPayload
+      = (AppCoreMessage*) originalMessage->getPayload();
+    AppCoreMessageCommandType::Value commandType
+      = originalPayload->getCommandType();
 
     AppCoreAckMessage* payload = new AppCoreAckMessage(commandMessageId,
         commandType);
@@ -62,10 +75,12 @@ class MessageFactory {
   }
 
   // Make AppAckMessage from bottom
-  static BaseMessage* makeAppAckMessage(std::string uri, BaseMessage* originalMessage) {
+  static BaseMessage* makeAppAckMessage(std::string uri,
+      BaseMessage* originalMessage) {
     int commandMessageId = originalMessage->getMessageId();
     AppMessage* originalPayload = (AppMessage*) originalMessage->getPayload();
-    AppMessageCommandType::Value commandType = originalPayload->getCommandType();
+    AppMessageCommandType::Value commandType
+      = originalPayload->getCommandType();
 
     AppAckMessage* payload = new AppAckMessage(commandMessageId,
         commandType);

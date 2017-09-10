@@ -22,8 +22,8 @@
 #include "OPELdbugLog.h"
 
 void LocalChannel::run() {
-  // Run RoutedLoop on this thread(main thread)
-  this->runRoutedLoop(false);
+  // Run RoutedLoop
+  this->runRoutedLoop(this->mIsCreateRoutedThread);
 }
 
 void LocalChannel::onRoutedMessage(BaseMessage* message) {
