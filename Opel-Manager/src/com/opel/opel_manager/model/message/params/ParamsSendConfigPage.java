@@ -18,9 +18,11 @@ package com.opel.opel_manager.model.message.params;
  */
 
 public class ParamsSendConfigPage {
-    public ParamsSendConfigPage(String legacyData) {
+    public ParamsSendConfigPage(int appId, String legacyData) {
+        this.appId = appId;
         this.legacyData = legacyData;
     }
 
+    public int appId;
     public String legacyData;
 }

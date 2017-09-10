@@ -28,8 +28,9 @@ import com.opel.opel_manager.model.message.params.ParamsUpdateSensorData;
 public class CompanionMessage extends BaseMessagePayload {
     // CompanionMessageCommandType
     public static final int Type_NotDetermined = 0;
-    public static final int Type_SendEventPage = 1; // params: string legacyData
-    public static final int Type_SendConfigPage = 2; // params: string legacyData
+    public static final int Type_SendEventPage = 1; // params: int appId, string legacyData,
+    //                                                         boolean isNoti
+    public static final int Type_SendConfigPage = 2; // params: int appId, string legacyData
     public static final int Type_UpdateSensorData = 3; //params: string legacyData
 
     // JSON field name
@@ -46,22 +47,37 @@ public class CompanionMessage extends BaseMessagePayload {
     public ParamsSendEventPage getParamsSendEventPage() {
         ObjectNode paramsObj = (ObjectNode) this.mCompanionPayloadObj;
 
+        // appId
+        String appIdStr = paramsObj.get("appId").asText();
+        int appId = Integer.parseInt(appIdStr);
+
+        // legacyData
         String legacyData = paramsObj.get("legacyData").asText();
 
-        return new ParamsSendEventPage(legacyData);
+        // isNoti
+        String isNotiStr = paramsObj.get("isNoti").asText();
+        boolean isNoti = (isNotiStr.compareTo("1") == 0);
+
+        return new ParamsSendEventPage(appId, legacyData, isNoti);
     }
 
     public ParamsSendConfigPage getParamsSendConfigPage() {
         ObjectNode paramsObj = (ObjectNode) this.mCompanionPayloadObj;
 
+        // appId
+        String appIdStr = paramsObj.get("appId").asText();
+        int appId = Integer.parseInt(appIdStr);
+
+        // legacyData
         String legacyData = paramsObj.get("legacyData").asText();
 
-        return new ParamsSendConfigPage(legacyData);
+        return new ParamsSendConfigPage(appId, legacyData);
     }
 
     public ParamsUpdateSensorData getParamsUpdateSensorData() {
         ObjectNode paramsObj = (ObjectNode) this.mCompanionPayloadObj;
 
+        // legacyData
         String legacyData = paramsObj.get("legacyData").asText();
 
         return new ParamsUpdateSensorData(legacyData);

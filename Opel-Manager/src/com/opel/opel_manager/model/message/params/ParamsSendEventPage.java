@@ -18,9 +18,13 @@ package com.opel.opel_manager.model.message.params;
  */
 
 public class ParamsSendEventPage {
-    public ParamsSendEventPage(String legacyData) {
+    public ParamsSendEventPage(int appId, String legacyData, boolean isNoti) {
+        this.appId = appId;
         this.legacyData = legacyData;
+        this.isNoti = isNoti;
     }
 
+    public int appId;
     public String legacyData;
+    public boolean isNoti;
 }
