@@ -25,6 +25,11 @@ android {
     compileSdkVersion 23
     buildToolsVersion '25.0.0'
 
+    packagingOptions {
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/LICENSE'
+    }
+
     // NDK build
     ext {
         nativeDebuggable = false
@@ -62,4 +67,4 @@ android {
         debug.setRoot('build-types/debug')
         release.setRoot('build-types/release')
     }
- }
+}

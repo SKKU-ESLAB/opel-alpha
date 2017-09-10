@@ -31,9 +31,9 @@ import android.widget.Toast;
 
 import com.opel.opel_manager.R;
 import com.opel.opel_manager.controller.LegacyJSONParser;
+import com.opel.opel_manager.controller.OPELControllerBroadcastReceiver;
 import com.opel.opel_manager.controller.OPELControllerService;
 import com.opel.opel_manager.model.OPELApp;
-import com.opel.opel_manager.view.EventLogViewerActivity;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -43,6 +43,8 @@ import static android.content.ContentValues.TAG;
 public class RemoteConfigUIActivity extends Activity {
     // OPELControllerService
     private OPELControllerService mControllerServiceStub = null;
+    private PrivateControllerBroadcastReceiver mControllerBroadcastReceiver;
+    private final RemoteConfigUIActivity self = this;
 
     ListView listView;
     static ConfigListAdapter mConfigListAdapter;
@@ -113,7 +115,6 @@ public class RemoteConfigUIActivity extends Activity {
                     if (mControllerServiceStub != null) {
                         mControllerServiceStub.updateAppConfigAsync(Integer.parseInt(mAppID), jp
                                 .getJsonData());
-                        this.finish();
                     } else {
                         Toast.makeText(this, "Controller service is not connected!", Toast
                                 .LENGTH_LONG);
@@ -235,26 +236,26 @@ public class RemoteConfigUIActivity extends Activity {
                 ab.setSingleChoiceItems(item.getListArray(), item.getListPosition(mSelected), new
                         DialogInterface.OnClickListener() {
 
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        mSelected = item.getListArray()[whichButton];
-                    }
-                }).setPositiveButton(com.opel.opel_manager.R.string.alert_dialog_ok, new
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                mSelected = item.getListArray()[whichButton];
+                            }
+                        }).setPositiveButton(com.opel.opel_manager.R.string.alert_dialog_ok, new
                         DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        if (item.getStatus().equals(kDefaultStatus)) {
-                            item.setStatus(item.getListArray()[0]);
-                        } else {
-                            item.setStatus(mSelected);
-                        }
-                        mConfigListAdapter.updateDisplay();
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                if (item.getStatus().equals(kDefaultStatus)) {
+                                    item.setStatus(item.getListArray()[0]);
+                                } else {
+                                    item.setStatus(mSelected);
+                                }
+                                mConfigListAdapter.updateDisplay();
 
-                    }
-                }).setNegativeButton(com.opel.opel_manager.R.string.alert_dialog_cancel, new
+                            }
+                        }).setNegativeButton(com.opel.opel_manager.R.string.alert_dialog_cancel, new
                         DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        dialog.cancel();
-                    }
-                });
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                dialog.cancel();
+                            }
+                        });
                 AlertDialog alertDialog = ab.create();
                 alertDialog.show();
             } else if (selectedFlag == 3) {
@@ -262,24 +263,24 @@ public class RemoteConfigUIActivity extends Activity {
                 AlertDialog.Builder builder = new AlertDialog.Builder(RemoteConfigUIActivity.this);
                 builder.setTitle(item.getTitle()).setMultiChoiceItems(item.getListArray(), null,
                         new DialogInterface.OnMultiChoiceClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-                        if (isChecked) {
-                        }
-                    }
-                }).setPositiveButton(com.opel.opel_manager.R.string.alert_dialog_ok, new
+                            @Override
+                            public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+                                if (isChecked) {
+                                }
+                            }
+                        }).setPositiveButton(com.opel.opel_manager.R.string.alert_dialog_ok, new
                         DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        //Create onlcick method
-                    }
-                }).setNegativeButton(com.opel.opel_manager.R.string.alert_dialog_cancel, new
+                            @Override
+                            public void onClick(DialogInterface dialog, int id) {
+                                //Create onlcick method
+                            }
+                        }).setNegativeButton(com.opel.opel_manager.R.string.alert_dialog_cancel, new
                         DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        //Create onlcick method
-                    }
-                });
+                            @Override
+                            public void onClick(DialogInterface dialog, int id) {
+                                //Create onlcick method
+                            }
+                        });
                 builder.show();
 
             } else if (selectedFlag == 4) {
@@ -292,23 +293,23 @@ public class RemoteConfigUIActivity extends Activity {
                 DatePickerDialog dpd = new DatePickerDialog(RemoteConfigUIActivity.this, new
                         DatePickerDialog.OnDateSetListener() {
 
-                    @Override
-                    public void onDateSet(DatePicker view, int year, int monthOfYear, int
-                            dayOfMonth) {
+                            @Override
+                            public void onDateSet(DatePicker view, int year, int monthOfYear, int
+                                    dayOfMonth) {
 
-                        String _year, _month, _day;
-                        _year = String.valueOf(year);
+                                String _year, _month, _day;
+                                _year = String.valueOf(year);
 
-                        _month = String.valueOf(monthOfYear + 1);
-                        if (_month.length() == 1) _month = "0" + _month;
+                                _month = String.valueOf(monthOfYear + 1);
+                                if (_month.length() == 1) _month = "0" + _month;
 
-                        _day = String.valueOf(dayOfMonth);
-                        if (_day.length() == 1) _day = "0" + _day;
+                                _day = String.valueOf(dayOfMonth);
+                                if (_day.length() == 1) _day = "0" + _day;
 
-                        item.setStatus(_year + "-" + _month + "-" + _day);
-                        mConfigListAdapter.updateDisplay();
-                    }
-                }, mYear, mMonth, mDay);
+                                item.setStatus(_year + "-" + _month + "-" + _day);
+                                mConfigListAdapter.updateDisplay();
+                            }
+                        }, mYear, mMonth, mDay);
                 dpd.show();
 
             } else if (selectedFlag == 5) {
@@ -319,21 +320,21 @@ public class RemoteConfigUIActivity extends Activity {
                 TimePickerDialog tpd = new TimePickerDialog(RemoteConfigUIActivity.this, new
                         TimePickerDialog.OnTimeSetListener() {
 
-                    @Override
-                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                            @Override
+                            public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
 
-                        String hour, min;
+                                String hour, min;
 
-                        hour = String.valueOf(hourOfDay);
-                        if (hour.length() == 1) hour = "0" + hour;
+                                hour = String.valueOf(hourOfDay);
+                                if (hour.length() == 1) hour = "0" + hour;
 
-                        min = String.valueOf(minute);
-                        if (min.length() == 1) min = "0" + min;
+                                min = String.valueOf(minute);
+                                if (min.length() == 1) min = "0" + min;
 
-                        item.setStatus(hour + ":" + min);
-                        mConfigListAdapter.updateDisplay();
-                    }
-                }, mHour, mMinute, false);
+                                item.setStatus(hour + ":" + min);
+                                mConfigListAdapter.updateDisplay();
+                            }
+                        }, mHour, mMinute, false);
                 tpd.show();
 
             }
@@ -618,4 +619,22 @@ public class RemoteConfigUIActivity extends Activity {
             mControllerServiceStub = null;
         }
     };
+
+    class PrivateControllerBroadcastReceiver extends OPELControllerBroadcastReceiver {
+        PrivateControllerBroadcastReceiver() {
+            this.setOnResultUpdateAppConfigListener(new OnResultUpdateAppConfigListener() {
+                @Override
+                public void onResultUpdateAppConfig(int commandMessageId, boolean isSucceed) {
+                    if (isSucceed) {
+                        Toast.makeText(self, "Config is applied successfully!", Toast
+                                .LENGTH_LONG);
+                        self.finish();
+                    } else {
+                        Toast.makeText(self, "Config cannot be applied!", Toast
+                                .LENGTH_LONG);
+                    }
+                }
+            });
+        }
+    }
 }

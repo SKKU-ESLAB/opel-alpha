@@ -19,7 +19,7 @@ package com.opel.opel_manager.model.message.params;
 
 public class ParamsListenAppState {
     public ParamsListenAppState(int appId, int appState) {
-        this.appid = appId;
+        this.appId = appId;
         this.appState = appState;
     }
 

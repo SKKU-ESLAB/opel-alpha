@@ -226,7 +226,7 @@ public class TargetDeviceStub {
     public void initializeConnection() {
         if (this.mCommChannelServiceStub == null) {
             // Launch CommChannelService for setting connection with target OPEL device.
-            Intent serviceIntent = new Intent(this.mOwnerService, OPELControllerService.class);
+            Intent serviceIntent = new Intent(this.mOwnerService, CommChannelService.class);
             this.mOwnerService.bindService(serviceIntent, this.mCommServiceConnection, Context
                     .BIND_AUTO_CREATE);
         } else {

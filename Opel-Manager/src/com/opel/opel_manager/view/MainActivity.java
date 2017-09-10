@@ -322,6 +322,10 @@ public class MainActivity extends Activity {
             Toast.makeText(getApplicationContext(), "Already connected to target device", Toast
                     .LENGTH_SHORT).show();
             return;
+        } else if (this.mControllerServiceStub == null) {
+            Toast.makeText(getApplicationContext(), "Controller service is not initialized", Toast
+                    .LENGTH_SHORT).show();
+            return;
         }
 
         // Request to initialize connection

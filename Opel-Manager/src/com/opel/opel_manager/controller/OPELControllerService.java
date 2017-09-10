@@ -62,6 +62,7 @@ import java.util.Map;
 public class OPELControllerService extends Service {
     private static String TAG = "OPELControllerService";
     private int mBindersCount = 0;
+    private final IBinder mBinder;
 
     // TargetDeviceStub
     private final OPELControllerService self = this;
@@ -77,6 +78,7 @@ public class OPELControllerService extends Service {
     public OPELControllerService() {
         this.mEventList = new OPELEventList();
         this.mSettings = new Settings();
+        this.mBinder = new ControllerBinder();
     }
 
     // Connection with target device
@@ -205,8 +207,8 @@ public class OPELControllerService extends Service {
 
         OPELApp app = this.getApp(appId);
 
-        if(isNoti)
-        RemoteNotiUI.makeNotification(this, app, legacyData);
+        if (isNoti)
+            RemoteNotiUI.makeNotification(this, app, legacyData);
     }
 
     private void onReceivedConfig(int appId, String legacyData) {
@@ -572,7 +574,7 @@ public class OPELControllerService extends Service {
         if (this.mTargetDeviceStub == null) {
             this.mTargetDeviceStub = new TargetDeviceStub(this, this.mTargetDeviceStubListener);
         }
-        return null;
+        return this.mBinder;
     }
 
     @Override
