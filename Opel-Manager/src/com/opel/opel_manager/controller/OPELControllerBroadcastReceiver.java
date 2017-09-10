@@ -41,12 +41,15 @@ abstract public class OPELControllerBroadcastReceiver extends BroadcastReceiver 
     public static final String KEY_ON_APP_STATE_CHANGED_APP_STATE = "appState";
 
     public static final String EVENT_TYPE_ON_RECEIVED_EVENT = "onReceivedEvent";
+    public static final String KEY_ON_RECEIVED_EVENT_APP_ID = "appId";
     public static final String KEY_ON_RECEIVED_EVENT_LEGACY_DATA = "legacyData";
+    public static final String KEY_ON_RECEIVED_EVENT_IS_NOTI = "isNoti";
 
     public static final String EVENT_TYPE_ON_RECEIVED_SENSOR_DATA = "onReceivedSensorData";
     public static final String KEY_ON_RECEIVED_SENSOR_DATA_LEGACY_DATA = "legacyData";
 
     public static final String EVENT_TYPE_ON_RECEIVED_APP_CONFIG = "onReceivedAppConfig";
+    public static final String KEY_ON_RECEIVED_APP_CONFIG_APP_ID = "appId";
     public static final String KEY_ON_RECEIVED_APP_CONFIG_LEGACY_DATA = "legacyData";
 
     public static final String EVENT_TYPE_ON_RESULT_UPDATE_APP_LIST = "onResultUpdateAppList";
@@ -91,17 +94,20 @@ abstract public class OPELControllerBroadcastReceiver extends BroadcastReceiver 
                 if (this.mOnAppStateChangedListener != null)
                     this.mOnAppStateChangedListener.onAppStateChanged(appId, appState);
             } else if (eventType.compareTo(EVENT_TYPE_ON_RECEIVED_EVENT) == 0) {
+                int appId = intent.getIntExtra(KEY_ON_RECEIVED_EVENT_APP_ID, -1);
                 String legacyData = intent.getStringExtra(KEY_ON_RECEIVED_EVENT_LEGACY_DATA);
+                boolean isNoti = intent.getBooleanExtra(KEY_ON_RECEIVED_EVENT_IS_NOTI, false);
                 if (this.mOnReceivedEventListener != null)
-                    this.mOnReceivedEventListener.onReceivedEvent(legacyData);
+                    this.mOnReceivedEventListener.onReceivedEvent(appId, legacyData, isNoti);
+            } else if (eventType.compareTo(EVENT_TYPE_ON_RECEIVED_APP_CONFIG) == 0) {
+                int appId = intent.getIntExtra(KEY_ON_RECEIVED_EVENT_APP_ID, -1);
+                String legacyData = intent.getStringExtra(KEY_ON_RECEIVED_APP_CONFIG_LEGACY_DATA);
+                if (this.mOnReceivedAppConfigListener != null)
+                    this.mOnReceivedAppConfigListener.onReceivedAppConfig(appId, legacyData);
             } else if (eventType.compareTo(EVENT_TYPE_ON_RECEIVED_SENSOR_DATA) == 0) {
                 String legacyData = intent.getStringExtra(KEY_ON_RECEIVED_SENSOR_DATA_LEGACY_DATA);
                 if (this.mOnReceivedSensorDataListener != null)
                     this.mOnReceivedSensorDataListener.onReceivedSensorData(legacyData);
-            } else if (eventType.compareTo(EVENT_TYPE_ON_RECEIVED_APP_CONFIG) == 0) {
-                String legacyData = intent.getStringExtra(KEY_ON_RECEIVED_APP_CONFIG_LEGACY_DATA);
-                if (this.mOnReceivedAppConfigListener != null)
-                    this.mOnReceivedAppConfigListener.onReceivedAppConfig(legacyData);
             } else if (eventType.compareTo(EVENT_TYPE_ON_RESULT_UPDATE_APP_LIST) == 0) {
                 OPELApp[] appList = (OPELApp[]) intent.getParcelableArrayExtra
                         (KEY_ON_RESULT_UPDATE_APP_LIST_APP_LIST);
@@ -206,15 +212,15 @@ abstract public class OPELControllerBroadcastReceiver extends BroadcastReceiver 
     }
 
     public interface OnReceivedEventListener {
-        public void onReceivedEvent(String legacyData);
+        public void onReceivedEvent(int appId, String legacyData, boolean isNoti);
+    }
+
+    public interface OnReceivedAppConfigListener {
+        public void onReceivedAppConfig(int appId, String legacyData);
     }
 
     public interface OnReceivedSensorDataListener {
         public void onReceivedSensorData(String legacyData);
-    }
-
-    public interface OnReceivedAppConfigListener {
-        public void onReceivedAppConfig(String legacyData);
     }
 
     public interface OnResultUpdateAppListListener {

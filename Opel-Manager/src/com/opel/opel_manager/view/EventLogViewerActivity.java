@@ -242,7 +242,7 @@ public class EventLogViewerActivity extends Activity {
         PrivateControllerBroadcastReceiver() {
             this.setOnReceivedEventListener(new OnReceivedEventListener() {
                 @Override
-                public void onReceivedEvent(String legacyData) {
+                public void onReceivedEvent(int appId, String legacyData, boolean isNoti) {
                     updateUI();
                 }
             });

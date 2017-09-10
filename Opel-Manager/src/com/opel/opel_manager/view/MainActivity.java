@@ -56,7 +56,6 @@ import com.opel.opel_manager.view.main.MainIcon;
 import com.opel.opel_manager.view.main.SensorViewerMainIcon;
 import com.opel.opel_manager.view.main.UserAppMainIcon;
 import com.opel.opel_manager.view.remoteui.RemoteConfigUIActivity;
-import com.opel.opel_manager.view.remoteui.RemoteNotiUI;
 
 import java.util.ArrayList;
 
@@ -291,10 +290,6 @@ public class MainActivity extends Activity {
         mMainIconListAdapter.updateUI();
     }
 
-    public void showRemoteNotiUI(String legacyData) {
-        RemoteNotiUI.makeNotification(this, legacyData);
-    }
-
     public void showRemoteConfigUI(int appId) {
         OPELApp thisApp = this.getApp(appId);
         if (thisApp.getConfigJSONString().compareTo("") == 0) {
@@ -450,13 +445,6 @@ public class MainActivity extends Activity {
                         OPELApp newApp = mControllerServiceStub.getApp(appId);
                         addUserAppMainIcon(newApp);
                     }
-                }
-            });
-
-            this.setOnReceivedEventListener(new OnReceivedEventListener() {
-                @Override
-                public void onReceivedEvent(String legacyData) {
-                    showRemoteNotiUI(legacyData);
                 }
             });
 

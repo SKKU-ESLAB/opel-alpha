@@ -49,13 +49,30 @@ public class OPELControllerBroadcastSender {
         service.sendBroadcast(broadcastIntent);
     }
 
-    static public void onReceivedEvent(Service service, String legacyData) {
+    static public void onReceivedEvent(Service service, int appId, String legacyData,
+                                       boolean isNoti) {
         Intent broadcastIntent = new Intent();
         broadcastIntent.setAction(OPELControllerBroadcastReceiver.ACTION);
         broadcastIntent.putExtra(OPELControllerBroadcastReceiver.KEY_EVENT_TYPE,
                 OPELControllerBroadcastReceiver.EVENT_TYPE_ON_RECEIVED_EVENT);
         broadcastIntent.putExtra(OPELControllerBroadcastReceiver
+                .KEY_ON_RECEIVED_EVENT_APP_ID, appId);
+        broadcastIntent.putExtra(OPELControllerBroadcastReceiver
                 .KEY_ON_RECEIVED_EVENT_LEGACY_DATA, legacyData);
+        broadcastIntent.putExtra(OPELControllerBroadcastReceiver
+                .KEY_ON_RECEIVED_EVENT_IS_NOTI, isNoti);
+        service.sendBroadcast(broadcastIntent);
+    }
+
+    static public void onReceivedAppConfig(Service service, int appId, String legacyData) {
+        Intent broadcastIntent = new Intent();
+        broadcastIntent.setAction(OPELControllerBroadcastReceiver.ACTION);
+        broadcastIntent.putExtra(OPELControllerBroadcastReceiver.KEY_EVENT_TYPE,
+                OPELControllerBroadcastReceiver.EVENT_TYPE_ON_RECEIVED_APP_CONFIG);
+        broadcastIntent.putExtra(OPELControllerBroadcastReceiver
+                .KEY_ON_RECEIVED_APP_CONFIG_APP_ID, appId);
+        broadcastIntent.putExtra(OPELControllerBroadcastReceiver
+                .KEY_ON_RECEIVED_APP_CONFIG_LEGACY_DATA, legacyData);
         service.sendBroadcast(broadcastIntent);
     }
 
@@ -66,16 +83,6 @@ public class OPELControllerBroadcastSender {
                 OPELControllerBroadcastReceiver.EVENT_TYPE_ON_RECEIVED_SENSOR_DATA);
         broadcastIntent.putExtra(OPELControllerBroadcastReceiver
                 .KEY_ON_RECEIVED_SENSOR_DATA_LEGACY_DATA, legacyData);
-        service.sendBroadcast(broadcastIntent);
-    }
-
-    static public void onReceivedAppConfig(Service service, String legacyData) {
-        Intent broadcastIntent = new Intent();
-        broadcastIntent.setAction(OPELControllerBroadcastReceiver.ACTION);
-        broadcastIntent.putExtra(OPELControllerBroadcastReceiver.KEY_EVENT_TYPE,
-                OPELControllerBroadcastReceiver.EVENT_TYPE_ON_RECEIVED_APP_CONFIG);
-        broadcastIntent.putExtra(OPELControllerBroadcastReceiver
-                .KEY_ON_RECEIVED_APP_CONFIG_LEGACY_DATA, legacyData);
         service.sendBroadcast(broadcastIntent);
     }
 

@@ -45,29 +45,28 @@ public class RemoteNotiUI {
     		img: 234234
       }
     */
-    public static void makeNotification(MainActivity ownerActivity, String legacyData) {
-        NotificationManager nm = (NotificationManager) ownerActivity.getSystemService(Context
+    public static void makeNotification(Context context, OPELApp app, String legacyData) {
+        NotificationManager nm = (NotificationManager) context.getSystemService(Context
                 .NOTIFICATION_SERVICE);
-        Resources res = ownerActivity.getResources();
+        Resources res = context.getResources();
 
-        Intent notificationIntent = new Intent(ownerActivity, RemoteNotiUIActivity.class);
+        Intent notificationIntent = new Intent(context, RemoteNotiUIActivity.class);
         Bundle extras = new Bundle();
         extras.putString("jsonData", legacyData);
         extras.putString("checkNoti", "1");
         notificationIntent.putExtras(extras);
 
-        PendingIntent contentIntent = PendingIntent.getActivity(ownerActivity, 1, notificationIntent,
+        PendingIntent contentIntent = PendingIntent.getActivity(context, 1, notificationIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
         LegacyJSONParser jp = new LegacyJSONParser(legacyData);
         int appId = Integer.parseInt(jp.getValueByKey("mAppID"));
-        OPELApp targetApp = ownerActivity.getApp(appId);
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(ownerActivity);
-        builder.setCategory("" + appId).setContentTitle(targetApp.getName());
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
+        builder.setCategory("" + appId).setContentTitle(app.getName());
         builder.setContentText(jp.getValueByKey("description"));
         builder.setTicker(" " + jp.getValueByKey("appTitle"));
-        builder.setLargeIcon(BitmapFactory.decodeFile(targetApp.getIconImagePath()));
+        builder.setLargeIcon(BitmapFactory.decodeFile(app.getIconImagePath()));
         builder.setSmallIcon(R.drawable.opel);
         builder.setContentIntent(contentIntent);
         builder.setAutoCancel(true);

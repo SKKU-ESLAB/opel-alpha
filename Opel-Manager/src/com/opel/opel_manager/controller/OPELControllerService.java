@@ -45,6 +45,7 @@ import com.opel.opel_manager.model.message.params.ParamsSendConfigPage;
 import com.opel.opel_manager.model.message.params.ParamsSendEventPage;
 import com.opel.opel_manager.model.message.params.ParamsUpdateAppConfig;
 import com.opel.opel_manager.model.message.params.ParamsUpdateSensorData;
+import com.opel.opel_manager.view.remoteui.RemoteNotiUI;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -190,6 +191,27 @@ public class OPELControllerService extends Service {
         } catch (Exception e) {
             Log.d("OPEL", e.getMessage());
         }
+    }
+
+    // CompanionMessage callbacks
+    private void onReceivedEvent(int appId, String legacyData, boolean isNoti) {
+        LegacyJSONParser legacyJSONParser = new LegacyJSONParser(legacyData);
+        String appIdStr = String.valueOf(appId);
+        String appTitle = legacyJSONParser.getValueByKey("appTitle");
+        String description = legacyJSONParser.getValueByKey("description");
+        String dateTime = legacyJSONParser.getValueByKey("dateTime");
+        String eventJsonData = legacyJSONParser.getJsonData();
+        this.mEventList.addEvent(appIdStr, appTitle, description, dateTime, eventJsonData);
+
+        OPELApp app = this.getApp(appId);
+
+        if(isNoti)
+        RemoteNotiUI.makeNotification(this, app, legacyData);
+    }
+
+    private void onReceivedConfig(int appId, String legacyData) {
+        OPELApp app = this.getApp(appId);
+        app.setConfigJSONString(legacyData);
     }
 
     private UpdateAppListProcedure mUpdateAppListProcedure = new UpdateAppListProcedure();
@@ -482,10 +504,13 @@ public class OPELControllerService extends Service {
             // Get parameters
             CompanionMessage payload = (CompanionMessage) message.getPayload();
             ParamsSendEventPage params = payload.getParamsSendEventPage();
+            int appId = params.appId;
             String legacyData = params.legacyData;
+            boolean isNoti = params.isNoti;
 
             // Listeners
-            OPELControllerBroadcastSender.onReceivedEvent(self, legacyData);
+            self.onReceivedEvent(appId, legacyData, isNoti);
+            OPELControllerBroadcastSender.onReceivedEvent(self, appId, legacyData, isNoti);
         }
 
         @Override
@@ -493,10 +518,12 @@ public class OPELControllerService extends Service {
             // Get parameters
             CompanionMessage payload = (CompanionMessage) message.getPayload();
             ParamsSendConfigPage params = payload.getParamsSendConfigPage();
+            int appId = params.appId;
             String legacyData = params.legacyData;
 
             // Listeners
-            OPELControllerBroadcastSender.onReceivedAppConfig(self, legacyData);
+            self.onReceivedConfig(appId, legacyData);
+            OPELControllerBroadcastSender.onReceivedAppConfig(self, appId, legacyData);
         }
 
         @Override
