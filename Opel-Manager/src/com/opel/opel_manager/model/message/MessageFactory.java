@@ -78,7 +78,9 @@ public class MessageFactory {
         boolean isFileAttached = (Integer.parseInt(isFileAttachedStr) == 1);
 
         // mFileName
-        String fileName = thisObj.get(BaseMessage.OPEL_MESSAGE_KEY_FILE_NAME).asText();
+        String fileName = "";
+        JsonNode fileNameObject = thisObj.get(BaseMessage.OPEL_MESSAGE_KEY_FILE_NAME);
+        if (fileNameObject != null) fileName = fileNameObject.asText();
 
         // payload
         JsonNode payloadObj = thisObj.get(BaseMessage.OPEL_MESSAGE_KEY_PAYLOAD);
@@ -145,13 +147,12 @@ public class MessageFactory {
         int commandMessageId = Integer.parseInt(commandMessageIdStr);
 
         // commandType
-        String commandTypeStr = thisObj.get(AppAckMessage
-                .APP_ACK_MESSAGE_KEY_COMMAND_TYPE).asText();
+        String commandTypeStr = thisObj.get(AppAckMessage.APP_ACK_MESSAGE_KEY_COMMAND_TYPE)
+                .asText();
         int commandType = Integer.parseInt(commandTypeStr);
 
         // payload (AppAckMessage's)
-        ObjectNode payloadObj = (ObjectNode) thisObj.get(AppAckMessage
-                .APP_ACK_MESSAGE_KEY_PAYLOAD);
+        ObjectNode payloadObj = (ObjectNode) thisObj.get(AppAckMessage.APP_ACK_MESSAGE_KEY_PAYLOAD);
 
         // Allocate and initialize a new AppAckMessage
         AppAckMessage newMessage = new AppAckMessage(commandMessageId, commandType);

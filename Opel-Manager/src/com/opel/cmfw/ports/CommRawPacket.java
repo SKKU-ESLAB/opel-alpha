@@ -4,9 +4,8 @@ import android.util.Log;
 
 import java.io.File;
 
-import static android.content.ContentValues.TAG;
-
 public class CommRawPacket {
+    private final String TAG = "CommRawPacket";
     private CommRawPacketHeader mHeader;
     private CommRawPacketPayload mPayload;
 
@@ -36,8 +35,8 @@ public class CommRawPacket {
     static public CommRawPacket makeDataPacket(byte headerId, byte[] data, int currOffset, short
             size, boolean isEnd, boolean isFile) {
         CommPayloadData payload = new CommPayloadData(data, size);
-        CommRawPacketHeader header = new CommRawPacketHeader(headerId, (byte) payload
-                .getBytesSize(), currOffset, isFile, !isFile, isEnd, false);
+        CommRawPacketHeader header = new CommRawPacketHeader(headerId, payload.getBytesSize(),
+                currOffset, isFile, !isFile, isEnd, false);
 
         return new CommRawPacket(header, payload);
     }
@@ -51,14 +50,16 @@ public class CommRawPacket {
         // Payload header
         headerBytes = this.mHeader.toByteArray();
         if (headerBytes == null) return null;
-        Log.d(TAG, "0 ~ " + this.mHeader.getBytesSize() + " / " + headerBytes.length);
+        Log.d(TAG, "CommRawPacket");
+        Log.d(TAG, "Header: start=0 ~ end=" + (this.mHeader.getBytesSize() - 1) + " / size=" +
+                headerBytes.length);
         System.arraycopy(headerBytes, 0, resBytes, 0, this.mHeader.getBytesSize());
 
         // Payload
         payloadBytes = this.mPayload.toByteArray();
         if (payloadBytes == null) return null;
-        Log.d(TAG, "" + this.mHeader.getBytesSize() + " ~ " + (this.mHeader.getBytesSize() + this
-                .mPayload.getBytesSize()) + " / " + payloadBytes.length);
+        Log.d(TAG, "Payload: start=" + this.mHeader.getBytesSize() + " ~ end=" + (this.mHeader
+                .getBytesSize() + this.mPayload.getBytesSize()) + " / size=" + payloadBytes.length);
         System.arraycopy(payloadBytes, 0, resBytes, this.mHeader.getBytesSize(), this.mPayload
                 .getBytesSize());
 

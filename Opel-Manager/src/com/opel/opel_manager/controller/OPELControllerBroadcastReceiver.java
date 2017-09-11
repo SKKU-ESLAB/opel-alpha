@@ -20,6 +20,7 @@ package com.opel.opel_manager.controller;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Parcelable;
 
 import com.opel.cmfw.service.CommChannelService;
 import com.opel.opel_manager.model.OPELApp;
@@ -109,16 +110,24 @@ abstract public class OPELControllerBroadcastReceiver extends BroadcastReceiver 
                 if (this.mOnReceivedSensorDataListener != null)
                     this.mOnReceivedSensorDataListener.onReceivedSensorData(legacyData);
             } else if (eventType.compareTo(EVENT_TYPE_ON_RESULT_UPDATE_APP_LIST) == 0) {
-                OPELApp[] appList = (OPELApp[]) intent.getParcelableArrayExtra
+                Parcelable[] appListParcelable = intent.getParcelableArrayExtra
                         (KEY_ON_RESULT_UPDATE_APP_LIST_APP_LIST);
+                OPELApp[] appList = new OPELApp[appListParcelable.length];
+                for(int i=0; i<appListParcelable.length; i++) {
+                    appList[i] = (OPELApp)appListParcelable[i];
+                }
                 if (this.mOnResultUpdateAppListListener != null)
                     this.mOnResultUpdateAppListListener.onResultUpdateAppList(appList);
             } else if (eventType.compareTo(EVENT_TYPE_ON_RESULT_GET_FILE_LIST) == 0) {
                 int commandMessageId = intent.getIntExtra
                         (KEY_ON_RESULT_GET_FILE_LIST_COMMAND_MESSAGE_ID, -1);
                 String path = intent.getStringExtra(KEY_ON_RESULT_GET_FILE_LIST_PATH);
-                ParamFileListEntry[] fileList = (ParamFileListEntry[]) intent
+                Parcelable[] fileListParcelable = (ParamFileListEntry[]) intent
                         .getParcelableArrayExtra(KEY_ON_RESULT_GET_FILE_LIST_FILE_LIST);
+                ParamFileListEntry[] fileList = new ParamFileListEntry[fileListParcelable.length];
+                for(int i=0; i<fileListParcelable.length; i++) {
+                    fileList[i] = (ParamFileListEntry)fileListParcelable[i];
+                }
                 if (this.mOnResultGetFileListListener != null) {
                     this.mOnResultGetFileListListener.onResultGetFileList(commandMessageId, path,
                             fileList);

@@ -38,10 +38,9 @@ import com.opel.opel_manager.model.message.MessageFactory;
 
 import java.io.File;
 
-import static android.content.ContentValues.TAG;
-
 public class TargetDeviceStub {
     // RPC on CommChannelService
+    private static final String TAG = "TargetDeviceStub";
     private CommChannelService mCommChannelServiceStub = null;
     private PrivateCommBroadcastReceiver mCommBroadcastReceiver;
 
@@ -54,6 +53,8 @@ public class TargetDeviceStub {
             Log.e(TAG, "CommChannel is not initialized");
             return -1;
         }
+        Log.d(TAG, "sendMessage(BaseMessage): id=" + message.getMessageId() + " / type=" +
+                message.getType() + " / body=" + message.toJSONString());
         this.mCommChannelServiceStub.sendRawMessage(message.toJSONString());
         return message.getMessageId();
     }
@@ -180,6 +181,7 @@ public class TargetDeviceStub {
             }
             case AppCoreMessage.Type_GetAppIcon: {
                 this.mListener.getAppIcon(message);
+                break;
             }
             case AppCoreMessage.Type_NotDetermined:
             default: {

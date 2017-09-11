@@ -7,8 +7,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 
-import static android.content.ContentValues.TAG;
-
 public abstract class CommRawPacketPayload {
     abstract public byte[] toByteArray();
 
@@ -16,6 +14,7 @@ public abstract class CommRawPacketPayload {
 }
 
 class CommPayloadMessageMetadata extends CommRawPacketPayload {
+    private final String TAG = "PayloadMsgMetadata";
     private static final short kMessageHeaderSize = 8;
     private int mMessageDataLength;
     private int mIsFileAttached;
@@ -57,6 +56,7 @@ class CommPayloadMessageMetadata extends CommRawPacketPayload {
 }
 
 class CommPayloadFileMetadata extends CommRawPacketPayload {
+    private final String TAG = "PayloadFileMetadata";
     private int mFileSize;
     private char mFileNameLength;
     private char mFileName[];
@@ -112,6 +112,7 @@ class CommPayloadFileMetadata extends CommRawPacketPayload {
 }
 
 class CommPayloadData extends CommRawPacketPayload {
+    private final String TAG = "PayloadData";
     private short mSize;
     private byte mData[];
 
@@ -121,7 +122,11 @@ class CommPayloadData extends CommRawPacketPayload {
     }
 
     public byte[] toByteArray() {
-        Log.d(TAG, "Data: " + mData);
+        try {
+            Log.d(TAG, "Data: " + new String(mData, "UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
         return this.mData;
     }
 

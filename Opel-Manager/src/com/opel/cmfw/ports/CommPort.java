@@ -14,7 +14,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 abstract public class CommPort {
-    static private String TAG = "CommPort";
+    private static final String TAG = "CommPort";
     protected String mPortName;
 
     private byte mPresentHeaderId = 0;
@@ -80,16 +80,15 @@ abstract public class CommPort {
         CommPayloadMessageMetadata messageMetadata = null;
         CommPayloadFileMetadata fileMetadata = null;
         byte[] totalMessageData = null;
-        BufferedOutputStream bufferedOutputStream = null;
+        BufferedOutputStream bufferedFileOutputStream = null;
         int loadedBytesSize = 0;
 
         while (this.mIsListeningThreadOn) {
             try {
                 // Read header
                 CommRawPacketHeader header = CommRawPacketHeader.read(dataInputStream);
-                if (!header.getFlagIsMetadata()) {
-                    suddenlyClose("listenRawMessage: unexpected packet type: " + header
-                            .getHeaderFlag());
+                if (header == null) {
+                    suddenlyClose("listenRawMessage: fail to get header");
                     return;
                 }
 
@@ -97,9 +96,10 @@ abstract public class CommPort {
                 switch (expectedPayloadType) {
                     case kMessageMetadata:
                         // Message metadata is expected
+                        Log.d(TAG, "listenRawMessage(): start to listen");
                         if (!header.getFlagIsMetadata()) {
                             suddenlyClose("listenRawMessage: unexpected payload type: " + header
-                                    .getHeaderFlag());
+                                    .getHeaderFlag() + " / expected message metadata");
                             return;
                         }
                         messageMetadata = CommPayloadMessageMetadata.read(dataInputStream);
@@ -112,7 +112,7 @@ abstract public class CommPort {
                         // Message data is expected
                         if (!header.getFlagIsData()) {
                             suddenlyClose("listenRawMessage: unexpected payload type: " + header
-                                    .getHeaderFlag());
+                                    .getHeaderFlag() + " / expected message data");
                             return;
                         }
                         CommPayloadData messageData = CommPayloadData.read(dataInputStream,
@@ -147,7 +147,7 @@ abstract public class CommPort {
                         // File metadata is expected
                         if (!header.getFlagIsMetadata()) {
                             suddenlyClose("listenRawMessage: unexpected payload type: " + header
-                                    .getHeaderFlag());
+                                    .getHeaderFlag() + " / expected file metadata");
                             return;
                         }
                         fileMetadata = CommPayloadFileMetadata.read(dataInputStream);
@@ -155,10 +155,10 @@ abstract public class CommPort {
                         // Open file
                         String fileName = String.copyValueOf(fileMetadata.getSrcFileName());
                         File fileToWrite = new File(this.mDownloadFilePath, fileName);
-                        bufferedOutputStream = null;
+                        bufferedFileOutputStream = null;
                         try {
-                            bufferedOutputStream = new BufferedOutputStream(new FileOutputStream
-                                    (fileToWrite));
+                            bufferedFileOutputStream = new BufferedOutputStream(new
+                                    FileOutputStream(fileToWrite));
                         } catch (IOException e) {
                             this.suddenlyClose("listenRawMessage: Failed to get stream for " +
                                     "downloading attached file");
@@ -173,7 +173,7 @@ abstract public class CommPort {
                         // File data is expected
                         if (!header.getFlagIsFile()) {
                             suddenlyClose("listenRawMessage: unexpected payload type: " + header
-                                    .getHeaderFlag());
+                                    .getHeaderFlag() + " / expected file data");
                             return;
                         }
                         CommPayloadData fileData = CommPayloadData.read(dataInputStream, header
@@ -184,7 +184,7 @@ abstract public class CommPort {
                         if (fileDataBytes == null) {
                             this.suddenlyClose("listenRawMessage: Failed to make file data packet");
                         }
-                        bufferedOutputStream.write(fileDataBytes, 0, fileData.getBytesSize());
+                        bufferedFileOutputStream.write(fileDataBytes, 0, fileData.getBytesSize());
 
                         // Expect next packet
                         if (header.getFlagIsEndData()) {
@@ -202,10 +202,11 @@ abstract public class CommPort {
             }
 
             if (isMessageCompleted) {
+                Log.d(TAG, "listenRawMessage(): accept the message");
                 // Close the attached file if exists
-                if (bufferedOutputStream != null) {
+                if (bufferedFileOutputStream != null) {
                     try {
-                        bufferedOutputStream.close();
+                        bufferedFileOutputStream.close();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -224,7 +225,7 @@ abstract public class CommPort {
                 }
 
                 // Initialize variables
-                bufferedOutputStream = null;
+                bufferedFileOutputStream = null;
                 expectedPayloadType = kMessageMetadata;
                 messageMetadata = null;
                 fileMetadata = null;
@@ -242,6 +243,8 @@ abstract public class CommPort {
         OutputStream outputStream = this.getOutputStream();
         if (outputStream == null) return -1;
         DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
+
+        Log.d(TAG, "sendRawMessage(byte[]): dataLength=" + messageDataLength);
 
         // Send message metadata and message data
         {

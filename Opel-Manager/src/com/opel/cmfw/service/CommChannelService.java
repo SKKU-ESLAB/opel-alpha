@@ -225,8 +225,6 @@ public class CommChannelService extends Service implements CommPortListener {
             return;
         }
 
-        Log.d(TAG, "sendRawMessage: " + messageData);
-
         if (this.isLargeDataPortAvailable()) {
             int res;
             if (this.mLargeDataPort != null && this.mLargeDataPortWatcher.isAlive()) {

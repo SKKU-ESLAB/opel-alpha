@@ -6,9 +6,8 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import static android.content.ContentValues.TAG;
-
 public class CommRawPacketHeader {
+    private static final String TAG = "CommPacketHeader";
     public static final short kMaxPacketSize = 1008;
     public static final short kPacketHeaderSize = 8;
     public static final short kMaxPacketPayloadSize = kMaxPacketSize - kPacketHeaderSize;
@@ -43,8 +42,8 @@ public class CommRawPacketHeader {
 
     public byte[] toByteArray() {
         ByteBuffer byteArray = ByteBuffer.allocate(this.getBytesSize());
-        Log.d(TAG, "Header: " + mHeaderId + " / " + mHeaderFlag + " / " + mPayloadSize + " / " +
-                mCurrOffset);
+        Log.d(TAG, "Write header: id=" + mHeaderId + " / flag=" + mHeaderFlag + " / payloadSize="
+                + mPayloadSize + " / currOffset=" + mCurrOffset);
         byteArray.put(mHeaderId);
         byteArray.put(mHeaderFlag);
         byteArray.putShort(mPayloadSize);
@@ -57,6 +56,8 @@ public class CommRawPacketHeader {
         byte headerFlag = dataInputStream.readByte();
         short payloadSize = dataInputStream.readShort();
         int currOffset = dataInputStream.readInt();
+        Log.d(TAG, "Read header: id=" + headerId + " / flag=" + headerFlag + " / payloadSize=" +
+                payloadSize + " / currOffset=" + currOffset);
         CommRawPacketHeader header = new CommRawPacketHeader(headerId, payloadSize, currOffset,
                 headerFlag);
         return header;

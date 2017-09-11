@@ -207,8 +207,7 @@ public class OPELControllerService extends Service {
 
         OPELApp app = this.getApp(appId);
 
-        if (isNoti)
-            RemoteNotiUI.makeNotification(this, app, legacyData);
+        if (isNoti) RemoteNotiUI.makeNotification(this, app, legacyData);
     }
 
     private void onReceivedConfig(int appId, String legacyData) {
@@ -259,17 +258,19 @@ public class OPELControllerService extends Service {
                 return;
             }
 
-            // Move to icon directory regardless of icon file caching
-            File originalIconFile = new File(appIconPath);
-            String iconDirPath = mSettings.getIconDir().getAbsolutePath();
-            File targetIconFile = new File(iconDirPath, originalIconFile.getName());
-            originalIconFile.renameTo(targetIconFile);
+            if (appIconPath.compareTo("") != 0) {
+                // Move to icon directory regardless of icon file caching
+                File originalIconFile = new File(appIconPath);
+                String iconDirPath = mSettings.getIconDir().getAbsolutePath();
+                File targetIconFile = new File(iconDirPath, originalIconFile.getName());
+                originalIconFile.renameTo(targetIconFile);
 
-            // Set app icon path
-            thisApp.setIconImagePath(targetIconFile.getAbsolutePath());
+                // Set app icon path
+                thisApp.setIconImagePath(targetIconFile.getAbsolutePath());
+            }
 
             // Move the app to ready app list
-            this.mWaitingAppList.remove(thisApp);
+            this.mWaitingAppList.remove(commandMessageId);
             this.mReadyAppList.add(thisApp);
             if (mWaitingAppList.isEmpty()) {
                 this.finish();
@@ -284,7 +285,8 @@ public class OPELControllerService extends Service {
             }
 
             // Notify Listener
-            OPELApp[] appListArray = (OPELApp[]) this.mReadyAppList.toArray();
+            OPELApp[] appListArray = this.mReadyAppList.toArray(new OPELApp[this.mReadyAppList
+                    .size()]);
             OPELControllerBroadcastSender.onResultUpdateAppList(self, appListArray);
 
             // Finalize
@@ -470,7 +472,8 @@ public class OPELControllerService extends Service {
             int commandMessageId = payload.getCommandMessageId();
             ParamsGetFileList params = payload.getParamsGetFileList();
             String path = params.path;
-            ParamFileListEntry[] fileList = (ParamFileListEntry[]) params.fileList.toArray();
+            ParamFileListEntry[] fileList = params.fileList.toArray(new ParamFileListEntry[params
+                    .fileList.size()]);
 
             // Listeners
             OPELControllerBroadcastSender.onResultGetFileList(self, commandMessageId, path,
@@ -544,7 +547,10 @@ public class OPELControllerService extends Service {
             // Get parameters
             AppCoreAckMessage payload = (AppCoreAckMessage) message.getPayload();
             int commandMessageId = payload.getCommandMessageId();
-            String iconFilePath = message.getStoredFilePath();
+            boolean isFileAttached = message.isFileAttached();
+            String iconFilePath;
+            if (isFileAttached) iconFilePath = message.getStoredFilePath();
+            else iconFilePath = "";
 
             // Listeners
             mUpdateAppListProcedure.onAckGetAppIcon(commandMessageId, iconFilePath);

@@ -48,7 +48,7 @@ public class BaseMessage implements Parcelable {
 
     // Encoding to JSON
     public String toJSONString() {
-        return this.toJSONNode().asText();
+        return this.toJSONNode().toString();
     }
 
     // Encoding to JSON
@@ -57,8 +57,8 @@ public class BaseMessage implements Parcelable {
         ObjectNode thisObj = mapper.createObjectNode();
         thisObj.put(OPEL_MESSAGE_KEY_MESSAGE_NUM, "" + this.mMessageId);
         thisObj.put(OPEL_MESSAGE_KEY_URI, "" + this.mUri);
-        thisObj.put(OPEL_MESSAGE_KEY_TYPE, "" + this.mUri);
-        thisObj.put(OPEL_MESSAGE_KEY_IS_FILE_ATTACHED, "" + this.mUri);
+        thisObj.put(OPEL_MESSAGE_KEY_TYPE, "" + this.mType);
+        thisObj.put(OPEL_MESSAGE_KEY_IS_FILE_ATTACHED, (this.isFileAttached()) ? "1" : "0");
         if (this.mIsFileAttached) thisObj.put(OPEL_MESSAGE_KEY_FILE_NAME, "" + this.mUri);
         thisObj.set(OPEL_MESSAGE_KEY_PAYLOAD, this.mPayload.toJSONNode());
         return thisObj;
