@@ -40,12 +40,14 @@ void* Channel::routedLoop(void* data) {
 
     // Wait until someone enqueues a message to the RoutedMessageQueue
     int queueSize = self->getQueueSizeLocked();
-    while(!(queueSize > 0)) {
+    while(queueSize <= 0) {
       pthread_cond_wait(&self->mWaitCond, &self->mWaitMutex);
+      queueSize = self->getQueueSizeLocked();
     }
 
     // If any message is in RoutedMessageQueue, handle one message
     BaseMessage* message = self->dequeueRoutedMessageLocked();
+    self->onRoutedMessage(message);
 
     pthread_mutex_unlock(&self->mWaitMutex);
   }

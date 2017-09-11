@@ -25,6 +25,9 @@ void MessageRouter::addRoutingEntry(const char* uriString, Channel* channel) {
   std::pair<const char*, Channel*> newEntry(uriString, channel);
   this->mMasterRoutingTable.insert(newEntry);
   pthread_mutex_unlock(&this->mMasterRoutingTableMutex);
+
+  OPEL_DBG_VERB("Entry (%s -> %s) is added to MessageRouterTable",
+      uriString, channel->getName().c_str());
 }
 
 void MessageRouter::removeRoutingEntry(const char* uriString) {

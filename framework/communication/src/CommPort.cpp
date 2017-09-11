@@ -281,11 +281,17 @@ void* CommPort::listeningLoop(void* data) {
 }
 
 bool CommPort::sendRawMessage(std::string messageData) {
-  return this->sendRawMessage(messageData, NULL);
+  return this->sendRawMessage(messageData, "");
 }
 
 #define WRITE_SOCKET(socketFd, data, size) \
-  if(write(socketFd, data, size) < 0) return false;
+  do { \
+    if(write(socketFd, data, size) < 0) { \
+      CommLog("write socket error: %s", strerror(errno)); \
+      __EXIT__; \
+      return false; \
+    } \
+  } while(0);
 
 
 bool CommPort::sendRawMessage(std::string messageData, std::string filePath) {
@@ -301,6 +307,8 @@ bool CommPort::sendRawMessage(std::string messageData, std::string filePath) {
   {
     this->mPresentHeaderId++;
 
+    CommLog("Send message metadata (%d)", this->mPresentHeaderId);
+
     // Send message metadata
     {
       CommRawPacket* messageMetadataPacket
@@ -308,15 +316,17 @@ bool CommPort::sendRawMessage(std::string messageData, std::string filePath) {
             this->mPresentHeaderId, messageDataLength,
             (filePath.length() > 0)); 
       IF_NULL_(messageMetadataPacket) { } _RETURN_FALSE()
-        char* messageMetadataBytes = messageMetadataPacket->toByteArray();
+      char* messageMetadataBytes = messageMetadataPacket->toByteArray();
       IF_NULL_(messageMetadataBytes) {
         delete messageMetadataPacket;
       } _RETURN_FALSE()
       WRITE_SOCKET(this->getSocket(),
           messageMetadataBytes, messageMetadataPacket->getBytesSize());
-      delete messageMetadataBytes;
+      delete[] messageMetadataBytes;
       delete messageMetadataPacket;
     }
+
+    CommLog("Send message data (%d)", this->mPresentHeaderId);
 
     // Send message data (split by limited-size packets)
     int sentBytes = 0;
@@ -345,7 +355,7 @@ bool CommPort::sendRawMessage(std::string messageData, std::string filePath) {
       IF_NULL_(messageDataPacket) {
         delete messageDataPayloadBytes;
       } _RETURN_FALSE()
-      CommLog("sendRawMessage(message): mPayloadSize = ",
+      CommLog("sendRawMessage(message): mPayloadSize = %d",
           messageDataPayloadSize);
 
       // Send
@@ -364,6 +374,8 @@ bool CommPort::sendRawMessage(std::string messageData, std::string filePath) {
   }
   // If file is attached, send file metadata and file data
   if(filePath.length() > 0) {
+    CommLog("Send attached file (%d)", this->mPresentHeaderId);
+
     // Send file metadata
     int fileSize = getFileSize(filePath.c_str());
     CommRawPacket* fileMetadataPacket = CommRawPacket::makeFileMetadataPacket(
@@ -412,7 +424,7 @@ bool CommPort::sendRawMessage(std::string messageData, std::string filePath) {
       IF_NULL_(fileDataPacket) {
         fclose(fdToRead);
       } _RETURN_FALSE()
-      CommLog("sendRawMessage(file): mPayloadSize = " + fileDataPayloadSize);
+      CommLog("sendRawMessage(file): mPayloadSize = %d", fileDataPayloadSize);
 
       // Send
       char* fileDataPacketBytes = fileDataPacket->toByteArray();
@@ -436,6 +448,8 @@ bool CommPort::sendRawMessage(std::string messageData, std::string filePath) {
       fclose(fdToRead);
     }
   }
+
+  CommLog("Send message done (%d)", this->mPresentHeaderId);
   __EXIT__;
   return true;
 }

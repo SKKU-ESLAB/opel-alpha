@@ -32,11 +32,12 @@ class MessageRouter;
 // Each Channel contains and runs one RoutedLoop.
 class Channel {
   public:
-    Channel(MessageRouter* messageRouter)
+    Channel(MessageRouter* messageRouter, const char* name)
       : mMessageRouter(messageRouter),
       mWaitMutex(PTHREAD_MUTEX_INITIALIZER),
       mWaitCond(PTHREAD_COND_INITIALIZER),
-      mRoutedMessageQueueMutex(PTHREAD_MUTEX_INITIALIZER) {
+      mRoutedMessageQueueMutex(PTHREAD_MUTEX_INITIALIZER),
+      mName(name) {
     }
 
     // run():
@@ -56,6 +57,10 @@ class Channel {
     // RoutedLoop.
     void routeMessage(BaseMessage* message);
 
+    // getName():
+    // Get this channel's name for readability
+    std::string& getName() { return this->mName; }
+
   protected:
     // VIRTUAL onRoutedMessage():
     // Child Channel class can handle a message that has routed to the Channel.
@@ -73,6 +78,10 @@ class Channel {
     // Channels can a route request for a message to MessageRouter,
     // and MessageRouter routes the message to other Channel.
     MessageRouter* mMessageRouter;
+
+    // Channel name
+    // It is referenced by MessageRouter for readability
+    std::string mName;
 
     // Routed Message Queue:
     // When MessageRouter routes a message to Channel, the message is inserted

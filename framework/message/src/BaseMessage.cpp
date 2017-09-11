@@ -60,7 +60,7 @@ cJSON* BaseMessage::toJSON() {
 
   // fileName
   if(this->mIsFileAttached) {
-    cJSON_AddStringToObject(thisObj, BASE_MESSAGE_KEY_IS_FILE_ATTACHED,
+    cJSON_AddStringToObject(thisObj, BASE_MESSAGE_KEY_FILE_NAME,
         this->mFileName.c_str());
   }
 

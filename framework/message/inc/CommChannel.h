@@ -102,7 +102,7 @@ class ControlPortsListener : public CommPortListener {
 class CommChannel : public Channel, CommPortStateListener {
   public:
     CommChannel(MessageRouter* messageRouter, const char* fileTempDir)
-      : Channel(messageRouter), mFileTempDir(fileTempDir) {
+      : Channel(messageRouter, "CommChannel"), mFileTempDir(fileTempDir) {
         // Initialize ports
         char defaultPortUUID[]
           = {0x0a,0x1b,0x2c,0x3d,0x4e,0x5f,0x6a,0x1c,0x2d,0x0e,0x1f,0x2a,

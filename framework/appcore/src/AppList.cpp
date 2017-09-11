@@ -65,7 +65,7 @@ void AppList::initializeDefaultApps(std::string systemAppsDir) {
         systemAppsDir, "CameraViewer");
     snprintf(mainJSFileName, PATH_BUFFER_SIZE, "%s",
         systemAppsDir, "index.js");
-    snprintf(iconFileName, PATH_BUFFER_SIZE, "");
+    snprintf(iconFileName, PATH_BUFFER_SIZE, ".");
     App* app = new App(this->mNextAppId++, true, "CameraViewer",
         packagePath, mainJSFileName, iconFileName,
         AppState::Ready);
@@ -82,7 +82,7 @@ void AppList::initializeDefaultApps(std::string systemAppsDir) {
         systemAppsDir, "SensorViewer");
     snprintf(mainJSFileName, PATH_BUFFER_SIZE, "%s",
         systemAppsDir, "index.js");
-    snprintf(iconFileName, PATH_BUFFER_SIZE, "");
+    snprintf(iconFileName, PATH_BUFFER_SIZE, ".");
     App* app = new App(this->mNextAppId++, true, "SensorViewer",
         packagePath, mainJSFileName, iconFileName,
         AppState::Ready);

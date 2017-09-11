@@ -33,7 +33,7 @@
 class DbusChannel: public Channel {
 	public:
 		DbusChannel(MessageRouter* messageRouter)
-    : Channel(messageRouter), mDbusConnection(NULL) {
+    : Channel(messageRouter, "DbusChannel"), mDbusConnection(NULL) {
     }
 
     // Channel function

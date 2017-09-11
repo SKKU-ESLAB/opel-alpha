@@ -32,7 +32,7 @@ class LocalChannel: public Channel {
   public:
     LocalChannel(MessageRouter* messageRouter,
         bool isCreateRoutedThread)
-    : Channel(messageRouter), mListener(NULL),
+    : Channel(messageRouter, "LocalChannel"), mListener(NULL),
     mIsCreateRoutedThread(isCreateRoutedThread) {
     }
 

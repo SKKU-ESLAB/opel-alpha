@@ -193,6 +193,8 @@ void CommChannel::onRoutedMessage(BaseMessage* message) {
   // Send message as raw string 
   const char* rawString = message->toJSONString();
 
+  OPEL_DBG_VERB("onRoutedMessage 1");
+
   CommChannelState::Value state = this->mState.get();
   CommPort* targetPort = NULL;
   switch(state) {
@@ -214,16 +216,20 @@ void CommChannel::onRoutedMessage(BaseMessage* message) {
       break;
   }
 
+  OPEL_DBG_VERB("onRoutedMessage 2");
+
   bool sendRes;
   if(message->isFileAttached()) {
-    sendRes = targetPort->sendRawMessage(message->toJSONString(),
+    sendRes = targetPort->sendRawMessage(std::string(rawString),
         message->getFileName());
   } else {
-    sendRes = targetPort->sendRawMessage(message->toJSONString());
+    sendRes = targetPort->sendRawMessage(std::string(rawString));
   }
 
+  OPEL_DBG_VERB("onRoutedMessage 3");
+
   if(!sendRes) {
-    OPEL_DBG_ERR("Sending file error");
+    OPEL_DBG_ERR("Sending message error");
   }
 }
 

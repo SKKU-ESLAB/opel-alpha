@@ -36,6 +36,7 @@ CommRawPacket* CommRawPacket::makeMessageMetadataPacket(
       false, false, false, true);
   return new CommRawPacket(header, payload);
 }
+
 CommRawPacket* CommRawPacket::makeFileMetadataPacket(
     char headerId, const char* fileName, int fileSize) {
   CommPayloadFileMetadata* payload = new CommPayloadFileMetadata(
@@ -76,7 +77,8 @@ char* CommRawPacket::toByteArray() {
   memcpy(resBytes + this->mHeader->getBytesSize(),
       payloadBytes + 0,
       this->mPayload->getBytesSize());
-  delete[] resBytes;
+
+  return resBytes;
 }
 
 #define READ_SOCKET_C(socketFd, data) \
@@ -120,7 +122,7 @@ CommRawPacketHeader* CommRawPacketHeader::readFromSocket(int socketFd) {
   READ_SOCKET_C(socketFd, headerFlag);
   READ_SOCKET_S(socketFd, payloadSize);
   READ_SOCKET_I(socketFd, currOffset);
-  CommLog("header: %d / %d / %d / %d",
+  CommLog("read header: id=%d / flag=%d / payloadSize=%d / currOffset=%d",
       (int)headerId, (int)headerFlag, (int)payloadSize, currOffset);
   CommRawPacketHeader* header = new CommRawPacketHeader(
       headerId, payloadSize, currOffset, headerFlag);
@@ -130,23 +132,35 @@ CommRawPacketHeader* CommRawPacketHeader::readFromSocket(int socketFd) {
 #define NEW_BYTEARRAY(byteArray, size) \
   char* byteArray = new char[size]; \
   char* writePtr = byteArray;
-#define WRITE_BYTEARRAY_C(x) memcpy(writePtr, x, sizeof(char)); \
-  writePtr += sizeof(char);
-#define WRITE_BYTEARRAY_S(x) *x = htons(*x); \
-  memcpy(writePtr, x, sizeof(short)); \
-  writePtr += sizeof(short);
-#define WRITE_BYTEARRAY_I(x) *x = htonl(*x); \
-  memcpy(writePtr, x, sizeof(int)); \
-  writePtr += sizeof(int);
-#define WRITE_BYTEARRAY_SIZE(x, s) memcpy(writePtr, x, s); \
-  writePtr += s;
+#define WRITE_BYTEARRAY_C(x) do { \
+  char temp = x; \
+  memcpy(writePtr, &temp, sizeof(char)); \
+  writePtr += sizeof(char); \
+} while(0);
+#define WRITE_BYTEARRAY_S(x) do { \
+  short temp = htons(x); \
+  memcpy(writePtr, &temp, sizeof(short)); \
+  writePtr += sizeof(short); \
+} while(0);
+#define WRITE_BYTEARRAY_I(x) do { \
+  int temp = htonl(x); \
+  memcpy(writePtr, &temp, sizeof(int)); \
+  writePtr += sizeof(int); \
+} while(0);
+#define WRITE_BYTEARRAY_SIZE(x, s) do { \
+  memcpy(writePtr, x, s); \
+  writePtr += s; \
+} while(0);
 
 char* CommRawPacketHeader::toByteArray() {
   NEW_BYTEARRAY(byteArray, this->getBytesSize());
-  WRITE_BYTEARRAY_C(&this->mHeaderId);
-  WRITE_BYTEARRAY_C(&this->mHeaderFlag);
-  WRITE_BYTEARRAY_S(&this->mPayloadSize);
-  WRITE_BYTEARRAY_I(&this->mCurrOffset);
+  WRITE_BYTEARRAY_C(this->mHeaderId);
+  WRITE_BYTEARRAY_C(this->mHeaderFlag);
+  WRITE_BYTEARRAY_S(this->mPayloadSize);
+  WRITE_BYTEARRAY_I(this->mCurrOffset);
+  CommLog("write header: id=%d / flag=%d / payloadSize=%d / currOffset=%d",
+      (int)this->mHeaderId, (int)this->mHeaderFlag, (int)this->mPayloadSize,
+      this->mCurrOffset);
   return byteArray;
 }
 
@@ -165,8 +179,8 @@ char* CommPayloadMessageMetadata::toByteArray() {
   if(this->mMessageDataLength == 0) return NULL;
 
   NEW_BYTEARRAY(byteArray, this->getBytesSize());
-  WRITE_BYTEARRAY_I(&this->mMessageDataLength);
-  WRITE_BYTEARRAY_I(&this->mIsFileAttached);
+  WRITE_BYTEARRAY_I(this->mMessageDataLength);
+  WRITE_BYTEARRAY_I(this->mIsFileAttached);
   return byteArray;
 }
 
@@ -185,8 +199,8 @@ CommPayloadFileMetadata* CommPayloadFileMetadata::readFromSocket(int socketFd) {
 
 char* CommPayloadFileMetadata::toByteArray() {
   NEW_BYTEARRAY(byteArray, this->getBytesSize());
-  WRITE_BYTEARRAY_I(&this->mFileSize);
-  WRITE_BYTEARRAY_C(&this->mFileNameLength);
+  WRITE_BYTEARRAY_I(this->mFileSize);
+  WRITE_BYTEARRAY_C(this->mFileNameLength);
   WRITE_BYTEARRAY_SIZE(this->mFileName, this->mFileNameLength + 1);
   return byteArray;
 }

@@ -151,8 +151,8 @@ void AppCore::run() {
   // LocalChannel: run on main thread
   // Main loop starts to run in LocalChannel::run()
   this->mLocalChannel->setListener(this);
-  this->mLocalChannel->run();
   this->mMessageRouter->addRoutingEntry(APPCORE_URI, this->mLocalChannel);
+  this->mLocalChannel->run();
 }
 
 // Signal handler
@@ -678,7 +678,9 @@ void AppCore::getAppIcon(BaseMessage* message) {
   // Make ACK message
   BaseMessage* ackMessage
     = MessageFactory::makeAppCoreAckMessage(COMPANION_DEVICE_URI, message); 
-  ackMessage->attachFile(iconFilePath);
+  if(iconFilePath.compare(".") != 0) {
+    ackMessage->attachFile(iconFilePath);
+  }
 
   // Send ACK message
   this->mLocalChannel->sendMessage(ackMessage);
