@@ -106,7 +106,8 @@ void* CommPort::listeningLoop(void* data) {
         {
           // Message metadata is expected
           if(!header->getFlagIsMetadata()) {
-            CommLog("Expected MessageMetadata, but flag is: %d", header->getHeaderFlag());
+            CommLog("Expected MessageMetadata, but flag is: %d",
+                header->getHeaderFlag());
             break;
           }
           messageMetadata
@@ -124,11 +125,13 @@ void* CommPort::listeningLoop(void* data) {
         {
           // Message data is expected
           if(!header->getFlagIsData()) {
-            CommLog("Expected Messagedata, but flag is: %d", header->getHeaderFlag());
+            CommLog("Expected Messagedata, but flag is: %d",
+                header->getHeaderFlag());
             break;
           }
           CommPayloadData* messageData
-            = CommPayloadData::readFromSocket(self->getSocket(), header->getPayloadSize());
+            = CommPayloadData::readFromSocket(self->getSocket(),
+                header->getPayloadSize());
           IF_NULL_(messageData) { } _BREAK()
             char* messageDataBytes = messageData->toByteArray();
           IF_NULL_(messageDataBytes) {
@@ -158,7 +161,8 @@ void* CommPort::listeningLoop(void* data) {
         {
           // File metadata is expected
           if(!header->getFlagIsMetadata()) {
-            CommLog("Expected File Metadata, but flag is: %d", header->getHeaderFlag());
+            CommLog("Expected File Metadata, but flag is: %d",
+                header->getHeaderFlag());
             break;
           }
           fileMetadata
@@ -188,11 +192,13 @@ void* CommPort::listeningLoop(void* data) {
         {
           // File data is expected
           if(!header->getFlagIsFile()) {
-            CommLog("Expected File Data, but flag is: %d", header->getHeaderFlag());
+            CommLog("Expected File Data, but flag is: %d",
+                header->getHeaderFlag());
             break;
           }
           CommPayloadData* fileData
-            = CommPayloadData::readFromSocket(self->getSocket(), header->getPayloadSize());
+            = CommPayloadData::readFromSocket(self->getSocket(),
+                header->getPayloadSize());
           IF_NULL_(fileData) { } _BREAK()
 
           // Write

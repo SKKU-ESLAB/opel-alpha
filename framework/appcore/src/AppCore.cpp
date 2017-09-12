@@ -232,6 +232,9 @@ void AppCore::onCommChannelStateChanged(CommChannelState::Value state) {
     case CommChannelState::IDLE:
       // Remove routing entry for CommChannel
       this->mMessageRouter->removeRoutingEntry(COMPANION_DEVICE_URI);
+
+      // Retry to connect CommChannel
+      this->mCommChannel->run();
       break;
     case CommChannelState::LISTENING_DEFAULT:
       // ignore
