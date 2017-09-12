@@ -23,7 +23,9 @@
 
 #define COMPANION_DEVICE_URI "/comp0"
 #define APPCORE_URI "/thing/appcore"
-#define APP_URI "/thing/apps"
+#define APPS_URI "/thing/apps"
+
+#define PATH_BUFFER_SIZE 1024
 
 void AppBase::run() {
   // Initialize MessageRouter and Channels
@@ -38,8 +40,10 @@ void AppBase::run() {
       this->mDbusChannel);
 
   // LocalChannel: run on child thread
+  char appURI[PATH_BUFFER_SIZE];
+  snprintf(appURI, PATH_BUFFER_SIZE, "%s/pid%d", APPS_URI, getpid());
+  this->mMessageRouter->addRoutingEntry(appURI, this->mLocalChannel);
   this->mLocalChannel->run();
-  this->mMessageRouter->addRoutingEntry(APP_URI, this->mLocalChannel);
 }
 
 // Send appcore commands
@@ -238,4 +242,11 @@ void AppBase::onAckCompleteLaunchingApp(BaseMessage* message) {
 
   // Set app id
   this->mAppId = appId;
+
+  // Update MessageRoutingTable
+  char appURI[PATH_BUFFER_SIZE];
+  snprintf(appURI, PATH_BUFFER_SIZE, "%s/pid%d", APPS_URI, getpid());
+  this->mMessageRouter->removeRoutingEntry(appURI);
+  snprintf(appURI, PATH_BUFFER_SIZE, "%s/%d", APPS_URI, appId);
+  this->mMessageRouter->addRoutingEntry(appURI, this->mLocalChannel);
 }

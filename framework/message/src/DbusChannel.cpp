@@ -32,6 +32,7 @@
 
 const char* DbusChannel::kOPELInterface = "org.opel.dbuschannel";
 const char* DbusChannel::kOPELSignal = "BaseMessage";
+const char* DbusChannel::kOPELPath ="/org/opel/dbuschannel";
 
 void DbusChannel::run() {
   // Run ListeningLoop on separate thread
@@ -44,39 +45,10 @@ void DbusChannel::run() {
 void DbusChannel::onRoutedMessage(BaseMessage* message) {
   const char* uriString = message->getUri().c_str();
 
-  // Stir around all the target entry of given URI
-  const char* targetDbusPath = NULL;
-  const char* targetUriString = NULL;
-  std::map<const char*, const char*>::iterator rtIter;
-  for(rtIter = this->mDbusSlaveRoutingTable.begin();
-      rtIter != this->mDbusSlaveRoutingTable.end();
-      ++rtIter) {
-    std::string entryUri(rtIter->first);
-    const char* entryDbusPath = rtIter->second;
-
-    size_t foundPos = entryUri.find(uriString);
-    // Select the best matching target
-    if(foundPos == 0) {
-      if((targetUriString == NULL)
-          || (strlen(targetUriString) < entryUri.size())) {
-        targetDbusPath = entryDbusPath;
-        targetUriString = entryUri.c_str();
-      }
-    }
-  }
-
-  // If the message did not routed at all, make a warning message
-  if(targetDbusPath != NULL) {
-    OPEL_DBG_VERB("Route to %s: %s",
-        targetUriString, message->toJSONString());
-    this->sendRawStringToTarget(message->toJSONString(), targetDbusPath);
-  } else {
-    OPEL_DBG_WARN("Message did not routed!: %s", message->toJSONString());
-  }
+  this->sendRawStringToTarget(message->toJSONString());
 }
 
-void DbusChannel::sendRawStringToTarget(const char* rawString,
-    const char* targetDbusPath) {
+void DbusChannel::sendRawStringToTarget(const char* rawString) {
   if(this->mDbusConnection == NULL) {
     OPEL_DBG_ERR("Send rawString");
     return;
@@ -88,7 +60,7 @@ void DbusChannel::sendRawStringToTarget(const char* rawString,
 
   // Initialize Dbus Signal
   dbusMessage = dbus_message_new_signal(
-      targetDbusPath, DbusChannel::kOPELInterface, kOPELSignal);
+      kOPELPath, DbusChannel::kOPELInterface, DbusChannel::kOPELSignal);
   dbus_message_append_args(dbusMessage,
       DBUS_TYPE_STRING, &rawString, DBUS_TYPE_INVALID);
 
@@ -154,7 +126,7 @@ void* DbusChannel::listeningLoop(void* data) {
       break;
   }
   dbus_bus_add_match(self->mDbusConnection,
-      "type='signal',interface='org.opel.sysAppManager'", NULL);  
+      "type='signal',interface='org.opel.dbuschannel'", NULL);  
   dbus_connection_flush(self->mDbusConnection);
 
   // Add dbus callback function
@@ -210,9 +182,4 @@ DBusHandlerResult DbusChannel::onReceivedDbusMessage(DBusConnection* connection,
   self->mMessageRouter->routeMessage(message);
   dbus_message_unref(dbusMessage);
   return DBUS_HANDLER_RESULT_HANDLED;
-}
-
-void DbusChannel::addRoutingEntry(const char* uriString, const char* dbusPath) {
-  std::pair<const char*, const char*> newEntry(uriString, dbusPath);
-  this->mDbusSlaveRoutingTable.insert(newEntry);
 }

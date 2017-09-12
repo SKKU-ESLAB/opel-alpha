@@ -60,6 +60,7 @@ bool AppCore::initializeDirs() {
     if(stat(this->mUserAppsDir, &st) == -1) {
       mkdir(this->mUserAppsDir, 0755);
     }
+    OPEL_DBG_VERB("UserAppsDir=%s", this->mUserAppsDir);
 
     // System Apps Dir
     snprintf(this->mSystemAppsDir, PATH_BUFFER_SIZE, "%s/%s",
@@ -67,10 +68,12 @@ bool AppCore::initializeDirs() {
     if(stat(this->mSystemAppsDir, &st) == -1) {
       mkdir(this->mSystemAppsDir, 0755);
     }
+    OPEL_DBG_VERB("SystemAppsDir=%s", this->mSystemAppsDir);
 
     // App List DB Dir
     snprintf(this->mAppListDBPath, PATH_BUFFER_SIZE, "%s/%s",
         dirString, "AppListDB.sqlite");
+    OPEL_DBG_VERB("AppListDB=%s", this->mAppListDBPath);
   } else {
     OPEL_DBG_ERR("Cannot read OPEL_APPS_DIR");
     return false;
@@ -87,6 +90,7 @@ bool AppCore::initializeDirs() {
     OPEL_DBG_ERR("Cannot read OPEL_DATA_DIR");
     return false;
   }
+  OPEL_DBG_VERB("DataDir=%s", this->mDataDir);
 
   // Temp Dir
   dirString = getenv("OPEL_TEMP_DIR");
@@ -112,6 +116,7 @@ bool AppCore::initializeDirs() {
       return false;
     }
   }
+  OPEL_DBG_VERB("TempDir=%s", this->mTempDir);
   return true;
 }
 
@@ -505,7 +510,7 @@ void AppCore::completeLaunchingApp(BaseMessage* message) {
     return;
   }
 
-  // Find app for the appId
+  // Find app for the pid
   App* app = this->mAppList->getByPid(pid);
   if(app == NULL) {
     OPEL_DBG_ERR("App does not exist in the app list!");
@@ -517,7 +522,7 @@ void AppCore::completeLaunchingApp(BaseMessage* message) {
 
   // Make ACK message
   char appURI[PATH_BUFFER_SIZE];
-  snprintf(appURI, PATH_BUFFER_SIZE, "%s/%d", APPS_URI, app->getId());
+  snprintf(appURI, PATH_BUFFER_SIZE, "%s/pid%d", APPS_URI, pid);
   BaseMessage* ackMessage
     = MessageFactory::makeAppCoreAckMessage(appURI, message); 
   AppCoreAckMessage* ackPayload = (AppCoreAckMessage*)ackMessage->getPayload();
@@ -548,10 +553,10 @@ void AppCore::terminateApp(BaseMessage* message) {
   app->startTerminating();
 
   // Make terminate message
-  char uri[PATH_BUFFER_SIZE];
-  snprintf(uri, PATH_BUFFER_SIZE, "%s/%d", APPS_URI, app->getId());
+  char appURI[PATH_BUFFER_SIZE];
+  snprintf(appURI, PATH_BUFFER_SIZE, "%s/%d", APPS_URI, app->getId());
   BaseMessage* appMessage
-    = MessageFactory::makeAppMessage(APPS_URI, AppMessageCommandType::Terminate);
+    = MessageFactory::makeAppMessage(appURI, AppMessageCommandType::Terminate);
 
   // Send the terminate message
   this->mLocalChannel->sendMessage(appMessage);

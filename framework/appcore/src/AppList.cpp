@@ -62,13 +62,14 @@ void AppList::initializeDefaultApps(std::string systemAppsDir) {
     char mainJSFileName[PATH_BUFFER_SIZE];
     char iconFileName[PATH_BUFFER_SIZE];
     snprintf(packagePath, PATH_BUFFER_SIZE, "%s/%s",
-        systemAppsDir, "CameraViewer");
+        systemAppsDir.c_str(), "CameraViewer");
     snprintf(mainJSFileName, PATH_BUFFER_SIZE, "%s",
-        systemAppsDir, "index.js");
+        "index.js");
     snprintf(iconFileName, PATH_BUFFER_SIZE, ".");
     App* app = new App(this->mNextAppId++, true, "CameraViewer",
         packagePath, mainJSFileName, iconFileName,
         AppState::Ready);
+    OPEL_DBG_ERR("Add CameraViewer: %s, %s", packagePath, mainJSFileName);
     this->add(app);
     this->flush(app);
   }
@@ -79,13 +80,14 @@ void AppList::initializeDefaultApps(std::string systemAppsDir) {
     char mainJSFileName[PATH_BUFFER_SIZE];
     char iconFileName[PATH_BUFFER_SIZE];
     snprintf(packagePath, PATH_BUFFER_SIZE, "%s/%s",
-        systemAppsDir, "SensorViewer");
+        systemAppsDir.c_str(), "SensorViewer");
     snprintf(mainJSFileName, PATH_BUFFER_SIZE, "%s",
-        systemAppsDir, "index.js");
+        "index.js");
     snprintf(iconFileName, PATH_BUFFER_SIZE, ".");
     App* app = new App(this->mNextAppId++, true, "SensorViewer",
         packagePath, mainJSFileName, iconFileName,
         AppState::Ready);
+    OPEL_DBG_ERR("Add SensorViewer: %s, %s", packagePath, mainJSFileName);
     this->add(app);
     this->flush(app);
   }
@@ -95,7 +97,7 @@ bool AppList::openDB(std::string dbPath) {
   // Open DB
   int openRes = sqlite3_open(dbPath.c_str(), &this->mDB);
   if(openRes != SQLITE_OK) {
-    OPEL_DBG_ERR("Fail to open DB! (%s)", dbPath);
+    OPEL_DBG_ERR("Fail to open DB! (%s)", dbPath.c_str());
     return false;
   }
   return true;

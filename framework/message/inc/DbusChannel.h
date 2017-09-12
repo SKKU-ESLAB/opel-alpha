@@ -39,16 +39,12 @@ class DbusChannel: public Channel {
     // Channel function
     virtual void run();
 
-    // DbusChannel-specific function (Dbus Slave Routing Table)
-    void addRoutingEntry(const char* uriString, const char* dbusPath);
-
 	protected:
     // Channel function (RoutedThread)
     virtual void onRoutedMessage(BaseMessage* message);
 
     // Send raw string to target process on RoutedThread
-    void sendRawStringToTarget(const char* rawString,
-        const char* targetDbusPath);
+    void sendRawStringToTarget(const char* rawString);
 
     // Listening Thread
     void runListeningThread();
@@ -61,10 +57,7 @@ class DbusChannel: public Channel {
 
     static const char* kOPELInterface;
     static const char* kOPELSignal;
+    static const char* kOPELPath;
     DBusConnection *mDbusConnection;
-
-    // Dbus Slave Routing Table
-    //   entry = std::pair<const char* uriString, const char* dbusPath>
-    std::map<const char*, const char*> mDbusSlaveRoutingTable;
 };
 #endif // !defined(__DBUS_CHANNEL_H__)

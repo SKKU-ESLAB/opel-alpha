@@ -14,7 +14,8 @@ set(MESSAGE_sources
   ${MESSAGE_SOURCE_DIR}/CommChannel.cpp
   ${MESSAGE_SOURCE_DIR}/DbusChannel.cpp
   ${MESSAGE_SOURCE_DIR}/LocalChannel.cpp
-  ${MESSAGE_SOURCE_DIR}/MessageRouter.cpp)
+  ${MESSAGE_SOURCE_DIR}/MessageRouter.cpp
+  ${MESSAGE_SOURCE_DIR}/cJSON.c)
 
 add_library(opel-message SHARED ${MESSAGE_sources})
 

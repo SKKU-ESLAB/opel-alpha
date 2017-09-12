@@ -22,8 +22,7 @@ set(ACM_sources
   ${ACM_SOURCE_DIR}/main.cpp
   ${ACM_SOURCE_DIR}/App.cpp
   ${ACM_SOURCE_DIR}/AppCore.cpp
-  ${ACM_SOURCE_DIR}/AppList.cpp
-  ${ACM_SOURCE_DIR}/cJSON.c)
+  ${ACM_SOURCE_DIR}/AppList.cpp)
 
 add_executable(opel-appcore ${ACM_sources} $<TARGET_OBJECTS:miniunz>)
 

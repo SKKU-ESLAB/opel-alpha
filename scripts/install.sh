@@ -343,12 +343,12 @@ check_opel_out_dir() {
 check_opel_out_dir
 
 ## Step 4. Install OPEL Libraries
-OPEL_LIB_DIR=${OPEL_BIN_DIR}/lib
+OPEL_LIB_DIR=${OPEL_BIN_DIR}/libs
 if [ ! -e ${OPEL_LIB_DIR} ]
 then
   mkdir -p ${OPEL_LIB_DIR}
 fi
-cp -R ${OPEL_OUT_DIR}/lib/* ${OPEL_LIB_DIR}/
+cp -R ${OPEL_OUT_DIR}/libs/* ${OPEL_LIB_DIR}/
 
 ## Step 4+. Install OPEL
 # Install OPEL_BIN_DIR

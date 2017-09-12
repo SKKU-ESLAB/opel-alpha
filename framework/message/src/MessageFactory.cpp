@@ -100,8 +100,24 @@ BaseMessage* MessageFactory::makeBaseMessageFromJSON(cJSON* messageObj) {
         newMessage->setPayload(messagePayload);
       }
       break;
+    case BaseMessageType::AppAck:
+      {
+        AppAckMessage* messagePayload = makeAppAckMessageFromJSON(payloadObj);
+        newMessage->setPayload(messagePayload);
+        break;
+      }
     case BaseMessageType::AppCoreAck:
+      {
+        AppCoreAckMessage* messagePayload = makeAppCoreAckMessageFromJSON(payloadObj);
+        newMessage->setPayload(messagePayload);
+        break;
+      }
     case BaseMessageType::Companion:
+      {
+        CompanionMessage* messagePayload = makeCompanionMessageFromJSON(payloadObj);
+        newMessage->setPayload(messagePayload);
+        break;
+      }
     default:
       // These types cannot be handled.
       break;
@@ -112,7 +128,7 @@ BaseMessage* MessageFactory::makeBaseMessageFromJSON(cJSON* messageObj) {
 AppCoreMessage* MessageFactory::makeAppCoreMessageFromJSON(cJSON* messagePayloadObj) {
   cJSON* thisObj = messagePayloadObj;
 
-  // Allocate and initialize a new BaseMessage and return it
+  // Allocate and initialize a new AppCoreMessage and return it
   cJSON* commandTypeObj = cJSON_GetObjectItem(thisObj,
       APPCORE_MESSAGE_KEY_COMMAND_TYPE);
   RETURN_IF_INVALID_CJSON_OBJ(commandTypeObj, NULL);
@@ -127,6 +143,54 @@ AppCoreMessage* MessageFactory::makeAppCoreMessageFromJSON(cJSON* messagePayload
   // Allocate and initialize a new AppCoreMessage
   AppCoreMessage* newMessage = new AppCoreMessage(commandType);
   newMessage->setAppCorePayloadObj(appCorePayloadObj);
+  return newMessage;
+}
+
+AppCoreAckMessage* MessageFactory::makeAppCoreAckMessageFromJSON(
+    cJSON* messagePayloadObj) {
+  cJSON* thisObj = messagePayloadObj;
+
+  // Allocate and initialize a new AppCoreAckMessage and return it
+  cJSON* commandMessageIdObj = cJSON_GetObjectItem(thisObj, "commandMessageId");
+  RETURN_IF_INVALID_CJSON_OBJ(commandMessageIdObj, NULL);
+  int commandMessageId = atoi(commandMessageIdObj->valuestring);
+  
+  cJSON* commandTypeObj = cJSON_GetObjectItem(thisObj, "commandType");
+  RETURN_IF_INVALID_CJSON_OBJ(commandTypeObj, NULL);
+  AppCoreMessageCommandType::Value commandType
+    = static_cast<AppCoreMessageCommandType::Value>(atoi(
+          commandTypeObj->valuestring));
+
+  cJSON* appCoreAckPayloadObj = cJSON_GetObjectItem(thisObj, "payload");
+  RETURN_IF_INVALID_CJSON_OBJ(appCoreAckPayloadObj, NULL);
+  
+  // Allocate and initialize a new AppAckMessage
+  AppCoreAckMessage* newMessage = new AppCoreAckMessage(commandMessageId, commandType);
+  newMessage->setAppCoreAckPayloadObj(appCoreAckPayloadObj);
+  return newMessage;
+}
+
+AppAckMessage* MessageFactory::makeAppAckMessageFromJSON(
+    cJSON* messagePayloadObj) {
+  cJSON* thisObj = messagePayloadObj;
+
+  // Allocate and initialize a new BaseMessage and return it
+  cJSON* commandMessageIdObj = cJSON_GetObjectItem(thisObj, "commandMessageId");
+  RETURN_IF_INVALID_CJSON_OBJ(commandMessageIdObj, NULL);
+  int commandMessageId = atoi(commandMessageIdObj->valuestring);
+  
+  cJSON* commandTypeObj = cJSON_GetObjectItem(thisObj, "commandType");
+  RETURN_IF_INVALID_CJSON_OBJ(commandTypeObj, NULL);
+  AppMessageCommandType::Value commandType
+    = static_cast<AppMessageCommandType::Value>(atoi(
+          commandTypeObj->valuestring));
+
+  cJSON* appAckPayloadObj = cJSON_GetObjectItem(thisObj, "payload");
+  RETURN_IF_INVALID_CJSON_OBJ(appAckPayloadObj, NULL);
+  
+  // Allocate and initialize a new AppAckMessage
+  AppAckMessage* newMessage = new AppAckMessage(commandMessageId, commandType);
+  newMessage->setAppAckPayloadObj(appAckPayloadObj);
   return newMessage;
 }
 
@@ -146,5 +210,25 @@ AppMessage* MessageFactory::makeAppMessageFromJSON(cJSON* messagePayloadObj) {
   // Allocate and initialize a new AppMessage
   AppMessage* newMessage = new AppMessage(commandType);
   newMessage->setAppPayloadObj(appPayloadObj);
+  return newMessage;
+}
+
+CompanionMessage* MessageFactory::makeCompanionMessageFromJSON(
+    cJSON* messagePayloadObj) {
+  cJSON* thisObj = messagePayloadObj;
+
+  // Allocate and initialize a new BaseMessage and return it
+  cJSON* commandTypeObj = cJSON_GetObjectItem(thisObj, "commandType");
+  RETURN_IF_INVALID_CJSON_OBJ(commandTypeObj, NULL);
+  CompanionMessageCommandType::Value commandType
+    = static_cast<CompanionMessageCommandType::Value>(atoi(
+          commandTypeObj->valuestring));
+
+  cJSON* companionPayloadObj = cJSON_GetObjectItem(thisObj, "payload");
+  RETURN_IF_INVALID_CJSON_OBJ(companionPayloadObj, NULL);
+  
+  // Allocate and initialize a new CompanionMessage
+  CompanionMessage* newMessage = new CompanionMessage(commandType);
+  newMessage->setCompanionPayloadObj(companionPayloadObj);
   return newMessage;
 }

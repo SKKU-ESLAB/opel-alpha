@@ -168,10 +168,8 @@ class AppCoreMessage: public BaseMessagePayload {
       }
     }
 
-    // encoding to JSON: not implemented for C++
-    virtual cJSON* toJSON() {
-      return NULL;
-    }
+    // encoding to JSON
+    virtual cJSON* toJSON();
 
     // Get parameters
     AppCoreMessageCommandType::Value getCommandType() {
@@ -327,6 +325,10 @@ class AppCoreAckMessage : public BaseMessagePayload {
     void setParamsGetRootPath(std::string rootPath);
     void setParamsGetFileList(std::string path, ParamFileList* fileList);
 
+    void setAppCoreAckPayloadObj(cJSON* appCoreAckPayloadObj) {
+      this->mAppCoreAckPayloadObj = appCoreAckPayloadObj;
+    }
+
     // Get command-specific parameters
     bool getParamsCompleteLaunchingApp(int& appId);
 
@@ -422,6 +424,10 @@ class AppAckMessage : public BaseMessagePayload {
     // Set command-specific parameters
     void setParamsUpdateAppConfig(bool isSucceed);
 
+    void setAppAckPayloadObj(cJSON* appAckPayloadObj) {
+      this->mAppAckPayloadObj = appAckPayloadObj;
+    }
+
   protected:
     AppAckMessage(int commandMessageId,
         AppMessageCommandType::Value commandType)
@@ -472,6 +478,10 @@ class CompanionMessage: public BaseMessagePayload {
     void setParamsSendEventPage(int appId, std::string legacyData, bool isNoti);
     void setParamsSendConfigPage(int appId, std::string legacyData);
     void setParamsUpdateSensorData(std::string legacyData);
+
+    void setCompanionPayloadObj(cJSON* companionPayloadObj) {
+      this->mCompanionPayloadObj = companionPayloadObj;
+    }
 
   protected:
     // Initializer

@@ -20,7 +20,9 @@ AppBase* gAppBase;
 
 void initAppBase(){
   gAppBase = new AppBase();
+  gAppBase->run();
 
+  // TODO: wait for ready of app base
   // Send AppCoreMessage.CompleteLaunchingApp
   gAppBase->completeLaunchingApp();
 }

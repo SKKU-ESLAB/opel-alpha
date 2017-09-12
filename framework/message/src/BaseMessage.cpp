@@ -70,6 +70,25 @@ cJSON* BaseMessage::toJSON() {
   return thisObj;
 }
 
+// encoding to JSON (AppCoreMessage)
+cJSON* AppCoreMessage::toJSON() {
+  cJSON* thisObj = cJSON_CreateObject();
+
+  // commandType
+  char commandTypeStr[20];
+  sprintf(commandTypeStr, "%d", this->mCommandType);
+  cJSON_AddStringToObject(thisObj, APPCORE_MESSAGE_KEY_COMMAND_TYPE,
+      commandTypeStr);
+
+  // payload (AppCoreMessage's)
+  RETURN_IF_NULL(this->mAppCorePayloadObj, NULL);
+  cJSON_AddItemToObject(thisObj, APPCORE_MESSAGE_KEY_PAYLOAD,
+      this->mAppCorePayloadObj);
+
+  return thisObj;
+}
+
+
 // encoding to JSON (AppCoreAckMessage)
 cJSON* AppCoreAckMessage::toJSON() {
   cJSON* thisObj = cJSON_CreateObject();

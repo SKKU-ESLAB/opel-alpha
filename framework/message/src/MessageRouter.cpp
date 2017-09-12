@@ -16,6 +16,8 @@
  */
 
 #include <cstring>
+#include <sys/types.h>
+#include <unistd.h>
 
 #include "MessageRouter.h"
 #include "OPELdbugLog.h"
@@ -50,6 +52,9 @@ void MessageRouter::removeRoutingEntry(const char* uriString) {
   if(found == false) {
     OPEL_DBG_WARN("Cannot find entry for URI %s", uriString);
   }
+
+  OPEL_DBG_VERB("Entry (%s -> %s) is removed from MessageRouterTable",
+      uriString, targetChannel->getName().c_str());
   pthread_mutex_unlock(&this->mMasterRoutingTableMutex);
 }
 
@@ -61,11 +66,13 @@ void MessageRouter::routeMessage(BaseMessage* message) {
 
   // If the message did not routed at all, make a warning message
   if(targetChannel != NULL) {
-    OPEL_DBG_VERB("Route to %s: %s",
-        uriString, message->toJSONString());
+    OPEL_DBG_VERB("(pid=%d) Route to %s(%s), %s",
+        (int)getpid(), uriString,
+        targetChannel->getName().c_str(), message->toJSONString());
     targetChannel->routeMessage(message);
   } else {
-    OPEL_DBG_WARN("Message did not routed!: %s", message->toJSONString());
+    OPEL_DBG_WARN("(pid=%d) Message did not routed!: %s",
+        (int)getpid(), message->toJSONString());
   }
 }
 

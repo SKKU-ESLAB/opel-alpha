@@ -94,7 +94,13 @@ class MessageFactory {
   // JSON -> BaseMessage / AppCoreMessage / AppMessage
   static BaseMessage* makeBaseMessageFromJSON(cJSON* messageObj);
   static AppCoreMessage* makeAppCoreMessageFromJSON(cJSON* messagePayloadObj);
+  static AppCoreAckMessage* makeAppCoreAckMessageFromJSON(
+      cJSON* messagePayloadObj);
   static AppMessage* makeAppMessageFromJSON(cJSON* messagePayloadObj);
+  static AppAckMessage* makeAppAckMessageFromJSON(
+      cJSON* messagePayloadObj);
+  static CompanionMessage* makeCompanionMessageFromJSON(
+      cJSON* messagePayloadObj);
 
   static int currentMessageId;
 };

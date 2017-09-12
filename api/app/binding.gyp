@@ -7,12 +7,17 @@
         'AppAPIInternal.cc',
         'AppBase.cc'
        ],
-      'libraries': [
-        '<!@(pkg-config glib-2.0 --libs)',
-        '<!@(pkg-config dbus-1 --libs)',
-        '-L../../out/lib/libopel-cmfw.so',
-        '-L../../out/lib/libopel-message.so'
-      ],
+      'link_settings': {
+        'libraries': [
+          '<!@(pkg-config glib-2.0 --libs)',
+          '<!@(pkg-config dbus-1 --libs)',
+          "-L<(PRODUCT_DIR)/../../../../out/libs -lopel-cmfw",
+          "-L<(PRODUCT_DIR)/../../../../out/libs -lopel-message",
+        ],
+        'ldflags': [
+          '-Wl,-rpath'
+        ]
+      },
       'include_dirs': [
         '<!@(pkg-config glib-2.0 --cflags-only-I | sed s/-I//g)',
         '<!@(pkg-config dbus-1 --cflags-only-I | sed s/-I//g)',
