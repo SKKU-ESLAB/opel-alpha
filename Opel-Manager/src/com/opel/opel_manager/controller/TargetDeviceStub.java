@@ -215,6 +215,7 @@ public class TargetDeviceStub {
             }
             case CompanionMessage.Type_UpdateSensorData: {
                 this.mListener.onUpdateSensorData(message);
+                break;
             }
             case CompanionMessage.Type_NotDetermined:
             default: {

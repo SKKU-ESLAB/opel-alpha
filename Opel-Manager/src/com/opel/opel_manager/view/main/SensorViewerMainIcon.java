@@ -41,6 +41,7 @@ public class SensorViewerMainIcon extends MainIcon {
             return;
         }
         Intent intent = new Intent(this.mOwnerActivity, SensorViewerActivity.class);
+        intent.putExtra(SensorViewerActivity.INTENT_KEY_APP_ID, this.mAppId);
         mOwnerActivity.startActivity(intent);
     }
 

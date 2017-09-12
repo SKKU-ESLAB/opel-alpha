@@ -1,5 +1,23 @@
 package com.opel.opel_manager.view;
 
+/* Copyright (c) 2015-2017 CISS, and contributors. All rights reserved.
+ *
+ * Contributor: Gyeonghwan Hong<redcarrottt@gmail.com>
+ *              Dongig Sin<dongig@skku.edu>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.DownloadManager;
@@ -41,7 +59,7 @@ public class AppMarketActivity extends Activity {
 
     private WebView mWebView;
 
-    DownloadManager manager;
+    DownloadManager mDownloadManager;
 
     private long mDownloadID = 0;
 
@@ -55,7 +73,7 @@ public class AppMarketActivity extends Activity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(com.opel.opel_manager.R.layout.template_webview);
 
-        manager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+        mDownloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
 
         this.mWebView = (WebView) findViewById(com.opel.opel_manager.R.id.webView1);
         this.mWebView.getSettings().setJavaScriptEnabled(true);
@@ -113,7 +131,7 @@ public class AppMarketActivity extends Activity {
                         fileName);
 
                 // get download service and enqueue file
-                mDownloadID = manager.enqueue(request);
+                mDownloadID = mDownloadManager.enqueue(request);
                 if (requestQueue.isEmpty()) {
                     IntentFilter intentFilter = new IntentFilter(DownloadManager
                             .ACTION_DOWNLOAD_COMPLETE);
@@ -133,7 +151,7 @@ public class AppMarketActivity extends Activity {
             DownloadManager.Query query = new DownloadManager.Query();
 
             query.setFilterById(mDownloadID);
-            Cursor cursor = manager.query(query);
+            Cursor cursor = mDownloadManager.query(query);
 
             if (cursor.moveToFirst()) {
                 int columnIndex = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS);

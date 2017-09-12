@@ -52,7 +52,7 @@ public class CompanionMessage extends BaseMessagePayload {
         int appId = Integer.parseInt(appIdStr);
 
         // legacyData
-        String legacyData = paramsObj.get("legacyData").asText();
+        String legacyData = paramsObj.get("legacyData").toString();
 
         // isNoti
         String isNotiStr = paramsObj.get("isNoti").asText();
@@ -69,7 +69,7 @@ public class CompanionMessage extends BaseMessagePayload {
         int appId = Integer.parseInt(appIdStr);
 
         // legacyData
-        String legacyData = paramsObj.get("legacyData").asText();
+        String legacyData = paramsObj.get("legacyData").toString();
 
         return new ParamsSendConfigPage(appId, legacyData);
     }
@@ -78,7 +78,7 @@ public class CompanionMessage extends BaseMessagePayload {
         ObjectNode paramsObj = (ObjectNode) this.mCompanionPayloadObj;
 
         // legacyData
-        String legacyData = paramsObj.get("legacyData").asText();
+        String legacyData = paramsObj.get("legacyData").toString();
 
         return new ParamsUpdateSensorData(legacyData);
     }

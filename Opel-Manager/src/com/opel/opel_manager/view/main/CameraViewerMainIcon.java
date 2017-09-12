@@ -36,11 +36,12 @@ public class CameraViewerMainIcon extends MainIcon {
     @Override
     public void onClick() {
         if (!this.mOwnerActivity.isTargetDeviceConnected()) {
-            Toast.makeText(this.mOwnerActivity.getApplicationContext(),
-                    "Target device is not connected", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this.mOwnerActivity.getApplicationContext(), "Target device is not " +
+                    "connected", Toast.LENGTH_SHORT).show();
             return;
         }
         Intent intent = new Intent(this.mOwnerActivity, CameraViewerActivity.class);
+        intent.putExtra(CameraViewerActivity.INTENT_KEY_APP_ID, this.mAppId);
         mOwnerActivity.startActivity(intent);
     }
 
