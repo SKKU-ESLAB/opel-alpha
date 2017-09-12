@@ -600,7 +600,11 @@ void AppCore::getFileList(BaseMessage* message) {
 	
 	while((dirEntry = readdir(dir)) != NULL){
     // Get the file entry's stat
-		lstat(dirEntry->d_name, &st);
+    char fullPath[PATH_BUFFER_SIZE];
+    snprintf(fullPath, PATH_BUFFER_SIZE, "%s/%s",
+        path.c_str(), dirEntry->d_name);
+
+		lstat(fullPath, &st);
 
     std::string fileName(dirEntry->d_name);
     ParamFileListEntryType::Value fileType;
