@@ -35,6 +35,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -50,10 +51,9 @@ import com.opel.opel_manager.model.OPELApp;
 
 import java.util.ArrayList;
 
-import static android.content.ContentValues.TAG;
-
 public class AppManagerActivity extends Activity {
     // OPELControllerService
+    private static final String TAG = "AppManagerActivity";
     private OPELControllerService mControllerServiceStub = null;
     private AppManagerActivity self = this;
 
@@ -71,6 +71,22 @@ public class AppManagerActivity extends Activity {
         this.connectControllerService();
     }
 
+    protected void onDestroy() {
+        super.onDestroy();
+        this.disconnectControllerService();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                this.finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
     private void initializeUI() {
         ActionBar actionBar = getActionBar();
         assert actionBar != null;
@@ -79,7 +95,7 @@ public class AppManagerActivity extends Activity {
         actionBar.setLogo(com.opel.opel_manager.R.drawable.icon_app_manager);
         actionBar.setDisplayUseLogoEnabled(true);
 
-        ListView appListView = (ListView) findViewById(R.id.listView1);
+        ListView appListView = (ListView) findViewById(R.id.mainListView);
         this.mAppListAdapter = new AppListAdapter();
         appListView.setAdapter(mAppListAdapter);
         appListView.setOnItemClickListener(mItemClickListener);
@@ -128,8 +144,6 @@ public class AppManagerActivity extends Activity {
     }
 
     private class AppListAdapter extends BaseAdapter {
-        private int pos;
-
         @Override
         public int getCount() {
             return mAppList.size();
@@ -152,15 +166,13 @@ public class AppManagerActivity extends Activity {
                 convertView = mInflater.inflate(com.opel.opel_manager.R.layout
                         .template_listview_item_icon, parent, false);
             }
-            pos = position;
             if (mAppList.size() != 0) {
                 TextView ci_nickname_text = (TextView) convertView.findViewById(R.id.tv_title);
-                ci_nickname_text.setText(mAppList.get(pos).getAppName());
+                ci_nickname_text.setText(mAppList.get(position).getAppName());
                 TextView ci_content_text = (TextView) convertView.findViewById(R.id.tv_subTitle);
 
-
                 String state = "";
-                AppListItem appListItem = mAppList.get(pos);
+                AppListItem appListItem = mAppList.get(position);
                 int appState = appListItem.getAppState();
                 switch (appState) {
                     case OPELApp.State_Initialized:
@@ -188,14 +200,19 @@ public class AppManagerActivity extends Activity {
                 ci_content_text.setText(state);
 
                 ImageView iv = (ImageView) convertView.findViewById(R.id.imageView11);
-                iv.setImageBitmap(mAppList.get(pos).getAppIcon());
+                iv.setImageBitmap(mAppList.get(position).getAppIcon());
 
             }
             return convertView;
         }
 
         void updateUI() {
-            this.notifyDataSetChanged();
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    notifyDataSetChanged();
+                }
+            });
         }
     }
 
@@ -213,6 +230,7 @@ public class AppManagerActivity extends Activity {
                 this.mAppList.add(new AppListItem(appId, appName, iconBitmap, appState));
             }
         }
+        this.updateUI();
     }
 
     private class AppListItem {
@@ -254,6 +272,11 @@ public class AppManagerActivity extends Activity {
         Intent serviceIntent = new Intent(this, OPELControllerService.class);
         this.bindService(serviceIntent, this.mControllerServiceConnection, Context
                 .BIND_AUTO_CREATE);
+    }
+
+    private void disconnectControllerService() {
+        if (this.mControllerServiceConnection != null)
+            this.unbindService(this.mControllerServiceConnection);
     }
 
     private ServiceConnection mControllerServiceConnection = new ServiceConnection() {

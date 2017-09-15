@@ -36,9 +36,9 @@ public class AppMarketMainIcon extends MainIcon {
 
     @Override
     public void onClick() {
-        if (this.isNetworkConnected()) {
+        if (!this.isNetworkConnected()) {
             Toast.makeText(this.mOwnerActivity, "Please check network connection.", Toast
-                    .LENGTH_LONG);
+                    .LENGTH_LONG).show();
             return;
         }
 
@@ -50,7 +50,7 @@ public class AppMarketMainIcon extends MainIcon {
     public void onLongClick() {
         // System app -> cannot terminate
         Toast.makeText(this.mOwnerActivity, "Built-in menu cannot be terminated.", Toast
-                .LENGTH_LONG);
+                .LENGTH_LONG).show();
     }
 
     private boolean isNetworkConnected() {

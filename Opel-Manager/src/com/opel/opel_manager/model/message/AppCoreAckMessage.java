@@ -98,7 +98,7 @@ public class AppCoreAckMessage extends BaseMessagePayload {
 
         String path = paramsObj.get("path").asText();
 
-        ArrayNode fileListObj = (ArrayNode) paramsObj.get("appList");
+        ArrayNode fileListObj = (ArrayNode) paramsObj.get("fileList");
 
         for (JsonNode fileListEntryObj : fileListObj) {
             // fileName

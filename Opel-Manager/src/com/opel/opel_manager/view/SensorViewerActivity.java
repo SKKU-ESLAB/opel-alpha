@@ -30,6 +30,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
+import android.view.MenuItem;
 import android.widget.TextView;
 
 import com.jjoe64.graphview.GraphView;
@@ -118,6 +119,27 @@ public class SensorViewerActivity extends Activity {
         sensor5.setGraphLineColor(Color.WHITE);
         sensor6.setGraphLineColor(Color.BLUE);
         sensor7.setGraphLineColor(Color.YELLOW);
+    }
+
+    protected void onDestroy() {
+        super.onDestroy();
+
+        // Terminate JavaScript SensorViewer App
+        this.mControllerServiceStub.terminateAppOneWay(this.mAppId);
+
+        // Disconnect Controller Service
+        this.disconnectControllerService();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                this.finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     public void onMsgToSensorViewer(String message) {
@@ -230,7 +252,7 @@ public class SensorViewerActivity extends Activity {
 
     public void onPause() {
         super.onPause();
-        mControllerServiceStub.terminateOneWay(this.mAppId);
+        mControllerServiceStub.terminateAppOneWay(this.mAppId);
         mHandler.removeCallbacks(mTimer2);
         this.mIsUIReady = false;
     }
@@ -239,6 +261,13 @@ public class SensorViewerActivity extends Activity {
         Intent serviceIntent = new Intent(this, OPELControllerService.class);
         this.bindService(serviceIntent, this.mControllerServiceConnection, Context
                 .BIND_AUTO_CREATE);
+    }
+
+    private void disconnectControllerService() {
+        if (this.mControllerServiceConnection != null)
+            this.unbindService(this.mControllerServiceConnection);
+        if (this.mControllerBroadcastReceiver != null)
+            this.unregisterReceiver(this.mControllerBroadcastReceiver);
     }
 
     private ServiceConnection mControllerServiceConnection = new ServiceConnection() {

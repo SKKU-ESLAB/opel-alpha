@@ -48,6 +48,6 @@ public class CameraViewerMainIcon extends MainIcon {
     @Override
     public void onLongClick() {
         // System app -> cannot terminate
-        Toast.makeText(this.mOwnerActivity, "System app cannot be terminated.", Toast.LENGTH_LONG);
+        Toast.makeText(this.mOwnerActivity, "System app cannot be terminated.", Toast.LENGTH_LONG).show();
     }
 }

@@ -31,6 +31,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -58,8 +59,6 @@ public class EventLogViewerActivity extends Activity {
     // Intent
     private static final String INTENT_KEY_APP_ID = "appId";
 
-    private int mAppId;
-
     private ListView mEventListView;
     private EventListAdapter mEventListAdapter;
 
@@ -67,19 +66,27 @@ public class EventLogViewerActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(com.opel.opel_manager.R.layout.template_listview);
 
-        // Parameters
-        Intent intent = this.getIntent();
-        this.mAppId = intent.getIntExtra(INTENT_KEY_APP_ID, -1);
-        if (this.mAppId < 0) {
-            Log.e(TAG, "Invalid application id!");
-            this.finish();
-        }
-
         // Initialize UI
         this.initializeUI();
 
         // Connect controller service
         this.connectControllerService();
+    }
+
+    protected void onDestroy() {
+        super.onDestroy();
+        this.disconnectControllerService();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                this.finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     private void initializeUI() {
@@ -90,7 +97,7 @@ public class EventLogViewerActivity extends Activity {
         actionBar.setLogo(com.opel.opel_manager.R.drawable.eventlogger);
         actionBar.setDisplayUseLogoEnabled(true);
 
-        mEventListView = (ListView) findViewById(com.opel.opel_manager.R.id.listView1);
+        mEventListView = (ListView) findViewById(com.opel.opel_manager.R.id.mainListView);
         mEventListAdapter = new EventListAdapter(this);
         mEventListView.setAdapter(mEventListAdapter);
         mEventListView.setOnItemClickListener(mItemClickListener);
@@ -211,6 +218,13 @@ public class EventLogViewerActivity extends Activity {
         Intent serviceIntent = new Intent(this, OPELControllerService.class);
         this.bindService(serviceIntent, this.mControllerServiceConnection, Context
                 .BIND_AUTO_CREATE);
+    }
+
+    private void disconnectControllerService() {
+        if (this.mControllerServiceConnection != null)
+            this.unbindService(this.mControllerServiceConnection);
+        if(this.mControllerBroadcastReceiver != null)
+            this.unregisterReceiver(this.mControllerBroadcastReceiver);
     }
 
     private ServiceConnection mControllerServiceConnection = new ServiceConnection() {

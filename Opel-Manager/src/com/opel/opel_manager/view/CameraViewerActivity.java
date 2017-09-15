@@ -29,6 +29,7 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.StrictMode;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.inputmethod.InputMethodManager;
@@ -222,7 +223,7 @@ public class CameraViewerActivity extends Activity implements SurfaceHolder.Call
     @Override
     protected void onPause() {
         super.onPause();
-        mControllerServiceStub.terminateOneWay(this.mAppId);
+        mControllerServiceStub.terminateAppOneWay(this.mAppId);
         mControllerServiceStub.unlockLargeDataMode();
         this.releaseCpuWakeLock();
     }
@@ -231,6 +232,23 @@ public class CameraViewerActivity extends Activity implements SurfaceHolder.Call
     protected void onDestroy() {
         nativeFinalize();
         super.onDestroy();
+
+        // Terminate JavaScript CameraViewer App
+        this.mControllerServiceStub.terminateAppOneWay(this.mAppId);
+
+        // Disconnect Controller Service
+        this.disconnectControllerService();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                this.finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     // Called from native code. This sets the content of the TextView from
@@ -323,7 +341,7 @@ public class CameraViewerActivity extends Activity implements SurfaceHolder.Call
                 // mMainIconList mode
                 mControllerServiceStub.enableLargeDataMode();
             } else {
-                // If large mMainIconList mode has already been enabled, launch and initialize
+                // If large mMainIconList mode has already been enabled, launch and open
                 // camera viewer
                 launchAndConnectToCameraViewer();
             }
@@ -334,6 +352,13 @@ public class CameraViewerActivity extends Activity implements SurfaceHolder.Call
         Intent serviceIntent = new Intent(this, OPELControllerService.class);
         this.bindService(serviceIntent, this.mControllerServiceConnection, Context
                 .BIND_AUTO_CREATE);
+    }
+
+    private void disconnectControllerService() {
+        if (this.mControllerServiceConnection != null)
+            this.unbindService(this.mControllerServiceConnection);
+        if(this.mControllerBroadcastReceiver != null)
+            this.unregisterReceiver(this.mControllerBroadcastReceiver);
     }
 
     private ServiceConnection mControllerServiceConnection = new ServiceConnection() {

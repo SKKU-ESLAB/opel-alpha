@@ -42,6 +42,6 @@ public class EventLogViewerMainIcon extends MainIcon {
     public void onLongClick() {
         // System app -> cannot terminate
         Toast.makeText(this.mOwnerActivity, "Built-in menu cannot be terminated.", Toast
-                .LENGTH_LONG);
+                .LENGTH_LONG).show();
     }
 }

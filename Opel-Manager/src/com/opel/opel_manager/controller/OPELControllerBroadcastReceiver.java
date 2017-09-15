@@ -113,8 +113,8 @@ abstract public class OPELControllerBroadcastReceiver extends BroadcastReceiver 
                 Parcelable[] appListParcelable = intent.getParcelableArrayExtra
                         (KEY_ON_RESULT_UPDATE_APP_LIST_APP_LIST);
                 OPELApp[] appList = new OPELApp[appListParcelable.length];
-                for(int i=0; i<appListParcelable.length; i++) {
-                    appList[i] = (OPELApp)appListParcelable[i];
+                for (int i = 0; i < appListParcelable.length; i++) {
+                    appList[i] = (OPELApp) appListParcelable[i];
                 }
                 if (this.mOnResultUpdateAppListListener != null)
                     this.mOnResultUpdateAppListListener.onResultUpdateAppList(appList);
@@ -122,11 +122,11 @@ abstract public class OPELControllerBroadcastReceiver extends BroadcastReceiver 
                 int commandMessageId = intent.getIntExtra
                         (KEY_ON_RESULT_GET_FILE_LIST_COMMAND_MESSAGE_ID, -1);
                 String path = intent.getStringExtra(KEY_ON_RESULT_GET_FILE_LIST_PATH);
-                Parcelable[] fileListParcelable = (ParamFileListEntry[]) intent
-                        .getParcelableArrayExtra(KEY_ON_RESULT_GET_FILE_LIST_FILE_LIST);
+                Parcelable[] fileListParcelable = intent.getParcelableArrayExtra
+                        (KEY_ON_RESULT_GET_FILE_LIST_FILE_LIST);
                 ParamFileListEntry[] fileList = new ParamFileListEntry[fileListParcelable.length];
-                for(int i=0; i<fileListParcelable.length; i++) {
-                    fileList[i] = (ParamFileListEntry)fileListParcelable[i];
+                for (int i = 0; i < fileListParcelable.length; i++) {
+                    fileList[i] = (ParamFileListEntry) fileListParcelable[i];
                 }
                 if (this.mOnResultGetFileListListener != null) {
                     this.mOnResultGetFileListListener.onResultGetFileList(commandMessageId, path,

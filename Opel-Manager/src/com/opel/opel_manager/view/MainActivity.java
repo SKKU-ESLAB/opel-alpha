@@ -103,6 +103,7 @@ public class MainActivity extends Activity {
 
     protected void onDestroy() {
         super.onDestroy();
+        this.disconnectControllerService();
     }
 
     private void checkStoragePermission() {
@@ -162,11 +163,18 @@ public class MainActivity extends Activity {
         this.updateMainIconList(null);
     }
 
-    public void initializeControllerService() {
+    private void initializeControllerService() {
         // Launch OPELControllerService for setting connection with target OPEL device.
         Intent serviceIntent = new Intent(this, OPELControllerService.class);
         this.bindService(serviceIntent, this.mControllerServiceConnection, Context
                 .BIND_AUTO_CREATE);
+    }
+
+    private void disconnectControllerService() {
+        if (this.mControllerServiceConnection != null)
+            this.unbindService(this.mControllerServiceConnection);
+        if(this.mControllerBroadcastReceiver != null)
+            this.unregisterReceiver(this.mControllerBroadcastReceiver);
     }
 
     private ServiceConnection mControllerServiceConnection = new ServiceConnection() {
@@ -182,7 +190,7 @@ public class MainActivity extends Activity {
             mControllerBroadcastReceiver = new PrivateControllerBroadcastReceiver();
             registerReceiver(mControllerBroadcastReceiver, broadcastIntentFilter);
 
-            // Request to initialize connection
+            // Request to open connection
             connectTargetDevice();
         }
 
@@ -323,12 +331,12 @@ public class MainActivity extends Activity {
                     .LENGTH_SHORT).show();
             return;
         } else if (this.mControllerServiceStub == null) {
-            Toast.makeText(getApplicationContext(), "Controller service is not initialized", Toast
-                    .LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Controller service is not initialized",
+                    Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Request to initialize connection
+        // Request to open connection
         this.mControllerServiceStub.initializeConnectionAsync();
     }
 
@@ -354,7 +362,7 @@ public class MainActivity extends Activity {
             Log.e(TAG, "ControllerService is not connected");
             return;
         }
-        this.mControllerServiceStub.terminateOneWay(appId);
+        this.mControllerServiceStub.terminateAppOneWay(appId);
     }
 
     class PrivateControllerBroadcastReceiver extends OPELControllerBroadcastReceiver {

@@ -35,6 +35,7 @@ import android.os.Environment;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.MenuItem;
 import android.view.Window;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -87,6 +88,22 @@ public class AppMarketActivity extends Activity {
 
         // Connect controller service
         this.connectControllerService();
+    }
+
+    protected void onDestroy() {
+        super.onDestroy();
+        this.disconnectControllerService();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                this.finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -198,6 +215,13 @@ public class AppMarketActivity extends Activity {
         Intent serviceIntent = new Intent(this, OPELControllerService.class);
         this.bindService(serviceIntent, this.mControllerServiceConnection, Context
                 .BIND_AUTO_CREATE);
+    }
+
+    private void disconnectControllerService() {
+        if (this.mControllerServiceConnection != null)
+            this.unbindService(this.mControllerServiceConnection);
+        if(this.mControllerBroadcastReceiver != null)
+            this.unregisterReceiver(this.mControllerBroadcastReceiver);
     }
 
     private ServiceConnection mControllerServiceConnection = new ServiceConnection() {

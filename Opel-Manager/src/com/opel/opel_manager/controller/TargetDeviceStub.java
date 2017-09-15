@@ -55,7 +55,12 @@ public class TargetDeviceStub {
         }
         Log.d(TAG, "sendMessage(BaseMessage): id=" + message.getMessageId() + " / type=" +
                 message.getType() + " / body=" + message.toJSONString());
-        this.mCommChannelServiceStub.sendRawMessage(message.toJSONString());
+        if (message.isFileAttached()) {
+            this.mCommChannelServiceStub.sendRawMessage(message.toJSONString(), new File(message
+                    .getStoredFilePath()));
+        } else {
+            this.mCommChannelServiceStub.sendRawMessage(message.toJSONString());
+        }
         return message.getMessageId();
     }
 

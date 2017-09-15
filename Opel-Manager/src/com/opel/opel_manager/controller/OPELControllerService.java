@@ -178,7 +178,7 @@ public class OPELControllerService extends Service {
         this.mTargetDeviceStub.launchApp(appId);
     }
 
-    public void terminateOneWay(int appId) {
+    public void terminateAppOneWay(int appId) {
         this.mTargetDeviceStub.terminateApp(appId);
     }
 
@@ -304,7 +304,7 @@ public class OPELControllerService extends Service {
         private SparseArray<String> mInstallTransactions = new SparseArray<>();
 
         public void start(String packageFilePath) {
-            // Command 1: initialize app
+            // Command 1: open app
             int messageId = mTargetDeviceStub.initializeApp();
             this.mInitializeTransactions.put(messageId, packageFilePath);
         }
@@ -580,12 +580,17 @@ public class OPELControllerService extends Service {
         if (this.mTargetDeviceStub == null) {
             this.mTargetDeviceStub = new TargetDeviceStub(this, this.mTargetDeviceStubListener);
         }
+        this.mEventList.open(this);
         return this.mBinder;
     }
 
     @Override
     public boolean onUnbind(Intent intent) {
         this.mBindersCount--;
+        // If no one use this service, destroy connection with OPEL device.
+        if (this.mBindersCount == 0) {
+            this.destroyConnectionAsync();
+        }
         return false;
     }
 

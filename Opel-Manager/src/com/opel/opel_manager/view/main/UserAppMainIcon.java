@@ -119,7 +119,7 @@ public class UserAppMainIcon extends MainIcon {
             case OPELApp.State_Initializing:
             case OPELApp.State_Installing:
                 Toast.makeText(this.mOwnerActivity, "This app (" + mAppName + ") is not ready.",
-                        Toast.LENGTH_LONG);
+                        Toast.LENGTH_LONG).show();
                 break;
             case OPELApp.State_Ready:
                 // Launch the application
@@ -127,7 +127,7 @@ public class UserAppMainIcon extends MainIcon {
                 break;
             case OPELApp.State_Launching:
                 Toast.makeText(this.mOwnerActivity, "This app (" + mAppName + ") is being " +
-                        "launched.", Toast.LENGTH_LONG);
+                        "launched.", Toast.LENGTH_LONG).show();
                 break;
             case OPELApp.State_Running:
                 // Show remote config UI
@@ -135,15 +135,15 @@ public class UserAppMainIcon extends MainIcon {
                 break;
             case OPELApp.State_Removing:
                 Toast.makeText(this.mOwnerActivity, "Application is being removed...", Toast
-                        .LENGTH_LONG);
+                        .LENGTH_LONG).show();
                 break;
             case OPELApp.State_Removed:
                 Toast.makeText(this.mOwnerActivity, "Application has already been removed.",
-                        Toast.LENGTH_LONG);
+                        Toast.LENGTH_LONG).show();
                 break;
             default:
                 Toast.makeText(this.mOwnerActivity, "Application's state is invalid!", Toast
-                        .LENGTH_LONG);
+                        .LENGTH_LONG).show();
                 break;
         }
 
@@ -156,11 +156,11 @@ public class UserAppMainIcon extends MainIcon {
             case OPELApp.State_Initializing:
             case OPELApp.State_Installing:
                 Toast.makeText(this.mOwnerActivity, "This app (" + mAppName + ") is not ready.",
-                        Toast.LENGTH_LONG);
+                        Toast.LENGTH_LONG).show();
                 break;
             case OPELApp.State_Ready:
                 Toast.makeText(this.mOwnerActivity, "This app (" + mAppName + ") is not running"
-                        + ".", Toast.LENGTH_LONG);
+                        + ".", Toast.LENGTH_LONG).show();
                 break;
             case OPELApp.State_Launching:
             case OPELApp.State_Running:
@@ -186,15 +186,15 @@ public class UserAppMainIcon extends MainIcon {
                 break;
             case OPELApp.State_Removing:
                 Toast.makeText(this.mOwnerActivity, "Application is being removed...", Toast
-                        .LENGTH_LONG);
+                        .LENGTH_LONG).show();
                 break;
             case OPELApp.State_Removed:
                 Toast.makeText(this.mOwnerActivity, "Application has already been removed.",
-                        Toast.LENGTH_LONG);
+                        Toast.LENGTH_LONG).show();
                 break;
             default:
                 Toast.makeText(this.mOwnerActivity, "Application's state is invalid!", Toast
-                        .LENGTH_LONG);
+                        .LENGTH_LONG).show();
                 break;
         }
     }

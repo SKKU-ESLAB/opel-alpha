@@ -31,6 +31,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -46,6 +47,8 @@ import com.opel.opel_manager.model.message.params.ParamFileListEntry;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 
 import cn.dxjia.ffmpeg.library.FFmpegNativeHelper;
@@ -77,8 +80,24 @@ public class FileManagerActivity extends Activity {
         this.connectControllerService();
     }
 
+    protected void onDestroy() {
+        super.onDestroy();
+        this.disconnectControllerService();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                this.finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
     private void initializeUI() {
-        ListView fileListView = (ListView) findViewById(R.id.listView1);
+        ListView fileListView = (ListView) findViewById(R.id.mainListView);
 
         mFileListAdapter = new FileListAdapter();
         fileListView.setAdapter(mFileListAdapter);
@@ -159,8 +178,20 @@ public class FileManagerActivity extends Activity {
             int fileType = file.fileType;
             int fileSizeBytes = file.fileSizeBytes;
             String fileTime = file.fileTime;
+            if (fileName.compareTo(".") == 0) continue;
             this.mFileList.add(new FileListItem(fileName, fileType, fileSizeBytes, fileTime));
         }
+        Collections.sort(this.mFileList, new Comparator<FileListItem>() {
+            @Override
+            public int compare(FileListItem left, FileListItem right) {
+                int compareType = (left.getFileType() - right.getFileType());
+                if (compareType == 0) {
+                    int compareName = (left.getFileName().compareTo(right.getFileName()));
+                    return compareName;
+                }
+                return compareType;
+            }
+        });
     }
 
     private class FileListAdapter extends BaseAdapter {
@@ -277,6 +308,13 @@ public class FileManagerActivity extends Activity {
         Intent serviceIntent = new Intent(this, OPELControllerService.class);
         this.bindService(serviceIntent, this.mControllerServiceConnection, Context
                 .BIND_AUTO_CREATE);
+    }
+
+    private void disconnectControllerService() {
+        if (this.mControllerServiceConnection != null)
+            this.unbindService(this.mControllerServiceConnection);
+        if (this.mControllerBroadcastReceiver != null)
+            this.unregisterReceiver(this.mControllerBroadcastReceiver);
     }
 
     private boolean isFileCached(String fileRemotePath) {

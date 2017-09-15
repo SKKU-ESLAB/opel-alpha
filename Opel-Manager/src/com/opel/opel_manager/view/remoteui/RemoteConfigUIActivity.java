@@ -74,7 +74,7 @@ public class RemoteConfigUIActivity extends Activity {
 
         int iconId = getIntent().getIntExtra("iconID", com.opel.opel_manager.R.drawable.app);
 
-        listView = (ListView) findViewById(com.opel.opel_manager.R.id.listView1);
+        listView = (ListView) findViewById(com.opel.opel_manager.R.id.mainListView);
 
         mConfigList = getSettingMenuList(inputJson);
 

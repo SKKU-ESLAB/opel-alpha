@@ -95,7 +95,7 @@ class CommPayloadFileMetadata extends CommRawPacketPayload {
     }
 
     public short getBytesSize() {
-        return (short) (4 + 1 + this.mFileNameLength);
+        return (short) (4 + 1 + this.mFileNameLength + 1);
     }
 
     public int getFileSize() {

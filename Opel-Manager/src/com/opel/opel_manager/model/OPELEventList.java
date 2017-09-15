@@ -29,17 +29,15 @@ import android.util.Log;
 import java.util.ArrayList;
 
 public class OPELEventList {
-
-    private static final String DATABASE_NAME = "eventList.db";
+    private static final String DATABASE_NAME = "OPELEventList.db";
     private static final int DATABASE_VERSION = 1;
-    public static SQLiteDatabase mDB;
-    private DatabaseHelper mEventDBHelper;
+    private SQLiteDatabase mDB;
 
-    ArrayList<OPELEvent> evList = new ArrayList<OPELEvent>();
+    private ArrayList<OPELEvent> mEventList = new ArrayList<OPELEvent>();
 
     private class DatabaseHelper extends SQLiteOpenHelper {
-        public DatabaseHelper(Context context, String name, SQLiteDatabase.CursorFactory factory,
-                              int version) {
+        DatabaseHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int
+                version) {
             super(context, name, factory, version);
         }
 
@@ -54,17 +52,17 @@ public class OPELEventList {
         }
     }
 
-    public OPELEventList open(Context context) throws SQLException {
-        mEventDBHelper = new DatabaseHelper(context, DATABASE_NAME, null, DATABASE_VERSION);
+    public void open(Context context) throws SQLException {
+        DatabaseHelper mEventDBHelper = new DatabaseHelper(context, DATABASE_NAME, null,
+                DATABASE_VERSION);
 
-        mDB = mEventDBHelper.getWritableDatabase();
-        evList = getAllEventArrayList();
-        return this;
+        this.mDB = mEventDBHelper.getWritableDatabase();
+        this.mEventList = getAllEventArrayList();
     }
 
     public void close() {
-        mDB.close();
-        evList.clear();
+        this.mDB.close();
+        this.mEventList.clear();
     }
 
     public ArrayList<OPELEvent> addEvent(String eventAppID, String eventAppName, String
@@ -81,27 +79,27 @@ public class OPELEventList {
 
         // success
         if (id != -1) {
-            evList.add(0, new OPELEvent(id, eventAppID, eventAppName, eventDescription,
+            mEventList.add(0, new OPELEvent(id, eventAppID, eventAppName, eventDescription,
                     eventTime, eventJsonData));
 
             Log.d("OPEL", "SUCCESS ADD EVENT");
         }
 
-        return this.evList;
+        return this.mEventList;
     }
 
     public ArrayList<OPELEvent> removeEvent(long id) {
         // TODO : erase img file that the noti page involve
         int _id = mDB.delete(EventListDBColumn.TABLENAME, "_id=" + id, null);
         if (_id > 0) {
-            for (int i = 0; i < evList.size(); i++) {
-                if (evList.get(i).getEventId() == id) {
-                    evList.remove(i);
+            for (int i = 0; i < mEventList.size(); i++) {
+                if (mEventList.get(i).getEventId() == id) {
+                    mEventList.remove(i);
                     break;
                 }
             }
         }
-        return this.evList;
+        return this.mEventList;
     }
 
     // Select All
@@ -112,15 +110,15 @@ public class OPELEventList {
 
     public ArrayList<OPELEvent> eventAllClear() {
         if (mDB.delete(EventListDBColumn.TABLENAME, null, null) > 0) {
-            evList.clear();
+            mEventList.clear();
 
         }
-        return this.evList;
+        return this.mEventList;
     }
 
     // Get event
     public ArrayList<OPELEvent> getCurEventArrayList() {
-        return this.evList;
+        return this.mEventList;
     }
 
     public ArrayList<OPELEvent> getAllEventArrayList() {
@@ -141,21 +139,21 @@ public class OPELEventList {
         }
 
         mCursor.close();
-        this.evList = list;
-        return this.evList;
+        this.mEventList = list;
+        return this.mEventList;
     }
 }
 
 class EventListDBColumn implements BaseColumns {
-    public static final String eventAppID = "eventAppID";
-    public static final String eventAppName = "eventAppName";
-    public static final String eventDescription = "eventDescription";
-    public static final String eventTime = "eventTime";
-    public static final String eventJsonData = "eventJsonData";
+    static final String eventAppID = "eventAppID";
+    static final String eventAppName = "eventAppName";
+    static final String eventDescription = "eventDescription";
+    static final String eventTime = "eventTime";
+    static final String eventJsonData = "eventJsonData";
 
-    public static final String TABLENAME = "EVENTTABLE";
-    public static final String _CREATE = "create table " + TABLENAME + "" + "(" + _ID + " " +
-            "integer primary key autoincrement, " + eventAppID + " text not null , " +
-            eventAppName + " text not " + "null , " + eventDescription + " text not null , " +
-            eventTime + " text not null , " + eventJsonData + " text not " + "null )";
+    static final String TABLENAME = "EVENTTABLE";
+    static final String _CREATE = "create table " + TABLENAME + "" + "(" + _ID + " " + "integer " +
+            "primary key autoincrement, " + eventAppID + " text not null , " + eventAppName + " " +
+            "text not " + "null , " + eventDescription + " text not null , " + eventTime + " text" +
+            " not null , " + eventJsonData + " text not " + "null )";
 }

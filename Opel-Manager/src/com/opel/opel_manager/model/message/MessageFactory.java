@@ -85,7 +85,7 @@ public class MessageFactory {
         // payload
         JsonNode payloadObj = thisObj.get(BaseMessage.OPEL_MESSAGE_KEY_PAYLOAD);
 
-        // Allocate and initialize a new BaseMessage
+        // Allocate and open a new BaseMessage
         BaseMessage newMessage = new BaseMessage(messageId, uri, type, isFileAttached, fileName);
         switch (type) {
             case BaseMessage.Type_AppCoreAck: {
@@ -131,10 +131,11 @@ public class MessageFactory {
         ObjectNode payloadObj = (ObjectNode) thisObj.get(AppCoreAckMessage
                 .APPCORE_ACK_MESSAGE_KEY_PAYLOAD);
 
-        // Allocate and initialize a new AppCoreAckMessage
+        // Allocate and open a new AppCoreAckMessage
         AppCoreAckMessage newMessage = new AppCoreAckMessage(commandMessageId, commandType);
-        newMessage.setPayload(payloadObj);
-
+        if (payloadObj != null) {
+            newMessage.setPayload(payloadObj);
+        }
         return newMessage;
     }
 
@@ -154,10 +155,11 @@ public class MessageFactory {
         // payload (AppAckMessage's)
         ObjectNode payloadObj = (ObjectNode) thisObj.get(AppAckMessage.APP_ACK_MESSAGE_KEY_PAYLOAD);
 
-        // Allocate and initialize a new AppAckMessage
+        // Allocate and open a new AppAckMessage
         AppAckMessage newMessage = new AppAckMessage(commandMessageId, commandType);
-        newMessage.setPayload(payloadObj);
-
+        if (payloadObj != null) {
+            newMessage.setPayload(payloadObj);
+        }
         return newMessage;
     }
 
@@ -173,10 +175,11 @@ public class MessageFactory {
         ObjectNode payloadObj = (ObjectNode) thisObj.get(CompanionMessage
                 .COMPANION_MESSAGE_KEY_PAYLOAD);
 
-        // Allocate and initialize a new CompanionMessage
+        // Allocate and open a new CompanionMessage
         CompanionMessage newMessage = new CompanionMessage(commandType);
-        newMessage.setPayload(payloadObj);
-
+        if (payloadObj != null) {
+            newMessage.setPayload(payloadObj);
+        }
         return newMessage;
     }
 
