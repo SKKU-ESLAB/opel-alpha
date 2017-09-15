@@ -376,58 +376,87 @@ void AppCore::installApp(BaseMessage* message) {
     return;
   }
 
-  // Update state
-  app->startInstalling();
+  // Check app's state
+  AppState::Value appState = app->getState();
+  switch(appState) {
+    case AppState::Initialized:
+      {
+        // Update state
+        app->startInstalling();
 
-  // Make app package directory and determine appPackageDirPath
-  // truncate opk extension
-	char appPackageDirName[PATH_BUFFER_SIZE];
-	strncpy(appPackageDirName, packageFileName.c_str(), packageFileName.length() - 4); 
+        // Make app package directory and determine appPackageDirPath
+        // truncate opk extension
+        char appPackageDirName[PATH_BUFFER_SIZE];
+        strncpy(appPackageDirName,
+            packageFileName.c_str(),
+            packageFileName.length() - 4); 
 
-  // ${OPEL_APPS_DIR}/user/${APP_NAME}
-	char appPackageDirPath[PATH_BUFFER_SIZE];
-	snprintf(appPackageDirPath, PATH_BUFFER_SIZE, "%s/%s",
-      this->mUserAppsDir, appPackageDirName); 
+        // ${OPEL_APPS_DIR}/user/${APP_NAME}
+        char appPackageDirPath[PATH_BUFFER_SIZE];
+        snprintf(appPackageDirPath, PATH_BUFFER_SIZE, "%s/%s",
+            this->mUserAppsDir, appPackageDirName); 
 
-	struct stat st = {0};
-	if(stat(appPackageDirPath, &st) == -1) {
-    mkdir(appPackageDirPath, 0755);
-	} else {
-    OPEL_DBG_ERR("There has already been app package directory!");
-    app->failInstalling();
+        struct stat st = {0};
+        if(stat(appPackageDirPath, &st) == -1) {
+          mkdir(appPackageDirPath, 0755);
+        } else {
+          OPEL_DBG_ERR("There has already been app package directory!");
+          app->failInstalling();
+        }
+
+        // Archive app package
+        char _commandUnzip0[] = "";
+        char _commandUnzip2[] = "-d";
+        char* commandUnzip[4] = {
+          _commandUnzip0, packageFilePath, _commandUnzip2, appPackageDirPath
+        };
+        do_unzip(4, commandUnzip);
+        sync();
+
+        // Remove app package file
+        if (remove(packageFilePath) == -1){
+          OPEL_DBG_WARN("Cannot remove app package file: %s\n",
+              packageFilePath);
+          app->failInstalling();
+        }
+
+        // Parse app manifest file
+        char manifestFilePath[PATH_BUFFER_SIZE];
+        snprintf(manifestFilePath, PATH_BUFFER_SIZE, "%s/%s",
+            appPackageDirPath, "manifest.xml");
+        bool settingSuccess = app->setFromManifest(manifestFilePath);
+        if(!settingSuccess) {
+          app->failInstalling();
+          return;
+        }
+
+        // Flush the app information to database
+        this->mAppList->flush(app);
+
+        // Update state
+        app->successInstalling(appPackageDirPath);
+      }
+      break;
+    case AppState::Initializing:
+      OPEL_DBG_ERR("App initialization is not finished.");
+      break;
+    case AppState::Installing:
+      OPEL_DBG_ERR("The app has already been being installed.");
+      break;
+    case AppState::Ready:
+    case AppState::Launching:
+    case AppState::Running:
+    case AppState::Terminating:
+      OPEL_DBG_ERR("The app has already been installed.");
+      break;
+    case AppState::Removing:
+    case AppState::Removed:
+      OPEL_DBG_ERR("The app is removed.");
+      break;
+    default:
+      OPEL_DBG_ERR("Invalid app state: %d", appState);
+      break;
   }
-
-  // Archive app package
-  char _commandUnzip0[] = "";
-  char _commandUnzip2[] = "-d";
-	char* commandUnzip[4] = {
-    _commandUnzip0, packageFilePath, _commandUnzip2, appPackageDirPath
-  };
-	do_unzip(4, commandUnzip);
-	sync();
-
-  // Remove app package file
-	if (remove(packageFilePath) == -1){
-		OPEL_DBG_WARN("Cannot remove app package file: %s\n", packageFilePath);
-    app->failInstalling();
-	}
-	
-  // Parse app manifest file
-  char manifestFilePath[PATH_BUFFER_SIZE];
-  snprintf(manifestFilePath, PATH_BUFFER_SIZE, "%s/%s",
-      appPackageDirPath, "manifest.xml");
-  bool settingSuccess = app->setFromManifest(manifestFilePath);
-  if(!settingSuccess) {
-    app->failInstalling();
-    return;
-  }
-
-  // Flush the app information to database
-  this->mAppList->flush(app);
-
-  // Update state
-  app->successInstalling(appPackageDirPath);
-  return; 
 }
 
 void AppCore::removeApp(BaseMessage* message) {
@@ -447,19 +476,43 @@ void AppCore::removeApp(BaseMessage* message) {
     return;
   }
 
-  // Update state
-  app->startRemoving();
+  // Check app's state
+  AppState::Value appState = app->getState();
+  switch(appState) {
+    case AppState::Ready:
+      {
+        // Update state
+        app->startRemoving();
 
-	char commandRm[PATH_BUFFER_SIZE];
-	snprintf(commandRm, PATH_BUFFER_SIZE,
-      "rm -rf %s", app->getPackagePath().c_str());
+        char commandRm[PATH_BUFFER_SIZE];
+        snprintf(commandRm, PATH_BUFFER_SIZE,
+            "rm -rf %s", app->getPackagePath().c_str());
 
-  // Update state
-  app->finishRemoving();
+        // Update state
+        app->finishRemoving();
 
-  // Remove from app list
-  this->mAppList->remove(app);
-	return;
+        // Remove from app list
+        this->mAppList->remove(app);
+      }
+      break;
+    case AppState::Initializing:
+    case AppState::Initialized:
+    case AppState::Installing:
+      OPEL_DBG_ERR("The app is not installed.");
+      break;
+    case AppState::Launching:
+    case AppState::Running:
+    case AppState::Terminating:
+      OPEL_DBG_ERR("The app has already launched.");
+      break;
+    case AppState::Removing:
+    case AppState::Removed:
+      OPEL_DBG_ERR("The app has already been removed.");
+      break;
+    default:
+      OPEL_DBG_ERR("Invalid app state: %d", appState);
+      break;
+  }
 }
 
 void AppCore::launchApp(BaseMessage* message) {
@@ -478,25 +531,52 @@ void AppCore::launchApp(BaseMessage* message) {
     OPEL_DBG_ERR("App does not exist in the app list!");
     return;
   }
-  
-  pid_t pid;
-  pid = fork();
 
-  if (pid > 0) {
-    // parent for managing child's PID & mainstream
-    // Update state
-    app->startLaunching(pid);
-  } else if(pid == 0) {
-    // Child for executing the application
-    char mainJSFilePath[PATH_BUFFER_SIZE];
-    snprintf(mainJSFilePath, PATH_BUFFER_SIZE, "%s/%s",
-        app->getPackagePath().c_str(), app->getMainJSFileName().c_str());
-    char nodeCommand[] = "node";
-    char* fullPath[] = {nodeCommand, mainJSFilePath, NULL};	
-    OPEL_DBG_VERB("Launch app: %s", mainJSFilePath);
-    execvp("node", fullPath);
-  } else {
-    OPEL_DBG_ERR("Fail to fork app process\n");
+  // Check app's state
+  AppState::Value appState = app->getState();
+  switch(appState) {
+    case AppState::Ready:
+      {
+        pid_t pid;
+        pid = fork();
+
+        if (pid > 0) {
+          // parent for managing child's PID & mainstream
+          // Update state
+          app->startLaunching(pid);
+        } else if(pid == 0) {
+          // Child for executing the application
+          char mainJSFilePath[PATH_BUFFER_SIZE];
+          snprintf(mainJSFilePath, PATH_BUFFER_SIZE, "%s/%s",
+              app->getPackagePath().c_str(), app->getMainJSFileName().c_str());
+          char nodeCommand[] = "node";
+          char* fullPath[] = {nodeCommand, mainJSFilePath, NULL};	
+          OPEL_DBG_VERB("Launch app: %s", mainJSFilePath);
+          execvp("node", fullPath);
+        } else {
+          OPEL_DBG_ERR("Fail to fork app process\n");
+        }
+      }
+      break;
+    case AppState::Initializing:
+    case AppState::Initialized:
+    case AppState::Installing:
+      OPEL_DBG_ERR("The app is not installed.");
+      break;
+    case AppState::Launching:
+    case AppState::Running:
+      OPEL_DBG_ERR("The app has already been launched.");
+      break;
+    case AppState::Terminating:
+      OPEL_DBG_ERR("The app is being terminated.");
+      break;
+    case AppState::Removing:
+    case AppState::Removed:
+      OPEL_DBG_ERR("The app is being removed.");
+      break;
+    default:
+      OPEL_DBG_ERR("Invalid app state: %d", appState);
+      break;
   }
 }
 
@@ -517,19 +597,41 @@ void AppCore::completeLaunchingApp(BaseMessage* message) {
     return;
   }
 
-  // Update state
-  app->successLaunching();
+  // Check app's state
+  AppState::Value appState = app->getState();
+  switch(appState) {
+    case AppState::Launching:
+      {
+        // Update state
+        app->successLaunching();
 
-  // Make ACK message
-  char appURI[PATH_BUFFER_SIZE];
-  snprintf(appURI, PATH_BUFFER_SIZE, "%s/pid%d", APPS_URI, pid);
-  BaseMessage* ackMessage
-    = MessageFactory::makeAppCoreAckMessage(appURI, message); 
-  AppCoreAckMessage* ackPayload = (AppCoreAckMessage*)ackMessage->getPayload();
-  ackPayload->setParamsCompleteLaunchingApp(app->getId());
+        // Make ACK message
+        char appURI[PATH_BUFFER_SIZE];
+        snprintf(appURI, PATH_BUFFER_SIZE, "%s/pid%d", APPS_URI, pid);
+        BaseMessage* ackMessage
+          = MessageFactory::makeAppCoreAckMessage(appURI, message); 
+        AppCoreAckMessage* ackPayload
+          = (AppCoreAckMessage*)ackMessage->getPayload();
+        ackPayload->setParamsCompleteLaunchingApp(app->getId());
 
-  // Send ACK message
-  this->mLocalChannel->sendMessage(ackMessage);
+        // Send ACK message
+        this->mLocalChannel->sendMessage(ackMessage);
+      }
+      break;
+    case AppState::Initializing:
+    case AppState::Initialized:
+    case AppState::Installing:
+    case AppState::Ready:
+    case AppState::Running:
+    case AppState::Terminating:
+    case AppState::Removing:
+    case AppState::Removed:
+      OPEL_DBG_ERR("The app is not being launched");
+      break;
+    default:
+      OPEL_DBG_ERR("Invalid app state: %d", appState);
+      break;
+  }
 }
 
 void AppCore::terminateApp(BaseMessage* message) {
@@ -549,17 +651,49 @@ void AppCore::terminateApp(BaseMessage* message) {
     return;
   }
 
-  // Update state
-  app->startTerminating();
+  // Check app's state
+  AppState::Value appState = app->getState();
+  switch(appState) {
+    case AppState::Launching:
+      {
+        // Update state
+        app->startTerminating();
 
-  // Make terminate message
-  char appURI[PATH_BUFFER_SIZE];
-  snprintf(appURI, PATH_BUFFER_SIZE, "%s/%d", APPS_URI, app->getId());
-  BaseMessage* appMessage
-    = MessageFactory::makeAppMessage(appURI, AppMessageCommandType::Terminate);
+        // Terminate app by force, since the app is not ready
+        // to listen terminate message
+        kill((pid_t)app->getPid(), SIGKILL);
+      }
+      break;
+    case AppState::Running:
+      {
+        // Update state
+        app->startTerminating();
 
-  // Send the terminate message
-  this->mLocalChannel->sendMessage(appMessage);
+        // Make terminate message
+        char appURI[PATH_BUFFER_SIZE];
+        snprintf(appURI, PATH_BUFFER_SIZE, "%s/%d", APPS_URI, app->getId());
+        BaseMessage* appMessage
+          = MessageFactory::makeAppMessage(appURI, AppMessageCommandType::Terminate);
+
+        // Send the terminate message
+        this->mLocalChannel->sendMessage(appMessage);
+      }
+      break;
+    case AppState::Initializing:
+    case AppState::Initialized:
+    case AppState::Installing:
+    case AppState::Ready:
+    case AppState::Removing:
+    case AppState::Removed:
+      OPEL_DBG_WARN("Application is not running!");
+      break;
+    case AppState::Terminating:
+      OPEL_DBG_WARN("Application has already been terminating.");
+      break;
+    default:
+      OPEL_DBG_ERR("Invalid app state: %d", appState);
+      break;
+  }
 }
 
 void AppCore::completeTerminatingApp(int pid) {
@@ -570,10 +704,31 @@ void AppCore::completeTerminatingApp(int pid) {
     return;
   }
 
-  OPEL_DBG_VERB("Child was killed [User app pid : %d]", pid);
+  // Check app's state
+  AppState::Value appState = app->getState();
+  switch(appState) {
+    case AppState::Terminating:
+      {
+        OPEL_DBG_VERB("Child was killed [User app pid : %d]", pid);
 
-  // Update state
-  app->finishTerminating();
+        // Update state
+        app->finishTerminating();
+      }
+      break;
+    case AppState::Initializing:
+    case AppState::Initialized:
+    case AppState::Installing:
+    case AppState::Ready:
+    case AppState::Launching:
+    case AppState::Running:
+    case AppState::Removing:
+    case AppState::Removed:
+      OPEL_DBG_ERR("unexpected app state: %d", appState);
+      break;
+    default:
+      OPEL_DBG_ERR("Invalid app state: %d", appState);
+      break;
+  }
 }
 
 void AppCore::getFileList(BaseMessage* message) {

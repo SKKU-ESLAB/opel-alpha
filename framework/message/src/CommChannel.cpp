@@ -217,7 +217,7 @@ void CommChannel::onRoutedMessage(BaseMessage* message) {
   bool sendRes;
   if(message->isFileAttached()) {
     sendRes = targetPort->sendRawMessage(std::string(rawString),
-        message->getFileName());
+        message->getStoredFilePath());
   } else {
     sendRes = targetPort->sendRawMessage(std::string(rawString));
   }

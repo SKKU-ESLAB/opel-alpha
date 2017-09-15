@@ -32,7 +32,10 @@ class AppBase
 : public LocalChannelListener {
 
   public:
-    AppBase() : mAppId(-1) {
+    AppBase()
+      : mAppId(-1),
+      mWaitMutex(PTHREAD_MUTEX_INITIALIZER),
+      mWaitCond(PTHREAD_COND_INITIALIZER) {
     }
     ~AppBase() {
       if(this->mMessageRouter != NULL)
@@ -81,6 +84,10 @@ class AppBase
     // Callbacks
     Persistent<Function> mOnTerminateCallback;
     Persistent<Function> mOnUpdateAppConfigCallback;
+
+    // Wait until appId is assigned
+    pthread_mutex_t mWaitMutex;
+    pthread_cond_t mWaitCond;
 
     // Message framework
     MessageRouter* mMessageRouter = NULL;

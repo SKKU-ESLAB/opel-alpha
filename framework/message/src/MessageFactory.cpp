@@ -108,13 +108,15 @@ BaseMessage* MessageFactory::makeBaseMessageFromJSON(cJSON* messageObj) {
       }
     case BaseMessageType::AppCoreAck:
       {
-        AppCoreAckMessage* messagePayload = makeAppCoreAckMessageFromJSON(payloadObj);
+        AppCoreAckMessage* messagePayload = makeAppCoreAckMessageFromJSON(
+            payloadObj);
         newMessage->setPayload(messagePayload);
         break;
       }
     case BaseMessageType::Companion:
       {
-        CompanionMessage* messagePayload = makeCompanionMessageFromJSON(payloadObj);
+        CompanionMessage* messagePayload = makeCompanionMessageFromJSON(
+            payloadObj);
         newMessage->setPayload(messagePayload);
         break;
       }
@@ -125,7 +127,8 @@ BaseMessage* MessageFactory::makeBaseMessageFromJSON(cJSON* messageObj) {
   return newMessage;
 }
 
-AppCoreMessage* MessageFactory::makeAppCoreMessageFromJSON(cJSON* messagePayloadObj) {
+AppCoreMessage* MessageFactory::makeAppCoreMessageFromJSON(
+    cJSON* messagePayloadObj) {
   cJSON* thisObj = messagePayloadObj;
 
   // Allocate and initialize a new AppCoreMessage and return it
@@ -138,11 +141,12 @@ AppCoreMessage* MessageFactory::makeAppCoreMessageFromJSON(cJSON* messagePayload
 
   cJSON* appCorePayloadObj = cJSON_GetObjectItem(thisObj,
       APPCORE_MESSAGE_KEY_PAYLOAD);
-  RETURN_IF_INVALID_CJSON_OBJ(appCorePayloadObj, NULL);
   
   // Allocate and initialize a new AppCoreMessage
   AppCoreMessage* newMessage = new AppCoreMessage(commandType);
-  newMessage->setAppCorePayloadObj(appCorePayloadObj);
+  if(appCorePayloadObj != NULL) {
+    newMessage->setAppCorePayloadObj(appCorePayloadObj);
+  }
   return newMessage;
 }
 
@@ -162,11 +166,13 @@ AppCoreAckMessage* MessageFactory::makeAppCoreAckMessageFromJSON(
           commandTypeObj->valuestring));
 
   cJSON* appCoreAckPayloadObj = cJSON_GetObjectItem(thisObj, "payload");
-  RETURN_IF_INVALID_CJSON_OBJ(appCoreAckPayloadObj, NULL);
   
   // Allocate and initialize a new AppAckMessage
-  AppCoreAckMessage* newMessage = new AppCoreAckMessage(commandMessageId, commandType);
-  newMessage->setAppCoreAckPayloadObj(appCoreAckPayloadObj);
+  AppCoreAckMessage* newMessage = new AppCoreAckMessage(commandMessageId,
+      commandType);
+  if(appCoreAckPayloadObj != NULL) {
+    newMessage->setAppCoreAckPayloadObj(appCoreAckPayloadObj);
+  }
   return newMessage;
 }
 
@@ -186,11 +192,12 @@ AppAckMessage* MessageFactory::makeAppAckMessageFromJSON(
           commandTypeObj->valuestring));
 
   cJSON* appAckPayloadObj = cJSON_GetObjectItem(thisObj, "payload");
-  RETURN_IF_INVALID_CJSON_OBJ(appAckPayloadObj, NULL);
   
   // Allocate and initialize a new AppAckMessage
   AppAckMessage* newMessage = new AppAckMessage(commandMessageId, commandType);
-  newMessage->setAppAckPayloadObj(appAckPayloadObj);
+  if(appAckPayloadObj != NULL) {
+    newMessage->setAppAckPayloadObj(appAckPayloadObj);
+  }
   return newMessage;
 }
 
@@ -205,11 +212,12 @@ AppMessage* MessageFactory::makeAppMessageFromJSON(cJSON* messagePayloadObj) {
           commandTypeObj->valuestring));
 
   cJSON* appPayloadObj = cJSON_GetObjectItem(thisObj, "payload");
-  RETURN_IF_INVALID_CJSON_OBJ(appPayloadObj, NULL);
   
   // Allocate and initialize a new AppMessage
   AppMessage* newMessage = new AppMessage(commandType);
-  newMessage->setAppPayloadObj(appPayloadObj);
+  if(appPayloadObj != NULL) {
+    newMessage->setAppPayloadObj(appPayloadObj);
+  }
   return newMessage;
 }
 
@@ -225,10 +233,11 @@ CompanionMessage* MessageFactory::makeCompanionMessageFromJSON(
           commandTypeObj->valuestring));
 
   cJSON* companionPayloadObj = cJSON_GetObjectItem(thisObj, "payload");
-  RETURN_IF_INVALID_CJSON_OBJ(companionPayloadObj, NULL);
   
   // Allocate and initialize a new CompanionMessage
   CompanionMessage* newMessage = new CompanionMessage(commandType);
-  newMessage->setCompanionPayloadObj(companionPayloadObj);
+  if(companionPayloadObj != NULL) {
+    newMessage->setCompanionPayloadObj(companionPayloadObj);
+  }
   return newMessage;
 }

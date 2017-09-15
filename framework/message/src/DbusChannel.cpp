@@ -50,7 +50,7 @@ void DbusChannel::onRoutedMessage(BaseMessage* message) {
 
 void DbusChannel::sendRawStringToTarget(const char* rawString) {
   if(this->mDbusConnection == NULL) {
-    OPEL_DBG_ERR("Send rawString");
+    OPEL_DBG_VERB("Send rawString");
     return;
   }
 
@@ -67,6 +67,7 @@ void DbusChannel::sendRawStringToTarget(const char* rawString) {
   if (dbus_error_is_set(&derr)) {
     OPEL_DBG_ERR("Dbus error on send data: %s", derr.message);
     dbus_error_free(&derr);
+    dbus_message_unref(dbusMessage);
     return;
   }
 
@@ -163,9 +164,11 @@ DBusHandlerResult DbusChannel::onReceivedDbusMessage(DBusConnection* connection,
     OPEL_DBG_ERR("Cannot retrieve rawString from DbusMessage!: %s",
         derr.message);
     dbus_error_free(&derr);
+    dbus_message_unref(dbusMessage);
     return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
   } else if(rawString == NULL) {
     OPEL_DBG_ERR("Cannot retrieve rawString from DbusMessage!");
+    dbus_message_unref(dbusMessage);
     return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
   }
 
@@ -173,6 +176,7 @@ DBusHandlerResult DbusChannel::onReceivedDbusMessage(DBusConnection* connection,
   BaseMessage* message = MessageFactory::makeMessageFromJSONString(rawString);
   if(message == NULL) {
     OPEL_DBG_ERR("Received message is not OPEL message!: %s", rawString);
+    dbus_message_unref(dbusMessage);
     return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
   }
 

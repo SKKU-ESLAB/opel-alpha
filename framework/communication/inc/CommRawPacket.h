@@ -105,7 +105,7 @@ class CommPayloadFileMetadata : public CommRawPacketPayload {
     static CommPayloadFileMetadata* readFromSocket(int socketFd);
 
     virtual char* toByteArray();
-    virtual short getBytesSize() { return (short) (4 + 1 + this->mFileNameLength); }
+    virtual short getBytesSize() { return (short) (4 + 1 + this->mFileNameLength + 1); }
 
     int getFileSize() { return this->mFileSize; }
     char getSrcFileNameLength() { return this->mFileNameLength; }

@@ -378,6 +378,7 @@ bool CommPort::sendRawMessage(std::string messageData, std::string filePath) {
       delete messageDataPacketBytes;
     }
   }
+  // TODO: have problem!!
   // If file is attached, send file metadata and file data
   if(filePath.length() > 0) {
     CommLog("Send attached file (%d)", this->mPresentHeaderId);
@@ -403,6 +404,8 @@ bool CommPort::sendRawMessage(std::string messageData, std::string filePath) {
       delete fileMetadataBytes;
       delete fileMetadataPacket;
     } _RETURN_FALSE()
+    CommLog("file %s (size=%d)", filePath.c_str(), fileSize);
+
     while(sentBytes < fileSize) {
       // Make file data packet
       CommRawPacket* fileDataPacket;
@@ -418,15 +421,20 @@ bool CommPort::sendRawMessage(std::string messageData, std::string filePath) {
         fileDataPayloadSize = fileSize - sentBytes;
         isEnd = true;
       }
+      CommLog("payloadSize=%d <- fileSize=%d, sentBytes=%d",
+          fileDataPayloadSize, fileSize, sentBytes);
       char* fileDataPayloadBytes = new char[fileDataPayloadSize];
       int freadRes = fread(fileDataPayloadBytes + sentBytes,
           sizeof(char),
           fileDataPayloadSize,
           fdToRead);
-      if(freadRes <= 0) break;
+      if(freadRes <= 0) {
+        delete[] fileDataPayloadBytes;
+        break;
+      }
       fileDataPacket = CommRawPacket::makeDataPacket(
           this->mPresentHeaderId, fileDataPayloadBytes, sentBytes,
-          CommRawPacketHeader::kMaxPacketPayloadSize, isEnd, true);
+          fileDataPayloadSize, isEnd, true);
       IF_NULL_(fileDataPacket) {
         fclose(fdToRead);
       } _RETURN_FALSE()
@@ -448,7 +456,7 @@ bool CommPort::sendRawMessage(std::string messageData, std::string filePath) {
 
     // Finalize (if)
     delete fileMetadataPacket;
-    delete fileMetadataBytes;
+    delete[] fileMetadataBytes;
 
     if(fdToRead != NULL) {
       fclose(fdToRead);
@@ -463,7 +471,8 @@ bool CommPort::sendRawMessage(std::string messageData, std::string filePath) {
 int getFileSize(const char* filePath) {
   FILE* fd = fopen(filePath, "r");
   if(fd < 0) return -1;
-  int fileSize = fseek(fd, 0, SEEK_END);
+  fseek(fd, 0, SEEK_END);
+  int fileSize = ftell(fd);
   fclose(fd);
   return fileSize;
 }

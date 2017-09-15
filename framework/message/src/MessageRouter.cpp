@@ -43,7 +43,10 @@ void MessageRouter::removeRoutingEntry(const char* uriString) {
       ++rtIter) {
     std::string entryUri(rtIter->first);
     if(entryUri.compare(uriString) == 0) {
+      // Remove from routing table
       this->mMasterRoutingTable.erase(rtIter);
+
+      targetChannel = rtIter->second;
       found = true;
       break;
     }
@@ -55,6 +58,7 @@ void MessageRouter::removeRoutingEntry(const char* uriString) {
 
   OPEL_DBG_VERB("Entry (%s -> %s) is removed from MessageRouterTable",
       uriString, targetChannel->getName().c_str());
+
   pthread_mutex_unlock(&this->mMasterRoutingTableMutex);
 }
 
@@ -92,7 +96,7 @@ Channel* MessageRouter::findBestChannelLocked(const char* uriString) {
     // Select the best matching target
     if(foundPos == 0) {
       if((targetUriString == NULL)
-          || (strlen(targetUriString) < entryUri.size())) {
+          || (entryUri.size() < strlen(targetUriString))) {
         targetChannel = entryChannel;
         targetUriString = entryUri.c_str();
       }

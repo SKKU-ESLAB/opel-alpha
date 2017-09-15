@@ -159,7 +159,7 @@ void App::failInstalling() { // Installing -> Removed
 
 void App::startLaunching(int pid) { // Ready -> Launching
   this->mPid = pid;
-  this->changeState(AppState::Initialized);
+  this->changeState(AppState::Launching);
 }
 
 void App::successLaunching() { // Launching -> Running

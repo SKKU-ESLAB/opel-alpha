@@ -58,6 +58,11 @@ void AppBase::completeLaunchingApp() {
 
   // Send appcore message
   this->mLocalChannel->sendMessage(appcoreMessage);
+
+  // Wait until appId is assigned
+//  pthread_mutex_lock(&this->mWaitMutex);
+//  pthread_cond_wait(&this->mWaitCond, &this->mWaitMutex);
+//  pthread_mutex_unlock(&this->mWaitMutex);
 }
 
 // Send companion commands
@@ -243,10 +248,15 @@ void AppBase::onAckCompleteLaunchingApp(BaseMessage* message) {
   // Set app id
   this->mAppId = appId;
 
-  // Update MessageRoutingTable
+  // add appId to routing table
   char appURI[PATH_BUFFER_SIZE];
   snprintf(appURI, PATH_BUFFER_SIZE, "%s/pid%d", APPS_URI, getpid());
   this->mMessageRouter->removeRoutingEntry(appURI);
   snprintf(appURI, PATH_BUFFER_SIZE, "%s/%d", APPS_URI, appId);
   this->mMessageRouter->addRoutingEntry(appURI, this->mLocalChannel);
+
+  // Wake up main thread
+//  pthread_mutex_lock(&this->mWaitMutex);
+//  pthread_cond_signal(&this->mWaitCond);
+//  pthread_mutex_unlock(&this->mWaitMutex);
 }

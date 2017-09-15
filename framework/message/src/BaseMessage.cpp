@@ -81,9 +81,10 @@ cJSON* AppCoreMessage::toJSON() {
       commandTypeStr);
 
   // payload (AppCoreMessage's)
-  RETURN_IF_NULL(this->mAppCorePayloadObj, NULL);
-  cJSON_AddItemToObject(thisObj, APPCORE_MESSAGE_KEY_PAYLOAD,
+  if(this->mAppCorePayloadObj != NULL) {
+    cJSON_AddItemToObject(thisObj, APPCORE_MESSAGE_KEY_PAYLOAD,
       this->mAppCorePayloadObj);
+  }
 
   return thisObj;
 }
@@ -107,8 +108,10 @@ cJSON* AppCoreAckMessage::toJSON() {
       commandTypeStr);
 
   // payload (AppCoreAckMessage's)
-  cJSON_AddItemToObject(thisObj, APPCORE_ACK_MESSAGE_KEY_PAYLOAD,
-      this->mAppCoreAckPayloadObj);
+  if(this->mAppCoreAckPayloadObj != NULL) {
+    cJSON_AddItemToObject(thisObj, APPCORE_ACK_MESSAGE_KEY_PAYLOAD,
+        this->mAppCoreAckPayloadObj);
+  }
 
   return thisObj;
 }
@@ -124,9 +127,10 @@ cJSON* AppMessage::toJSON() {
       commandTypeStr);
 
   // payload (AppMessage's)
-  RETURN_IF_NULL(this->mAppPayloadObj, NULL);
-  cJSON_AddItemToObject(thisObj, APP_MESSAGE_KEY_PAYLOAD,
-      this->mAppPayloadObj);
+  if(this->mAppPayloadObj != NULL) {
+    cJSON_AddItemToObject(thisObj, APP_MESSAGE_KEY_PAYLOAD,
+        this->mAppPayloadObj);
+  }
 
   return thisObj;
 }
@@ -142,9 +146,10 @@ cJSON* CompanionMessage::toJSON() {
       commandTypeStr);
 
   // payload (CompanionMessage's)
-  RETURN_IF_NULL(this->mCompanionPayloadObj, NULL);
-  cJSON_AddItemToObject(thisObj, COMPANION_MESSAGE_KEY_PAYLOAD,
-      this->mCompanionPayloadObj);
+  if(this->mCompanionPayloadObj != NULL) {
+    cJSON_AddItemToObject(thisObj, COMPANION_MESSAGE_KEY_PAYLOAD,
+        this->mCompanionPayloadObj);
+  }
 
   return thisObj;
 }
@@ -167,8 +172,10 @@ cJSON* AppAckMessage::toJSON() {
       commandTypeStr);
 
   // payload (AppAckMessage's)
-  cJSON_AddItemToObject(thisObj, APP_ACK_MESSAGE_KEY_PAYLOAD,
-      this->mAppAckPayloadObj);
+  if(this->mAppAckPayloadObj != NULL) {
+    cJSON_AddItemToObject(thisObj, APP_ACK_MESSAGE_KEY_PAYLOAD,
+        this->mAppAckPayloadObj);
+  }
 
   return thisObj;
 }
