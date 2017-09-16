@@ -4,7 +4,6 @@ import android.app.Service;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Environment;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -188,8 +187,7 @@ public class CommChannelService extends Service implements CommPortListener {
     }
 
     public String getLargeDataIPAddress() {
-        if(this.mLargeDataPort == null)
-            return "";
+        if (this.mLargeDataPort == null) return "";
 
         return this.mLargeDataPort.getIPAddress();
     }
@@ -215,6 +213,14 @@ public class CommChannelService extends Service implements CommPortListener {
         }
     }
 
+    public byte[] transformToNullTerminatedString(String messageData) {
+        // Transform to null-terminated string since Java does not produce null-terminated string
+        byte[] messageBytes = new byte[messageData.length() + 1];
+        System.arraycopy(messageData.getBytes(), 0, messageBytes, 0, messageData.length());
+        messageBytes[messageBytes.length - 1] = '\0';
+        return messageBytes;
+    }
+
     public void sendRawMessage(String messageData) {
         this.sendRawMessage(messageData, null);
     }
@@ -225,14 +231,16 @@ public class CommChannelService extends Service implements CommPortListener {
             return;
         }
 
+        // Transform to null-terminated string since Java does not produce null-terminated string
+        byte[] messageBytes = transformToNullTerminatedString(messageData);
+
         if (this.isLargeDataPortAvailable()) {
             int res;
             if (this.mLargeDataPort != null && this.mLargeDataPortWatcher.isAlive()) {
                 this.mLargeDataPortWatcher.startToUse();
             }
 
-            res = this.mLargeDataPort.sendRawMessage(messageData.getBytes(), messageData.getBytes
-                    ().length, file);
+            res = this.mLargeDataPort.sendRawMessage(messageBytes, messageBytes.length, file);
 
             if (this.mLargeDataPort != null && this.mLargeDataPortWatcher.isAlive()) {
                 this.mLargeDataPortWatcher.endToUse();
@@ -243,8 +251,7 @@ public class CommChannelService extends Service implements CommPortListener {
             }
         } else {
             int res;
-            res = this.mDefaultPort.sendRawMessage(messageData.getBytes(), messageData.getBytes()
-                    .length, file);
+            res = this.mDefaultPort.sendRawMessage(messageBytes, messageBytes.length, file);
             if (res < 0) {
                 this.disconnectChannel();
             }
@@ -256,8 +263,10 @@ public class CommChannelService extends Service implements CommPortListener {
             return false;
         }
 
-        int res = mControlPort.sendRawMessage(messageData.getBytes(), messageData.getBytes()
-                .length, file);
+        // Transform to null-terminated string since Java does not produce null-terminated string
+        byte[] messageBytes = transformToNullTerminatedString(messageData);
+
+        int res = mControlPort.sendRawMessage(messageBytes, messageBytes.length, file);
         if (res < 0) {
             return false;
         }
@@ -572,11 +581,6 @@ public class CommChannelService extends Service implements CommPortListener {
     @Override
     public IBinder onBind(Intent intent) {
         this.mBindersCount++;
-
-        // Hard-coded download file path
-        if (mBindersCount == 1) {
-            this.mDownloadFilePath = Environment.getExternalStorageDirectory().getPath() + "/OPEL";
-        }
 
         return this.mBinder;
     }

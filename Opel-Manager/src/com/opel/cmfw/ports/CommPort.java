@@ -59,10 +59,14 @@ abstract public class CommPort {
     }
 
     private void suddenlyClose(String reasonMessage) {
-        Log.e(TAG, "[" + this.mPortName + "] Suddenly closed: " + reasonMessage);
-        this.close();
+        if (this.isOpened()) {
+            Log.e(TAG, "[" + this.mPortName + "] Suddenly closed: " + reasonMessage);
+            this.close();
 
-        this.mListener.onSuddenlyClosed(this);
+            this.mListener.onSuddenlyClosed(this);
+        } else {
+            Log.e(TAG, "[" + this.mPortName + "] already closed: " + reasonMessage);
+        }
     }
 
     public void listenRawMessage() {
@@ -82,6 +86,7 @@ abstract public class CommPort {
         byte[] totalMessageData = null;
         BufferedOutputStream bufferedFileOutputStream = null;
         int loadedBytesSize = 0;
+        File fileToWrite = null;
 
         while (this.mIsListeningThreadOn) {
             try {
@@ -154,14 +159,13 @@ abstract public class CommPort {
 
                         // Open file
                         String fileName = String.copyValueOf(fileMetadata.getSrcFileName());
-                        File fileToWrite = new File(this.mDownloadFilePath, fileName);
-                        bufferedFileOutputStream = null;
+                        fileToWrite = new File(this.mDownloadFilePath, fileName);
                         try {
                             bufferedFileOutputStream = new BufferedOutputStream(new
                                     FileOutputStream(fileToWrite));
                         } catch (IOException e) {
                             this.suddenlyClose("listenRawMessage: Failed to get stream for " +
-                                    "downloading attached file");
+                                    "downloading attached file: " + e.getMessage());
                             return;
                         }
 
@@ -197,7 +201,8 @@ abstract public class CommPort {
                         break;
                 }
             } catch (IOException e) {
-                this.suddenlyClose("listenRawMessage: I/O exception");
+                this.suddenlyClose("listenRawMessage: I/O exception (" + e.getMessage() + ")");
+                e.printStackTrace();
                 return;
             }
 
@@ -216,8 +221,8 @@ abstract public class CommPort {
                 if (this.mListener != null) {
                     if (fileMetadata != null) {
                         this.mListener.onReceivingRawMessage(totalMessageData, messageMetadata
-                                .getMessageDataLength(), String.copyValueOf(fileMetadata
-                                .getSrcFileName()));
+                                .getMessageDataLength(), fileToWrite.getAbsolutePath());
+                        fileToWrite = null;
                     } else {
                         this.mListener.onReceivingRawMessage(totalMessageData, messageMetadata
                                 .getMessageDataLength(), null);

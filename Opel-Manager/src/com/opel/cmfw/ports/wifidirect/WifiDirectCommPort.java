@@ -12,7 +12,7 @@ import java.net.Socket;
 
 public class WifiDirectCommPort extends CommPort {
     static private String TAG = "WifiDirectCommPort";
-    static private int kTimeoutMillisecs = 1500;
+    static private int kTimeoutMillisecs = 20000;
 
     private boolean mIsOpened = false;
     private Socket mSocket = null;
@@ -56,7 +56,7 @@ public class WifiDirectCommPort extends CommPort {
     public void close() {
         if (this.isOpened()) {
             try {
-                this.mSocket.close();
+                if (this.mSocket != null) this.mSocket.close();
                 Log.d(TAG, "WFD Port closed");
             } catch (IOException e) {
                 e.printStackTrace();

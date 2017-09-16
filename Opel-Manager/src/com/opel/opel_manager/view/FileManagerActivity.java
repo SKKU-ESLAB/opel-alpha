@@ -21,6 +21,7 @@ package com.opel.opel_manager.view;
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -29,6 +30,7 @@ import android.content.ServiceConnection;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.v4.content.FileProvider;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -39,6 +41,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.opel.opel_manager.R;
 import com.opel.opel_manager.controller.OPELControllerBroadcastReceiver;
@@ -384,7 +387,11 @@ public class FileManagerActivity extends Activity {
                 File cachedFile = getCachedFile(requestFileRemotePath);
 
                 // Rename the stored file with cached file naming convention
-                storedFile.renameTo(cachedFile);
+                boolean isSucceed = storedFile.renameTo(cachedFile);
+                if (!isSucceed) {
+                    Log.e(TAG, "Renaming file is refused: " + storedFile.getAbsolutePath() + " ->" +
+                            " " + cachedFile.getAbsolutePath());
+                }
 
                 // Share it
                 this.open(cachedFile.getAbsolutePath());
@@ -397,40 +404,48 @@ public class FileManagerActivity extends Activity {
                     fileCachedPath.length());
 
             Intent intent = new Intent();
-            intent.setAction(Intent.ACTION_SEND);
+            intent.setAction(Intent.ACTION_VIEW);
+            String fileType;
             if (extension.compareTo("mp3") == 0) {
-                intent.setDataAndType(Uri.fromFile(fileCached), "audio/*");
+                fileType = "audio/*";
             } else if (extension.compareTo("mp4") == 0 || extension.compareTo("wmv") == 0 ||
                     extension.compareTo("avi") == 0) {
-                intent.setDataAndType(Uri.fromFile(fileCached), "video/*");
+                fileType = "video/*";
             } else if (extension.compareTo("jpg") == 0 || extension.compareTo("jpeg") == 0 ||
                     extension.compareTo("gif") == 0 || extension.compareTo("png") == 0 ||
                     extension.compareTo("bmp") == 0) {
-                intent.setDataAndType(Uri.fromFile(fileCached), "image/*");
+                fileType = "image/*";
             } else if (extension.equals("txt")) {
-                intent.setDataAndType(Uri.fromFile(fileCached), "text/*");
+                fileType = "text/*";
             } else if (extension.equals("doc") || extension.equals("docx")) {
-                intent.setDataAndType(Uri.fromFile(fileCached), "OPELApp/msword");
+                fileType = "application/msword";
             } else if (extension.equals("xls") || extension.equals("xlsx")) {
-                intent.setDataAndType(Uri.fromFile(fileCached), "OPELApp/vnd.ms-excel");
+                fileType = "application/vnd.ms-excel";
             } else if (extension.equals("ppt") || extension.equals("pptx")) {
-                intent.setDataAndType(Uri.fromFile(fileCached), "OPELApp/vnd.ms-powerpoint");
+                fileType = "application/vnd.ms-powerpoint";
             } else if (extension.equals("pdf")) {
-                intent.setDataAndType(Uri.fromFile(fileCached), "OPELApp/pdf");
+                fileType = "application/pdf";
             } else if (extension.equals("hwp")) {
-                intent.setDataAndType(Uri.fromFile(fileCached), "OPELApp/haansofthwp");
+                fileType = "application/haansofthwp";
             } else if (extension.equals("mjpg") || extension.equals("mjpeg")) {
-                String destFile = fileCachedPath.substring(0, fileCachedPath.length() - 4) + ".avi";
-                File aviFile;
+                String aviFile = fileCachedPath.substring(0, fileCachedPath.length() - 4) + ".avi";
                 FFmpegNativeHelper.runCommand("ffmpeg -i " + fileCached.getAbsolutePath() + " " +
-                        "" + "-vcodec" + " mjpeg " + destFile);
-                aviFile = new File(destFile);
-                intent.setDataAndType(Uri.fromFile(aviFile), "video/*");
+                        "" + "-vcodec" + " mjpeg " + aviFile);
+                fileCached = new File(aviFile);
+                fileType = "video/*";
             } else {
-                intent.setDataAndType(Uri.fromFile(fileCached), "OPELApp/*");
+                fileType = "text/plain";
             }
+            Uri fileUri = FileProvider.getUriForFile(self, "com.opel.opel_manager.provider",
+                    fileCached);
+            intent.setDataAndType(fileUri, fileType);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            try {
+                startActivity(intent);
+            } catch (ActivityNotFoundException e) {
+                Toast.makeText(self, "Cannot find app to open", Toast.LENGTH_LONG).show();
+            }
         }
     }
 
@@ -470,7 +485,11 @@ public class FileManagerActivity extends Activity {
                 File cachedFile = getCachedFile(requestFileRemotePath);
 
                 // Rename the stored file with cached file naming convention
-                storedFile.renameTo(cachedFile);
+                boolean isSucceed = storedFile.renameTo(cachedFile);
+                if (!isSucceed) {
+                    Log.e(TAG, "Renaming file is refused: " + storedFile.getAbsolutePath() + " ->" +
+                            " " + cachedFile.getAbsolutePath());
+                }
 
                 // Share it
                 this.share(cachedFile.getAbsolutePath());
@@ -486,7 +505,12 @@ public class FileManagerActivity extends Activity {
             intent.setType("*/*");
 
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            try {
+                startActivity(intent);
+            } catch (ActivityNotFoundException e) {
+                Toast.makeText(self, "Cannot find app to open", Toast.LENGTH_LONG).show();
+            }
         }
     }
 

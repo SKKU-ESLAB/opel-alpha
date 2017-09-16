@@ -17,7 +17,6 @@ package com.opel.opel_manager.controller;
  * limitations under the License.
  */
 
-import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -284,6 +283,9 @@ public class TargetDeviceStub {
             mCommBroadcastReceiver = new PrivateCommBroadcastReceiver();
             mOwnerService.registerReceiver(mCommBroadcastReceiver, broadcastIntentFilter);
 
+            // Initialize path
+            mCommChannelServiceStub.setDownloadFilePath(mDownloadPath);
+
             // Request to connect channel
             mCommChannelServiceStub.connectChannel(); // RPC to CommChannelService
         }
@@ -306,6 +308,7 @@ public class TargetDeviceStub {
         @Override
         public void onReceivedRawMessage(String messageStr, String filePath) {
             BaseMessage message = MessageFactory.makeMessageFromJSONString(messageStr);
+            message.setStoredFilePath(filePath);
             switch (message.getType()) {
                 case BaseMessage.Type_AppCoreAck:
                     onReceivedAppCoreAckMessage(message);
@@ -320,17 +323,21 @@ public class TargetDeviceStub {
                 case BaseMessage.Type_AppCore:
                 case BaseMessage.Type_NotDetermined:
                 default:
-                    Log.e(TAG, "Cannot receive that kind of message!: " + messageStr);
+                    Log.e(TAG, "Cannot receive that kind of message!: " + messageStr + " / " +
+                            filePath);
                     break;
             }
         }
     }
 
-    public TargetDeviceStub(Service ownerService, TargetDeviceStubListener listener) {
+    public TargetDeviceStub(OPELControllerService ownerService, TargetDeviceStubListener
+            listener, String downloadPath) {
         this.mOwnerService = ownerService;
         this.mListener = listener;
+        this.mDownloadPath = downloadPath;
     }
 
-    private Service mOwnerService;
+    private OPELControllerService mOwnerService;
     private TargetDeviceStubListener mListener;
+    private String mDownloadPath;
 }

@@ -58,10 +58,10 @@ class CommPayloadMessageMetadata extends CommRawPacketPayload {
 class CommPayloadFileMetadata extends CommRawPacketPayload {
     private final String TAG = "PayloadFileMetadata";
     private int mFileSize;
-    private char mFileNameLength;
+    private int mFileNameLength;
     private char mFileName[];
 
-    public CommPayloadFileMetadata(int fileSize, char fileNameLength, char[] fileName) {
+    public CommPayloadFileMetadata(int fileSize, int fileNameLength, char[] fileName) {
         mFileSize = fileSize;
         mFileNameLength = fileNameLength;
         mFileName = fileName;
@@ -72,7 +72,7 @@ class CommPayloadFileMetadata extends CommRawPacketPayload {
             ByteBuffer bb = ByteBuffer.allocate(this.getBytesSize());
             Log.d(TAG, "FileMetadata: " + mFileSize + " / " + mFileNameLength + " / " + mFileName);
             bb.putInt(this.mFileSize);
-            bb.putChar(this.mFileNameLength);
+            bb.putInt(this.mFileNameLength);
             bb.put(new String(this.mFileName).getBytes("UTF-8"), 0, this.mFileNameLength + 1);
             return bb.array();
         } catch (UnsupportedEncodingException e) {
@@ -83,10 +83,10 @@ class CommPayloadFileMetadata extends CommRawPacketPayload {
 
     public static CommPayloadFileMetadata read(DataInputStream dataInputStream) throws IOException {
         int fileSize = dataInputStream.readInt();
-        char fileNameLength = dataInputStream.readChar();
+        int fileNameLength = dataInputStream.readInt();
         byte[] fileNameBytes = new byte[fileNameLength + 1];
         dataInputStream.readFully(fileNameBytes, 0, fileNameLength + 1);
-        String fileNameStr = new String(fileNameBytes, "UTF-8");
+        String fileNameStr = new String(fileNameBytes, "UTF-8").trim();
         char[] fileName = fileNameStr.toCharArray();
 
         CommPayloadFileMetadata fileMetadata = new CommPayloadFileMetadata(fileSize,
@@ -95,14 +95,14 @@ class CommPayloadFileMetadata extends CommRawPacketPayload {
     }
 
     public short getBytesSize() {
-        return (short) (4 + 1 + this.mFileNameLength + 1);
+        return (short) (4 + 4 + this.mFileNameLength + 1);
     }
 
     public int getFileSize() {
         return this.mFileSize;
     }
 
-    public char getSrcFileNameLength() {
+    public int getSrcFileNameLength() {
         return this.mFileNameLength;
     }
 

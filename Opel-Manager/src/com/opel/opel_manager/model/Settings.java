@@ -18,7 +18,7 @@ package com.opel.opel_manager.model;
  * limitations under the License.
  */
 
-import android.os.Environment;
+import android.content.Context;
 import android.util.Log;
 
 import java.io.File;
@@ -33,17 +33,13 @@ public class Settings {
     private File mOPELCloudDir;
     private File mOPELTempDir;
 
-    public void initializeDirectories() {
-        File opelDir = new File(Environment.getExternalStorageDirectory().getPath() + "/OPEL");
-        File opelRUIDir = new File(Environment.getExternalStorageDirectory().getPath() +
-                "/OPEL/RemoteUI");
-        File opelRemoteStorageDir = new File(Environment.getExternalStorageDirectory().getPath()
-                + "/OPEL/RemoteStorage");
-        File opelIconDir = new File(Environment.getExternalStorageDirectory().getPath() +
-                "/OPEL/Icon");
-        File opelCloudDir = new File(Environment.getExternalStorageDirectory().getPath() +
-                "/OPEL/CloudService");
-        File tempDir = new File(Environment.getExternalStorageDirectory().getPath() + "/OPEL/Temp");
+    public Settings(Context context) {
+        File opelDir = new File(context.getFilesDir().getAbsolutePath(), "opel");
+        File opelRUIDir = new File(opelDir, "remoteUI");
+        File opelRemoteStorageDir = new File(opelDir, "remoteStorage");
+        File opelIconDir = new File(opelDir, "icons");
+        File opelCloudDir = new File(opelDir, "cloud");
+        File tempDir = new File(opelDir, "temp");
 
         if (!opelDir.exists()) {
             if (!opelDir.mkdir()) {
@@ -70,8 +66,7 @@ public class Settings {
                 Log.e(TAG, "Failed to make OPEL cloud service directory");
             }
         }
-
-        if (tempDir.exists()) {
+        if (!tempDir.exists()) {
             if (!tempDir.mkdir()) {
                 Log.e(TAG, "Failed to make OPEL temp directory");
             }

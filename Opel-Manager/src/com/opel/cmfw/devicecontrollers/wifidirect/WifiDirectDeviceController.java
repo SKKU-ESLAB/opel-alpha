@@ -114,11 +114,16 @@ public class WifiDirectDeviceController {
 
             for (WifiP2pDevice peerDevice : peerDeviceList.getDeviceList()) {
                 if (peerDevice.deviceName.compareTo(mWifiDirectName) == 0) {
-                    Log.d(TAG, "Found device");
-                    if (peerDevice.status == WifiP2pDevice.AVAILABLE) {
-                        Log.d(TAG, "Connecting...");
+                    Log.d(TAG, "Found Wi-fi Direct device: " + mWifiDirectName);
+                    if (peerDevice.status == WifiP2pDevice.AVAILABLE || peerDevice.status ==
+                            WifiP2pDevice.CONNECTED || peerDevice.status == WifiP2pDevice.INVITED) {
+                        Log.d(TAG, "Connecting Wi-fi Direct device: " + mWifiDirectName);
                         requestConnection(peerDevice);
+                        mWifiP2pManager.stopPeerDiscovery(mWifiP2pManagerChannel, null);
+                        break;
                     } else {
+                        Log.d(TAG, "Not yet initiated: " + mWifiDirectName + " / " + peerDevice
+                                .status);
                         this.onFail();
                     }
                     return;

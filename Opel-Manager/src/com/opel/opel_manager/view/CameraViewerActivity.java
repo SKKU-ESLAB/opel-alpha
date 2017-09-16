@@ -102,7 +102,6 @@ public class CameraViewerActivity extends Activity implements SurfaceHolder.Call
     // URI of the clip being played
     private String mediaUri;
 
-    private InputMethodManager imm;
     private final int kOPELCameraPort = 5000;
 
     private Object mDelayedSurface;
@@ -196,8 +195,6 @@ public class CameraViewerActivity extends Activity implements SurfaceHolder.Call
         nativeSurfaceInit(mDelayedSurface);
 
         is_playing_desired = true;
-        imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(findViewById(R.id.editTextIPAddress).getWindowToken(), 0);
         nativePlay();
     }
 

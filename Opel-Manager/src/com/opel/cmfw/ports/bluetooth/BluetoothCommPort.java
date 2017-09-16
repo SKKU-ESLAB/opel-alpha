@@ -47,14 +47,10 @@ public class BluetoothCommPort extends CommPort {
         // RedCarrottt: Fix Bluetooth connection failure bug (Issue #103)
         BluetoothSocketWrapper newBluetoothSocket = null;
         try {
-            Log.d(TAG, "Before createRfcommSocketToServiceRecord");
             BluetoothSocket rawBtSocket = this.mBluetoothDevice.createRfcommSocketToServiceRecord
                     (mUUID);
-            Log.d(TAG, "After createRfcommSocketToServiceRecord");
             newBluetoothSocket = new NativeBluetoothSocket(rawBtSocket);
-            Log.d(TAG, "After new NativeBluetoothSocket");
             newBluetoothSocket.connect();
-            Log.d(TAG, "After connect");
             isSucceed = true;
         } catch (IOException e) {
             try {
@@ -96,7 +92,7 @@ public class BluetoothCommPort extends CommPort {
     public void close() {
         if (this.isOpened()) {
             try {
-                this.mBluetoothSocket.close();
+                if (this.mBluetoothSocket != null) this.mBluetoothSocket.close();
             } catch (IOException e) {
                 e.printStackTrace();
                 Log.d(TAG, "Close failed");

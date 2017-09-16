@@ -58,6 +58,16 @@
         <activity android:name="com.opel.opel_manager.view.SensorViewerActivity"/>
         <activity android:name="com.opel.opel_manager.view.FileManagerActivity"/>
         <activity android:name="com.opel.opel_manager.view.EventLogViewerActivity"/>
+
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="com.opel.opel_manager.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/paths"/>
+        </provider>
     </application>
 
 </manifest>

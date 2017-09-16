@@ -77,7 +77,6 @@ public class OPELControllerService extends Service {
 
     public OPELControllerService() {
         this.mEventList = new OPELEventList();
-        this.mSettings = new Settings();
         this.mBinder = new ControllerBinder();
     }
 
@@ -188,7 +187,7 @@ public class OPELControllerService extends Service {
         Uri apkUri = Uri.fromFile(apkFile);
         try {
             Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setDataAndType(apkUri, "OPELApp/vnd.android.package-archive");
+            intent.setDataAndType(apkUri, "application/vnd.android.package-archive");
             startActivity(intent);
         } catch (Exception e) {
             Log.d("OPEL", e.getMessage());
@@ -263,7 +262,11 @@ public class OPELControllerService extends Service {
                 File originalIconFile = new File(appIconPath);
                 String iconDirPath = mSettings.getIconDir().getAbsolutePath();
                 File targetIconFile = new File(iconDirPath, originalIconFile.getName());
-                originalIconFile.renameTo(targetIconFile);
+                boolean isSucceed = originalIconFile.renameTo(targetIconFile);
+                if (!isSucceed) {
+                    Log.e(TAG, "Renaming file is refused: " + originalIconFile.getAbsolutePath()
+                            + " -> " + targetIconFile.getAbsolutePath());
+                }
 
                 // Set app icon path
                 thisApp.setIconImagePath(targetIconFile.getAbsolutePath());
@@ -360,7 +363,11 @@ public class OPELControllerService extends Service {
                 // Move icon file to icon directory
                 File iconFile = new File(iconFilePath);
                 File newIconFile = new File(mSettings.getIconDir(), iconFile.getName());
-                iconFile.renameTo(newIconFile);
+                boolean isSucceed = iconFile.renameTo(newIconFile);
+                if (!isSucceed) {
+                    Log.e(TAG, "Renaming file is refused: " + iconFile.getAbsolutePath() + " -> "
+                            + newIconFile.getAbsolutePath());
+                }
 
                 // Clear the unarchive directory
                 File unarchiveDir = new File(unarchiveDirPath);
@@ -575,10 +582,15 @@ public class OPELControllerService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         this.mBindersCount++;
-        if (this.mTargetDeviceStubListener == null)
+        if (this.mSettings == null) {
+            this.mSettings = new Settings(this);
+        }
+        if (this.mTargetDeviceStubListener == null) {
             this.mTargetDeviceStubListener = new PrivateAppCoreStubListener();
+        }
         if (this.mTargetDeviceStub == null) {
-            this.mTargetDeviceStub = new TargetDeviceStub(this, this.mTargetDeviceStubListener);
+            this.mTargetDeviceStub = new TargetDeviceStub(this, this.mTargetDeviceStubListener,
+                    this.mSettings.getTempDir().getAbsolutePath());
         }
         this.mEventList.open(this);
         return this.mBinder;
