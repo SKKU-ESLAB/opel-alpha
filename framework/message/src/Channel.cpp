@@ -58,7 +58,7 @@ void Channel::routeMessage(BaseMessage* message) {
 
   // Push to mesage queue
   pthread_mutex_lock(&this->mRoutedMessageQueueMutex);
-  this->mRoutedMessageQueue.push_back(message);
+  this->mRoutedMessageQueue.insert(this->mRoutedMessageQueue.begin(), message);
   pthread_mutex_unlock(&this->mRoutedMessageQueueMutex);
 
   // Wake up RoutedLoop so that the loop can handle the message
@@ -77,9 +77,8 @@ int Channel::getQueueSizeLocked() {
 
 BaseMessage* Channel::dequeueRoutedMessageLocked() {
   pthread_mutex_lock(&this->mRoutedMessageQueueMutex);
-  std::vector<BaseMessage*>::iterator it = this->mRoutedMessageQueue.begin();
-  BaseMessage* message = *it;
-  this->mRoutedMessageQueue.erase(it);
+  BaseMessage* message = this->mRoutedMessageQueue.back();
+  this->mRoutedMessageQueue.pop_back();
   pthread_mutex_unlock(&this->mRoutedMessageQueueMutex);
   return message;
 }

@@ -32,6 +32,7 @@
 #include "CommPort.h"
 
 int getFileSize(const char* filePath);
+const char* getFileName(const char* filePath);
 
 void CommPortState::set(Value newValue) {
   Value oldValue = this->mValue;
@@ -383,10 +384,22 @@ bool CommPort::sendRawMessage(std::string messageData, std::string filePath) {
   if(filePath.length() > 0) {
     CommLog("Send attached file (%d)", this->mPresentHeaderId);
 
+    // Check file name length
+    const char* fileName = getFileName(filePath.c_str());
+    CommLog("File name: %s %s", filePath.c_str(), fileName);
+    if(fileName == NULL) {
+      CommLog("Cannot recognize file name!: %s", filePath.c_str());
+    }
+    int fileNameSize = strlen(fileName);
+    if(fileNameSize > 256) {
+      CommLog("File name length is too large!: %d", fileNameSize);
+      return false;
+    }
+
     // Send file metadata
     int fileSize = getFileSize(filePath.c_str());
     CommRawPacket* fileMetadataPacket = CommRawPacket::makeFileMetadataPacket(
-        this->mPresentHeaderId, filePath.c_str(), fileSize);
+        this->mPresentHeaderId, fileName, fileSize);
     IF_NULL_(fileMetadataPacket) {
     } _RETURN_FALSE()
     char* fileMetadataBytes = fileMetadataPacket->toByteArray();
@@ -424,7 +437,7 @@ bool CommPort::sendRawMessage(std::string messageData, std::string filePath) {
       CommLog("payloadSize=%d <- fileSize=%d, sentBytes=%d",
           fileDataPayloadSize, fileSize, sentBytes);
       char* fileDataPayloadBytes = new char[fileDataPayloadSize];
-      int freadRes = fread(fileDataPayloadBytes + sentBytes,
+      int freadRes = fread(fileDataPayloadBytes,
           sizeof(char),
           fileDataPayloadSize,
           fdToRead);
@@ -475,4 +488,12 @@ int getFileSize(const char* filePath) {
   int fileSize = ftell(fd);
   fclose(fd);
   return fileSize;
+}
+
+const char* getFileName(const char* filePath) {
+  const char* pos = strrchr(filePath, '/') + 1;
+  if(*pos == '\0')
+    return NULL;
+  else
+    return pos;
 }

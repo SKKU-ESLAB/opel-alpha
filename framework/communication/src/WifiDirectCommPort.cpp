@@ -96,14 +96,18 @@ bool WifiDirectCommPort::acceptConnection() {
 	struct sockaddr_in clientAddress;
 	int clientAddressLength = sizeof(clientAddress);
 	CommLog("Wifi direct port is now accepting: port = %d", this->mTcpPortNum);
-  int acceptRes = accept(this->getSocket(), (struct sockaddr *)&clientAddress,
+  int newSocket = accept(this->getSocket(), (struct sockaddr *)&clientAddress,
       (socklen_t *)&clientAddressLength);
-	if(acceptRes < 0) {
+	if(newSocket < 0) {
 		CommLog("Wifi direct port open error: accept fail (%s)", strerror(errno));
     this->closeConnection();
     __EXIT__;
 		return false;
 	}
+
+  // Set new accpeted socket
+  // socket: NULL -> listened socket -> accepted socket
+  this->setSocket(newSocket);
 
 	CommLog("Wifi direct port opening complete: client address = %s \n",\
 			inet_ntoa(*(struct in_addr *)&clientAddress.sin_addr));

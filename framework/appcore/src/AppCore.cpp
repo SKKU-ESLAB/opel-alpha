@@ -707,6 +707,9 @@ void AppCore::completeTerminatingApp(int pid) {
   // Check app's state
   AppState::Value appState = app->getState();
   switch(appState) {
+    case AppState::Ready:
+    case AppState::Launching:
+    case AppState::Running:
     case AppState::Terminating:
       {
         OPEL_DBG_VERB("Child was killed [User app pid : %d]", pid);
@@ -718,9 +721,6 @@ void AppCore::completeTerminatingApp(int pid) {
     case AppState::Initializing:
     case AppState::Initialized:
     case AppState::Installing:
-    case AppState::Ready:
-    case AppState::Launching:
-    case AppState::Running:
     case AppState::Removing:
     case AppState::Removed:
       OPEL_DBG_ERR("unexpected app state: %d", appState);

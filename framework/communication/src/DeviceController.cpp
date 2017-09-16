@@ -53,22 +53,45 @@ bool BluetoothDeviceController::turnOff() {
 bool WifiDirectDeviceController::turnOn() {
 	__ENTER__;
 
-	char isInitStr[256];
-	tmpc_get("wifi/wifi-direct/init", isInitStr, 256);
-	int isInit = atoi(isInitStr);
-	if(isInit == 1){
-		CommLog("Wifi Direct has already turned on");
-	} else {
-    char command[256];
-		strcpy(command, getenv("OPEL_BIN_DIR"));
-		strcat(command, "/opel_p2p_setup.sh init");
-		system(command);
+	char wfdStatStr[256];
+  int wfdStat;
+	tmpc_get("wifi/wifi-direct/wfd_stat", wfdStatStr, 256);
+  wfdStat = atoi(wfdStatStr);
+  while(wfdStat == 0) {
+    // Reset before initializing Wi-fi Direct
+    {
+      char command[256]; 
+      strcpy(command, getenv("OPEL_BIN_DIR"));
+      strcat(command, "/opel_p2p_setup.sh stop");
+      system(command);
+    }
 
-		strcpy(command, getenv("OPEL_BIN_DIR"));
-		strcat(command, "/opel_p2p_setup.sh start");
-		system(command);
-		CommLog("P2p start!");
-	}
+    // Initialize Wi-fi Direct
+//    char isInitStr[256];
+//    tmpc_get("wifi/wifi-direct/init", isInitStr, 256);
+//    int isInit = atoi(isInitStr);
+//    if(isInit == 1){
+//      CommLog("Wifi Direct has already turned on");
+//    } else {
+    {
+      char command[256];
+      strcpy(command, getenv("OPEL_BIN_DIR"));
+      strcat(command, "/opel_p2p_setup.sh init");
+      system(command);
+    }
+
+    // Start Wi-fi Direct
+    {
+      char command[256]; 
+      strcpy(command, getenv("OPEL_BIN_DIR"));
+      strcat(command, "/opel_p2p_setup.sh start");
+      system(command);
+      CommLog("P2p start!");
+    }
+
+    tmpc_get("wifi/wifi-direct/wfd_stat", wfdStatStr, 256);
+    wfdStat = atoi(wfdStatStr);
+  }
 
 	CommLog("Wifi direct turned on");
   this->DeviceController::turnOn();

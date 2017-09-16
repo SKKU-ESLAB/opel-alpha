@@ -40,7 +40,7 @@ CommRawPacket* CommRawPacket::makeMessageMetadataPacket(
 CommRawPacket* CommRawPacket::makeFileMetadataPacket(
     char headerId, const char* fileName, int fileSize) {
   CommPayloadFileMetadata* payload = new CommPayloadFileMetadata(
-      (int) fileSize, (char) strlen(fileName), fileName);
+      (int) fileSize, (int) strlen(fileName), fileName);
   CommRawPacketHeader* header = new CommRawPacketHeader(
       headerId, payload->getBytesSize(), 0,
       false, false, false, true);
@@ -149,7 +149,7 @@ CommRawPacketHeader* CommRawPacketHeader::readFromSocket(int socketFd) {
 } while(0);
 #define WRITE_BYTEARRAY_SIZE(x, s) do { \
   memcpy(writePtr, x, s); \
-  writePtr += s; \
+  writePtr += (s); \
 } while(0);
 
 char* CommRawPacketHeader::toByteArray() {
@@ -186,10 +186,10 @@ char* CommPayloadMessageMetadata::toByteArray() {
 
 CommPayloadFileMetadata* CommPayloadFileMetadata::readFromSocket(int socketFd) {
   int fileSize;
-  char fileNameLength;
+  int fileNameLength;
   char* fileName;
   READ_SOCKET_I(socketFd, fileSize);
-  READ_SOCKET_C(socketFd, fileNameLength);
+  READ_SOCKET_I(socketFd, fileNameLength);
   fileName = new char[fileNameLength + 1];
   READ_SOCKET(socketFd, fileName, fileNameLength + 1);
   CommPayloadFileMetadata* fileMetadata = new CommPayloadFileMetadata(
@@ -200,7 +200,7 @@ CommPayloadFileMetadata* CommPayloadFileMetadata::readFromSocket(int socketFd) {
 char* CommPayloadFileMetadata::toByteArray() {
   NEW_BYTEARRAY(byteArray, this->getBytesSize());
   WRITE_BYTEARRAY_I(this->mFileSize);
-  WRITE_BYTEARRAY_C(this->mFileNameLength);
+  WRITE_BYTEARRAY_I(this->mFileNameLength);
   WRITE_BYTEARRAY_SIZE(this->mFileName, this->mFileNameLength + 1);
   return byteArray;
 }

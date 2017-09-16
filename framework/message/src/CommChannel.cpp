@@ -232,7 +232,7 @@ void CommChannel::onReceivedMessage(BaseMessage* message) {
   this->mMessageRouter->routeMessage(message);
 }
 
-int CommChannel::getIpAddress(const char * interfaceName, char* ipAddr) {
+int CommChannel::getIpAddress(const char* interfaceName, char* ipAddr) {
   int sockfd; 
   char _ipAddr[40]; 
   struct ifreq ifr; 
@@ -278,13 +278,14 @@ void ControlPortsListener::onReceivedRawMessage(std::string messageData,
   this->mOwner->onReceivedControlMessage(messageData);
 }
 
+#define WLAN_P2P_INTERFACE_NAME "p2p-wlan0-0"
 #define WLAN_INTERFACE_NAME "wlan0"
 #define ETHERNET_INTERFACE_NAME "eth0"
 
 void CommChannel::onReceivedControlMessage(std::string messageData) {
   // Raw message from control port 
-  OPEL_DBG_VERB("Received control message for CommChannel: %s / %s",
-      messageData);
+  OPEL_DBG_VERB("Received control message for CommChannel: %s",
+      messageData.c_str());
 
   if(messageData.compare("on") == 0) {
     // Enable largedata mode
@@ -296,7 +297,10 @@ void CommChannel::onReceivedControlMessage(std::string messageData) {
       // Get my IP address
       char buffer[1024];
       int getIpRes;
-      getIpRes = this->getIpAddress(WLAN_INTERFACE_NAME, buffer);
+      getIpRes = this->getIpAddress(WLAN_P2P_INTERFACE_NAME, buffer);
+      if(getIpRes < 0) {
+        getIpRes = this->getIpAddress(WLAN_INTERFACE_NAME, buffer);
+      }
       if(getIpRes < 0) {
         getIpRes = this->getIpAddress(ETHERNET_INTERFACE_NAME, buffer);
       }
@@ -307,6 +311,10 @@ void CommChannel::onReceivedControlMessage(std::string messageData) {
 
       // Get my WFD name
       char* wfdName = getenv("OPEL_WFD_NAME");
+      if(wfdName == NULL) {
+        OPEL_DBG_ERR("Cannot get Wi-fi Direct name");
+        return;
+      }
       strncat(buffer, "\n", strlen("\n"));
       strncat(buffer, wfdName, strlen(wfdName));
 

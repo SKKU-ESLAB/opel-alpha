@@ -165,7 +165,7 @@ class CommChannel : public Channel, CommPortStateListener {
     virtual void onRoutedMessage(BaseMessage* message);
 
     // Get IP Address
-    int getIpAddress(const char * interfaceName, char* ipAddr);
+    int getIpAddress(const char* interfaceName, char* ipAddr);
 
   protected:
     // State

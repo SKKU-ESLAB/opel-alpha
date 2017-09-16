@@ -93,19 +93,19 @@ class CommPayloadMessageMetadata : public CommRawPacketPayload {
 
 class CommPayloadFileMetadata : public CommRawPacketPayload {
   public:
-    CommPayloadFileMetadata(int fileSize, char fileNameLength, const char* fileName)
+    CommPayloadFileMetadata(int fileSize, int fileNameLength, const char* fileName)
       : mFileSize(fileSize), mFileNameLength(fileNameLength) {
       this->mFileName = new char[fileNameLength + 1];
       strncpy(this->mFileName, fileName, fileNameLength);
     }
     ~CommPayloadFileMetadata() {
-      if(this->mFileName != NULL) delete this->mFileName;
+      if(this->mFileName != NULL) delete[] this->mFileName;
     }
 
     static CommPayloadFileMetadata* readFromSocket(int socketFd);
 
     virtual char* toByteArray();
-    virtual short getBytesSize() { return (short) (4 + 1 + this->mFileNameLength + 1); }
+    virtual short getBytesSize() { return (short) (4 + 4 + this->mFileNameLength + 1); }
 
     int getFileSize() { return this->mFileSize; }
     char getSrcFileNameLength() { return this->mFileNameLength; }
@@ -113,7 +113,7 @@ class CommPayloadFileMetadata : public CommRawPacketPayload {
 
   protected:
     int mFileSize;
-    char mFileNameLength;
+    int mFileNameLength;
     char* mFileName;
 };
 
