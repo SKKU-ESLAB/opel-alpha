@@ -39,7 +39,7 @@ public class Unzip {
             try {
                 ZipEntry ze = null;
                 while ((ze = zin.getNextEntry()) != null) {
-                    String path = location + ze.getName();
+                    String path = location + "/" + ze.getName();
 
                     if (ze.isDirectory()) {
                         File unzipFile = new File(path);

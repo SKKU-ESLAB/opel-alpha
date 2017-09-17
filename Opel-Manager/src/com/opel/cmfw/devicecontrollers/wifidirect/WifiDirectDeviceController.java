@@ -62,6 +62,7 @@ public class WifiDirectDeviceController {
     }
 
     private class ConnectProcedure {
+        private WifiDirectPeerChangedEventReceiver mPeerChangedEventReceiver = null;
         private WifiDirectConnectingResultListener mConnectingResultListener;
 
         public void start(WifiDirectConnectingResultListener connectingResultListener) {
@@ -75,8 +76,8 @@ public class WifiDirectDeviceController {
             IntentFilter wifiP2PIntentFilter;
             wifiP2PIntentFilter = new IntentFilter();
             wifiP2PIntentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
-            mService.registerReceiver(new WifiDirectPeerChangedEventReceiver(),
-                    wifiP2PIntentFilter);
+            this.mPeerChangedEventReceiver = new WifiDirectPeerChangedEventReceiver();
+            mService.registerReceiver(this.mPeerChangedEventReceiver, wifiP2PIntentFilter);
 
             // Start Wi-fi direct discovery
             mWifiP2pManager.discoverPeers(mWifiP2pManagerChannel, null);
@@ -120,7 +121,6 @@ public class WifiDirectDeviceController {
                         Log.d(TAG, "Connecting Wi-fi Direct device: " + mWifiDirectName);
                         requestConnection(peerDevice);
                         mWifiP2pManager.stopPeerDiscovery(mWifiP2pManagerChannel, null);
-                        break;
                     } else {
                         Log.d(TAG, "Not yet initiated: " + mWifiDirectName + " / " + peerDevice
                                 .status);
@@ -146,6 +146,14 @@ public class WifiDirectDeviceController {
                 wifiP2pConfig.wps.setup = WpsInfo.DISPLAY;
                 Log.d(TAG, "WPS:Display");
             }
+
+            // Unregister receiver
+            if (this.mPeerChangedEventReceiver != null) {
+                mService.unregisterReceiver(this.mPeerChangedEventReceiver);
+                this.mPeerChangedEventReceiver = null;
+            }
+
+            Log.d(TAG, "Request to connect Wi-fi connection");
             mWifiP2pManager.connect(mWifiP2pManagerChannel, wifiP2pConfig, new WifiP2pManager
                     .ActionListener() {
                 @Override

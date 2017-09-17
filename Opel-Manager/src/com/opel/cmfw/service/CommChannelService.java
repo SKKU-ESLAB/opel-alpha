@@ -403,12 +403,6 @@ public class CommChannelService extends Service implements CommPortListener {
         }
 
         private void onSuccess() {
-            // Close control port
-            if (mControlPort != null) {
-                mControlPort.stopListeningThread();
-                mControlPort.close();
-            }
-
             // Start listening thread
             if (mLargeDataPort != null) mLargeDataPort.runListeningThread(self, mDownloadFilePath);
 
@@ -426,10 +420,11 @@ public class CommChannelService extends Service implements CommPortListener {
     }
 
     private class LargeDataPortWatcher extends Thread {
+        static private final String TAG = "LargeDataPortWatcher";
         static private final long kSleepMillisecs = 1000;
-        static private final long kThresholdMillisecs = 10000;
+        static private final long kThresholdMillisecs = 5000;
 
-        private int mNumInUse = 0;
+        private Integer mNumInUse = 0;
         private Date mLastAccess;
         private boolean mIsEnabled = false;
 
@@ -442,13 +437,17 @@ public class CommChannelService extends Service implements CommPortListener {
         }
 
         public void startToUse() {
-            this.mLastAccess = new Date();
-            this.mNumInUse++;
+            synchronized (this.mNumInUse) {
+                this.mLastAccess = new Date();
+                this.mNumInUse++;
+            }
         }
 
         public void endToUse() {
-            this.mLastAccess = new Date();
-            this.mNumInUse--;
+            synchronized (this.mNumInUse) {
+                this.mLastAccess = new Date();
+                this.mNumInUse--;
+            }
         }
 
         @Override
@@ -457,9 +456,16 @@ public class CommChannelService extends Service implements CommPortListener {
             this.mLastAccess = new Date();
 
             while (this.mIsEnabled) {
-                Date now = new Date();
-                if ((mNumInUse == 0) && (now.compareTo(this.mLastAccess) > kThresholdMillisecs)) {
-                    disableLargeDataMode();
+                synchronized (this.mNumInUse) {
+                    Date now = new Date();
+                    Log.d(TAG, "LargeDataPort users = " + mNumInUse + " recent access = " + this
+                            .mLastAccess);
+                    if ((mNumInUse == 0) && ((now.getTime() - this.mLastAccess.getTime()) >
+                            kThresholdMillisecs)) {
+
+                        Log.d(TAG, "Disable large data mode!");
+                        disableLargeDataMode();
+                    }
                 }
 
                 try {

@@ -25,8 +25,9 @@ public class CommRawPacket {
     }
 
     static public CommRawPacket makeFileMetadataPacket(byte headerId, File srcFile) {
+        String fileName = srcFile.getName();
         CommPayloadFileMetadata payload = new CommPayloadFileMetadata((int) srcFile.length(),
-                (char) srcFile.getName().length(), srcFile.getName().toCharArray());
+                fileName);
         CommRawPacketHeader header = new CommRawPacketHeader(headerId, payload.getBytesSize(), 0,
                 false, false, false, true);
         return new CommRawPacket(header, payload);

@@ -90,7 +90,7 @@ public class AppManagerActivity extends Activity {
     private void initializeUI() {
         ActionBar actionBar = getActionBar();
         assert actionBar != null;
-        actionBar.setTitle("App Manager");
+        actionBar.setTitle("Apps");
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setLogo(com.opel.opel_manager.R.drawable.icon_app_manager);
         actionBar.setDisplayUseLogoEnabled(true);

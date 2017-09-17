@@ -27,7 +27,7 @@ import com.opel.opel_manager.view.MainActivity;
 
 public class FileManagerMainIcon extends MainIcon {
     public FileManagerMainIcon(MainActivity ownerActivity) {
-        super(ownerActivity, "File Manager", BitmapFactory.decodeResource(ownerActivity
+        super(ownerActivity, "Files", BitmapFactory.decodeResource(ownerActivity
                 .getResources(), R.drawable.filemanager));
     }
 

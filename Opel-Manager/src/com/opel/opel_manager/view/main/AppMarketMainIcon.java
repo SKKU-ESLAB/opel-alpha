@@ -30,7 +30,7 @@ import com.opel.opel_manager.view.MainActivity;
 public class AppMarketMainIcon extends MainIcon {
 
     public AppMarketMainIcon(MainActivity ownerActivity) {
-        super(ownerActivity, "App Market", BitmapFactory.decodeResource(ownerActivity
+        super(ownerActivity, "Market", BitmapFactory.decodeResource(ownerActivity
                 .getResources(), R.drawable.market));
     }
 

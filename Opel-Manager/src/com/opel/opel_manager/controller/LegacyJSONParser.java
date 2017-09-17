@@ -18,7 +18,7 @@ import android.util.Log;
 
 //Use existing json to parse
 /*
- * 	LegacyJSONParser jp = new LegacyJSONParser("{\"noti\":\"_appid\",\"appTitle\":\"noti example\",\"dateTime\":\"2015-08-15, 11:58 am\",\"description\":\"OPELEvent detected\",\"text\":\"eventDetected\",\"img\":\"mFileName.jpg\"}");
+ * 	LegacyJSONParser jp = new LegacyJSONParser("{\"noti\":\"_appid\",\"appTitle\":\"noti example\",\"dateTime\":\"2015-08-15, 11:58 am\",\"description\":\"OPELEvent detected\",\"text\":\"eventDetected\",\"img\":\"mFilePath.jpg\"}");
 
 	Log.d("OPEL", jp.getValueByKey("noti"));
 	Log.d("OPEL", jp.getValueByKey("img"));

@@ -227,8 +227,10 @@ public class CameraViewerActivity extends Activity implements SurfaceHolder.Call
 
     @Override
     protected void onDestroy() {
-        nativeFinalize();
         super.onDestroy();
+
+        // Finalize gstreamer
+        this.nativeFinalize();
 
         // Terminate JavaScript CameraViewer App
         this.mControllerServiceStub.terminateAppOneWay(this.mAppId);
@@ -354,7 +356,7 @@ public class CameraViewerActivity extends Activity implements SurfaceHolder.Call
     private void disconnectControllerService() {
         if (this.mControllerServiceConnection != null)
             this.unbindService(this.mControllerServiceConnection);
-        if(this.mControllerBroadcastReceiver != null)
+        if (this.mControllerBroadcastReceiver != null)
             this.unregisterReceiver(this.mControllerBroadcastReceiver);
     }
 

@@ -51,6 +51,7 @@ import java.util.Date;
 import java.util.Locale;
 
 import static android.content.ContentValues.TAG;
+import static android.os.Environment.DIRECTORY_DOWNLOADS;
 
 public class AppMarketActivity extends Activity {
     // OPELControllerService
@@ -64,7 +65,7 @@ public class AppMarketActivity extends Activity {
 
     private long mDownloadID = 0;
 
-    ArrayList<String> requestQueue;
+    ArrayList<String> mDownloadRequestQueue;
 
     public static ProgressDialog marketProgDialog;
 
@@ -84,7 +85,7 @@ public class AppMarketActivity extends Activity {
         this.mWebView.setVerticalScrollBarEnabled(true);
         this.mWebView.setWebViewClient(new PrivateWebViewClient());
 
-        requestQueue = new ArrayList<>();
+        mDownloadRequestQueue = new ArrayList<>();
 
         // Connect controller service
         this.connectControllerService();
@@ -131,7 +132,7 @@ public class AppMarketActivity extends Activity {
                         Locale.KOREA);
                 String fileName = simpleDateFormat.format(new Date());
 
-                while (new File(Environment.DIRECTORY_DOWNLOADS, fileName).exists()) {
+                while (new File(DIRECTORY_DOWNLOADS, fileName).exists()) {
                     fileName += "_";
                 }
                 fileName += ".opk";
@@ -144,17 +145,16 @@ public class AppMarketActivity extends Activity {
                 request.allowScanningByMediaScanner();
                 request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_HIDDEN);
 
-                request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS,
-                        fileName);
+                request.setDestinationInExternalPublicDir(DIRECTORY_DOWNLOADS, fileName);
 
                 // get download service and enqueue file
                 mDownloadID = mDownloadManager.enqueue(request);
-                if (requestQueue.isEmpty()) {
+                if (mDownloadRequestQueue.isEmpty()) {
                     IntentFilter intentFilter = new IntentFilter(DownloadManager
                             .ACTION_DOWNLOAD_COMPLETE);
                     registerReceiver(mDownloadBroadcastReceiver, intentFilter);
                 }
-                requestQueue.add(fileName);
+                mDownloadRequestQueue.add(fileName);
 
             } else {
                 view.loadUrl(url);
@@ -180,12 +180,18 @@ public class AppMarketActivity extends Activity {
                         // handling file
                         String fileName = cursor.getString(cursor.getColumnIndex(DownloadManager
                                 .COLUMN_TITLE));
-                        requestQueue.remove(fileName);
+                        mDownloadRequestQueue.remove(fileName);
 
-                        Log.d("OPEL", fileName + " :: DOWNLOAD COMPLETE");
+                        File downloadDir = new File(Environment.getExternalStorageDirectory(),
+                                Environment.DIRECTORY_DOWNLOADS);
+                        File downloadedFile = new File(downloadDir, fileName);
+
+                        Log.d(TAG, "Downlod OPEL App complete: " + downloadedFile.getAbsolutePath
+                                ());
                         Toast.makeText(self, "Start to install...", Toast.LENGTH_LONG);
-                        new InstallThread(fileName).start();
-                        if (requestQueue.isEmpty()) unregisterReceiver(mDownloadBroadcastReceiver);
+                        new InstallThread(downloadedFile.getAbsolutePath()).start();
+                        if (mDownloadRequestQueue.isEmpty())
+                            unregisterReceiver(mDownloadBroadcastReceiver);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -195,19 +201,15 @@ public class AppMarketActivity extends Activity {
     };
 
     class InstallThread extends Thread {
-        public String mFileName;
+        public String mFilePath;
 
-        InstallThread(String fileName) {
-            mFileName = fileName;
+        InstallThread(String filePath) {
+            mFilePath = filePath;
         }
 
         public void run() {
-            mControllerServiceStub.installAppOneWay(mFileName);
+            mControllerServiceStub.installAppOneWay(mFilePath);
             self.finish();
-        }
-
-        public void onAppStateChanged(int appId, int appState) {
-
         }
     }
 
@@ -220,7 +222,7 @@ public class AppMarketActivity extends Activity {
     private void disconnectControllerService() {
         if (this.mControllerServiceConnection != null)
             this.unbindService(this.mControllerServiceConnection);
-        if(this.mControllerBroadcastReceiver != null)
+        if (this.mControllerBroadcastReceiver != null)
             this.unregisterReceiver(this.mControllerBroadcastReceiver);
     }
 

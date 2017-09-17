@@ -353,15 +353,15 @@ public class OPELControllerService extends Service {
 
                 // Get app information
                 String name = this.getFieldFromManifest(manifestFile.getAbsolutePath(), "label");
-                String iconFilePath = this.getFieldFromManifest(manifestFile.getAbsolutePath(),
+                String iconFileName = this.getFieldFromManifest(manifestFile.getAbsolutePath(),
                         "icon");
-                if (name == null || iconFilePath == null) {
+                if (name == null || iconFileName == null) {
                     Log.e(TAG, "Failed to get app information from manifest file.");
                     return false;
                 }
 
                 // Move icon file to icon directory
-                File iconFile = new File(iconFilePath);
+                File iconFile = new File(unarchiveDirPath, iconFileName);
                 File newIconFile = new File(mSettings.getIconDir(), iconFile.getName());
                 boolean isSucceed = iconFile.renameTo(newIconFile);
                 if (!isSucceed) {
@@ -376,7 +376,7 @@ public class OPELControllerService extends Service {
                 }
 
                 // Insert to app list
-                mAppList.put(appId, new OPELApp(appId, name, iconFilePath, false));
+                mAppList.put(appId, new OPELApp(appId, name, newIconFile.getAbsolutePath(), false));
                 return true;
             } catch (IOException e) {
                 Log.e(TAG, "Failed to get app information from manifest file.");
@@ -395,10 +395,12 @@ public class OPELControllerService extends Service {
                 int event = xmlParser.getEventType();
                 while (event != XmlPullParser.END_DOCUMENT) {
                     String tagName = xmlParser.getName();
-                    if (event == XmlPullParser.START_TAG && tagName.compareTo(fieldName) == 0) {
+                    if (tagName != null && tagName.compareTo(fieldName) == 0) {
                         xmlParser.next();
                         return xmlParser.getText();
                     }
+                    event = xmlParser.getEventType();
+                    xmlParser.next();
                 }
                 return null;
             } catch (XmlPullParserException e) {

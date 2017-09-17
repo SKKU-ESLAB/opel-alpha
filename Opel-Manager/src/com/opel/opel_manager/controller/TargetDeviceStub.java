@@ -88,7 +88,7 @@ public class TargetDeviceStub {
                 .Type_InstallApp);
         AppCoreMessage appCorePayload = (AppCoreMessage) newMessage.getPayload();
         appCorePayload.setParamsInstallApp(appId, packageFile.getName());
-        newMessage.attachFile(packageFile.getPath());
+        newMessage.attachFile(packageFile.getAbsolutePath());
         return this.sendMessage(newMessage);
     }
 

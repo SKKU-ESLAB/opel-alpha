@@ -27,7 +27,7 @@ import com.opel.opel_manager.view.MainActivity;
 
 public class AppManagerMainIcon extends MainIcon {
     public AppManagerMainIcon(MainActivity ownerActivity) {
-        super(ownerActivity, "App Manager", BitmapFactory.decodeResource(ownerActivity
+        super(ownerActivity, "Apps", BitmapFactory.decodeResource(ownerActivity
                 .getResources(), R.drawable.icon_app_manager));
     }
 

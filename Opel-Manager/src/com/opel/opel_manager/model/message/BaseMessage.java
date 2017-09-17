@@ -43,7 +43,7 @@ public class BaseMessage implements Parcelable {
     static final String OPEL_MESSAGE_KEY_URI = "uri";
     static final String OPEL_MESSAGE_KEY_TYPE = "type";
     static final String OPEL_MESSAGE_KEY_IS_FILE_ATTACHED = "isFileAttached";
-    static final String OPEL_MESSAGE_KEY_FILE_NAME = "mFileName";
+    static final String OPEL_MESSAGE_KEY_FILE_NAME = "fileName";
     static final String OPEL_MESSAGE_KEY_PAYLOAD = "payload";
 
     // Encoding to JSON
@@ -59,7 +59,7 @@ public class BaseMessage implements Parcelable {
         thisObj.put(OPEL_MESSAGE_KEY_URI, "" + this.mUri);
         thisObj.put(OPEL_MESSAGE_KEY_TYPE, "" + this.mType);
         thisObj.put(OPEL_MESSAGE_KEY_IS_FILE_ATTACHED, (this.isFileAttached()) ? "1" : "0");
-        if (this.mIsFileAttached) thisObj.put(OPEL_MESSAGE_KEY_FILE_NAME, "" + this.mUri);
+        if (this.mIsFileAttached) thisObj.put(OPEL_MESSAGE_KEY_FILE_NAME, "" + this.mFileName);
         thisObj.set(OPEL_MESSAGE_KEY_PAYLOAD, this.mPayload.toJSONNode());
         return thisObj;
     }
@@ -97,8 +97,10 @@ public class BaseMessage implements Parcelable {
 
     // Attach file on message to be sent
     public void attachFile(String filePath) {
+        this.mIsFileAttached = true;
         File file = new File(filePath);
         this.mFileName = file.getName();
+        this.setStoredFilePath(filePath);
     }
 
     // Set local file path when attached file has come
