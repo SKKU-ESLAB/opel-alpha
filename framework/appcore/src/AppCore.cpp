@@ -188,41 +188,54 @@ void AppCore::onReceivedMessage(BaseMessage* message) {
     return;
   }
 
-  switch(payload->getCommandType()) {
+  int commandType = payload->getCommandType();
+  switch(commandType) {
     case AppCoreMessageCommandType::GetAppList:
+      OPEL_DBG_VERB("AppCore command: GetAppList (%d)", commandType);
       this->getAppList(message);
       break;
     case AppCoreMessageCommandType::ListenAppState:
+      OPEL_DBG_VERB("AppCore command: ListenAppState (%d)", commandType);
       this->listenAppState(message);
       break;
     case AppCoreMessageCommandType::InitializeApp:
+      OPEL_DBG_VERB("AppCore command: InitializeApp (%d)", commandType);
       this->initializeApp(message);
       break;
     case AppCoreMessageCommandType::InstallApp:
+      OPEL_DBG_VERB("AppCore command: InstallApp (%d)", commandType);
       this->installApp(message);
       break;
     case AppCoreMessageCommandType::LaunchApp:
+      OPEL_DBG_VERB("AppCore command: LaunchApp (%d)", commandType);
       this->launchApp(message);
       break;
     case AppCoreMessageCommandType::CompleteLaunchingApp:
+      OPEL_DBG_VERB("AppCore command: CompleteLaunchingApp (%d)", commandType);
       this->completeLaunchingApp(message);
       break;
     case AppCoreMessageCommandType::TerminateApp:
+      OPEL_DBG_VERB("AppCore command: TerminateApp (%d)", commandType);
       this->terminateApp(message);
       break;
     case AppCoreMessageCommandType::RemoveApp:
+      OPEL_DBG_VERB("AppCore command: RemoveApp (%d)", commandType);
       this->removeApp(message);
       break;
     case AppCoreMessageCommandType::GetFileList:
+      OPEL_DBG_VERB("AppCore command: GetFileList (%d)", commandType);
       this->getFileList(message);
       break;
     case AppCoreMessageCommandType::GetFile:
+      OPEL_DBG_VERB("AppCore command: GetFile (%d)", commandType);
       this->getFile(message);
       break;
     case AppCoreMessageCommandType::GetRootPath:
+      OPEL_DBG_VERB("AppCore command: GetRootPath (%d)", commandType);
       this->getRootPath(message);
       break;
     case AppCoreMessageCommandType::GetAppIcon:
+      OPEL_DBG_VERB("AppCore command: GetAppIcon (%d)", commandType);
       this->getAppIcon(message);
       break;
     default:
@@ -333,7 +346,13 @@ void AppCore::listenAppState(BaseMessage* message) {
     }
   }
   
-  // If there is no listener, add it to the list
+  // If there is no listener, register listener and add to message list
+  App* app = this->mAppList->getByAppId(appId);
+  if(app == NULL) {
+    OPEL_DBG_ERR("App does not exist in the app list!");
+    return;
+  }
+  app->setStateListener(this);
   this->mListenAppStateMessageList.push_back(message);
 }
 
@@ -363,7 +382,7 @@ void AppCore::installApp(BaseMessage* message) {
   std::string packageFilePathObj(message->getStoredFilePath());
   char packageFilePath[PATH_BUFFER_SIZE];
   strncpy(packageFilePath, packageFilePathObj.c_str(),
-      packageFilePathObj.length());
+      PATH_BUFFER_SIZE);
   AppCoreMessage* payload = (AppCoreMessage*)message->getPayload();
   int appId;
   std::string packageFileName;
@@ -390,6 +409,7 @@ void AppCore::installApp(BaseMessage* message) {
         strncpy(appPackageDirName,
             packageFileName.c_str(),
             packageFileName.length() - 4); 
+        appPackageDirName[packageFileName.length() - 4] = '\0';
 
         // ${OPEL_APPS_DIR}/user/${APP_NAME}
         char appPackageDirPath[PATH_BUFFER_SIZE];
@@ -430,11 +450,11 @@ void AppCore::installApp(BaseMessage* message) {
           return;
         }
 
-        // Flush the app information to database
-        this->mAppList->flush(app);
-
         // Update state
         app->successInstalling(appPackageDirPath);
+
+        // Flush the app information to database
+        this->mAppList->flush(app);
       }
       break;
     case AppState::Initializing:
@@ -545,14 +565,26 @@ void AppCore::launchApp(BaseMessage* message) {
           // Update state
           app->startLaunching(pid);
         } else if(pid == 0) {
-          // Child for executing the application
           char mainJSFilePath[PATH_BUFFER_SIZE];
           snprintf(mainJSFilePath, PATH_BUFFER_SIZE, "%s/%s",
               app->getPackagePath().c_str(), app->getMainJSFileName().c_str());
-          char nodeCommand[] = "node";
-          char* fullPath[] = {nodeCommand, mainJSFilePath, NULL};	
-          OPEL_DBG_VERB("Launch app: %s", mainJSFilePath);
-          execvp("node", fullPath);
+          if(this->mIsDebugApp) {
+            // Child for executing the application
+            char gdbCommand[] = "gdb";
+            char gdbOptionRun[] = "-ex=r";
+            char gdbArgs[] = "--args";
+            char nodeCommand[] = "node";
+            char* fullPath[] = {gdbCommand, gdbOptionRun, gdbArgs,
+              nodeCommand, mainJSFilePath, NULL};	
+            OPEL_DBG_VERB("Launch app: %s with gdb debugging", mainJSFilePath);
+            execvp(gdbCommand, fullPath);
+          } else {
+            // Child for executing the application
+            char nodeCommand[] = "node";
+            char* fullPath[] = {nodeCommand, mainJSFilePath, NULL};	
+            OPEL_DBG_VERB("Launch app: %s", mainJSFilePath);
+            execvp(nodeCommand, fullPath);
+          }
         } else {
           OPEL_DBG_ERR("Fail to fork app process\n");
         }
@@ -700,7 +732,6 @@ void AppCore::completeTerminatingApp(int pid) {
   // Find app for the pid
   App* app = this->mAppList->getByPid(pid);
   if(app == NULL) {
-    OPEL_DBG_ERR("App does not exist in the app list!");
     return;
   }
 
@@ -839,14 +870,18 @@ void AppCore::getAppIcon(BaseMessage* message) {
     return;
   }
 
-  // Get app's icon file path
-  std::string iconFilePath = app->getIconFileName();
-
-  // Make ACK message
   BaseMessage* ackMessage
     = MessageFactory::makeAppCoreAckMessage(COMPANION_DEVICE_URI, message); 
-  if(iconFilePath.compare(".") != 0) {
-    ackMessage->attachFile(iconFilePath);
+
+  // Get app's icon file path
+  if(app->getIconFileName().compare(".") != 0) {
+    char iconFilePath[PATH_BUFFER_SIZE];
+    snprintf(iconFilePath, PATH_BUFFER_SIZE, "%s/%s",
+        app->getPackagePath().c_str(), app->getIconFileName().c_str());
+    std::string iconFilePathStr(iconFilePath);
+
+    // Make ACK message
+    ackMessage->attachFile(iconFilePathStr);
   }
 
   // Send ACK message

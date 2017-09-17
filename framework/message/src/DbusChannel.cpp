@@ -24,6 +24,8 @@
 #include <string.h>
 #include <unistd.h>
 #include <time.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #include "DbusChannel.h"
 #include "OPELdbugLog.h"
@@ -34,76 +36,24 @@ const char* DbusChannel::kOPELInterface = "org.opel.dbuschannel";
 const char* DbusChannel::kOPELSignal = "BaseMessage";
 const char* DbusChannel::kOPELPath ="/org/opel/dbuschannel";
 
-void DbusChannel::run() {
-  // Run ListeningLoop on separate thread
-  this->runListeningThread();
-
-  // Run RoutedLoop on separate thread
-  this->runRoutedLoop(true);
-}
-
-void DbusChannel::onRoutedMessage(BaseMessage* message) {
-  const char* uriString = message->getUri().c_str();
-
-  this->sendRawStringToTarget(message->toJSONString());
-}
-
-void DbusChannel::sendRawStringToTarget(const char* rawString) {
-  if(this->mDbusConnection == NULL) {
-    OPEL_DBG_VERB("Send rawString");
-    return;
-  }
-
-  DBusMessage* dbusMessage;
-  DBusError derr;
-  dbus_error_init(&derr);
-
-  // Initialize Dbus Signal
-  dbusMessage = dbus_message_new_signal(
-      kOPELPath, DbusChannel::kOPELInterface, DbusChannel::kOPELSignal);
-  dbus_message_append_args(dbusMessage,
-      DBUS_TYPE_STRING, &rawString, DBUS_TYPE_INVALID);
-
-  if (dbus_error_is_set(&derr)) {
-    OPEL_DBG_ERR("Dbus error on send data: %s", derr.message);
-    dbus_error_free(&derr);
-    dbus_message_unref(dbusMessage);
-    return;
-  }
-
-  OPEL_DBG_VERB("Dbus send %s", rawString);	
-
-  dbus_connection_send(this->mDbusConnection, dbusMessage, NULL);
-  dbus_message_unref(dbusMessage);
-}
-
-void DbusChannel::runListeningThread() {
-  pthread_create(&this->mListeningThread, NULL, DbusChannel::listeningLoop,
-      (void*)this);
-}
-
-void* DbusChannel::listeningLoop(void* data) {
+void DbusChannel::initializeDbus() {
   DBusError error;
-  GMainLoop *loop;
-  DbusChannel* self = (DbusChannel*)data;
-
-  OPEL_DBG_VERB("DbusChannel's Listening Loop: Start dbus initializing");
-
-  // Initialize glib main loop
-  loop = g_main_loop_new(NULL, false);   
+  
+  OPEL_DBG_VERB("DbusChannel: Start dbus initializing");
 
   // Initialize dbus connection
   dbus_error_init(&error);
-  self->mDbusConnection = dbus_bus_get(DBUS_BUS_SYSTEM, &error);
-  if(dbus_error_is_set(&error) || self->mDbusConnection == NULL) {
+  this->mDbusConnection = dbus_bus_get(DBUS_BUS_SYSTEM, &error);
+  if(dbus_error_is_set(&error) || this->mDbusConnection == NULL) {
     OPEL_DBG_ERR("Error connecting to the daemon bus: %s", error.message);
     dbus_error_free(&error);
   }
 
   // Initialize dbus bus
-  int retval = dbus_bus_request_name(self->mDbusConnection, DbusChannel::kOPELInterface,
+  int retval = dbus_bus_request_name(this->mDbusConnection,
+      DbusChannel::kOPELInterface,
       DBUS_NAME_FLAG_ALLOW_REPLACEMENT, &error);
-  dbus_connection_flush(self->mDbusConnection);
+  dbus_connection_flush(this->mDbusConnection);
   switch(retval) {
     case -1:
       OPEL_DBG_ERR("Couldn't acquire name %s for our connection: %s",
@@ -126,9 +76,72 @@ void* DbusChannel::listeningLoop(void* data) {
       OPEL_DBG_ERR("Unknown result = %d", retval);
       break;
   }
-  dbus_bus_add_match(self->mDbusConnection,
+  dbus_bus_add_match(this->mDbusConnection,
       "type='signal',interface='org.opel.dbuschannel'", NULL);  
-  dbus_connection_flush(self->mDbusConnection);
+  dbus_connection_flush(this->mDbusConnection);
+}
+
+void DbusChannel::run() {
+  // Initialize d-bus
+  this->initializeDbus();
+
+  // Run ListeningLoop on separate thread
+  this->runListeningThread();
+
+  // Run RoutedLoop on separate thread
+  this->runRoutedLoop(true);
+}
+
+void DbusChannel::onRoutedMessage(BaseMessage* message) {
+  const char* uriString = message->getUri().c_str();
+
+  this->sendRawStringToTarget(message->toJSONString());
+}
+
+void DbusChannel::sendRawStringToTarget(const char* rawString) {
+  if(this->mDbusConnection == NULL) {
+    OPEL_DBG_VERB("Cannot send rawString since dbus is disconnected");
+    return;
+  }
+
+  DBusMessage* dbusMessage;
+  DBusError derr;
+  dbus_error_init(&derr);
+
+  // Initialize Dbus Signal
+  dbusMessage = dbus_message_new_signal(
+      kOPELPath, DbusChannel::kOPELInterface, DbusChannel::kOPELSignal);
+  dbus_message_append_args(dbusMessage,
+      DBUS_TYPE_STRING, &rawString,
+      DBUS_TYPE_INT32, getpid(),
+      DBUS_TYPE_INVALID);
+
+  if (dbus_error_is_set(&derr)) {
+    OPEL_DBG_ERR("Dbus error on send data: %s", derr.message);
+    dbus_error_free(&derr);
+    dbus_message_unref(dbusMessage);
+    return;
+  }
+
+  OPEL_DBG_VERB("(%d) Dbus send %s", getpid(), rawString);	
+
+  dbus_connection_send(this->mDbusConnection, dbusMessage, NULL);
+  dbus_message_unref(dbusMessage);
+}
+
+void DbusChannel::runListeningThread() {
+  pthread_create(&this->mListeningThread, NULL, DbusChannel::listeningLoop,
+      (void*)this);
+}
+
+void* DbusChannel::listeningLoop(void* data) {
+  GMainLoop *loop;
+  DbusChannel* self = (DbusChannel*)data;
+
+  OPEL_DBG_VERB("DbusChannel's Listening Loop: Start dbus-enabled glib main loop");
+
+  // Initialize glib main loop
+  loop = g_main_loop_new(NULL, false);   
 
   // Add dbus callback function
   dbus_connection_add_filter(self->mDbusConnection,
@@ -155,20 +168,26 @@ DBusHandlerResult DbusChannel::onReceivedDbusMessage(DBusConnection* connection,
   }
 
   // Retrieve rawString from DbusMessage
+  int senderPid = -1;
   char* rawString = NULL;
   DBusError derr;
   dbus_error_init(&derr);
   dbus_message_get_args(dbusMessage, &derr,
-      DBUS_TYPE_STRING, &rawString, DBUS_TYPE_INVALID);
+      DBUS_TYPE_STRING, &rawString,
+      DBUS_TYPE_INT32, &senderPid,
+      DBUS_TYPE_INVALID);
   if(dbus_error_is_set(&derr)) {
     OPEL_DBG_ERR("Cannot retrieve rawString from DbusMessage!: %s",
         derr.message);
     dbus_error_free(&derr);
-    dbus_message_unref(dbusMessage);
     return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
   } else if(rawString == NULL) {
     OPEL_DBG_ERR("Cannot retrieve rawString from DbusMessage!");
-    dbus_message_unref(dbusMessage);
+    return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
+  }
+
+  // Drop message sent from this process
+  if(getpid() == senderPid) {
     return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
   }
 
@@ -176,14 +195,12 @@ DBusHandlerResult DbusChannel::onReceivedDbusMessage(DBusConnection* connection,
   BaseMessage* message = MessageFactory::makeMessageFromJSONString(rawString);
   if(message == NULL) {
     OPEL_DBG_ERR("Received message is not OPEL message!: %s", rawString);
-    dbus_message_unref(dbusMessage);
     return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
   }
 
-  OPEL_DBG_VERB("Received rawMessage from DbusChannel: %s", rawString);
+  OPEL_DBG_VERB("(pid=%d) Received rawMessage from DbusChannel: %s", getpid(), rawString);
 
   // Route message to the target of the OPEL message
   self->mMessageRouter->routeMessage(message);
-  dbus_message_unref(dbusMessage);
   return DBUS_HANDLER_RESULT_HANDLED;
 }

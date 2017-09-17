@@ -42,6 +42,8 @@ class MessageRouter {
     Channel* findBestChannelLocked(const char* uriString);
     Channel* findExactChannelLocked(const char* uriString);
 
+    void printRoutingTable();
+
     // Master Routing Table
     //   entry = std::pair<const char* uriString, Channel* channel>
     std::map<const char*, Channel*> mMasterRoutingTable;

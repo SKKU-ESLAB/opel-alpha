@@ -104,7 +104,21 @@ void CommChannel::onCommPortStateChanged(CommPort *port,
      }
   } else if(port == this->mControlPort) {
     // Control Port:
-    // Do nothing
+    //  - OPENED, CONNECTED -> CLOSED: Retry open
+     switch(state) {
+       case CommPortState::CLOSED:
+         if(presentChannelState != CommChannelState::IDLE) {
+           bool controlOpenRes = this->mControlPort->openConnection();
+           if(!controlOpenRes) {
+             OPEL_DBG_ERR("CommChannel run: opening control port fail");
+           } else {
+             this->mControlPort->runListeningThread(
+                 this->mControlPortsListener, this->mFileTempDir);
+             OPEL_DBG_ERR("CommChannel control port closed -> reopened");
+           }
+         }
+         break;
+     }
   } else {
     OPEL_DBG_ERR("Unknown CommPort's state is changed!");
   }

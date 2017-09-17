@@ -61,6 +61,9 @@ class AppCore
     // Main loop
     void run();
 
+    // Options
+    void setDebugApp(bool isDebugApp) { this->mIsDebugApp = isDebugApp; }
+
     // Signal handler
     void onSignalSIGCHLD();
 
@@ -109,6 +112,10 @@ class AppCore
     CommChannel* mCommChannel = NULL;
     LocalChannel* mLocalChannel = NULL;
 
+    // Options
+    bool mIsDebugApp = false;
+
+    // Paths to Directories
     char mUserAppsDir[PATH_BUFFER_SIZE]; // User Apps Dir: ${OPEL_APPS_DIR}/user
     char mSystemAppsDir[PATH_BUFFER_SIZE]; // System Apps Dir: ${OPEL_APPS_DIR}/system
     char mAppListDBPath[PATH_BUFFER_SIZE]; // App List Path: ${OPEL_APPS_DIR}/AppListDB.sqlite

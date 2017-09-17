@@ -148,7 +148,7 @@ bool AppList::fetchAppList() {
   sqlite3_finalize(stmt);
 
   // Update next app id
-  this->mNextAppId = maxAppId;
+  this->mNextAppId = maxAppId + 1;
 
   if(numApps > 0)
     return true;

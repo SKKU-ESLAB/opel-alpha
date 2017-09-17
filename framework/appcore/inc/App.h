@@ -50,9 +50,9 @@ class App {
       : mState(AppState::Initializing), mStateListener(NULL),
       mId(-1),
       mIsDefaultApp(false),
-      mName(NULL),
-      mPackagePath(NULL),
-      mMainJSFileName(NULL), mIconFileName(NULL),
+      mName(""),
+      mPackagePath(""),
+      mMainJSFileName(""), mIconFileName(""),
       mPid(-1) {
     }
 

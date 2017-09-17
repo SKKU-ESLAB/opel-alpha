@@ -40,7 +40,7 @@ CommRawPacket* CommRawPacket::makeMessageMetadataPacket(
 CommRawPacket* CommRawPacket::makeFileMetadataPacket(
     char headerId, const char* fileName, int fileSize) {
   CommPayloadFileMetadata* payload = new CommPayloadFileMetadata(
-      (int) fileSize, (int) strlen(fileName), fileName);
+      (int) fileSize, (int) (strlen(fileName) + 1), fileName);
   CommRawPacketHeader* header = new CommRawPacketHeader(
       headerId, payload->getBytesSize(), 0,
       false, false, false, true);
@@ -83,14 +83,16 @@ char* CommRawPacket::toByteArray() {
 
 #define READ_SOCKET_C(socketFd, data) \
   do { \
-    if(read(socketFd, &data, sizeof(char)) < 0) { \
+    int readSize = read(socketFd, &data, sizeof(char)); \
+    if(readSize < 0) { \
       CommLog("read socket error: %s", strerror(errno)); \
       return NULL; \
     } \
   } while(0);
 #define READ_SOCKET_S(socketFd, data) \
   do { \
-    if(read(socketFd, &data, sizeof(short)) < 0) { \
+    int readSize = read(socketFd, &data, sizeof(short)); \
+    if(readSize < 0) { \
       CommLog("read socket error: %s", strerror(errno)); \
       return NULL; \
     } \
@@ -98,7 +100,8 @@ char* CommRawPacket::toByteArray() {
   } while(0);
 #define READ_SOCKET_I(socketFd, data) \
   do { \
-    if(read(socketFd, &data, sizeof(int)) < 0) { \
+    int readSize = read(socketFd, &data, sizeof(int)); \
+    if(readSize < 0) { \
       CommLog("read socket error: %s", strerror(errno)); \
       return NULL; \
     } \
@@ -106,9 +109,17 @@ char* CommRawPacket::toByteArray() {
   } while(0);
 #define READ_SOCKET(socketFd, data, size) \
   do { \
-    if(read(socketFd, data, size) < 0) { \
-      CommLog("read socket error: %s", strerror(errno)); \
-      return NULL; \
+    int readSize = 0; \
+    char* dataPtr = data; \
+    while(readSize < size) { \
+      int thisSize = size - readSize; \
+      int thisReadSize = read(socketFd, dataPtr, thisSize); \
+      if(thisReadSize < 0) { \
+        CommLog("read socket error: %s", strerror(errno)); \
+        return NULL; \
+      } \
+      readSize += thisReadSize; \
+      dataPtr += thisReadSize; \
     } \
   } while(0);
 
@@ -190,8 +201,8 @@ CommPayloadFileMetadata* CommPayloadFileMetadata::readFromSocket(int socketFd) {
   char* fileName;
   READ_SOCKET_I(socketFd, fileSize);
   READ_SOCKET_I(socketFd, fileNameLength);
-  fileName = new char[fileNameLength + 1];
-  READ_SOCKET(socketFd, fileName, fileNameLength + 1);
+  fileName = new char[fileNameLength];
+  READ_SOCKET(socketFd, fileName, fileNameLength);
   CommPayloadFileMetadata* fileMetadata = new CommPayloadFileMetadata(
       fileSize, fileNameLength, fileName);
   return fileMetadata;
@@ -201,7 +212,7 @@ char* CommPayloadFileMetadata::toByteArray() {
   NEW_BYTEARRAY(byteArray, this->getBytesSize());
   WRITE_BYTEARRAY_I(this->mFileSize);
   WRITE_BYTEARRAY_I(this->mFileNameLength);
-  WRITE_BYTEARRAY_SIZE(this->mFileName, this->mFileNameLength + 1);
+  WRITE_BYTEARRAY_SIZE(this->mFileName, this->mFileNameLength);
   return byteArray;
 }
 

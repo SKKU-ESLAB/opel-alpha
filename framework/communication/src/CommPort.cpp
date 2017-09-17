@@ -89,6 +89,7 @@ void* CommPort::listeningLoop(void* data) {
   char* totalMessageData = NULL;
   int loadedBytesSize = 0;
   FILE* fdToWrite = NULL;
+  char filePath[2048] = "";
 
   // Listening loop
   while(self->mIsListeningThreadOn) {
@@ -109,6 +110,7 @@ void* CommPort::listeningLoop(void* data) {
           if(!header->getFlagIsMetadata()) {
             CommLog("Expected MessageMetadata, but flag is: %d",
                 header->getHeaderFlag());
+            self->stopListeningThread();
             break;
           }
           messageMetadata
@@ -128,6 +130,7 @@ void* CommPort::listeningLoop(void* data) {
           if(!header->getFlagIsData()) {
             CommLog("Expected Messagedata, but flag is: %d",
                 header->getHeaderFlag());
+            self->stopListeningThread();
             break;
           }
           CommPayloadData* messageData
@@ -164,6 +167,7 @@ void* CommPort::listeningLoop(void* data) {
           if(!header->getFlagIsMetadata()) {
             CommLog("Expected File Metadata, but flag is: %d",
                 header->getHeaderFlag());
+            self->stopListeningThread();
             break;
           }
           fileMetadata
@@ -173,10 +177,8 @@ void* CommPort::listeningLoop(void* data) {
           // Open file
           char* fileName = fileMetadata->getSrcFileName();
           IF_NULL_(fileName) { } _BREAK()
-            char filePath[2048];
-          strncpy(filePath, self->mDownloadFilePath.c_str(),
-              strlen(self->mDownloadFilePath.c_str()));
-          strncat(filePath, fileName, strlen(fileName));
+          snprintf(filePath, 2048, "%s/%s",
+              self->mDownloadFilePath.c_str(), fileName);
           fdToWrite = fopen(filePath, "a");
           IF_NULL_(fdToWrite) {
             delete fileMetadata;
@@ -195,6 +197,7 @@ void* CommPort::listeningLoop(void* data) {
           if(!header->getFlagIsFile()) {
             CommLog("Expected File Data, but flag is: %d",
                 header->getHeaderFlag());
+            self->stopListeningThread();
             break;
           }
           CommPayloadData* fileData
@@ -228,7 +231,6 @@ void* CommPort::listeningLoop(void* data) {
       std::string messageData(totalMessageData);
       if(self->mListener != NULL) {
         if(fileMetadata != NULL) {
-          std::string filePath(fileMetadata->getSrcFileName());
           self->mListener->onReceivedRawMessage(messageData, filePath);
         } else {
           self->mListener->onReceivedRawMessage(messageData);
@@ -379,7 +381,6 @@ bool CommPort::sendRawMessage(std::string messageData, std::string filePath) {
       delete messageDataPacketBytes;
     }
   }
-  // TODO: have problem!!
   // If file is attached, send file metadata and file data
   if(filePath.length() > 0) {
     CommLog("Send attached file (%d)", this->mPresentHeaderId);
@@ -492,7 +493,7 @@ int getFileSize(const char* filePath) {
 
 const char* getFileName(const char* filePath) {
   const char* pos = strrchr(filePath, '/') + 1;
-  if(*pos == '\0')
+  if(pos == NULL || *pos == '\0')
     return NULL;
   else
     return pos;

@@ -20,6 +20,7 @@
 #define __DBUS_CHANNEL_H__
 
 #include <iostream>
+#include <vector>
 #include <map>
 #include <pthread.h>
 
@@ -40,6 +41,9 @@ class DbusChannel: public Channel {
     virtual void run();
 
 	protected:
+    // Initialize d-bus
+    void initializeDbus();
+
     // Channel function (RoutedThread)
     virtual void onRoutedMessage(BaseMessage* message);
 

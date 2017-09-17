@@ -82,6 +82,7 @@ class CommPort {
     CommPort(std::string portName, CommPortStateListener* stateListener)
       : mPortName(portName),
       mSocket(COMM_PORT_SOCKET_UNINITIALIZED),
+      mListenedSocket(COMM_PORT_SOCKET_UNINITIALIZED),
       mPresentHeaderId(0),
       mIsListeningThreadOn(false), mListener(NULL) {
       this->mState = new CommPortState(this);
@@ -129,13 +130,16 @@ class CommPort {
 
     static void* listeningLoop(void* data);
 
+    int getListenedSocket() { return this->mListenedSocket; }
     int getSocket() { return this->mSocket; }
+    void setListenedSocket(int listenedSocket) { this->mListenedSocket = listenedSocket; }
     void setSocket(int socket) { this->mSocket = socket; }
     std::string getPortName() { return this->mPortName; }
 
   protected:
     std::string mPortName;
     CommPortState* mState;
+    int mListenedSocket;
     int mSocket;
     int mPresentHeaderId;
     std::string mDownloadFilePath;

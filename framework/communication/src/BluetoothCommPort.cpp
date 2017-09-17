@@ -45,8 +45,8 @@ bool BluetoothCommPort::openConnection() {
   }
 
   // Open socket
-  int newSocket = socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM);
-  if(newSocket < 0) {
+  int listenedSocket = socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM);
+  if(listenedSocket < 0) {
     CommLog("Bluetooth port open error: socket open fail (%s)",
         strerror(errno));
     __EXIT__;
@@ -55,13 +55,13 @@ bool BluetoothCommPort::openConnection() {
 
   // Dynamic bind
   // Dynamically bind available bluetooth port to the socket
-  int bluetoothPort = this->bindDynamically(newSocket);
+  int bluetoothPort = this->bindDynamically(listenedSocket);
   if(MIN_BLUETOOTH_PORT < 1 || MAX_BLUETOOTH_PORT > 30) {
     CommLog("Bluetooth port open error: dynamic bind failed");
     __EXIT__;
     return false;
   } else {
-    CommLog("Bound BT socket %d to BT port %d", newSocket, bluetoothPort);
+    CommLog("Bound BT socket %d to BT port %d", listenedSocket, bluetoothPort);
   }
 
   // Register a bluetooth service of the bluetooth port
@@ -74,7 +74,7 @@ bool BluetoothCommPort::openConnection() {
 
   // Listen bluetooth socket 
 #define NUM_PENDING_CONNECTIONS 1
-  int listenRes = listen(newSocket, NUM_PENDING_CONNECTIONS);
+  int listenRes = listen(listenedSocket, NUM_PENDING_CONNECTIONS);
   if(listenRes < 0) {
     CommLog("Listening failed");
     __EXIT__;
@@ -83,7 +83,7 @@ bool BluetoothCommPort::openConnection() {
 
   // Set new SDP session and listened socket
   this->mSdpSession = sdpSession;
-  this->setSocket(newSocket);
+  this->setListenedSocket(listenedSocket);
 
 	CommLog("Bluetooth port listening success");
   this->CommPort::openConnection();
@@ -98,8 +98,9 @@ bool BluetoothCommPort::acceptConnection() {
   socklen_t optionLength = sizeof(clientAddress);
 
   // Accept connection
-  int newSocket = accept(this->getSocket(),
-      (struct sockaddr *)&clientAddress, &optionLength);
+  int newSocket = accept(this->getListenedSocket(),
+      (struct sockaddr *)&clientAddress,
+      &optionLength);
   if(newSocket < 0){
     CommLog("Accept Failed");
     this->closeConnection();
@@ -121,13 +122,17 @@ bool BluetoothCommPort::acceptConnection() {
 void BluetoothCommPort::closeConnection() {
   __ENTER__;
 
-  if(NULL != this->mSdpSession){
+  if(this->mSdpSession != NULL){
     sdp_close(this->mSdpSession);
     this->mSdpSession = NULL;
   }
-  if(this->mSocket >= 0){
-    close(this->mSocket);
-    this->mSocket = -1;
+  if(this->getSocket() != COMM_PORT_SOCKET_UNINITIALIZED){
+    close(this->getSocket());
+    this->setSocket(COMM_PORT_SOCKET_UNINITIALIZED);
+  }
+  if(this->getListenedSocket() != COMM_PORT_SOCKET_UNINITIALIZED) {
+    close(this->getListenedSocket());
+    this->setListenedSocket(COMM_PORT_SOCKET_UNINITIALIZED);
   }
 
   this->CommPort::closeConnection();

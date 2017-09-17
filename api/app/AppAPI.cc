@@ -19,6 +19,7 @@ using namespace v8;
 AppBase* gAppBase;
 
 void initAppBase(){
+  printf("initialize AppBase");
   gAppBase = new AppBase();
   gAppBase->run();
 

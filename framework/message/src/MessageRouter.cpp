@@ -62,6 +62,22 @@ void MessageRouter::removeRoutingEntry(const char* uriString) {
   pthread_mutex_unlock(&this->mMasterRoutingTableMutex);
 }
 
+void MessageRouter::printRoutingTable() {
+  pthread_mutex_lock(&this->mMasterRoutingTableMutex);
+
+  std::map<const char*, Channel*>::iterator rtIter;
+  for(rtIter = this->mMasterRoutingTable.begin();
+      rtIter != this->mMasterRoutingTable.end();
+      ++rtIter) {
+    std::string entryUri(rtIter->first);
+    Channel* entryChannel = rtIter->second;
+    OPEL_DBG_VERB("Entry %s: %s",
+        entryUri.c_str(), entryChannel->getName().c_str());
+  }
+
+  pthread_mutex_unlock(&this->mMasterRoutingTableMutex);
+}
+
 void MessageRouter::routeMessage(BaseMessage* message) {
   const char* uriString = message->getUri().c_str();
 
@@ -77,6 +93,7 @@ void MessageRouter::routeMessage(BaseMessage* message) {
   } else {
     OPEL_DBG_WARN("(pid=%d) Message did not routed!: %s",
         (int)getpid(), message->toJSONString());
+    this->printRoutingTable();
   }
 }
 

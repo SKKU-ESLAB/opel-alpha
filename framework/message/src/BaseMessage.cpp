@@ -217,7 +217,7 @@ bool AppCoreMessage::getParamsInstallApp(int& appId,
   appId = atoi(appIdObj->valuestring);
 
   cJSON* packageFileNameObj = cJSON_GetObjectItem(this->mAppCorePayloadObj,
-      "packgeFileName");
+      "packageFileName");
   RETURN_IF_INVALID_CJSON_OBJ(packageFileNameObj, false);
   packageFileName.assign(packageFileNameObj->valuestring);
 
