@@ -21,26 +21,6 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:paddingLeft="10dp"
-                android:text="Target: " />
-
-            <RadioButton
-                android:id="@+id/radioButtonTargetTX1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checked="true"
-                android:text="TX1" />
-
-            <RadioButton
-                android:id="@+id/radioButtonTargetRPi2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="RPi2" />
-
             <ImageView
                 android:id="@+id/indicatorBT"
                 android:layout_marginLeft="10dp"

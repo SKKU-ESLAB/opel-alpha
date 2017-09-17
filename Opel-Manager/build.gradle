@@ -3,7 +3,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.0'
+        classpath 'com.android.tools.build:gradle:2.3.3'
     }
 }
 allprojects {
@@ -17,12 +17,18 @@ dependencies {
     compile fileTree(include: '*.jar', dir: 'libs')
     compile 'com.android.support:appcompat-v7:23.1.1'
     compile 'cn.dxjia:ffmpegexecutor:0.1.6'
-
+    compile 'com.fasterxml.jackson.core:jackson-core:[2.9.0,)'
+    compile 'com.fasterxml.jackson.core:jackson-databind:[2.9.0,)'
 }
 
 android {
     compileSdkVersion 23
-    buildToolsVersion '23.0.3'
+    buildToolsVersion '25.0.0'
+
+    packagingOptions {
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/LICENSE'
+    }
 
     // NDK build
     ext {
@@ -61,4 +67,4 @@ android {
         debug.setRoot('build-types/debug')
         release.setRoot('build-types/release')
     }
- }
+}
