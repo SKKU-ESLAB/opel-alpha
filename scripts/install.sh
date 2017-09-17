@@ -342,6 +342,14 @@ check_opel_out_dir() {
 }
 check_opel_out_dir
 
+## Step 4. Install OPEL Libraries
+OPEL_LIB_DIR=${OPEL_BIN_DIR}/libs
+if [ ! -e ${OPEL_LIB_DIR} ]
+then
+  mkdir -p ${OPEL_LIB_DIR}
+fi
+cp -R ${OPEL_OUT_DIR}/libs/* ${OPEL_LIB_DIR}/
+
 ## Step 4+. Install OPEL
 # Install OPEL_BIN_DIR
 print_progress 4 "Install OPEL binaries..."
@@ -350,7 +358,7 @@ cp -R ${OPEL_OUT_DIR}/bin/* ${OPEL_BIN_DIR}
 cp ${THIS_SCRIPT_DIR}/install/opel.py ${OPEL_BIN_DIR}
 cp ${THIS_SCRIPT_DIR}/install/opel_p2p_setup.sh ${OPEL_BIN_DIR}
 
-# Make run_opel with fusion of target_profile and run_opel_tail
+# Make target profile
 echo "#!/bin/bash
 export OPEL_TARGET_NAME=\"${OPEL_TARGET_NAME}\";
 export OPEL_BIN_DIR=\"${OPEL_BIN_DIR}\";
@@ -360,9 +368,15 @@ export OPEL_APPS_DIR=\"${OPEL_APPS_DIR}\";
 export OPEL_DATA_DIR=\"${OPEL_DATA_DIR}\";
 export OPEL_WPA_SUPPLICANT_PATH=\"${OPEL_WPA_SUPPLICANT_PATH}\";
 export OPEL_WPA_CLI_PATH=\"${OPEL_WPA_CLI_PATH}\";
-export OPEL_DELETESEM_PATH=\"${OPEL_DELETESEM_PATH}\";" \
-  > ${OPEL_BIN_DIR}/run_opel
-cat ${THIS_SCRIPT_DIR}/install/run_opel_tail >> ${OPEL_BIN_DIR}/run_opel
+export OPEL_DELETESEM_PATH=\"${OPEL_DELETESEM_PATH}\";
+export OPEL_WFD_NAME=\"${OPEL_WFD_NAME}\";" \
+  > ${OPEL_CONFIG_DIR}/profile.env
+
+# Make OPEL launcher
+cat ${THIS_SCRIPT_DIR}/install/run_opel.head > ${OPEL_BIN_DIR}/run_opel
+echo "# OPEL config directory
+export OPEL_CONFIG_DIR=\"${OPEL_CONFIG_DIR}\";" >> ${OPEL_BIN_DIR}/run_opel
+cat ${THIS_SCRIPT_DIR}/install/run_opel.tail >> ${OPEL_BIN_DIR}/run_opel
 
 chmod +x ${OPEL_BIN_DIR}/*
 rm ${OPEL_SYSTEM_BIN_DIR}/run_opel

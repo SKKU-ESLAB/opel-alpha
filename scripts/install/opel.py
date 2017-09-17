@@ -89,7 +89,7 @@ def initialize_ipcrm():
 
 # on_did_initialize: (event handler) initialization process is completed
 # initialization process includes setting options and signal handlers.
-def on_did_initialize():
+def on_did_initialize(args):
     log("Initializing OPEL daemons...")
 
     # Execute prerequisites on system server
@@ -99,8 +99,15 @@ def on_did_initialize():
     run_command(gOpelDeleteSemPath)
 
     # Execute daemons
-    run_on_daemon(command=["./opel-appcore"],
-            name="App-core Framework Daemon")
+    if args.debugappcore:
+        run_on_daemon(command=["/usr/bin/gdb", "./opel-appcore"],
+                name="App-core Framework Daemon")
+    elif args.debugapps:
+        run_on_daemon(command=["./opel-appcore", "-d"],
+                name="App-core Framework Daemon")
+    else:
+        run_on_daemon(command=["./opel-appcore"],
+                name="App-core Framework Daemon")
     run_on_daemon(command=["./opel-camera"],
             name="Camera Framework Daemon")
     run_on_daemon(command=["./opel-sensor"],
@@ -138,10 +145,12 @@ def main():
 
     # Parse option arguments
     parser = argparse.ArgumentParser(description="OPEL options.")
-### Example of parsing option
-#    parser.add_argument("--bt-only", dest="store_true",
-#            help="Bluetooth only mode")
-###
+    parser.add_argument("--debug-appcore", "-dac", dest="debugappcore",
+            action="store_true",
+            help="Debug Appcore Manager")
+    parser.add_argument("--debug-apps", "-da", dest="debugapps",
+            action="store_true",
+            help="Debug Apps")
     args = parser.parse_args()
 
     # Register signal handlers
@@ -149,7 +158,8 @@ def main():
     signal.signal(signal.SIGINT, signal_handler)
 
     # Initialize Completed
-    on_did_initialize()
+    log("args: {}".format(args))
+    on_did_initialize(args)
 
     # Wait for signals
     while True:

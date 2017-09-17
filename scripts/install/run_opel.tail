@@ -1,0 +1,15 @@
+
+# use python3
+OPEL_PYTHON3_PATH=`which python3`
+
+# import target profile
+source ${OPEL_CONFIG_DIR}/profile.env
+
+# set shared library path
+export LD_LIBRARY_PATH="${OPEL_BIN_DIR}/libs:${LD_LIBRARY_PATH}"
+
+if [[ $# -eq 1 ]]; then
+  ${OPEL_PYTHON3_PATH} ${OPEL_BIN_DIR}/opel.py $1
+else
+  ${OPEL_PYTHON3_PATH} ${OPEL_BIN_DIR}/opel.py
+fi
