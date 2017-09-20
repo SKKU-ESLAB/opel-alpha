@@ -107,13 +107,14 @@ void DbusChannel::sendRawStringToTarget(const char* rawString) {
   DBusMessage* dbusMessage;
   DBusError derr;
   dbus_error_init(&derr);
+  int senderPid = getpid();
 
   // Initialize Dbus Signal
   dbusMessage = dbus_message_new_signal(
       kOPELPath, DbusChannel::kOPELInterface, DbusChannel::kOPELSignal);
   dbus_message_append_args(dbusMessage,
       DBUS_TYPE_STRING, &rawString,
-      DBUS_TYPE_INT32, getpid(),
+      DBUS_TYPE_INT32, &senderPid,
       DBUS_TYPE_INVALID);
 
   if (dbus_error_is_set(&derr)) {
