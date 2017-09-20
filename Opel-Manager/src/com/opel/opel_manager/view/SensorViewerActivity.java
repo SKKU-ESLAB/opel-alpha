@@ -124,9 +124,6 @@ public class SensorViewerActivity extends Activity {
     protected void onDestroy() {
         super.onDestroy();
 
-        // Terminate JavaScript SensorViewer App
-        this.mControllerServiceStub.terminateAppOneWay(this.mAppId);
-
         // Disconnect Controller Service
         this.disconnectControllerService();
     }
@@ -252,7 +249,10 @@ public class SensorViewerActivity extends Activity {
 
     public void onPause() {
         super.onPause();
-        mControllerServiceStub.terminateAppOneWay(this.mAppId);
+        
+        // Terminate JavaScript SensorViewer App
+        this.mControllerServiceStub.terminateAppOneWay(this.mAppId);
+
         mHandler.removeCallbacks(mTimer2);
         this.mIsUIReady = false;
     }
