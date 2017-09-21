@@ -220,7 +220,11 @@ public class CameraViewerActivity extends Activity implements SurfaceHolder.Call
     @Override
     protected void onPause() {
         super.onPause();
+
+        // Terminate JavaScript CameraViewer App
         mControllerServiceStub.terminateAppOneWay(this.mAppId);
+
+        // Unlock large data mode
         mControllerServiceStub.unlockLargeDataMode();
         this.releaseCpuWakeLock();
     }
@@ -231,10 +235,6 @@ public class CameraViewerActivity extends Activity implements SurfaceHolder.Call
 
         // Finalize gstreamer
         this.nativeFinalize();
-
-        // Terminate JavaScript CameraViewer App
-        this.mControllerServiceStub.terminateAppOneWay(this.mAppId);
-
         // Disconnect Controller Service
         this.disconnectControllerService();
     }
