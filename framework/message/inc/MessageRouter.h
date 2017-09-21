@@ -34,19 +34,19 @@ class MessageRouter {
     }
 
     // Routing functions
-    void addRoutingEntry(const char* uriString, Channel* channel);
-    void removeRoutingEntry(const char* uriString);
+    void addRoutingEntry(std::string uriString, Channel* channel);
+    void removeRoutingEntry(std::string uriString);
     void routeMessage(BaseMessage* message);
 
   protected:
-    Channel* findBestChannelLocked(const char* uriString);
-    Channel* findExactChannelLocked(const char* uriString);
+    Channel* findBestChannelLocked(std::string uriString);
+    Channel* findExactChannelLocked(std::string uriString);
 
     void printRoutingTable();
 
     // Master Routing Table
-    //   entry = std::pair<const char* uriString, Channel* channel>
-    std::map<const char*, Channel*> mMasterRoutingTable;
+    //   entry = std::pair<std::string uriString, Channel* channel>
+    std::map<std::string, Channel*> mMasterRoutingTable;
     pthread_mutex_t mMasterRoutingTableMutex;
 };
 

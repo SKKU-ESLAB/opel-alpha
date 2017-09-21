@@ -22,22 +22,22 @@
 #include "MessageRouter.h"
 #include "OPELdbugLog.h"
 
-void MessageRouter::addRoutingEntry(const char* uriString, Channel* channel) {
+void MessageRouter::addRoutingEntry(std::string uriString, Channel* channel) {
   pthread_mutex_lock(&this->mMasterRoutingTableMutex);
-  std::pair<const char*, Channel*> newEntry(uriString, channel);
+  std::pair<std::string, Channel*> newEntry(uriString, channel);
   this->mMasterRoutingTable.insert(newEntry);
   pthread_mutex_unlock(&this->mMasterRoutingTableMutex);
 
   OPEL_DBG_VERB("Entry (%s -> %s) is added to MessageRouterTable",
-      uriString, channel->getName().c_str());
+      uriString.c_str(), channel->getName().c_str());
 }
 
-void MessageRouter::removeRoutingEntry(const char* uriString) {
+void MessageRouter::removeRoutingEntry(std::string uriString) {
   pthread_mutex_lock(&this->mMasterRoutingTableMutex);
 
   bool found = false;
   Channel* targetChannel = NULL;
-  std::map<const char*, Channel*>::iterator rtIter;
+  std::map<std::string, Channel*>::iterator rtIter;
   for(rtIter = this->mMasterRoutingTable.begin();
       rtIter != this->mMasterRoutingTable.end();
       ++rtIter) {
@@ -53,11 +53,11 @@ void MessageRouter::removeRoutingEntry(const char* uriString) {
   }
 
   if(found == false) {
-    OPEL_DBG_WARN("Cannot find entry for URI %s", uriString);
+    OPEL_DBG_WARN("Cannot find entry for URI %s", uriString.c_str());
   }
 
   OPEL_DBG_VERB("Entry (%s -> %s) is removed from MessageRouterTable",
-      uriString, targetChannel->getName().c_str());
+      uriString.c_str(), targetChannel->getName().c_str());
 
   pthread_mutex_unlock(&this->mMasterRoutingTableMutex);
 }
@@ -65,7 +65,7 @@ void MessageRouter::removeRoutingEntry(const char* uriString) {
 void MessageRouter::printRoutingTable() {
   pthread_mutex_lock(&this->mMasterRoutingTableMutex);
 
-  std::map<const char*, Channel*>::iterator rtIter;
+  std::map<std::string, Channel*>::iterator rtIter;
   for(rtIter = this->mMasterRoutingTable.begin();
       rtIter != this->mMasterRoutingTable.end();
       ++rtIter) {
@@ -79,7 +79,7 @@ void MessageRouter::printRoutingTable() {
 }
 
 void MessageRouter::routeMessage(BaseMessage* message) {
-  const char* uriString = message->getUri().c_str();
+  std::string uriString = message->getUri().c_str();
 
   // Find all the target entry of given URI 
   Channel* targetChannel = this->findBestChannelLocked(uriString);
@@ -87,7 +87,7 @@ void MessageRouter::routeMessage(BaseMessage* message) {
   // If the message did not routed at all, make a warning message
   if(targetChannel != NULL) {
     OPEL_DBG_VERB("(pid=%d) Route to %s(%s), %s",
-        (int)getpid(), uriString,
+        (int)getpid(), uriString.c_str(),
         targetChannel->getName().c_str(), message->toJSONString());
     targetChannel->routeMessage(message);
   } else {
@@ -97,25 +97,31 @@ void MessageRouter::routeMessage(BaseMessage* message) {
   }
 }
 
-Channel* MessageRouter::findBestChannelLocked(const char* uriString) {
+Channel* MessageRouter::findBestChannelLocked(std::string uriString) {
+  std::string givenURI(uriString);
+
   // Find all the target entry of given URI 
   pthread_mutex_lock(&this->mMasterRoutingTableMutex);
   Channel* targetChannel = NULL;
-  const char* targetUriString = NULL;
-  std::map<const char*, Channel*>::iterator rtIter;
+  std::string targetUriString("");
+  std::map<std::string, Channel*>::iterator rtIter;
   for(rtIter = this->mMasterRoutingTable.begin();
       rtIter != this->mMasterRoutingTable.end();
       ++rtIter) {
     std::string entryUri(rtIter->first);
     Channel* entryChannel = rtIter->second;
 
-    size_t foundPos = entryUri.find(uriString);
+    size_t foundPos = givenURI.find(entryUri);
     // Select the best matching target
+    // At least, the pattern should be matched from the beginning of URI
     if(foundPos == 0) {
-      if((targetUriString == NULL)
-          || (entryUri.size() < strlen(targetUriString))) {
+      // If target is not determined, keep it as a target.
+      // If the matching length of this entry is longer than present target,
+      // change the target.
+      if((targetUriString.empty())
+          || (entryUri.size() < targetUriString.size())) {
         targetChannel = entryChannel;
-        targetUriString = entryUri.c_str();
+        targetUriString.assign(entryUri);
       }
     }
   }
@@ -123,11 +129,11 @@ Channel* MessageRouter::findBestChannelLocked(const char* uriString) {
   return targetChannel;
 }
 
-Channel* MessageRouter::findExactChannelLocked(const char* uriString) {
+Channel* MessageRouter::findExactChannelLocked(std::string uriString) {
   // Find all the target entry of given URI 
   pthread_mutex_lock(&this->mMasterRoutingTableMutex);
   Channel* targetChannel = NULL;
-  std::map<const char*, Channel*>::iterator rtIter;
+  std::map<std::string, Channel*>::iterator rtIter;
   for(rtIter = this->mMasterRoutingTable.begin();
       rtIter != this->mMasterRoutingTable.end();
       ++rtIter) {

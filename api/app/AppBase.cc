@@ -27,6 +27,14 @@
 
 #define PATH_BUFFER_SIZE 1024
 
+// Static variables
+Persistent<Function> AppBase::sOnTerminateCallback;
+AppBase* AppBase::sOnTerminateSelf;
+Persistent<Function> AppBase::sOnUpdateAppConfigCallback;
+AppBase* AppBase::sOnUpdateAppConfigSelf;
+uint8_t* AppBase::sOnUpdateAppConfigJsonData;
+BaseMessage* AppBase::sOnUpdateAppConfigMessage;
+
 void AppBase::run() {
   // Initialize MessageRouter and Channels
   this->mMessageRouter = new MessageRouter();
@@ -43,6 +51,7 @@ void AppBase::run() {
   char appURI[PATH_BUFFER_SIZE];
   snprintf(appURI, PATH_BUFFER_SIZE, "%s/pid%d", APPS_URI, getpid());
   this->mMessageRouter->addRoutingEntry(appURI, this->mLocalChannel);
+  this->mLocalChannel->setListener(this);
   this->mLocalChannel->run();
 }
 
@@ -58,11 +67,6 @@ void AppBase::completeLaunchingApp() {
 
   // Send appcore message
   this->mLocalChannel->sendMessage(appcoreMessage);
-
-  // Wait until appId is assigned
-//  pthread_mutex_lock(&this->mWaitMutex);
-//  pthread_cond_wait(&this->mWaitCond, &this->mWaitMutex);
-//  pthread_mutex_unlock(&this->mWaitMutex);
 }
 
 // Send companion commands
@@ -123,117 +127,174 @@ void AppBase::onReceivedMessage(BaseMessage* message) {
     return;
   }
 
-  if(message->getType() != BaseMessageType::App) {
-    // App Message
-    AppMessage* payload = (AppMessage*)message->getPayload();
-    if(payload == NULL) {
-      OPEL_DBG_ERR("AppMessage payload does not exist");
-      return;
-    }
+  switch(message->getType()) {
+    case BaseMessageType::App:
+      {
+        // App Message
+        AppMessage* payload = (AppMessage*)message->getPayload();
+        if(payload == NULL) {
+          OPEL_DBG_ERR("AppMessage payload does not exist");
+          return;
+        }
 
-    switch(payload->getCommandType()) {
-      case AppMessageCommandType::Terminate:
-        this->terminate(message);
+        switch(payload->getCommandType()) {
+          case AppMessageCommandType::Terminate:
+            this->terminate(message);
+            break;
+          case AppMessageCommandType::UpdateAppConfig:
+            this->updateAppConfig(message);
+            break;
+          default:
+            // Do not handle it
+            break;
+        }
         break;
-      case AppMessageCommandType::UpdateAppConfig:
-        this->updateAppConfig(message);
-        break;
-      default:
-        // Do not handle it
-        break;
-    }
-  } else if(message->getType() != BaseMessageType::AppCoreAck) {
-    // AppCore Ack Message
-    AppCoreAckMessage* payload = (AppCoreAckMessage*)message->getPayload();
-    if(payload == NULL) {
-      OPEL_DBG_ERR("AppCoreAckMessage payload does not exist");
-      return;
-    }
+      }
+    case BaseMessageType::AppCoreAck:
+      {
+        // AppCore Ack Message
+        AppCoreAckMessage* payload = (AppCoreAckMessage*)message->getPayload();
+        if(payload == NULL) {
+          OPEL_DBG_ERR("AppCoreAckMessage payload does not exist");
+          return;
+        }
 
-    switch(payload->getCommandType()) {
-      case AppCoreMessageCommandType::CompleteLaunchingApp:
-        this->onAckCompleteLaunchingApp(message);
+        switch(payload->getCommandType()) {
+          case AppCoreMessageCommandType::CompleteLaunchingApp:
+            this->onAckCompleteLaunchingApp(message);
+            break;
+          default:
+            // Do not handle it
+            break;
+        }
         break;
-      default:
-        // Do not handle it
-        break;
-    }
-  } else {
-    OPEL_DBG_ERR("Invalid Message Type");
-    return;
+      }
+    case BaseMessageType::AppCore:
+    case BaseMessageType::AppAck:
+    case BaseMessageType::Companion:
+    default:
+      OPEL_DBG_ERR("Invalid Message Type");
+      break;
   }
 }
 
-// TODO: thread issue
+// Terminate async callback
+// 1. AppBase::setOnTerminate() (callback registration on app main thread)
+// 2. (app running)
+// 3. AppMessage::terminate comes (on MessageFW listening thread)
+// 4. AppBase::terminate() (on MessageFW listening thread)
+// 5. AppBase::onTerminateAsyncHandler() (on app main thread)
+void AppBase::setOnTerminate(Isolate* isolate,
+    Local<Function> onTerminateCallback) {
+  uv_loop_t* loop = uv_default_loop();
+  uv_async_init(loop, &this->mOnTerminateAsync,
+      onTerminateAsyncHandler);
+  AppBase::sOnTerminateCallback.Reset(isolate,
+      onTerminateCallback);
+  AppBase::sOnTerminateSelf = this;
+
+  this->mIsTerminateCallbackEnabled = true;
+}
+
 void AppBase::terminate(BaseMessage* message) {
+  // If no async is set, quit the application in force.
+  if(!this->mIsTerminateCallbackEnabled) {
+    exit(1);
+  }
+
+  // Call async callback
+  uv_async_send(&this->mOnTerminateAsync);
+}
+
+void AppBase::onTerminateAsyncHandler(uv_async_t* handle) {
+  AppBase* self = sOnTerminateSelf;
   Isolate* isolate = Isolate::GetCurrent();
+  HandleScope scope(isolate);
+
+  printf("[NIL] termination Event (app id: %d)\n", self->mAppId);
+
+  // Execute onTerminate callback
   TryCatch try_catch;
-
-  printf("[NIL] termination Event (app id: %d)\n", this->mAppId);
-
-  // Call onTerminate callback
   Handle<Value> argv[] = { };
   Local<Function> onTerminateCallback
-    = Local<Function>::New(isolate, this->mOnTerminateCallback);
+    = Local<Function>::New(isolate, AppBase::sOnTerminateCallback);
   onTerminateCallback->Call(isolate->GetCurrentContext()->Global(), 0, argv);
 
   if (try_catch.HasCaught()) {
     Local<Value> exception = try_catch.Exception();
     String::Utf8Value exception_str(exception);
-    printf("Exception: %s\n", *exception_str);
+    printf("Exception in onTerminate Callback: %s\n", *exception_str);
   }
 
   // Terminate this app
   exit(1);
 }
 
-// TODO: thread issue
-void AppBase::updateAppConfig(BaseMessage* message) {
-  Isolate* isolate = Isolate::GetCurrent();
-  TryCatch try_catch;
+// UpdateAppConfig async callback
+// 1. AppBase::setOnUpdateAppConfig() (callback registration on app main thread)
+// 2. (app running)
+// 3. AppMessage::updateAppConfig comes (on MessageFW listening thread)
+// 4. AppBase::updateAppConfig() (on MessageFW listening thread)
+// 5. AppBase::onUpdateAppConfigAsyncHandler() (on app main thread)
+void AppBase::setOnUpdateAppConfig(Isolate* isolate,
+    Local<Function> onUpdateAppConfigCallback) {
+  uv_loop_t* loop = uv_default_loop();
+  uv_async_init(loop, &this->mOnUpdateAppConfigAsync,
+      onUpdateAppConfigAsyncHandler);
+  AppBase::sOnUpdateAppConfigCallback.Reset(isolate,
+      onUpdateAppConfigCallback);
+  AppBase::sOnUpdateAppConfigSelf = this;
+}
 
+void AppBase::updateAppConfig(BaseMessage* message) {
   // Arguments
   std::string legacyData;
 
   // Get arguments
   AppMessage* payload = (AppMessage*)message->getPayload();
   payload->getParamsUpdateAppConfig(legacyData);
+  AppBase::sOnUpdateAppConfigJsonData = (uint8_t*)legacyData.c_str();
 
-  printf("[NIL] Receive Config value :%s\n", legacyData.c_str());
+  AppBase::sOnUpdateAppConfigMessage = message;
 
-  // Call onUpdateAppConfig callback
-  const uint8_t* jsonData;
-  jsonData = (uint8_t*)legacyData.c_str();
+  // Call async callback
+  uv_async_send(&this->mOnUpdateAppConfigAsync);
+}
+
+void AppBase::onUpdateAppConfigAsyncHandler(uv_async_t* handle) {
+  AppBase* self = sOnUpdateAppConfigSelf;
+  Isolate* isolate = Isolate::GetCurrent();
+  HandleScope scope(isolate);
+
+  // Get arguments
+  unsigned char* jsonData = AppBase::sOnUpdateAppConfigJsonData;
+
+  printf("[NIL] Receive Config value :%s\n", jsonData);
+
+  // Execute onUpdateAppConfig callback
+  TryCatch try_catch;
   Handle<Value> argv[] = { String::NewFromOneByte(isolate, jsonData) };
   Local<Function> onUpdateAppConfigCallback
-    = Local<Function>::New(isolate, mOnUpdateAppConfigCallback);
+    = Local<Function>::New(isolate, AppBase::sOnUpdateAppConfigCallback);
   onUpdateAppConfigCallback->Call(
       isolate->GetCurrentContext()->Global(), 1, argv);
 
+  // Make ACK message
+  BaseMessage* ackMessage =  MessageFactory::makeAppAckMessage(
+      COMPANION_DEVICE_URI, AppBase::sOnUpdateAppConfigMessage); 
+  AppAckMessage* ackPayload = (AppAckMessage*)ackMessage->getPayload();
   if (try_catch.HasCaught()) {
     Local<Value> exception = try_catch.Exception();
     String::Utf8Value exception_str(exception);
     printf("Exception: %s\n", *exception_str);
 
-    // Make ACK message
-    BaseMessage* ackMessage
-      = MessageFactory::makeAppAckMessage(COMPANION_DEVICE_URI, message); 
-    AppAckMessage* ackPayload = (AppAckMessage*)ackMessage->getPayload();
     ackPayload->setParamsUpdateAppConfig(false);
-
-    // Send ACK message
-    this->mLocalChannel->sendMessage(ackMessage);
-    return;
+  } else {
+    ackPayload->setParamsUpdateAppConfig(true);
   }
 
-  // Make ACK message
-  BaseMessage* ackMessage
-    = MessageFactory::makeAppAckMessage(COMPANION_DEVICE_URI, message); 
-  AppAckMessage* ackPayload = (AppAckMessage*)ackMessage->getPayload();
-  ackPayload->setParamsUpdateAppConfig(true);
-
   // Send ACK message
-  this->mLocalChannel->sendMessage(ackMessage);
+  self->mLocalChannel->sendMessage(ackMessage);
   return;
 }
 
@@ -254,9 +315,4 @@ void AppBase::onAckCompleteLaunchingApp(BaseMessage* message) {
   this->mMessageRouter->removeRoutingEntry(appURI);
   snprintf(appURI, PATH_BUFFER_SIZE, "%s/%d", APPS_URI, appId);
   this->mMessageRouter->addRoutingEntry(appURI, this->mLocalChannel);
-
-  // Wake up main thread
-//  pthread_mutex_lock(&this->mWaitMutex);
-//  pthread_cond_signal(&this->mWaitCond);
-//  pthread_mutex_unlock(&this->mWaitMutex);
 }

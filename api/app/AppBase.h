@@ -19,6 +19,7 @@
 #define __MESSAGE_ADAPTER_H__
 
 #include <node.h>
+#include <uv.h>
 
 #include "MessageRouter.h"
 #include "DbusChannel.h"
@@ -52,15 +53,15 @@ class AppBase
     // LocalChannelListener
     virtual void onReceivedMessage(BaseMessage* message);
 
-    // Set callbacks
+    // Native Async callbacks
+    static void onTerminateAsyncHandler(uv_async_t* handle);
+    static void onUpdateAppConfigAsyncHandler(uv_async_t* handle);
+
+    // Set JS Async callbacks
     void setOnTerminate(Isolate* isolate,
-        Local<Function> onTerminateCallback) {
-      this->mOnTerminateCallback.Reset(isolate, onTerminateCallback);
-    }
+        Local<Function> onTerminateCallback);
     void setOnUpdateAppConfig(Isolate* isolate,
-        Local<Function> onUpdateAppConfig) {
-      this->mOnUpdateAppConfigCallback.Reset(isolate, onUpdateAppConfig);
-    }
+        Local<Function> onUpdateAppConfigCallback);
 
     // Send appcore comamnds
     void completeLaunchingApp();
@@ -81,9 +82,18 @@ class AppBase
     // Appcore Ack
     void onAckCompleteLaunchingApp(BaseMessage* message);
 
-    // Callbacks
-    Persistent<Function> mOnTerminateCallback;
-    Persistent<Function> mOnUpdateAppConfigCallback;
+    // Callback: onTerminate
+    uv_async_t mOnTerminateAsync;
+    static Persistent<Function> sOnTerminateCallback;
+    static AppBase* sOnTerminateSelf;
+    bool mIsTerminateCallbackEnabled = false;
+
+    // Callback: onUpdateAppConfig
+    uv_async_t mOnUpdateAppConfigAsync;
+    static Persistent<Function> sOnUpdateAppConfigCallback;
+    static AppBase* sOnUpdateAppConfigSelf;
+    static uint8_t* sOnUpdateAppConfigJsonData;
+    static BaseMessage* sOnUpdateAppConfigMessage;
 
     // Wait until appId is assigned
     pthread_mutex_t mWaitMutex;
